@@ -1,25 +1,24 @@
 #!/usr/bin/env bash
 # =============================================================================
-# doctor.sh
+# bin/doctor.sh
 # Comprehensive health check for the full ADK stack.
 # Goes beyond `make status` — verifies tools are installed AND working.
 #
 # Usage:
-#   bash src/install/doctor.sh
+#   bin/doctor.sh
 #   make doctor
 # =============================================================================
 
 set -euo pipefail
 
-INSTALL_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export INSTALL_PATH
+ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${ADK_ROOT}/src/install"
+export INSTALL_PATH ADK_ROOT
 
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
-
-ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 
 PASS=0
 FAIL=0
@@ -32,7 +31,7 @@ _info() { echo -e "  ${TEXT_BLUE}ℹ${TEXT_CLEAR}  $1"; }
 
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
 echo "  ╔═════════════════════════════════════════════════╗"
-echo "  ║   AI Agentic Development Kit — Doctor          ║"
+echo "  ║   AI Agentic Development Kit — Doctor           ║"
 echo "  ╚═════════════════════════════════════════════════╝"
 echo -e "${TEXT_CLEAR}"
 
@@ -107,12 +106,6 @@ header "Ogham (semantic memory)"
 if command -v ogham &>/dev/null; then
   if ogham health &>/dev/null 2>&1; then
     _pass "Ogham ↔ Postgres: connected"
-    # Test store + search round-trip
-    if ogham store "__doctor_test__: ADK health check $(date +%s)" &>/dev/null 2>&1; then
-      _pass "Ogham store: write OK"
-    else
-      _warn "Ogham store failed — profile may not be set (run: ogham use <profile>)"
-    fi
   else
     _fail "Ogham cannot connect to Postgres — run: make up"
   fi

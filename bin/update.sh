@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-# update.sh
+# bin/update.sh
 # Upgrade all ADK-managed tools to their latest versions.
 #
 # Usage:
-#   bash src/install/update.sh
+#   bin/update.sh
 #   make update
 # =============================================================================
 
 set -euo pipefail
 
-INSTALL_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export INSTALL_PATH
+ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${ADK_ROOT}/src/install"
+export INSTALL_PATH ADK_ROOT
 
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
@@ -44,7 +45,6 @@ fi
 header "Docker images"
 
 if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
-  ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
   step "Pulling latest Docker images..."
   (cd "${ADK_ROOT}" && docker compose pull --quiet 2>/dev/null) \
     && log "Docker images updated" \

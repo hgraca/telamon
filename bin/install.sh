@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# run.sh
+# bin/install.sh
 # Idempotent installer for the full AI coding stack.
 # Supports: macOS (Apple Silicon + Intel) and Linux Mint / Ubuntu / Debian.
-# Safe to re-run at any time, in any project directory.
+# Safe to re-run at any time.
 #
 # Tools installed:
 #   Homebrew / Linuxbrew       — package manager
@@ -18,14 +18,15 @@
 #   Obsidian MCP (Docker)      — knowledge vault bridge
 #
 # Usage:
-#   ./run.sh            # first run OR re-run in a new project
-#   ./run.sh --status   # show what is/isn't installed
+#   bin/install.sh [--pre-docker|--post-docker]
 # =============================================================================
 
 set -euo pipefail
 
 # ── Resolve paths ─────────────────────────────────────────────────────────────
-INSTALL_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# bin/ lives one level above src/install/
+ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${ADK_ROOT}/src/install"
 export INSTALL_PATH
 
 # ── Load shared functions ─────────────────────────────────────────────────────
@@ -33,46 +34,12 @@ export INSTALL_PATH
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 # ── Resolve ADK root and storage paths ───────────────────────────────────────
-ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 STATE_DIR="${ADK_ROOT}/storage/state"
 SECRETS_DIR="${ADK_ROOT}/storage/secrets"
 export ADK_ROOT STATE_DIR SECRETS_DIR
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
-
-# ── Status mode ───────────────────────────────────────────────────────────────
-if [[ "${1:-}" == "--status" ]]; then
-  OS=$(os.get_os)
-  echo -e "\n${TEXT_BOLD}AI Memory Stack — Status${TEXT_CLEAR}\n"
-  _ok() { echo -e "  ${TEXT_GREEN}✔${TEXT_CLEAR}  $1"; }
-  _no() { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  $1"; }
-
-  if [[ "${OS}" == "macos" ]]; then
-    command -v brew &>/dev/null && _ok "Homebrew"              || _no "Homebrew"
-  else
-    command -v brew &>/dev/null && _ok "Homebrew (Linuxbrew)"  || _no "Homebrew (Linuxbrew)"
-  fi
-  command -v docker   &>/dev/null                                          && _ok "Docker"                 || _no "Docker"
-  docker info &>/dev/null 2>&1                                             && _ok "Docker running"         || _no "Docker not running"
-  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^ogham-postgres$"  && _ok "Postgres container"     || _no "Postgres container"
-  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^adk-ollama$"     && _ok "Ollama container"       || _no "Ollama container"
-  docker exec adk-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text" && _ok "nomic-embed-text"   || _no "nomic-embed-text"
-  command -v uv       &>/dev/null                                          && _ok "uv"                     || _no "uv"
-  command -v ogham    &>/dev/null                                          && _ok "Ogham"                  || _no "Ogham"
-  command -v node     &>/dev/null                                          && _ok "Node.js"                || _no "Node.js"
-  command -v graphify &>/dev/null                                          && _ok "Graphify"               || _no "Graphify"
-  command -v cass     &>/dev/null                                          && _ok "cass"                   || _no "cass"
-  command -v rtk      &>/dev/null                                          && _ok "RTK"                    || _no "RTK"
-  command -v opencode &>/dev/null                                          && _ok "opencode"               || _no "opencode"
-  [[ -f "${INSTALL_PATH}/../../storage/opencode.jsonc" ]]  && _ok "storage/opencode.jsonc"  || _no "storage/opencode.jsonc"
-  [[ -d "${INSTALL_PATH}/../../storage/secrets" ]]         && _ok "storage/secrets/"         || _no "storage/secrets/ (run 'make up' to create)"
-  [[ -d "${INSTALL_PATH}/../../storage/state" ]]           && _ok "storage/state/"           || _no "storage/state/ (run 'make up' to create)"
-  [[ -d "${INSTALL_PATH}/../skills" ]]                     && _ok "ADK skills (src/skills)" || _no "ADK skills (src/skills)"
-  ogham health &>/dev/null 2>&1                            && _ok "Ogham ↔ Postgres"       || _no "Ogham ↔ Postgres"
-  echo
-  exit 0
-fi
 
 # ── load_saved_inputs ──────────────────────────────────────────────────────────
 # Sources the saved setup-inputs file and exports vars for child scripts.
@@ -217,8 +184,8 @@ print_summary() {
   echo "    automatically on first use — no manual steps needed."
   echo
   echo -e "  ${TEXT_BOLD}Verify:${TEXT_CLEAR}"
-  echo "    ./run.sh --status"
-  echo "    ogham health"
+    echo "    bin/status.sh"
+    echo "    ogham health"
   echo "    ogham store \"test: setup complete\""
   echo "    cass --version"
   echo "    graphify --version"
@@ -256,7 +223,7 @@ post_docker() {
   bash "${INSTALL_PATH}/rtk/install.sh"
 
   # ── Config files ─────────────────────────────────────────────────────────
-  bash "${INSTALL_PATH}/graphify/setup.sh"          # per-project: hooks + skill
+  bash "${INSTALL_PATH}/graphify/init-project.sh"          # per-project: hooks + skill
   bash "${INSTALL_PATH}/shell/write-env.sh"
 }
 
@@ -280,6 +247,5 @@ main() {
 case "${1:-}" in
   --pre-docker)  collect_inputs; pre_docker ;;
   --post-docker) load_saved_inputs; post_docker; print_summary ;;
-  --status)      ;; # handled above
   *)             main "$@" ;;
 esac
