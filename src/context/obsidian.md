@@ -10,7 +10,7 @@ Read `<project>/brain/NorthStar.md` from the vault — this sets goals, focus, a
 <project>/
   brain/
     NorthStar.md       ← current goals, focus, off-limits — READ THIS FIRST
-    KeyDecisions.md   ← architectural decisions with rationale
+    KeyDecisions.md    ← architectural decisions with rationale
     Patterns.md        ← established codebase patterns
     Gotchas.md         ← known traps and constraints
   work/
@@ -35,4 +35,6 @@ Read `<project>/brain/NorthStar.md` from the vault — this sets goals, focus, a
 ### Wrap-up (on "wrap up" / "wrapping up"):
 1. Promote session learnings to the appropriate `brain/` note
 2. Archive completed `work/active/` notes → `work/archive/YYYY/`
-3. Verify every new vault note has at least one `[[wikilink]]`
+3. Run `ogham hooks inscribe`
+4. Verify every new vault note has at least one `[[wikilink]]`
+5. Tell the user what was promoted and saved

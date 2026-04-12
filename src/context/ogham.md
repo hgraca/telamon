@@ -2,16 +2,16 @@
 
 Ogham stores and retrieves decisions, bugs, and patterns across sessions using semantic search backed by a local Postgres + pgvector database and Ollama embeddings.
 
-### Every session (mandatory):
+### Every session (mandatory, do this first):
 ```
 ogham use <project-name>
 ogham hooks recall
 ```
 
-### Save when you:
-- Fix a non-trivial bug: `ogham store "bug: <desc>"`
-- Make an architectural decision: `ogham store "decision: X over Y because Z"`
-- Establish a pattern: `ogham store "pattern: <desc>"`
+### Save to Ogham AND Obsidian brain/ when you:
+- Fix a non-trivial bug: `ogham store "bug: <desc>"` + add to `brain/Gotchas.md` if recurring
+- Make an architectural decision: `ogham store "decision: X over Y because Z"` + add to `brain/KeyDecisions.md`
+- Establish a pattern: `ogham store "pattern: <desc>"` + add to `brain/Patterns.md`
 - Finish significant work: `ogham hooks inscribe`
 
 ### Retrieve:

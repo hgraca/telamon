@@ -63,11 +63,8 @@ if [[ "${1:-}" == "--status" ]]; then
   command -v cass     &>/dev/null                                          && _ok "cass"                   || _no "cass"
   command -v rtk      &>/dev/null                                          && _ok "RTK"                    || _no "RTK"
   [[ -f "$HOME/.config/opencode/opencode.json" ]]          && _ok "OpenCode config"        || _no "OpenCode config"
-  [[ -f "$HOME/.config/opencode/AGENTS.md" ]]              && _ok "Global AGENTS.md"       || _no "Global AGENTS.md"
   [[ -f "$HOME/.config/opencode/skills/memory-stack/SKILL.md" ]]   && _ok "memory-stack skill"   || _no "memory-stack skill"
   [[ -f "$HOME/.config/opencode/skills/obsidian-vault/SKILL.md" ]] && _ok "obsidian-vault skill"  || _no "obsidian-vault skill"
-  [[ -f "AGENTS.md" ]]                                     && _ok "Project AGENTS.md ($(pwd))" \
-                                                           || _no "Project AGENTS.md ($(pwd))"
   ogham health &>/dev/null 2>&1                            && _ok "Ogham ↔ Postgres"       || _no "Ogham ↔ Postgres"
   echo
   exit 0
@@ -140,7 +137,6 @@ print_summary() {
   echo -e "  ${TEXT_BOLD}OS      :${TEXT_CLEAR} $(os.get_os) ($(os.get_arch))"
   echo -e "  ${TEXT_BOLD}Project :${TEXT_CLEAR} ${PROJECT_NAME}"
   echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
-  echo -e "  ${TEXT_BOLD}AGENTS.md:${TEXT_CLEAR} $(pwd)/AGENTS.md"
   echo
 
   if [[ "${OBSIDIAN_API_KEY}" == "REPLACE_WITH_OBSIDIAN_API_KEY" ]]; then
@@ -200,8 +196,6 @@ main() {
   bash "${INSTALL_PATH}/opencode/write-config.sh"
   bash "${INSTALL_PATH}/opencode/write-codebase-index-config.sh"
   bash "${INSTALL_PATH}/graphify/setup.sh"          # per-project: hooks + skill
-  bash "${INSTALL_PATH}/opencode/write-global-agents.sh"
-  bash "${INSTALL_PATH}/opencode/write-project-agents.sh"  # always runs
   bash "${INSTALL_PATH}/shell/write-env.sh"
 
   print_summary
