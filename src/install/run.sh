@@ -89,22 +89,20 @@ load_saved_inputs() {
   OGHAM_PROFILE="${SAVED_OGHAM_PROFILE:-${dir_name}}"
   PROJECT_NAME="${SAVED_PROJECT_NAME:-${dir_name}}"
   POSTGRES_PASSWORD="${SAVED_POSTGRES_PASSWORD:-ogham}"
-  OBSIDIAN_API_KEY="${SAVED_OBSIDIAN_KEY:-REPLACE_WITH_OBSIDIAN_API_KEY}"
 
-  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD OBSIDIAN_API_KEY
+  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
 }
 
 # ── collect_inputs ─────────────────────────────────────────────────────────────
 collect_inputs() {
   header "Configuration"
 
-  local saved_profile="" saved_pg_pass="" saved_obsidian_key=""
+  local saved_profile="" saved_pg_pass=""
   if [[ -f "${STATE_DIR}/setup-inputs" ]]; then
     # shellcheck disable=SC1091
     source "${STATE_DIR}/setup-inputs" 2>/dev/null || true
     saved_profile="${SAVED_OGHAM_PROFILE:-}"
     saved_pg_pass="${SAVED_POSTGRES_PASSWORD:-}"
-    saved_obsidian_key="${SAVED_OBSIDIAN_KEY:-}"
   fi
 
   local dir_name
@@ -122,19 +120,10 @@ collect_inputs() {
   read -r -s PG_PASS_INPUT; echo
   POSTGRES_PASSWORD="${PG_PASS_INPUT:-${saved_pg_pass:-ogham}}"
 
-  ask "Obsidian Local REST API key (Enter to keep existing / skip):"
-  read -r -s OBSIDIAN_KEY_INPUT; echo
-  if [[ -n "${OBSIDIAN_KEY_INPUT}" ]]; then
-    OBSIDIAN_API_KEY="${OBSIDIAN_KEY_INPUT}"
-  else
-    OBSIDIAN_API_KEY="${saved_obsidian_key:-REPLACE_WITH_OBSIDIAN_API_KEY}"
-  fi
-
   echo
   echo -e "  ${TEXT_BOLD}OS      :${TEXT_CLEAR} $(os.get_os) ($(os.get_arch))"
   echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
   echo -e "  ${TEXT_BOLD}Project :${TEXT_CLEAR} ${PROJECT_NAME}"
-  echo -e "  ${TEXT_BOLD}Obs key :${TEXT_CLEAR} ${OBSIDIAN_API_KEY:0:6}…"
   echo
   ask "Proceed? (Y/n):"
   read -r CONFIRM
@@ -145,11 +134,10 @@ collect_inputs() {
 SAVED_OGHAM_PROFILE="${OGHAM_PROFILE}"
 SAVED_PROJECT_NAME="${PROJECT_NAME}"
 SAVED_POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-SAVED_OBSIDIAN_KEY="${OBSIDIAN_API_KEY}"
 ENV
 
   # Export for child scripts
-  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD OBSIDIAN_API_KEY
+  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
 }
 
 # ── print_summary ──────────────────────────────────────────────────────────────
@@ -163,15 +151,6 @@ print_summary() {
   echo -e "  ${TEXT_BOLD}Project :${TEXT_CLEAR} ${PROJECT_NAME}"
   echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
   echo
-
-  if [[ "${OBSIDIAN_API_KEY}" == "REPLACE_WITH_OBSIDIAN_API_KEY" ]]; then
-    echo -e "  ${TEXT_BOLD}${TEXT_YELLOW}Still needed — Obsidian API key:${TEXT_CLEAR}"
-    echo "    1. Install Obsidian manually from obsidian.md"
-    echo "    2. Settings → Community Plugins → enable 'Local REST API'"
-    echo "    3. Copy the API key from plugin settings"
-    echo "    4. Re-run this script and paste the key when prompted"
-    echo
-  fi
 
   echo -e "  ${TEXT_BOLD}First session in each project:${TEXT_CLEAR}"
   echo "    The agent will self-initialize Graphify and codebase-index"
