@@ -93,32 +93,84 @@ load_saved_inputs() {
   export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
 }
 
+# ── _read_ini_value ────────────────────────────────────────────────────────────
+# Read a value from a simple INI file (key = value format).
+# Usage: _read_ini_value <file> <key>
+_read_ini_value() {
+  local file="$1" key="$2"
+  [[ -f "${file}" ]] || return 1
+  local val
+  val="$(grep -E "^[[:space:]]*${key}[[:space:]]*=" "${file}" | head -1 | sed 's/^[^=]*=[[:space:]]*//' | tr -d '[:space:]')"
+  [[ -n "${val}" ]] || return 1
+  echo "${val}"
+}
+
+# ── _read_env_value ────────────────────────────────────────────────────────────
+# Read a value from a .env file (KEY=value format, strips quotes and whitespace).
+# Usage: _read_env_value <file> <key>
+_read_env_value() {
+  local file="$1" key="$2"
+  [[ -f "${file}" ]] || return 1
+  local val
+  val="$(grep -E "^[[:space:]]*${key}[[:space:]]*=" "${file}" | head -1 | sed "s/^[^=]*=[[:space:]]*//" | tr -d "\"' ")"
+  [[ -n "${val}" ]] || return 1
+  echo "${val}"
+}
+
 # ── collect_inputs ─────────────────────────────────────────────────────────────
 collect_inputs() {
   header "Configuration"
 
-  local saved_profile="" saved_pg_pass=""
+  local dir_name
+  dir_name="$(basename "$(pwd)")"
+
+  # ── 1. Load saved state (lowest priority) ─────────────────────────────────
+  local saved_profile="" saved_pg_pass="" saved_project=""
   if [[ -f "${STATE_DIR}/setup-inputs" ]]; then
     # shellcheck disable=SC1091
     source "${STATE_DIR}/setup-inputs" 2>/dev/null || true
     saved_profile="${SAVED_OGHAM_PROFILE:-}"
+    saved_project="${SAVED_PROJECT_NAME:-}"
     saved_pg_pass="${SAVED_POSTGRES_PASSWORD:-}"
   fi
 
-  local dir_name
-  dir_name="$(basename "$(pwd)")"
+  # ── 2. Read .ai/adk.ini (higher priority than saved state) ────────────────
+  local ini_project=""
+  ini_project="$(_read_ini_value "${PWD}/.ai/adk.ini" "project_name" 2>/dev/null || true)"
 
-  ask "Ogham memory profile for this project [${saved_profile:-$dir_name}]:"
-  read -r PROFILE_INPUT
-  OGHAM_PROFILE="${PROFILE_INPUT:-${saved_profile:-$dir_name}}"
+  # ── 3. Read .env for POSTGRES_PASSWORD (higher priority than saved state) ──
+  local env_pg_pass=""
+  env_pg_pass="$(_read_env_value "${PWD}/.env" "POSTGRES_PASSWORD" 2>/dev/null || true)"
 
-  ask "Project display name [${dir_name}]:"
-  read -r PROJECT_INPUT
-  PROJECT_NAME="${PROJECT_INPUT:-$dir_name}"
+  # ── 4. Resolve defaults (ini/env > saved > fallback) ──────────────────────
+  local default_project default_profile default_pg_pass
+  default_project="${ini_project:-${saved_project:-${dir_name}}}"
+  default_profile="${ini_project:-${saved_profile:-${dir_name}}}"
+  default_pg_pass="${env_pg_pass:-${saved_pg_pass:-ogham}}"
 
-  ask "Postgres password [${saved_pg_pass:-ogham}]:"
-  read -r -s PG_PASS_INPUT; echo
-  POSTGRES_PASSWORD="${PG_PASS_INPUT:-${saved_pg_pass:-ogham}}"
+  # ── 5. Prompt only for values we cannot resolve ────────────────────────────
+  if [[ -n "${ini_project}" ]]; then
+    info "Project name from .ai/adk.ini: ${ini_project}"
+    OGHAM_PROFILE="${ini_project}"
+    PROJECT_NAME="${ini_project}"
+  else
+    ask "Ogham memory profile for this project [${default_profile}]:"
+    read -r PROFILE_INPUT
+    OGHAM_PROFILE="${PROFILE_INPUT:-${default_profile}}"
+
+    ask "Project display name [${default_project}]:"
+    read -r PROJECT_INPUT
+    PROJECT_NAME="${PROJECT_INPUT:-${default_project}}"
+  fi
+
+  if [[ -n "${env_pg_pass}" && "${env_pg_pass}" != "REPLACE_WITH"* ]]; then
+    info "Postgres password from .env (already set)"
+    POSTGRES_PASSWORD="${env_pg_pass}"
+  else
+    ask "Postgres password [${default_pg_pass}]:"
+    read -r -s PG_PASS_INPUT; echo
+    POSTGRES_PASSWORD="${PG_PASS_INPUT:-${default_pg_pass}}"
+  fi
 
   echo
   echo -e "  ${TEXT_BOLD}OS      :${TEXT_CLEAR} $(os.get_os) ($(os.get_arch))"
