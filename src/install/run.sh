@@ -32,14 +32,11 @@ export INSTALL_PATH
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
-# ── State directory ───────────────────────────────────────────────────────────
-STATE_DIR="$HOME/.config/ogham"
-export STATE_DIR
-
-# ── Secrets directory ─────────────────────────────────────────────────────────
+# ── Resolve ADK root and storage paths ───────────────────────────────────────
 ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+STATE_DIR="${ADK_ROOT}/storage/state"
 SECRETS_DIR="${ADK_ROOT}/storage/secrets"
-export SECRETS_DIR
+export ADK_ROOT STATE_DIR SECRETS_DIR
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
@@ -71,6 +68,7 @@ if [[ "${1:-}" == "--status" ]]; then
   command -v opencode &>/dev/null                                          && _ok "opencode"               || _no "opencode"
   [[ -f "${INSTALL_PATH}/../../storage/opencode.jsonc" ]]  && _ok "storage/opencode.jsonc"  || _no "storage/opencode.jsonc"
   [[ -d "${INSTALL_PATH}/../../storage/secrets" ]]         && _ok "storage/secrets/"         || _no "storage/secrets/ (run 'make up' to create)"
+  [[ -d "${INSTALL_PATH}/../../storage/state" ]]           && _ok "storage/state/"           || _no "storage/state/ (run 'make up' to create)"
   [[ -d "${INSTALL_PATH}/../skills" ]]                     && _ok "ADK skills (src/skills)" || _no "ADK skills (src/skills)"
   ogham health &>/dev/null 2>&1                            && _ok "Ogham ↔ Postgres"       || _no "Ogham ↔ Postgres"
   echo

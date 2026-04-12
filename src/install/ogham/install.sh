@@ -26,14 +26,15 @@ fi
 # ── Write ogham config ─────────────────────────────────────────────────────────
 : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
 : "${OGHAM_PROFILE:?OGHAM_PROFILE is required}"
-STATE_DIR="${STATE_DIR:-$HOME/.config/ogham}"
-mkdir -p "${STATE_DIR}"
+# ogham reads config.toml from ~/.config/ogham/ — this is ogham's own convention
+OGHAM_CONFIG_DIR="$HOME/.config/ogham"
+mkdir -p "${OGHAM_CONFIG_DIR}"
 
 sed \
   -e "s/{{POSTGRES_PASSWORD}}/${POSTGRES_PASSWORD}/g" \
   -e "s/{{OGHAM_PROFILE}}/${OGHAM_PROFILE}/g" \
-  "${SCRIPT_DIR}/config.toml.tmpl" > "${STATE_DIR}/config.toml"
-log "Ogham config written → ${STATE_DIR}/config.toml"
+  "${SCRIPT_DIR}/config.toml.tmpl" > "${OGHAM_CONFIG_DIR}/config.toml"
+log "Ogham config written → ${OGHAM_CONFIG_DIR}/config.toml"
 
 if ogham health &>/dev/null 2>&1; then
   log "Ogham ↔ Postgres: connected"
