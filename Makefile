@@ -99,9 +99,11 @@ help:  ## Show this help
 		fi \
 	done
 
-up: ## Start the ADK: install host tools and bring docker compose services up
-	echo -e "\n\n====== Installing host tools and starting services... ====== \n"
+up: ## Start the ADK: install host tools, then bring docker compose services up
+	echo -e "\n\n====== Ensuring host has all requirements... ====== \n"
 	bash src/install/run.sh
+	echo -e "\n\n====== Bringing up services... ====== \n"
+	bash src/install/docker-compose/up.sh
 	echo -e "\n\n====== ADK is up. ====== \n"
 
 down: ## Shut down the ADK services

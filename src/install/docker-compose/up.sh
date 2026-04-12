@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
-# Ensure the ADK .env exists, then bring docker compose services up.
-# Postgres, Ollama, and Obsidian MCP are all managed here.
-# Idempotent: --no-recreate means already-running containers are left alone.
+# Write .env from saved credentials and bring docker compose services up.
+# Idempotent: --no-recreate leaves already-running containers alone.
 #
-# Required env vars:
-#   POSTGRES_PASSWORD  — written into .env if not already present
-#   OBSIDIAN_API_KEY   — written into .env if not already present
-#   INSTALL_PATH       — path to src/install/ (used to resolve project root)
+# Credentials are loaded from STATE_DIR/setup-inputs (written by run.sh).
+# POSTGRES_PASSWORD and OBSIDIAN_API_KEY can also be passed as env vars.
 
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 PROJECT_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+STATE_DIR="${STATE_DIR:-$HOME/.config/ogham}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
+
+# Load saved credentials if not already exported
+if [[ -z "${POSTGRES_PASSWORD:-}" || -z "${OBSIDIAN_API_KEY:-}" ]]; then
+  if [[ -f "${STATE_DIR}/setup-inputs" ]]; then
+    # shellcheck disable=SC1091
+    source "${STATE_DIR}/setup-inputs"
+    POSTGRES_PASSWORD="${SAVED_POSTGRES_PASSWORD:-ogham}"
+    OBSIDIAN_API_KEY="${SAVED_OBSIDIAN_KEY:-REPLACE_WITH_OBSIDIAN_API_KEY}"
+    export POSTGRES_PASSWORD OBSIDIAN_API_KEY
+  fi
+fi
 
 : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
 : "${OBSIDIAN_API_KEY:?OBSIDIAN_API_KEY is required}"
@@ -22,7 +31,6 @@ header "Docker Compose Services (Postgres · Ollama · Obsidian MCP)"
 
 ENV_FILE="${PROJECT_ROOT}/.env"
 
-# Write .env if missing or credentials changed
 cat > "${ENV_FILE}" <<ENV
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}
@@ -41,15 +49,4 @@ if ! docker exec ogham-postgres pg_isready -U ogham &>/dev/null 2>&1; then
     [[ $tries -gt 30 ]] && error "Postgres not ready. Run: docker logs ogham-postgres"
   done
 fi
-log "Postgres is healthy"
-
-# Pull nomic-embed-text into the ollama container (idempotent)
-if ! docker exec adk-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text"; then
-  step "Pulling nomic-embed-text into Ollama container..."
-  docker exec adk-ollama ollama pull nomic-embed-text
-  log "Embedding model ready"
-else
-  skip "nomic-embed-text (already in Ollama container)"
-fi
-
 log "All compose services are up"

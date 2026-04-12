@@ -196,12 +196,8 @@ main() {
   bash "${INSTALL_PATH}/cass/install.sh"
   bash "${INSTALL_PATH}/rtk/install.sh"
 
-  # ── Service setup (docker compose) ────────────────────────────────────────
-  bash "${INSTALL_PATH}/docker-compose/up.sh"
-  bash "${INSTALL_PATH}/ogham/apply-schema.sh"
-  bash "${INSTALL_PATH}/ogham/init.sh"
-  bash "${INSTALL_PATH}/cass/init.sh"
-  bash "${INSTALL_PATH}/ogham/enable-reranking.sh"
+  # ── Service configuration (runs after compose is up) ──────────────────────
+  bash "${INSTALL_PATH}/docker-compose/post-up.sh"
 
   # ── Config files ───────────────────────────────────────────────────────────
   bash "${INSTALL_PATH}/opencode/write-config.sh"
