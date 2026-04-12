@@ -116,7 +116,7 @@ down: ## Shut down the ADK services
 purge: ## Remove all containers and volumes
 	echo -e "\n\033[1m\033[34m━━━ Purging all containers and volumes... ━━━\033[0m"
 	docker compose down --volumes --remove-orphans
-	rm -rf storage/*
+	sudo rm -rf storage/pgdata storage/ollama storage/graphify
 
 restart: ## Stop then start ADK services
 	echo -e "\n\033[1m\033[34m━━━ Restarting ADK services... ━━━\033[0m"
