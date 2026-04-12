@@ -196,8 +196,12 @@ main() {
   bash "${INSTALL_PATH}/cass/install.sh"
   bash "${INSTALL_PATH}/rtk/install.sh"
 
-  # ── Service configuration (runs after compose is up) ──────────────────────
-  bash "${INSTALL_PATH}/docker-compose/post-up.sh"
+  # ── Post-compose service configuration ────────────────────────────────────
+  # Schema is applied automatically by postgres via docker-entrypoint-initdb.d.
+  # nomic-embed-text is pulled automatically by the ollama-init compose service.
+  bash "${INSTALL_PATH}/ogham/init.sh"
+  bash "${INSTALL_PATH}/cass/init.sh"
+  bash "${INSTALL_PATH}/ogham/enable-reranking.sh"
 
   # ── Config files ───────────────────────────────────────────────────────────
   bash "${INSTALL_PATH}/opencode/write-config.sh"

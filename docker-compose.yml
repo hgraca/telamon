@@ -13,6 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+      - ./src/docker/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ogham"]
       interval: 5s
@@ -32,6 +33,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: adk-ollama-init
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["ollama", "pull", "nomic-embed-text"]
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ./ollama:/root/.ollama
 
   obsidian-mcp:
     image: oleksandrkucherenko/obsidian-mcp:latest
