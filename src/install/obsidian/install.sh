@@ -24,7 +24,6 @@ ARCH=$(os.get_arch)
 _install_obsidian_linux() {
   local tmpdir
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "${tmpdir}"' EXIT
 
   # Resolve latest release from GitHub API
   step "Resolving latest Obsidian release..."
@@ -54,6 +53,7 @@ _install_obsidian_linux() {
     info "AppImage requires FUSE. If Obsidian fails to launch, run:"
     info "  sudo apt-get install -y libfuse2   (Ubuntu/Mint/Debian)"
   fi
+  rm -rf "${tmpdir}"
   log "Obsidian ${version} installed"
 }
 
@@ -66,7 +66,6 @@ _install_obsidian_macos() {
     # Manual DMG fallback
     local tmpdir
     tmpdir="$(mktemp -d)"
-    trap 'rm -rf "${tmpdir}"' EXIT
 
     local api_json
     api_json="$(curl -fsSL "https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest")"
@@ -80,6 +79,7 @@ _install_obsidian_macos() {
     hdiutil attach "${tmpdir}/Obsidian.dmg" -mountpoint "${tmpdir}/obs_mnt" -quiet
     cp -R "${tmpdir}/obs_mnt/Obsidian.app" /Applications/
     hdiutil detach "${tmpdir}/obs_mnt" -quiet
+    rm -rf "${tmpdir}"
     log "Obsidian installed → /Applications/Obsidian.app"
   fi
 }
