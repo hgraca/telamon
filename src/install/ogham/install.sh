@@ -33,7 +33,7 @@ else
   uv tool upgrade ogham-mcp --extra postgres --extra rerank 2>/dev/null \
     || uv tool install "ogham-mcp[postgres,rerank]" 2>/dev/null \
     || warn "Could not upgrade ogham extras — try: uv tool install 'ogham-mcp[postgres,rerank]'"
-  log "Ogham extras verified ($(ogham --help 2>/dev/null | head -1 || echo 'installed'))"
+  log "Ogham extras verified (installed)"
 fi
 
 # ── Write global config env (~/.ogham/config.env) ─────────────────────────────
