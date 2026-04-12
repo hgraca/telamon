@@ -2,9 +2,9 @@
 # Add the AI memory stack entries to the user's shell RC file.
 # Idempotent: refreshes values in place if the block already exists.
 #
-# Required env vars:
-#   OBSIDIAN_API_KEY  — Obsidian Local REST API key
-#   OGHAM_PROFILE     — active Ogham profile
+# Reads OBSIDIAN_API_KEY from .env if not already set in the environment.
+# Writes shell exports for OBSIDIAN_API_KEY and OGHAM_PROFILE; skips
+# OBSIDIAN_API_KEY silently if it is still unset or a placeholder.
 
 set -euo pipefail
 
@@ -12,7 +12,15 @@ INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
-: "${OBSIDIAN_API_KEY:?OBSIDIAN_API_KEY is required}"
+# ── Resolve OBSIDIAN_API_KEY from .env if not injected by caller ──────────────
+ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+ENV_FILE="${ADK_ROOT}/.env"
+if [[ -z "${OBSIDIAN_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
+  _key="$(grep -E "^[[:space:]]*OBSIDIAN_API_KEY[[:space:]]*=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' ")"
+  [[ -n "${_key}" && "${_key}" != "REPLACE_WITH"* ]] && OBSIDIAN_API_KEY="${_key}" || OBSIDIAN_API_KEY=""
+fi
+OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY:-}"
+
 : "${OGHAM_PROFILE:?OGHAM_PROFILE is required}"
 
 header "Shell Environment"
