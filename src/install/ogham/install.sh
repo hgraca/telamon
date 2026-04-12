@@ -16,6 +16,8 @@ export SECRETS_DIR
 
 header "Ogham MCP"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # ── Install binary (with postgres driver + rerank extras) ─────────────────────
 : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
 : "${OGHAM_PROFILE:?OGHAM_PROFILE is required}"
@@ -40,16 +42,10 @@ fi
 OGHAM_CONFIG_DIR="$HOME/.ogham"
 mkdir -p "${OGHAM_CONFIG_DIR}"
 
-cat > "${OGHAM_CONFIG_DIR}/config.env" <<ENV
-DATABASE_BACKEND=postgres
-DATABASE_URL=postgresql://ogham:${POSTGRES_PASSWORD}@localhost:5432/ogham
-EMBEDDING_PROVIDER=ollama
-OLLAMA_URL=http://localhost:11434
-OLLAMA_EMBED_MODEL=nomic-embed-text
-DEFAULT_PROFILE=${OGHAM_PROFILE}
-RERANK_ENABLED=true
-RERANK_ALPHA=0.55
-ENV
+sed \
+  -e "s/{{POSTGRES_PASSWORD}}/${POSTGRES_PASSWORD}/g" \
+  -e "s/{{OGHAM_PROFILE}}/${OGHAM_PROFILE}/g" \
+  "${SCRIPT_DIR}/config.tmpl.env" > "${OGHAM_CONFIG_DIR}/config.env"
 log "Ogham config written → ${OGHAM_CONFIG_DIR}/config.env"
 
 # ── Health check ───────────────────────────────────────────────────────────────
