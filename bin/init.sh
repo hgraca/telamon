@@ -10,7 +10,7 @@
 #   1. Creates storage/<project-name>/brain/ with scaffold notes
 #   2. Symlinks <project>/.ai/context/adk  → <adk-root>/src/context
 #   3. Symlinks <project>/.opencode/skills/adk → <adk-root>/src/skills
-#   4. Writes   <project>/.ai/context/adk.md with the project name
+#   4. Writes   <project>/.ai/adk.ini with the project name variable
 #   5. Symlinks <project>/opencode.jsonc → <adk-root>/storage/opencode.jsonc
 #   6. Writes   <project>/.opencode/codebase-index.json
 # =============================================================================
@@ -90,28 +90,17 @@ else
   log "Symlinked .opencode/skills/adk → ${ADK_ROOT}/src/skills"
 fi
 
-# ── 4. Write .ai/context/adk.md ──────────────────────────────────────────────
-ADK_MD="${AI_CONTEXT_DIR}/adk.md"
-if [[ -f "${ADK_MD}" ]]; then
-  skip ".ai/context/adk.md (already exists)"
+# ── 4. Write .ai/adk.ini ─────────────────────────────────────────────────────
+ADK_INI="${PROJ}/.ai/adk.ini"
+if [[ -f "${ADK_INI}" ]]; then
+  skip ".ai/adk.ini (already exists)"
 else
-  cat > "${ADK_MD}" <<MD
-# ADK — ${PROJECT_NAME}
-
-This project uses the AI Agentic Development Kit (ADK).
-
-## Project name
-
-\`${PROJECT_NAME}\`
-
-## Brain
-
-Agent memory and knowledge notes live in:
-\`<adk-root>/storage/${PROJECT_NAME}/brain/\`
-
-They are linked into this project via \`.ai/context/adk\` (→ ADK src/context).
-MD
-  log "Written .ai/context/adk.md"
+  mkdir -p "${PROJ}/.ai"
+  cat > "${ADK_INI}" <<INI
+[adk]
+project_name = ${PROJECT_NAME}
+INI
+  log "Written .ai/adk.ini"
 fi
 
 # ── 5. Symlink opencode.jsonc → <adk-root>/storage/opencode.jsonc ────────────

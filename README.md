@@ -184,7 +184,7 @@ This will:
 - Create `storage/<project-name>/brain/` with scaffold notes (`NorthStar.md`, `KeyDecisions.md`, `Patterns.md`, `Gotchas.md`)
 - Symlink `<project>/.ai/context/adk` → `<adk-root>/src/context` (agent instruction docs)
 - Symlink `<project>/.opencode/skills/adk` → `<adk-root>/src/skills` (agent skills)
-- Write `<project>/.ai/context/adk.md` with the project name and brain location
+- Write `<project>/.ai/adk.ini` with the project name variable
 
 After this, when `opencode` starts in the project, it automatically loads the ADK context and skills.
 
