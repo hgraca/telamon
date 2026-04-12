@@ -117,8 +117,14 @@ purge: ## Remove all containers and volumes
 
 restart: down up ## Restart running containers
 
-status:
+status: ## Show installation status of all ADK tools
 	src/install/run.sh --status
+
+update: ## Upgrade all ADK-managed tools to their latest versions
+	bash src/install/update.sh
+
+doctor: ## Run a comprehensive health check of the full ADK stack
+	bash src/install/doctor.sh
 
 init: ## Initialise a project to use this ADK  (usage: make init PROJ=path/to/project)
 	@if [ -z "$(PROJ)" ]; then echo "Usage: make init PROJ=path/to/project"; exit 1; fi
