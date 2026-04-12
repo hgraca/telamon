@@ -103,19 +103,42 @@ INI
   log "Written .ai/adk.ini"
 fi
 
-# ── 5. Symlink opencode.jsonc → <adk-root>/storage/opencode.jsonc ────────────
-OPENCODE_LINK="${PROJ}/opencode.jsonc"
+# ── 5. opencode config: symlink or merge ─────────────────────────────────────
+# Detect any existing opencode config (symlink or regular file, .jsonc or .json)
 OPENCODE_TARGET="${ADK_ROOT}/storage/opencode.jsonc"
+MERGE_SCRIPT="${ADK_ROOT}/src/install/opencode/merge-config.py"
+OPENCODE_LINK=""      # the path we will create the symlink at (if creating)
+EXISTING_FILE=""      # path to an existing regular file (if found)
 
-if [[ -L "${OPENCODE_LINK}" ]]; then
-  skip "opencode.jsonc symlink (already exists)"
-elif [[ -f "${OPENCODE_LINK}" ]]; then
-  warn "opencode.jsonc already exists as a regular file — leaving it untouched"
-elif [[ ! -f "${OPENCODE_TARGET}" ]]; then
-  warn "storage/opencode.jsonc not found — run 'make up' first to create it"
-else
-  ln -s "${OPENCODE_TARGET}" "${OPENCODE_LINK}"
-  log "Symlinked opencode.jsonc → ${OPENCODE_TARGET}"
+for _candidate in "${PROJ}/opencode.jsonc" "${PROJ}/opencode.json"; do
+  if [[ -L "${_candidate}" ]]; then
+    skip "$(basename "${_candidate}") symlink (already exists)"
+    OPENCODE_LINK="__skip__"
+    break
+  elif [[ -f "${_candidate}" ]]; then
+    EXISTING_FILE="${_candidate}"
+    break
+  fi
+done
+
+if [[ "${OPENCODE_LINK}" != "__skip__" ]]; then
+  if [[ -n "${EXISTING_FILE}" ]]; then
+    # Project already has its own config — merge ADK settings into it
+    if [[ ! -f "${OPENCODE_TARGET}" ]]; then
+      warn "storage/opencode.jsonc not found — run 'make up' first; skipping merge"
+    else
+      step "Merging ADK config into $(basename "${EXISTING_FILE}") ..."
+      python3 "${MERGE_SCRIPT}" "${EXISTING_FILE}" "${OPENCODE_TARGET}"
+    fi
+  else
+    # No config exists — create symlink
+    if [[ ! -f "${OPENCODE_TARGET}" ]]; then
+      warn "storage/opencode.jsonc not found — run 'make up' first to create it"
+    else
+      ln -s "${OPENCODE_TARGET}" "${PROJ}/opencode.jsonc"
+      log "Symlinked opencode.jsonc → ${OPENCODE_TARGET}"
+    fi
+  fi
 fi
 
 # ── 6. Write .opencode/codebase-index.json ───────────────────────────────────
