@@ -3,6 +3,7 @@ __pycache__/
 storage/*
 .env
 .ai/
+graphify-out/
 
 !storage/.gitkeep
 !storage/opencode.jsonc
