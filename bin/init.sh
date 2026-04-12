@@ -11,6 +11,8 @@
 #   2. Symlinks <project>/.ai/context/adk  → <adk-root>/src/context
 #   3. Symlinks <project>/.opencode/skills/adk → <adk-root>/src/skills
 #   4. Writes   <project>/.ai/context/adk.md with the project name
+#   5. Symlinks <project>/opencode.jsonc → <adk-root>/storage/opencode.jsonc
+#   6. Writes   <project>/.opencode/codebase-index.json
 # =============================================================================
 
 set -euo pipefail
@@ -112,7 +114,22 @@ MD
   log "Written .ai/context/adk.md"
 fi
 
-# ── 5. Write .opencode/codebase-index.json ───────────────────────────────────
+# ── 5. Symlink opencode.jsonc → <adk-root>/storage/opencode.jsonc ────────────
+OPENCODE_LINK="${PROJ}/opencode.jsonc"
+OPENCODE_TARGET="${ADK_ROOT}/storage/opencode.jsonc"
+
+if [[ -L "${OPENCODE_LINK}" ]]; then
+  skip "opencode.jsonc symlink (already exists)"
+elif [[ -f "${OPENCODE_LINK}" ]]; then
+  warn "opencode.jsonc already exists as a regular file — leaving it untouched"
+elif [[ ! -f "${OPENCODE_TARGET}" ]]; then
+  warn "storage/opencode.jsonc not found — run 'make up' first to create it"
+else
+  ln -s "${OPENCODE_TARGET}" "${OPENCODE_LINK}"
+  log "Symlinked opencode.jsonc → ${OPENCODE_TARGET}"
+fi
+
+# ── 6. Write .opencode/codebase-index.json ───────────────────────────────────
 step "Writing codebase-index config..."
 (cd "${PROJ}" && bash "${ADK_ROOT}/src/install/codebase-index/init-project.sh")
 

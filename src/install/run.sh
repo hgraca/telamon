@@ -64,7 +64,7 @@ if [[ "${1:-}" == "--status" ]]; then
   command -v cass     &>/dev/null                                          && _ok "cass"                   || _no "cass"
   command -v rtk      &>/dev/null                                          && _ok "RTK"                    || _no "RTK"
   command -v opencode &>/dev/null                                          && _ok "opencode"               || _no "opencode"
-  [[ -f "$HOME/.config/opencode/opencode.json" ]]          && _ok "OpenCode config"        || _no "OpenCode config"
+  [[ -f "${INSTALL_PATH}/../../storage/opencode.jsonc" ]]  && _ok "storage/opencode.jsonc"  || _no "storage/opencode.jsonc"
   [[ -d "${INSTALL_PATH}/../skills" ]]                     && _ok "ADK skills (src/skills)" || _no "ADK skills (src/skills)"
   ogham health &>/dev/null 2>&1                            && _ok "Ogham ↔ Postgres"       || _no "Ogham ↔ Postgres"
   echo

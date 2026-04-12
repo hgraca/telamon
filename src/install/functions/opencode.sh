@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
-# Shared helpers for patching ~/.config/opencode/opencode.json.
+# Shared helpers for patching the ADK opencode config (storage/opencode.jsonc).
 
-OPENCODE_CONFIG_FILE="${OPENCODE_CONFIG_FILE:-$HOME/.config/opencode/opencode.json}"
+# Resolve the config file path: prefer an explicit override, then derive from
+# INSTALL_PATH (always set by run.sh), then fall back to the global default.
+if [[ -z "${OPENCODE_CONFIG_FILE:-}" ]]; then
+  if [[ -n "${INSTALL_PATH:-}" ]]; then
+    OPENCODE_CONFIG_FILE="$(cd "${INSTALL_PATH}/../.." && pwd)/storage/opencode.jsonc"
+  else
+    OPENCODE_CONFIG_FILE="$HOME/.config/opencode/opencode.json"
+  fi
+fi
 
 # opencode.upsert_mcp <server-name> <json-block>
 #
