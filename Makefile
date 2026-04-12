@@ -101,13 +101,13 @@ help:  ## Show this help
 
 up: ## Start the ADK: install host tools, then bring docker compose services up
 	@test -f .env || cp .env.dist .env
-	echo -e "\n\n====== Installing prerequisites (homebrew, docker)... ====== \n"
+	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
-	echo -e "\n\n====== Bringing up services... ====== \n"
+	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
 	docker compose up -d --no-recreate
-	echo -e "\n\n====== Installing remaining tools (requires containers)... ====== \n"
+	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
-	echo -e "\n\n====== ADK is up. ====== \n"
+	echo -e "\n\033[1m\033[34m━━━ ADK is up. ━━━\033[0m\n"
 
 down: ## Shut down the ADK services
 	docker compose down
@@ -132,14 +132,11 @@ init: ## Initialise a project to use this ADK  (usage: make init PROJ=path/to/pr
 	bash bin/init.sh "$(PROJ)"
 
 test: ## Run the full test suite (make up + init a dummy project + assert wiring)
-	@echo
-	@echo "====== Step 1/3: Ensuring ADK is up... ======"
+	@echo -e "\n\033[1m\033[34m━━━ Step 1/3: Ensuring ADK is up... ━━━\033[0m"
 	$(MAKE) up
-	@echo
-	@echo "====== Step 2/3: Running make init on a fresh dummy project... ======"
+	@echo -e "\n\033[1m\033[34m━━━ Step 2/3: Running make init on a fresh dummy project... ━━━\033[0m"
 	rm -rf tmp/test-proj
 	mkdir -p tmp/test-proj
 	$(MAKE) init PROJ=./tmp/test-proj
-	@echo
-	@echo "====== Step 3/3: Asserting wiring... ======"
+	@echo -e "\n\033[1m\033[34m━━━ Step 3/3: Asserting wiring... ━━━\033[0m"
 	bash test/test-init.sh ./tmp/test-proj test-proj

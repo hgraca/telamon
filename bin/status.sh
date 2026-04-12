@@ -20,7 +20,7 @@ export INSTALL_PATH ADK_ROOT
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
 OS=$(os.get_os)
-echo -e "\n${TEXT_BOLD}AI Memory Stack — Status${TEXT_CLEAR}\n"
+echo -e "\n${TEXT_BOLD}${TEXT_BLUE}━━━ ADK Status ━━━${TEXT_CLEAR}\n"
 _ok() { echo -e "  ${TEXT_GREEN}✔${TEXT_CLEAR}  $1"; }
 _no() { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  $1"; }
 
