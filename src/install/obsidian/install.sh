@@ -95,46 +95,53 @@ else
   state.mark "obsidian_installed"
 fi
 
-# ── Human-in-the-loop: enable plugin and retrieve API key ─────────────────────
-echo
-echo -e "${TEXT_BOLD}${TEXT_YELLOW}┌─────────────────────────────────────────────────────────────┐${TEXT_CLEAR}"
-echo -e "${TEXT_BOLD}${TEXT_YELLOW}│  Manual step required — Obsidian Local REST API plugin      │${TEXT_CLEAR}"
-echo -e "${TEXT_BOLD}${TEXT_YELLOW}└─────────────────────────────────────────────────────────────┘${TEXT_CLEAR}"
-echo
-echo -e "  ${TEXT_BOLD}1.${TEXT_CLEAR} Launch Obsidian and open (or create) a vault."
-echo -e "  ${TEXT_BOLD}2.${TEXT_CLEAR} Open ${TEXT_BOLD}Settings${TEXT_CLEAR} (gear icon, bottom-left)."
-echo -e "  ${TEXT_BOLD}3.${TEXT_CLEAR} Go to ${TEXT_BOLD}Community plugins${TEXT_CLEAR} → turn off Safe mode if prompted."
-echo -e "  ${TEXT_BOLD}4.${TEXT_CLEAR} Click ${TEXT_BOLD}Browse${TEXT_CLEAR} → search for ${TEXT_BOLD}Local REST API${TEXT_CLEAR} → Install → Enable."
-echo -e "  ${TEXT_BOLD}5.${TEXT_CLEAR} Still in Settings, click ${TEXT_BOLD}Local REST API${TEXT_CLEAR} (left sidebar)."
-echo -e "  ${TEXT_BOLD}6.${TEXT_CLEAR} Copy the ${TEXT_BOLD}API Key${TEXT_CLEAR} shown on that page."
-echo
-
-# ── Read API key from CLI ──────────────────────────────────────────────────────
+# ── Read API key ──────────────────────────────────────────────────────────────
 ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 
-ask "Paste Obsidian API key here (or Enter to skip for now):"
-read -r -s OBSIDIAN_KEY_INPUT; echo
-
-if [[ -n "${OBSIDIAN_KEY_INPUT}" ]]; then
-  OBSIDIAN_API_KEY="${OBSIDIAN_KEY_INPUT}"
-  # Persist into .env for future runs
-  if [[ -f "${ADK_ROOT}/.env" ]] && grep -q "^OBSIDIAN_API_KEY=" "${ADK_ROOT}/.env"; then
-    sed -i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${ADK_ROOT}/.env"
-  else
-    echo "OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}" >> "${ADK_ROOT}/.env"
-  fi
-  log "OBSIDIAN_API_KEY saved to .env"
-else
-  # Fall back to whatever is already in .env (handles re-runs)
-  if [[ -f "${ADK_ROOT}/.env" ]]; then
-    # shellcheck disable=SC1091
-    set -a; source "${ADK_ROOT}/.env"; set +a
-  fi
+# Source .env so we can check for an existing key before prompting
+if [[ -f "${ADK_ROOT}/.env" ]]; then
+  # shellcheck disable=SC1091
+  set -a; source "${ADK_ROOT}/.env"; set +a
 fi
 
-if [[ -z "${OBSIDIAN_API_KEY:-}" || "${OBSIDIAN_API_KEY}" == "REPLACE_WITH_OBSIDIAN_API_KEY" ]]; then
-  warn "No Obsidian API key provided — MCP will be registered but disabled until you re-run the installer."
-  OBSIDIAN_API_KEY="REPLACE_WITH_OBSIDIAN_API_KEY"
+_key_is_placeholder() {
+  [[ -z "${OBSIDIAN_API_KEY:-}" || "${OBSIDIAN_API_KEY}" == "REPLACE_WITH_OBSIDIAN_API_KEY" ]]
+}
+
+if _key_is_placeholder; then
+  # ── Human-in-the-loop: enable plugin and retrieve API key ───────────────────
+  echo
+  echo -e "${TEXT_BOLD}${TEXT_YELLOW}┌─────────────────────────────────────────────────────────────┐${TEXT_CLEAR}"
+  echo -e "${TEXT_BOLD}${TEXT_YELLOW}│  Manual step required — Obsidian Local REST API plugin      │${TEXT_CLEAR}"
+  echo -e "${TEXT_BOLD}${TEXT_YELLOW}└─────────────────────────────────────────────────────────────┘${TEXT_CLEAR}"
+  echo
+  echo -e "  ${TEXT_BOLD}1.${TEXT_CLEAR} Launch Obsidian and open (or create) a vault."
+  echo -e "  ${TEXT_BOLD}2.${TEXT_CLEAR} Open ${TEXT_BOLD}Settings${TEXT_CLEAR} (gear icon, bottom-left)."
+  echo -e "  ${TEXT_BOLD}3.${TEXT_CLEAR} Go to ${TEXT_BOLD}Community plugins${TEXT_CLEAR} → turn off Safe mode if prompted."
+  echo -e "  ${TEXT_BOLD}4.${TEXT_CLEAR} Click ${TEXT_BOLD}Browse${TEXT_CLEAR} → search for ${TEXT_BOLD}Local REST API${TEXT_CLEAR} → Install → Enable."
+  echo -e "  ${TEXT_BOLD}5.${TEXT_CLEAR} Still in Settings, click ${TEXT_BOLD}Local REST API${TEXT_CLEAR} (left sidebar)."
+  echo -e "  ${TEXT_BOLD}6.${TEXT_CLEAR} Copy the ${TEXT_BOLD}API Key${TEXT_CLEAR} shown on that page."
+  echo
+
+  ask "Paste Obsidian API key here (or Enter to skip for now):"
+  read -r -s OBSIDIAN_KEY_INPUT; echo
+
+  if [[ -n "${OBSIDIAN_KEY_INPUT}" ]]; then
+    OBSIDIAN_API_KEY="${OBSIDIAN_KEY_INPUT}"
+    if [[ -f "${ADK_ROOT}/.env" ]] && grep -q "^OBSIDIAN_API_KEY=" "${ADK_ROOT}/.env"; then
+      sed -i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${ADK_ROOT}/.env"
+    else
+      echo "OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}" >> "${ADK_ROOT}/.env"
+    fi
+    log "OBSIDIAN_API_KEY saved to .env"
+  fi
+
+  if _key_is_placeholder; then
+    warn "No Obsidian API key provided — MCP will be registered but disabled until you re-run the installer."
+    OBSIDIAN_API_KEY="REPLACE_WITH_OBSIDIAN_API_KEY"
+  fi
+else
+  skip "Obsidian API key (already set in .env)"
 fi
 
 # ── Write API key secret ───────────────────────────────────────────────────────
