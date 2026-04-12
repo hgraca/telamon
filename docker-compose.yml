@@ -46,14 +46,3 @@ services:
       - OLLAMA_HOST=http://ollama:11434
     volumes:
       - ./storage/ollama:/root/.ollama
-
-  obsidian-mcp:
-    image: oleksandrkucherenko/obsidian-mcp:latest
-    container_name: obsidian-mcp
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - API_KEY=${OBSIDIAN_API_KEY}
-      - API_URLS=["https://host.docker.internal:27124"]
-      - MCP_TRANSPORTS=stdio,http

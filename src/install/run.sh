@@ -55,10 +55,9 @@ if [[ "${1:-}" == "--status" ]]; then
   fi
   command -v docker   &>/dev/null                                          && _ok "Docker"                 || _no "Docker"
   docker info &>/dev/null 2>&1                                             && _ok "Docker running"         || _no "Docker not running"
-  docker ps 2>/dev/null | grep -q "ogham-postgres"                         && _ok "Postgres container"     || _no "Postgres container"
-  docker ps 2>/dev/null | grep -q "adk-ollama"                             && _ok "Ollama container"       || _no "Ollama container"
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^ogham-postgres$"  && _ok "Postgres container"     || _no "Postgres container"
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^adk-ollama$"     && _ok "Ollama container"       || _no "Ollama container"
   docker exec adk-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text" && _ok "nomic-embed-text"   || _no "nomic-embed-text"
-  docker ps 2>/dev/null | grep -q "obsidian-mcp"                           && _ok "Obsidian MCP container" || _no "Obsidian MCP container"
   command -v uv       &>/dev/null                                          && _ok "uv"                     || _no "uv"
   command -v ogham    &>/dev/null                                          && _ok "Ogham"                  || _no "Ogham"
   command -v node     &>/dev/null                                          && _ok "Node.js"                || _no "Node.js"
