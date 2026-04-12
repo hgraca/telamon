@@ -1,3 +1,148 @@
 {
-  "mcp": {}
+  "$schema": "https://opencode.ai/config.json",
+  "model": "github-copilot/claude-opus-4.6",
+  "small_model": "github-copilot/claude-haiku-4.5",
+  //  "coding_model": "github-copilot/claude-sonnet-4.6",
+
+  //  "model": "opencode/minimax-m2.5-free", // opencode/nemotron-3-super-free
+  //  "small_model": "opencode/gpt-5-nano", // opencode/big-pickle
+  //  "coding_model": "opencode/qwen3.6-plus-free", // opencode/nemotron-3-super-free
+
+  //  "model": "cortecs/kimi-k2.5",
+  //  "small_model": "cortecs/qwen3-32b",
+  //  "coding_model": "cortecs/qwen3-coder-480b-a35b-instruct",
+
+  "instructions": [
+    "AGENTS.md",
+    ".ai/context*/*.md"
+  ],
+  "default_agent": "developer",
+  //  "agent": {
+  //    "po": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    },
+  //    "architect": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    },
+  //    "critic": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    },
+  //    "developer": {
+  //      "model": "opencode/qwen3.6-plus-free"
+  //      "model": "cortecs/qwen3-coder-480b-a35b-instruct"
+  //    },
+  //    "tester": {
+  //      "model": "opencode/qwen3.6-plus-free"
+  //      "model": "cortecs/qwen3-coder-480b-a35b-instruct"
+  //    },
+  //    "reviewer": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    },
+  //    "ui-designer": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    },
+  //    "ux-designer": {
+  //      "model": "opencode/minimax-m2.5-free"
+  //      "model": "cortecs/kimi-k2.5"
+  //    }
+  //  },
+  "plugin": [
+    "opencode-scheduler"
+  ],
+  "permission": {
+    "edit": "allow",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "bash": {
+      "*": "allow",
+      "rm *": "ask",
+      "sudo *": "ask"
+    },
+    "task": "allow",
+    "external_directory": "deny",
+    "todowrite": "allow",
+    "todoread": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "codesearch": "allow",
+    "lsp": "allow",
+    "doom_loop": "allow",
+    "skill": "allow"
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "vendor/**",
+      "dist/**",
+      "build/**",
+      ".git/**",
+      ".cache/**",
+      "*no-vcs*",
+      "*no-vcs*/**",
+      "storage/**",
+      ".idea/**",
+      ".vscode/**",
+      ".env*"
+    ]
+  },
+  "mcp": {
+    //    "laravel-boost": {
+    //      "type": "local",
+    //      "command": ["docker", "compose", "-f", ".docker/compose.dev.yml", "exec", "-i", "app", "php", "artisan", "boost:mcp"],
+    //      "enabled": true
+    //    },
+    //    "chrome-devtools": {
+    //      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+    //      "type": "local"
+    //    },
+    "websearch": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
+      "enabled": true,
+      "oauth": false
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "oauth": false
+    },
+    "grep_app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true,
+      "oauth": false
+    },
+    //    "playwright": {
+    //      "type": "local",
+    //      "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
+    //      "enabled": true
+    //    },
+    "git": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "-v", "./:/repo", "mcp/git"],
+      "enabled": true
+    },
+    //    "github": {
+    //      "type": "local",
+    //      "command": ["docker", "run", "--rm", "-i", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "mcp/github"],
+    //      "enabled": true,
+    //      "environment": {
+    //        "GITHUB_PERSONAL_ACCESS_TOKEN": "CREATE_A_PAT_AS_IN_IMAGE-GH_PAT_FOR_AGENT.png"
+    //      }
+    //    },
+    "ast-grep": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],
+      "enabled": true
+    }
+  }
 }
