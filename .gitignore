@@ -2,6 +2,7 @@ tmp/
 __pycache__/
 storage/*
 .env
+.ai/
 
 !storage/.gitkeep
 !storage/opencode.jsonc
