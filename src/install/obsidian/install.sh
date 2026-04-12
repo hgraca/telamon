@@ -11,6 +11,8 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+SECRETS_DIR="${SECRETS_DIR:-$(cd "${INSTALL_PATH}/../.." && pwd)/storage/secrets}"
+export SECRETS_DIR
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -20,6 +22,9 @@ header "Obsidian MCP"
 
 # host.docker.internal resolves to the host on both macOS and Linux
 OBS_HOST="host.docker.internal"
+
+# ── Write API key secret ───────────────────────────────────────────────────────
+secrets.write "obsidian-api-key" "${OBSIDIAN_API_KEY}"
 
 opencode.upsert_mcp "obsidian" "$(cat <<JSON
 {
@@ -32,7 +37,7 @@ opencode.upsert_mcp "obsidian" "$(cat <<JSON
   ],
   "enabled": true,
   "environment": {
-    "API_KEY": "${OBSIDIAN_API_KEY}",
+    "API_KEY": "{file:storage/secrets/obsidian-api-key}",
     "API_URLS": "[\"https://${OBS_HOST}:27124\"]"
   }
 }

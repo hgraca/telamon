@@ -1,3 +1,6 @@
 tmp
 storage/*
 !storage/.gitkeep
+!storage/opencode.jsonc
+storage/secrets/
+

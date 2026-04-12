@@ -7,3 +7,4 @@
 . "${INSTALL_PATH}/functions/state.sh"
 . "${INSTALL_PATH}/functions/apt.sh"
 . "${INSTALL_PATH}/functions/opencode.sh"
+. "${INSTALL_PATH}/functions/secrets.sh"

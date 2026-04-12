@@ -6,6 +6,8 @@ set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SECRETS_DIR="${SECRETS_DIR:-$(cd "${INSTALL_PATH}/../.." && pwd)/storage/secrets}"
+export SECRETS_DIR
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -43,6 +45,9 @@ step "Activating profile: ${OGHAM_PROFILE}"
 ogham use "${OGHAM_PROFILE}" 2>/dev/null || true
 log "Profile: ${OGHAM_PROFILE}"
 
+# ── Write database URL secret ─────────────────────────────────────────────────
+secrets.write "ogham-database-url" "postgresql://ogham:${POSTGRES_PASSWORD}@localhost:5432/ogham"
+
 # ── Register MCP server in opencode.json ──────────────────────────────────────
 opencode.upsert_mcp "ogham" "$(cat <<JSON
 {
@@ -51,7 +56,7 @@ opencode.upsert_mcp "ogham" "$(cat <<JSON
   "enabled": true,
   "environment": {
     "DATABASE_BACKEND": "postgres",
-    "DATABASE_URL": "postgresql://ogham:${POSTGRES_PASSWORD}@localhost:5432/ogham",
+    "DATABASE_URL": "{file:storage/secrets/ogham-database-url}",
     "EMBEDDING_PROVIDER": "ollama",
     "OLLAMA_MODEL": "nomic-embed-text",
     "OLLAMA_BASE_URL": "http://localhost:11434"
