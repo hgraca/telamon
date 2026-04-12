@@ -119,6 +119,15 @@ else
   log "Symlinked .ai/adk/secrets → ${ADK_ROOT}/storage/secrets"
 fi
 
+# ── 5b. Symlink .ai/adk/brain → <adk-root>/storage/obsidian/<project>/brain ──
+BRAIN_LINK="${ADK_SECRETS_DIR}/brain"
+if [[ -L "${BRAIN_LINK}" ]]; then
+  skip ".ai/adk/brain symlink (already exists)"
+else
+  ln -s "${BRAIN_DIR}" "${BRAIN_LINK}"
+  log "Symlinked .ai/adk/brain → ${BRAIN_DIR}"
+fi
+
 # ── 6. opencode config: symlink or merge ─────────────────────────────────────
 # Detect any existing opencode config (symlink or regular file, .jsonc or .json)
 OPENCODE_TARGET="${ADK_ROOT}/storage/opencode.jsonc"

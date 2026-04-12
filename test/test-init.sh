@@ -206,6 +206,11 @@ _section "5. .ai/adk/secrets"
 assert_symlink "${PROJ}/.ai/adk/secrets" "storage/secrets" \
   ".ai/adk/secrets → <adk-root>/storage/secrets"
 
+# ── 5b. .ai/adk/brain symlink ─────────────────────────────────────────────────
+_section "5b. .ai/adk/brain"
+assert_symlink "${PROJ}/.ai/adk/brain" "storage/obsidian/${PROJECT_NAME}/brain" \
+  ".ai/adk/brain → <adk-root>/storage/obsidian/${PROJECT_NAME}/brain"
+
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"
 OPENCODE_CONFIG=""
