@@ -1,4 +1,4 @@
-tmp
+tmp/
 storage/*
 !storage/.gitkeep
 !storage/opencode.jsonc

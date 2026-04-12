@@ -121,3 +121,16 @@ status:
 init: ## Initialise a project to use this ADK  (usage: make init PROJ=path/to/project)
 	@if [ -z "$(PROJ)" ]; then echo "Usage: make init PROJ=path/to/project"; exit 1; fi
 	bash bin/init.sh "$(PROJ)"
+
+test: ## Run the full test suite (make up + init a dummy project + assert wiring)
+	@echo
+	@echo "====== Step 1/3: Ensuring ADK is up... ======"
+	$(MAKE) up
+	@echo
+	@echo "====== Step 2/3: Running make init on a fresh dummy project... ======"
+	rm -rf tmp/test-proj
+	mkdir -p tmp/test-proj
+	$(MAKE) init PROJ=./tmp/test-proj
+	@echo
+	@echo "====== Step 3/3: Asserting wiring... ======"
+	bash test/test-init.sh ./tmp/test-proj test-proj
