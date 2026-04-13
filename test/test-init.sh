@@ -167,39 +167,40 @@ echo
 echo -e "${BOLD}ADK init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── 1. Brain scaffold (in ADK storage, not in project) ────────────────────────
-_section "1. Brain scaffold (storage/obsidian/${PROJECT_NAME}/brain/)"
+# ── 1. Vault scaffold (in ADK storage, not in project) ────────────────────────
+_section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/)"
 BRAIN_DIR="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}/brain"
+VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
 
-assert_dir  "${BRAIN_DIR}"                       "storage/obsidian/${PROJECT_NAME}/brain/"
-assert_file "${BRAIN_DIR}/NorthStar.md"          "storage/obsidian/${PROJECT_NAME}/brain/NorthStar.md"
-assert_file "${BRAIN_DIR}/KeyDecisions.md"       "storage/obsidian/${PROJECT_NAME}/brain/KeyDecisions.md"
-assert_file "${BRAIN_DIR}/Patterns.md"           "storage/obsidian/${PROJECT_NAME}/brain/Patterns.md"
-assert_file "${BRAIN_DIR}/Gotchas.md"            "storage/obsidian/${PROJECT_NAME}/brain/Gotchas.md"
-assert_file_contains "${BRAIN_DIR}/NorthStar.md"    "${PROJECT_NAME}" \
-  "NorthStar.md contains project name"
-assert_file_contains "${BRAIN_DIR}/KeyDecisions.md" "${PROJECT_NAME}" \
-  "KeyDecisions.md contains project name"
+assert_dir  "${BRAIN_DIR}"                          "brain/"
+assert_file "${BRAIN_DIR}/memories.md"              "brain/memories.md"
+assert_file "${BRAIN_DIR}/key_decisions.md"         "brain/key_decisions.md"
+assert_file "${BRAIN_DIR}/patterns.md"              "brain/patterns.md"
+assert_file "${BRAIN_DIR}/gotchas.md"               "brain/gotchas.md"
+assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" \
+  "key_decisions.md contains project name"
+assert_file_contains "${BRAIN_DIR}/memories.md"      "${PROJECT_NAME}" \
+  "memories.md contains project name"
 
-# ── 2. .ai/context/static/adk symlink ────────────────────────────────────────
-_section "2. .ai/context/static/adk symlink"
-assert_dir  "${PROJ}/.ai/context/static" ".ai/context/static/ directory"
-assert_symlink "${PROJ}/.ai/context/static/adk" "src/context" \
-  ".ai/context/static/adk → <adk-root>/src/context"
+assert_dir "${VAULT_ROOT}/work/active"    "work/active/"
+assert_dir "${VAULT_ROOT}/work/archive"   "work/archive/"
+assert_dir "${VAULT_ROOT}/work/incidents" "work/incidents/"
+assert_dir "${VAULT_ROOT}/reference"      "reference/"
+assert_dir "${VAULT_ROOT}/thinking"       "thinking/"
 
-# ── 3. .opencode/skills/adk symlink ──────────────────────────────────────────
-_section "3. .opencode/skills/adk symlink"
+# ── 2. .opencode/skills/adk symlink ──────────────────────────────────────────
+_section "2. .opencode/skills/adk symlink"
 assert_dir  "${PROJ}/.opencode/skills" ".opencode/skills/ directory"
 assert_symlink "${PROJ}/.opencode/skills/adk" "src/skills" \
   ".opencode/skills/adk → <adk-root>/src/skills"
 
-# ── 4. .ai/adk.ini ────────────────────────────────────────────────────────────
-_section "4. .ai/adk.ini"
-assert_file "${PROJ}/.ai/adk.ini" ".ai/adk.ini"
-assert_file_contains "${PROJ}/.ai/adk.ini" "project_name = ${PROJECT_NAME}" \
-  ".ai/adk.ini contains correct project_name"
-assert_file_contains "${PROJ}/.ai/adk.ini" "\[adk\]" \
-  ".ai/adk.ini has [adk] section"
+# ── 3. .ai/adk/adk.ini ───────────────────────────────────────────────────────
+_section "3. .ai/adk/adk.ini"
+assert_file "${PROJ}/.ai/adk/adk.ini" ".ai/adk/adk.ini"
+assert_file_contains "${PROJ}/.ai/adk/adk.ini" "project_name = ${PROJECT_NAME}" \
+  ".ai/adk/adk.ini contains correct project_name"
+assert_file_contains "${PROJ}/.ai/adk/adk.ini" "\[adk\]" \
+  ".ai/adk/adk.ini has [adk] section"
 
 # ── 5. .ai/adk/secrets symlink ────────────────────────────────────────────────
 _section "5. .ai/adk/secrets"
@@ -207,9 +208,9 @@ assert_symlink "${PROJ}/.ai/adk/secrets" "storage/secrets" \
   ".ai/adk/secrets → <adk-root>/storage/secrets"
 
 # ── 5b. .ai/adk/brain symlink ─────────────────────────────────────────────────
-_section "5b. .ai/adk/brain"
-assert_symlink "${PROJ}/.ai/adk/brain" "storage/obsidian/${PROJECT_NAME}/brain" \
-  ".ai/adk/brain → <adk-root>/storage/obsidian/${PROJECT_NAME}/brain"
+_section "5b. .ai/adk/memory"
+assert_symlink "${PROJ}/.ai/adk/memory" "storage/obsidian/${PROJECT_NAME}" \
+  ".ai/adk/memory → <adk-root>/storage/obsidian/${PROJECT_NAME}"
 
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"

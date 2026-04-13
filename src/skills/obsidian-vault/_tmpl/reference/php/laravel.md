@@ -1,0 +1,78 @@
+# Laravel
+
+## Foundational Context
+
+This is a Laravel application. Package versions are in `composer.json` — abide by those versions.
+
+This project upgraded from Laravel 10 without migrating to the new file structure. This is fine and recommended by Laravel. Follow the existing Laravel 10 structure.
+
+### Laravel 10 Structure
+
+- Middleware: `app/Http/Middleware/`
+- Service providers: `app/Providers/`
+- No `bootstrap/app.php` application configuration:
+  - Middleware registration: `app/Http/Kernel.php`
+  - Exception handling: `app/Exceptions/Handler.php`
+  - Console commands/schedule: `app/Console/Kernel.php`
+  - Rate limits: `RouteServiceProvider` or `app/Http/Kernel.php`
+
+## Conventions
+
+- Follow existing code conventions. Check sibling files for structure, approach, and naming.
+- Use descriptive names: `isRegisteredForDiscounts`, not `discount()`.
+- Check for existing components to reuse before writing new ones.
+- If you see a test using "Pest", convert it to PHPUnit.
+
+## Configuration
+
+- Never call `env()` outside `config/*.php` files. Use `Config::` in application code.
+- Config files live in `config/` at package root, published via `$this->publishes(...)` in the service provider's `boot()` method.
+
+## Do Things the Laravel Way
+
+- Use `php artisan make:` commands to create new files (migrations, controllers, models, etc.)
+- Use `php artisan list` to discover commands, `php artisan [command] --help` for parameters
+- For generic PHP classes: `php artisan make:class`
+- Pass `--no-interaction` to all Artisan commands. Pass correct `--options` for expected behavior.
+
+## Database
+
+- Use Eloquent relationship methods with return type hints. Prefer relationships over raw queries.
+- Prefer `Model::query()` over `DB::`.
+- Prevent N+1 queries with eager loading.
+- Use query builder only for very complex operations.
+- Laravel 12 allows limiting eagerly loaded records natively: `$query->latest()->limit(10);`
+- When modifying a column in migrations, include all previously defined attributes — otherwise they are dropped.
+
+### Models
+
+- Casts: use `casts()` method rather than `$casts` property. Follow existing model conventions.
+- When creating new models, create factories and seeders. Check `php artisan make:model --help` for options.
+
+### APIs
+
+- Default to Eloquent API Resources and API versioning unless existing routes differ — then follow existing convention.
+
+## Controllers & Validation
+
+- Always use Form Request classes for validation — not inline validation in controllers. Include rules and custom error messages.
+- Check sibling Form Requests for array vs string-based validation rules.
+
+## Authentication & Authorization
+
+- Use Laravel's built-in features: gates, policies, Sanctum, etc.
+
+## URL Generation
+
+- Prefer named routes and the `route()` function.
+
+## Testing
+
+- Use model factories in tests. Check for factory custom states before manual setup.
+- Faker: Use `$this->faker->word()` or `fake()->randomDigit()`. Follow existing `$this->faker` vs `fake()` convention.
+- Use `php artisan make:test [options] {name}` for feature tests, `--unit` for unit tests. Most tests should be feature tests.
+
+## Do Not
+
+- Create verification scripts or tinker when tests cover that functionality
+- Change application dependencies without approval

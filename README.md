@@ -21,6 +21,37 @@ All tools run locally. No data leaves your machine.
 
 ## Tools
 
+### Tier 1 — Highest ROI
+- Ogham + Postgres + Ollama
+  The single biggest gain for multi-project work. Large codebases accumulate years of tribal knowledge,
+  without persistent memory the agent rediscovers all of it every session.
+- Intelephense LSP
+  Already built into OpenCode, zero extra setup.
+  Real-time diagnostics mean the agent catches type errors, undefined methods, and wrong signatures
+  inline rather than running the code to find out. For specifically this matters more than most languages
+  because's type system is optional — without LSP the agent guesses a lot.
+- AGENTS.md per project
+  A well-written AGENTS.md with your stack versions, framework conventions, database patterns,
+  and key contacts is worth more than any indexing tool on a project the agent hasn't seen before.
+
+### Tier 2 — High value, worth the setup cost
+- Graphify
+  Particularly valuable for large legacy codebases where nobody has a complete mental model anymore.
+  God nodes alone — knowing which classes everything routes through — prevents the agent from making changes in the wrong place.
+  The OpenCode plugin means it fires automatically. One upfront LLM cost, then git hooks keep it current.
+- opencode-codebase-index
+  Complements Graphify. Graphify tells you the structure, codebase-index lets you find code by meaning.
+  "Find all places we handle currency conversion" works even if the functions aren't named obviously.
+  Each project gets its own local index.
+
+### Tier 3 — Useful but optional
+- cass
+  Uses the history of past sessions to draw from.
+- Obsidian MCP
+  High value if you actually maintain notes. If nobody writes docs it adds nothing.
+- Specialized agents
+  The gains from routing planning to a smarter model and execution to a cheaper one compound with project size.
+
 ### 🧠 Ogham MCP — Semantic Agent Memory
 [ogham-mcp](https://github.com/ogham-mcp/ogham-mcp)
 
@@ -66,14 +97,21 @@ Built once per project; a file watcher maintains it automatically.
 
 Bridges the agent to an **Obsidian** vault containing long-lived, human-curated knowledge: 
 project goals, architectural decisions, codebase patterns, and known gotchas. 
-Each project gets a `brain/` folder that is **always read at session start**.
+Each project gets its own vault subfolder. Files in `bootstrap/` are **always loaded into context** — their content is available to the agent as if it were written directly in `AGENTS.md`.
 
 ```
+<project>/bootstrap/       ← always-on context (treated as part of AGENTS.md)
 <project>/brain/
-  NorthStar.md     ← goals, focus areas, off-limits — READ FIRST
-  KeyDecisions.md  ← architectural decisions with rationale
-  Patterns.md      ← established codebase conventions
-  Gotchas.md       ← traps, constraints, known issues
+  memories.md      ← index of memory topics
+  key_decisions.md ← architectural decisions with rationale
+  patterns.md      ← established codebase conventions
+  gotchas.md       ← traps, constraints, known issues
+<project>/work/
+  active/          ← in-progress work notes
+  archive/         ← completed work notes
+  incidents/       ← incident docs
+<project>/reference/  ← architecture maps, flow docs
+<project>/thinking/   ← scratchpad for drafts
 ```
 
 Obsidian must be installed separately (see [Prerequisites](#prerequisites)).
@@ -172,7 +210,7 @@ make up
 3. Start Docker services (`postgres`, `ollama`)
 4. Install remaining tools (opencode, Ogham, Graphify, cass, RTK, codebase-index, Obsidian MCP) — `--post-docker` phase
 
-If `.ai/adk.ini` exists with `project_name` set, the installer reads it silently (no prompts for project name/profile). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
+If `.ai/adk/adk.ini` exists with `project_name` set, the installer reads it silently (no prompts for project name/profile). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
 
 > The installer is **idempotent** — safe to re-run at any time. Already-installed tools are skipped.
 
@@ -185,10 +223,13 @@ make init PROJ=path/to/your-project
 ```
 
 This will:
-- Create `storage/obsidian/<project-name>/brain/` with scaffold notes (`NorthStar.md`, `KeyDecisions.md`, `Patterns.md`, `Gotchas.md`)
-- Symlink `<project>/.ai/context/adk` → `<adk-root>/src/context` (agent instruction docs)
+- Create the full Obsidian vault at `storage/obsidian/<project-name>/` with:
+  - `bootstrap/` (always-on context files)
+  - `brain/` notes (`memories.md`, `key_decisions.md`, `patterns.md`, `gotchas.md`)
+  - `work/active/`, `work/archive/`, `work/incidents/` folders
+  - `reference/` and `thinking/` folders
 - Symlink `<project>/.opencode/skills/adk` → `<adk-root>/src/skills` (agent skills)
-- Write `<project>/.ai/adk.ini` with the project name variable
+- Write `<project>/.ai/adk/adk.ini` with the project name variable
 
 After this, when `opencode` starts in the project, it automatically loads the ADK context and skills.
 
@@ -320,12 +361,14 @@ src/
   skills/
     graphify/SKILL.md        # codebase knowledge graph skill
     memory-stack/SKILL.md    # session-start memory bootstrap skill
-    obsidian-vault/          # vault skill + brain template files
+    obsidian-vault/          # vault skill + vault scaffold template
       SKILL.md
-      NorthStar.md           # brain template: goals and focus areas
-      KeyDecisions.md        # brain template: architecture decisions
-      Patterns.md            # brain template: codebase conventions
-      Gotchas.md             # brain template: traps and known issues
+      _tmpl/                 # full vault template (copied per project on make init)
+        bootstrap/           # always-on context files (loaded like AGENTS.md)
+        brain/               # memories, key_decisions, patterns, gotchas
+        work/active|archive|incidents/
+        reference/
+        thinking/
   install/
     functions/               # shared bash library (colors, stdout, state, os, apt, opencode)
     homebrew/install.sh
@@ -350,9 +393,20 @@ storage/                     # runtime data — git-ignored except opencode.json
   pgdata/                    # Postgres data volume (git-ignored)
   ollama/                    # Ollama model cache (git-ignored)
   graphify/                  # graphify output cache (git-ignored)
-  obsidian/<project-name>/brain/ # per-project brain notes (NorthStar, KeyDecisions, …)
+  obsidian/<project-name>/   # per-project Obsidian vault
+    bootstrap/               # always-on context (loaded like AGENTS.md)
+    brain/                   # memories, key_decisions, patterns, gotchas
+    work/active/             # in-progress work notes
+    work/archive/            # completed work notes
+    work/incidents/          # incident docs
+    reference/               # architecture maps, flow docs
+    thinking/                # scratchpad for drafts
 
 docker-compose.yml           # postgres, ollama, ollama-init
 .env.dist                    # template for .env (POSTGRES_PASSWORD, OBSIDIAN_API_KEY)
 Makefile                     # up, down, purge, restart, status, doctor, update, init, test
 ```
+## Acknowledgements and References
+
+- [Obsidian Mind](https://github.com/breferrari/obsidian-mind?tab=readme-ov-file)
+- 

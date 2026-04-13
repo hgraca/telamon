@@ -11,12 +11,12 @@ Each project lives in its own subfolder. Inside:
 
 ```
 <project>/
+  bootstrap/         ← always loaded into context (treat as part of AGENTS.md)
   brain/
-    NorthStar.md      ← current goals, focus, what's off-limits — READ THIS FIRST
-    Memories.md        ← index of memory topics (points to topic notes)
-    KeyDecisions.md   ← architectural decisions with rationale
-    Patterns.md        ← established patterns in this codebase
-    Gotchas.md         ← known traps and constraints
+    memories.md       ← index of memory topics (points to topic notes)
+    key_decisions.md  ← architectural decisions with rationale
+    patterns.md       ← established patterns in this codebase
+    gotchas.md        ← known traps and constraints
   work/
     active/            ← current in-progress work notes (1-3 files max)
     archive/YYYY/      ← completed work notes by year
@@ -26,6 +26,11 @@ Each project lives in its own subfolder. Inside:
 ```
 
 ## Retrieval rules
+
+### Rule 0 — bootstrap/ is always in context
+Files in `bootstrap/` are loaded automatically at session start (equivalent to being written
+directly in AGENTS.md). Do not search for or re-read them — their content is already present.
+Never write agent instructions to any other folder expecting them to be auto-loaded.
 
 ### Rule 1 — Search before read
 Never call read_note or list_files without searching first.
@@ -38,10 +43,10 @@ Exception: the user explicitly names a file, or you're reading brain/ files at s
 
 ### Rule 2 — Direct reads for brain/ files
 brain/ files are small and always relevant — read them directly, no search needed:
-- `<project>/brain/NorthStar.md` — read at session start
-- `<project>/brain/KeyDecisions.md` — read before architecture work
-- `<project>/brain/Patterns.md` — read before writing new code
-- `<project>/brain/Gotchas.md` — read before touching known problem areas
+- `<project>/brain/memories.md` — read at session start
+- `<project>/brain/key_decisions.md` — read before architecture work
+- `<project>/brain/patterns.md` — read before writing new code
+- `<project>/brain/gotchas.md` — read before touching known problem areas
 
 ### Rule 3 — Max 3 notes per task (non-brain)
 Pick top 3 by relevance score. Tell the user if truncated ("Found 7 notes, reading top 3").
@@ -71,10 +76,10 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 ### Where to write things
 | Content | Location |
 |---|---|
-| Architectural decision + rationale | `brain/KeyDecisions.md` |
-| Codebase pattern established | `brain/Patterns.md` |
-| Hidden trap or constraint found | `brain/Gotchas.md` |
-| Current goals / focus shift | `brain/NorthStar.md` |
+| Agent bootstrap instructions (always-on context) | `bootstrap/` |
+| Architectural decision + rationale | `brain/key_decisions.md` |
+| Codebase pattern established | `brain/patterns.md` |
+| Hidden trap or constraint found | `brain/gotchas.md` |
 | In-progress work note | `work/active/` |
 | Completed work note | `work/archive/YYYY/` |
 | Incident | `work/incidents/` |
@@ -85,16 +90,16 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 - Secrets, API keys, passwords
 - Content that duplicates what's already in Ogham (no need to store the same thing twice)
 - Files in the vault root (only project subfolders)
+- Agent instructions outside `bootstrap/` expecting them to be auto-loaded
 
 ## Wrap-up workflow
 
 When the user says "wrap up", "let's wrap", "wrapping up", or similar — run this before ending:
 
 1. **Promote learnings to brain/**:
-   - New architectural decision → append to `brain/KeyDecisions.md`
-   - New codebase pattern → append to `brain/Patterns.md`
-   - New gotcha or constraint → append to `brain/Gotchas.md`
-   - Goals shifted → update `brain/NorthStar.md`
+   - New architectural decision → append to `brain/key_decisions.md`
+   - New codebase pattern → append to `brain/patterns.md`
+   - New gotcha or constraint → append to `brain/gotchas.md`
 
 2. **Archive completed work**:
    - Move completed `work/active/` notes to `work/archive/YYYY/`

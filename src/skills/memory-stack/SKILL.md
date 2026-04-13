@@ -30,10 +30,10 @@ ogham hooks recall
 ## Step 3 — Retrieval priority:
 | Question type | Tool |
 |---|---|
-| Goals, focus, off-limits | Read `brain/NorthStar.md` directly |
-| Architectural decisions + rationale | Read `brain/KeyDecisions.md` directly |
-| Codebase patterns | Read `brain/Patterns.md` directly |
-| Known traps and constraints | Read `brain/Gotchas.md` directly |
+| Memory topics / knowledge index | Read `brain/memories.md` directly |
+| Architectural decisions + rationale | Read `brain/key_decisions.md` directly |
+| Codebase patterns | Read `brain/patterns.md` directly |
+| Known traps and constraints | Read `brain/gotchas.md` directly |
 | Architecture, relationships, god nodes | `graphify query "<question>"` |
 | Code by meaning ("find auth logic") | codebase-index (ask naturally) |
 | Past decisions/bugs this project | `ogham search "<keywords>"` |
@@ -41,16 +41,16 @@ ogham hooks recall
 | Specs, ADRs, requirements | Obsidian vault search (follow obsidian-vault skill) |
 
 ## Step 4 — Save to BOTH Ogham AND Obsidian brain/ when:
-- Bug fixed (non-trivial): `ogham store "bug: <desc>"` + add to `brain/Gotchas.md` if recurring
-- Decision made: `ogham store "decision: X over Y because Z"` + add to `brain/KeyDecisions.md`
-- Pattern established: `ogham store "pattern: <desc>"` + add to `brain/Patterns.md`
+- Bug fixed (non-trivial): `ogham store "bug: <desc>"` + add to `brain/gotchas.md` if recurring
+- Decision made: `ogham store "decision: X over Y because Z"` + add to `brain/key_decisions.md`
+- Pattern established: `ogham store "pattern: <desc>"` + add to `brain/patterns.md`
 - Session ends with significant work: `ogham hooks inscribe`
 
 ## Never save: ls/git status/cat/pwd, secrets, trivial single-line edits
 
 ## Wrap-up (when user says "wrap up", "wrapping up", "let's wrap"):
 Follow the obsidian-vault skill wrap-up workflow:
-1. Promote session learnings to brain/ notes (Key Decisions, Patterns, Gotchas)
+1. Promote session learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
 3. `ogham hooks inscribe`
 4. Verify new vault notes have [[wikilinks]]
@@ -61,4 +61,4 @@ Follow the obsidian-vault skill wrap-up workflow:
 ogham use <new-project-name>
 ogham hooks recall
 ```
-Then read `<new-project>/brain/NorthStar.md` and run Step 2 checks.
+Then read `<new-project>/brain/memories.md` and run Step 2 checks.

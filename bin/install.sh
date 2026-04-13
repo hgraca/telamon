@@ -101,9 +101,9 @@ collect_inputs() {
     saved_pg_pass="${SAVED_POSTGRES_PASSWORD:-}"
   fi
 
-  # ── 2. Read .ai/adk.ini (higher priority than saved state) ────────────────
+  # ── 2. Read .ai/adk/adk.ini (higher priority than saved state) ───────────────
   local ini_project=""
-  ini_project="$(_read_ini_value "${PWD}/.ai/adk.ini" "project_name" 2>/dev/null || true)"
+  ini_project="$(_read_ini_value "${PWD}/.ai/adk/adk.ini" "project_name" 2>/dev/null || true)"
 
   # ── 3. Read .env for POSTGRES_PASSWORD (higher priority than saved state) ──
   local env_pg_pass=""
@@ -119,7 +119,7 @@ collect_inputs() {
   local prompted=0
 
   if [[ -n "${ini_project}" ]]; then
-    info "Project name from .ai/adk.ini: ${ini_project}"
+    info "Project name from .ai/adk/adk.ini: ${ini_project}"
     OGHAM_PROFILE="${ini_project}"
     PROJECT_NAME="${ini_project}"
   else
