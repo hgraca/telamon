@@ -7,3 +7,6 @@ Work on the following epic, create a folder and backlog for the epic in `.ai/iss
 follow the `adk.workflow.plan-story` skill for each of the stories in the epic backlog, 
 creating a `.ai/issue/<epic-folder>/<story-folder>/backlog.md` for each story, 
 and only after all of them are planned follow the `adk.workflow.implement-story` skill for each of them: $1
+
+Any ephemeral scratch notes produced while working across stories must be saved to `<proj>/.ai/adk/memory/thinking/`.
+

@@ -86,6 +86,10 @@ Record decisions in `<issue-folder>/PO-DECISION-YYYY-MM-DD-NNN.md`:
 >
 > Conditions attached to the approval.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST
 
 - Document global product decisions in `.ai/adk/memory/brain/key_decisions.md` with rationale.

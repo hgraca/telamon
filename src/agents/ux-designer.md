@@ -45,6 +45,10 @@ UX Designer owns how interfaces **work**: flows, information architecture, inter
 - Produce implementation-ready interaction guidance following the `adk.ux-design` skill templates.
 - Review implemented UI against UX specs using the `adk.ux-design` skill validation template.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST
 
 - Start from user goals; optimize for clarity, speed, and error prevention.

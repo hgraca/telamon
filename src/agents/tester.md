@@ -48,6 +48,10 @@ The Tester writes acceptance-criteria tests before the Developer implements. The
 - Report bugs with clear reproduction steps using the `adk.test-reporting` skill template.
 - Verify fixes and regression test related features.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST
 
 - Every test must have a reason to exist — "What bug would this catch?"

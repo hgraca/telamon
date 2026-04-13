@@ -56,6 +56,10 @@ A plan is "final" when:
 - Delegate product/requirements questions to @po.
 - Responses to feedback must follow the Review Response Template in the `adk.implementation-planning` skill.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST NOT
 
 - Write production code

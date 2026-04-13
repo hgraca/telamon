@@ -17,6 +17,10 @@ Implement an approved plan by orchestrating Tester, Developer, and Reviewer for 
 
 Place all artifacts in the `<issue-folder>` established during planning (see `adk.workflow.plan-story` skill for naming conventions). Artifacts must not be committed to git.
 
+### Scratch files
+
+Any ephemeral notes, drafts, or intermediate thinking produced during implementation must be saved to `<proj>/.ai/adk/memory/thinking/`. Promote useful findings to brain files before closing the session. Delete scratch files that add no lasting value.
+
 ### Pre-flight check
 
 Before creating any artifact, verify the issue folder already exists in `.ai/issue/`. If it does not, STOP — planning must be completed first via `adk.workflow.plan-story`. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.

@@ -37,6 +37,10 @@ UI Designer owns how interfaces **look**: typography, color, spacing, iconograph
 - Specify visual states (default, hover, active, disabled, focus, error).
 - Provide implementation-ready design guidance following the `adk.ui-specification` skill template.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST
 
 - Prioritize visual clarity and hierarchy: primary actions and key information must stand out.

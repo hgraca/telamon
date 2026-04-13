@@ -20,6 +20,10 @@ Produce a plan for a user story composed of:
 
 Place all artifacts in a single `<issue-folder>` under `.ai/issue/`. Planning artifacts must not be committed to git.
 
+### Scratch files
+
+Any ephemeral notes, drafts, or intermediate thinking produced during planning must be saved to `<proj>/.ai/adk/memory/thinking/`. Promote any useful findings from `thinking/` to the appropriate brain file or issue artifact before closing the session. Delete scratch files that add no lasting value.
+
 ### Folder naming
 
 `.ai/issue/NN-<title_slug>/`

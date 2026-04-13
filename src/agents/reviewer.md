@@ -36,6 +36,10 @@ If the changeset exceeds 30 files or 1500 lines, request the developer break it 
 - Approve or request changes before merging.
 - Produce a review report following the `adk.changeset-review` skill template.
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST NOT
 
 - Write production code — report issues for the developer to fix

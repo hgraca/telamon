@@ -48,6 +48,10 @@ Before starting, confirm:
 - **Requirements ambiguity** (unclear acceptance criteria, domain semantics): ask the PO
 - Use `Question:` / `Answer:` / `Rationale:` format
 
+## Scratch Files
+
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+
 ## MUST NOT
 
 - Make architectural decisions — follow the plan; if it seems wrong, escalate
