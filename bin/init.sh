@@ -7,11 +7,11 @@
 #   bin/init.sh <path/to/project>
 #
 # What it does:
-#   1. Copies src/skills/obsidian-vault/_tmpl/ → storage/obsidian/<project-name>/
+#   1. Copies src/skills/obsidian-vault/_tmpl/ → <project>/.ai/adk/memory/
+#      and creates storage/obsidian/<project-name> → <project>/.ai/adk/memory
 #   2. Symlinks <project>/.opencode/skills/adk → <adk-root>/src/skills
 #   3. Writes   <project>/.ai/adk/adk.ini with the project name variable
 #   4. Symlinks <project>/.ai/adk/secrets → <adk-root>/storage/secrets
-#   4b. Symlinks <project>/.ai/adk/memory → <adk-root>/storage/obsidian/<project>
 #   5. Symlinks <project>/opencode.jsonc → <adk-root>/storage/opencode.jsonc
 #   6. Writes   <project>/.opencode/codebase-index.json
 #   7. Writes or merges AGENTS.md from src/AGENTS.md
@@ -42,25 +42,42 @@ PROJECT_NAME="$(basename "${PROJ}")"
 
 header "ADK init — ${PROJECT_NAME}"
 
-# ── 1. Vault scaffold: copy _tmpl, substitute PROJECT_NAME / DATE_PLACEHOLDER ─
+# ── 1. Vault scaffold: copy _tmpl into <proj>/.ai/adk/memory/ ─────────────────
+# <proj>/.ai/adk/memory/ is the source of truth (real files).
+# storage/obsidian/<project-name> is a symlink pointing back to it so that
+# the shared Obsidian vault config at storage/obsidian/.obsidian/ picks it up.
+MEMORY_DIR="${PROJ}/.ai/adk/memory"
+BRAIN_DIR="${MEMORY_DIR}/brain"
 VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
-BRAIN_DIR="${VAULT_ROOT}/brain"
-VAULT_TMPL="${ADK_ROOT}/src/skills/obsidian-vault/_tmpl"
+VAULT_TMPL="${ADK_ROOT}/src/skills/memory/obsidian-vault/_tmpl"
 TODAY="$(date +%Y-%m-%d)"
 
-step "Creating vault at storage/obsidian/${PROJECT_NAME}/ ..."
-if [[ -d "${VAULT_ROOT}" ]]; then
-  skip "storage/obsidian/${PROJECT_NAME}/ (already exists)"
+step "Creating vault at .ai/adk/memory/ ..."
+if [[ -d "${MEMORY_DIR}" ]]; then
+  skip ".ai/adk/memory/ (already exists)"
 else
-  cp -r "${VAULT_TMPL}" "${VAULT_ROOT}"
+  mkdir -p "${PROJ}/.ai/adk"
+  cp -r "${VAULT_TMPL}" "${MEMORY_DIR}"
   # Substitute placeholders in every copied .md file
-  find "${VAULT_ROOT}" -name "*.md" | while IFS= read -r f; do
+  find "${MEMORY_DIR}" -name "*.md" | while IFS= read -r f; do
     sed -i \
       -e "s/PROJECT_NAME/${PROJECT_NAME}/g" \
       -e "s/DATE_PLACEHOLDER/${TODAY}/g" \
       "${f}"
   done
-  log "Created storage/obsidian/${PROJECT_NAME}/"
+  log "Created .ai/adk/memory/"
+fi
+
+# Create the storage/obsidian/<project> symlink pointing to the project memory dir
+step "Symlinking storage/obsidian/${PROJECT_NAME} → .ai/adk/memory/ ..."
+if [[ -L "${VAULT_ROOT}" ]]; then
+  skip "storage/obsidian/${PROJECT_NAME} symlink (already exists)"
+elif [[ -d "${VAULT_ROOT}" ]]; then
+  warn "storage/obsidian/${PROJECT_NAME} is a real directory — skipping symlink creation"
+else
+  mkdir -p "${ADK_ROOT}/storage/obsidian"
+  ln -s "${MEMORY_DIR}" "${VAULT_ROOT}"
+  log "Symlinked storage/obsidian/${PROJECT_NAME} → ${MEMORY_DIR}"
 fi
 
 # ── 2. Symlink .opencode/skills/adk → <adk-root>/src/skills ─────────────────
@@ -102,14 +119,10 @@ else
   log "Symlinked .ai/adk/secrets → ${ADK_ROOT}/storage/secrets"
 fi
 
-# ── 5b. Symlink .ai/adk/memory → <adk-root>/storage/obsidian/<project> ────────
-MEMORY_LINK="${ADK_SECRETS_DIR}/memory"
-if [[ -L "${MEMORY_LINK}" ]]; then
-  skip ".ai/adk/memory symlink (already exists)"
-else
-  ln -s "${VAULT_ROOT}" "${MEMORY_LINK}"
-  log "Symlinked .ai/adk/memory → ${VAULT_ROOT}"
-fi
+# ── 5b. .ai/adk/memory is the real vault dir (created in step 1) ─────────────
+# No symlink needed here — the real files live at <proj>/.ai/adk/memory/.
+# The reverse symlink (storage/obsidian/<proj> → <proj>/.ai/adk/memory) is
+# created in step 1 above.
 
 # ── 6. opencode config: symlink or merge ─────────────────────────────────────
 # Detect any existing opencode config (symlink or regular file, .jsonc or .json)
@@ -183,5 +196,5 @@ fi
 
 echo
 log "Project '${PROJECT_NAME}' initialised."
-info "Brain notes: ${BRAIN_DIR}/"
-info "Edit ${BRAIN_DIR}/NorthStar.md to set project goals."
+info "Memory notes: ${BRAIN_DIR}/"
+info "Edit ${BRAIN_DIR}/memories.md to record project lessons."

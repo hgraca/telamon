@@ -167,10 +167,10 @@ echo
 echo -e "${BOLD}ADK init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── 1. Vault scaffold (in ADK storage, not in project) ────────────────────────
-_section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/)"
-BRAIN_DIR="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}/brain"
-VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
+# ── 1. Vault scaffold (in project .ai/adk/memory/, not in ADK storage) ───────
+_section "1. Vault scaffold (.ai/adk/memory/)"
+MEMORY_DIR="${PROJ}/.ai/adk/memory"
+BRAIN_DIR="${MEMORY_DIR}/brain"
 
 assert_dir  "${BRAIN_DIR}"                          "brain/"
 assert_file "${BRAIN_DIR}/memories.md"              "brain/memories.md"
@@ -182,11 +182,11 @@ assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" \
 assert_file_contains "${BRAIN_DIR}/memories.md"      "${PROJECT_NAME}" \
   "memories.md contains project name"
 
-assert_dir "${VAULT_ROOT}/work/active"    "work/active/"
-assert_dir "${VAULT_ROOT}/work/archive"   "work/archive/"
-assert_dir "${VAULT_ROOT}/work/incidents" "work/incidents/"
-assert_dir "${VAULT_ROOT}/reference"      "reference/"
-assert_dir "${VAULT_ROOT}/thinking"       "thinking/"
+assert_dir "${MEMORY_DIR}/work/active"    "work/active/"
+assert_dir "${MEMORY_DIR}/work/archive"   "work/archive/"
+assert_dir "${MEMORY_DIR}/work/incidents" "work/incidents/"
+assert_dir "${MEMORY_DIR}/reference"      "reference/"
+assert_dir "${MEMORY_DIR}/thinking"       "thinking/"
 
 # ── 2. .opencode/skills/adk symlink ──────────────────────────────────────────
 _section "2. .opencode/skills/adk symlink"
@@ -207,10 +207,12 @@ _section "5. .ai/adk/secrets"
 assert_symlink "${PROJ}/.ai/adk/secrets" "storage/secrets" \
   ".ai/adk/secrets → <adk-root>/storage/secrets"
 
-# ── 5b. .ai/adk/brain symlink ─────────────────────────────────────────────────
-_section "5b. .ai/adk/memory"
-assert_symlink "${PROJ}/.ai/adk/memory" "storage/obsidian/${PROJECT_NAME}" \
-  ".ai/adk/memory → <adk-root>/storage/obsidian/${PROJECT_NAME}"
+# ── 5b. .ai/adk/memory is a real directory; storage/obsidian/<proj> symlinks to it ──
+_section "5b. .ai/adk/memory (real dir) + storage/obsidian/${PROJECT_NAME} (symlink)"
+assert_dir "${PROJ}/.ai/adk/memory" ".ai/adk/memory (real directory)"
+assert_symlink "${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}" \
+  ".ai/adk/memory" \
+  "storage/obsidian/${PROJECT_NAME} → <proj>/.ai/adk/memory"
 
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"
