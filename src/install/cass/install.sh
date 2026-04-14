@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Install cass (agent session history search) via Homebrew tap, and install
-# the cass agent skill globally so all coding agents (including opencode) get
-# the robot-mode usage guide.
+# Install cass (agent session history search) via Homebrew tap, and download
+# the upstream cass SKILL.md into src/skills/memory/cass/ so it is available
+# to all initialized projects via the .opencode/skills/adk symlink.
 #
 # The initial index is NOT built here — it runs lazily on first `cass search`
 # or can be triggered manually with `cass index`.
@@ -9,6 +9,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -24,18 +25,27 @@ else
   skip "cass ($(cass --version 2>/dev/null || echo 'installed'))"
 fi
 
-# ── Install cass agent skill (global, all agents) ─────────────────────────────
-# Installs to ~/.agents/skills/cass/ which opencode reads as a global skill.
+# ── Download cass agent skill into src/skills/memory/cass/ ────────────────────
 # The skill teaches agents to use --robot mode, token budgets, health checks,
-# and structured error handling — critical for non-interactive use.
-step "Installing cass agent skill..."
-if command -v npx &>/dev/null; then
-  npx --yes skills add https://github.com/dicklesworthstone/coding_agent_session_search \
-    --skill cass --global --yes 2>/dev/null \
-    && log "cass skill installed → ~/.agents/skills/cass/" \
-    || warn "cass skill install failed — run manually: npx skills add https://github.com/dicklesworthstone/coding_agent_session_search --skill cass --global --yes"
+# and structured error handling. It reaches all initialized projects via the
+# .opencode/skills/adk → src/skills symlink created by bin/init.sh.
+SKILL_URL="https://raw.githubusercontent.com/dicklesworthstone/coding_agent_session_search/main/SKILL.md"
+SKILL_DIR="${ADK_ROOT}/src/skills/memory/cass"
+SKILL_FILE="${SKILL_DIR}/SKILL.md"
+
+step "Downloading cass skill → src/skills/memory/cass/SKILL.md ..."
+mkdir -p "${SKILL_DIR}"
+if curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null; then
+  log "cass skill downloaded → src/skills/memory/cass/SKILL.md"
 else
-  warn "npx not found — skipping cass skill install (install Node.js first)"
+  warn "cass skill download failed — run manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
+fi
+
+# Remove the global skill if it was previously installed there by mistake
+if [[ -d "${HOME}/.agents/skills/cass" ]]; then
+  step "Removing stale global cass skill from ~/.agents/skills/cass/ ..."
+  rm -rf "${HOME}/.agents/skills/cass"
+  log "Removed ~/.agents/skills/cass/"
 fi
 
 info "Run 'cass index' to build the session index (skipped here — can be slow)."

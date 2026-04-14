@@ -101,14 +101,13 @@ if command -v cass &>/dev/null; then
     || true
   log "cass → $(cass --version 2>/dev/null || echo 'updated')"
 
-  step "Updating cass agent skill..."
-  if command -v npx &>/dev/null; then
-    npx --yes skills update cass --global --yes 2>/dev/null \
-      && log "cass skill updated → ~/.agents/skills/cass/" \
-      || warn "cass skill update failed — run manually: npx skills update cass --global --yes"
-  else
-    warn "npx not found — skipping cass skill update"
-  fi
+  step "Updating cass skill → src/skills/memory/cass/SKILL.md ..."
+  SKILL_URL="https://raw.githubusercontent.com/dicklesworthstone/coding_agent_session_search/main/SKILL.md"
+  SKILL_FILE="${ADK_ROOT}/src/skills/memory/cass/SKILL.md"
+  mkdir -p "$(dirname "${SKILL_FILE}")"
+  curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null \
+    && log "cass skill updated" \
+    || warn "cass skill update failed — run manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
 else
   _skip_tool "cass"
 fi
