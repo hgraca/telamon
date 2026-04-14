@@ -25,8 +25,10 @@ Read `.ai/adk/memory/brain/memories.md` — knowledge index for this project.
 - If YES: index is ready — semantic code search available
 
 **cass session history:**
-- Run `cass index` if you haven't yet on this machine
-- Adds all past agent sessions to the searchable index
+- Load the `cass` skill for full usage guide (robot mode, token budgets, filters)
+- Run `cass index` once per machine to build the index; updates automatically after that
+- **Always use `--robot`** — bare `cass search` launches an interactive TUI and blocks the session
+- Search: `cass search "<topic>" --robot --workspace "$(pwd)" --limit 5`
 
 ## Step 3 — Retrieval priority:
 | Question type | Tool |
@@ -38,7 +40,7 @@ Read `.ai/adk/memory/brain/memories.md` — knowledge index for this project.
 | Architecture, relationships, god nodes | `graphify query "<question>"` |
 | Code by meaning ("find auth logic") | codebase-index (ask naturally) |
 | Past decisions/bugs this project | `ogham search "<keywords>"` |
-| Past session conversations | `cass search "<topic>"` |
+| Past session conversations | `cass search "<topic>" --robot --workspace "$(pwd)"` (load `cass` skill for full guide) |
 | Specs, ADRs, requirements | Obsidian vault search (follow obsidian-vault skill) |
 
 ## Step 4 — Save to BOTH Ogham AND Obsidian brain/ when:

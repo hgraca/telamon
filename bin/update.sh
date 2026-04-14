@@ -100,6 +100,15 @@ if command -v cass &>/dev/null; then
     || brew upgrade cass 2>/dev/null \
     || true
   log "cass → $(cass --version 2>/dev/null || echo 'updated')"
+
+  step "Updating cass agent skill..."
+  if command -v npx &>/dev/null; then
+    npx --yes skills update cass --global --yes 2>/dev/null \
+      && log "cass skill updated → ~/.agents/skills/cass/" \
+      || warn "cass skill update failed — run manually: npx skills update cass --global --yes"
+  else
+    warn "npx not found — skipping cass skill update"
+  fi
 else
   _skip_tool "cass"
 fi
