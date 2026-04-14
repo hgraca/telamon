@@ -4,7 +4,7 @@ description: Deep structural audit of the memory vault — check folder placemen
 
 Deep structural audit of `.ai/adk/memory/`. Fix what can be fixed; flag what needs user input.
 
-**When to use**: After substantial sessions, after reorganisation, or periodically to maintain vault health. For lighter end-of-session checks, use `/wrap-up` instead.
+**When to use**: After substantial sessions, after reorganisation, or periodically to maintain vault health. For lighter end-of-session checks, say "wrap up" to trigger the session-capture skill automatically.
 
 ## 1. Check Folder Structure
 

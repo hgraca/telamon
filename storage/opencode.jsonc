@@ -9,7 +9,8 @@
   "default_agent": "developer",
   "plugin": [
     "opencode-scheduler",
-    ".opencode/plugins/graphify.js"
+    ".opencode/plugins/graphify.js",
+    ".opencode/plugins/session-capture.js"
   ],
   "permission": {
     "edit": "allow",

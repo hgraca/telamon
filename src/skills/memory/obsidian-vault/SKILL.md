@@ -95,23 +95,9 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 
 ## Wrap-up workflow
 
-When the user says "wrap up", "let's wrap", "wrapping up", or similar — run this before ending:
-
-1. **Promote learnings to brain/**:
-   - New architectural decision → append to `.ai/adk/memory/brain/key_decisions.md`
-   - Human stakeholder answer → append to `.ai/adk/memory/brain/key_decisions.md`
-   - New codebase pattern → append to `.ai/adk/memory/brain/patterns.md`
-   - New gotcha or constraint → append to `.ai/adk/memory/brain/gotchas.md`
-
-2. **Archive completed work**:
-   - Move completed `work/active/` notes to `work/archive/YYYY/`
-
-3. **Save to Ogham**:
-   - Run `ogham hooks inscribe` to capture session activity
-   - Explicitly store any decisions or bugs not yet saved
-
-4. **Verify links**:
-   - Check that new notes have at least one inbound wikilink
-   - Orphan notes (no links) should be linked or deleted
-
-Tell the user what was promoted and what was saved before ending the session.
+When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `session-capture` skill (adk.session-capture). It covers:
+1. Promote learnings to brain/ notes (key_decisions, patterns, gotchas)
+2. Archive completed work/active/ notes
+3. `ogham hooks inscribe`
+4. Verify new notes have [[wikilinks]]
+5. Report what was promoted and saved

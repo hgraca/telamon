@@ -51,7 +51,7 @@ Read `.ai/adk/memory/brain/memories.md` — knowledge index for this project.
 ## Never save: ls/git status/cat/pwd, secrets, trivial single-line edits
 
 ## Wrap-up (when user says "wrap up", "wrapping up", "let's wrap"):
-Follow the obsidian-vault skill wrap-up workflow:
+Follow the session-capture skill (adk.session-capture):
 1. Promote session learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
 3. `ogham hooks inscribe`

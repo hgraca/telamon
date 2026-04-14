@@ -20,6 +20,7 @@
 #   6. Writes   <project>/.opencode/codebase-index.json
 #   7. Writes or merges AGENTS.md from src/AGENTS.md
 #   8. Installs Graphify git hooks and OpenCode plugin in the project
+#   9. Installs session-capture OpenCode plugin in the project
 
 set -euo pipefail
 
@@ -217,6 +218,9 @@ fi
 
 # ── 9. Graphify git hooks + OpenCode plugin ───────────────────────────────────
 (cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/graphify/init-project.sh")
+
+# ── 10. Session-capture OpenCode plugin ──────────────────────────────────────
+(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/session-capture/init-project.sh")
 
 echo
 log "Project '${PROJECT_NAME}' initialised."
