@@ -127,7 +127,7 @@ Obsidian must be installed separately (see [Prerequisites](#prerequisites)).
 Indexes past agent session conversations and makes them full-text searchable. 
 Useful for recovering context from previous sessions: *"what did we decide about the payment flow last week?"*
 
-- Built once with `cass index`; updates automatically
+- Built once with `cass index --full`; a **post-commit git hook** installed by `make init` runs `cass index` incrementally after every commit to keep the index current
 - Search with `cass search --robot "<topic>"` (the `--robot` flag is required — bare `cass search` launches a blocking interactive TUI)
 
 ---
@@ -266,6 +266,7 @@ This will:
 - Write `<project>/.ai/adk/adk.ini` with the project name variable
 - Install the **Graphify** git hook and OpenCode plugin in the project
 - Install the **session-capture** OpenCode plugin in the project (auto-captures before compaction)
+- Install the **cass** post-commit git hook in the project (incremental index after every commit)
 
 After this, when `opencode` starts in the project, it automatically loads the ADK context and skills.
 
@@ -299,7 +300,7 @@ ogham hooks recall            # surface relevant past context
 Then check and build (once each, if missing):
 - Graphify knowledge graph: `graphify .`
 - Codebase index: `index_codebase` tool
-- cass index: `cass index`
+- cass index (first time only): `cass index --full`
 
 ---
 
@@ -457,7 +458,7 @@ src/
     nodejs/install.sh
     ogham/                   # ogham binary + config + FlashRank reranking
     graphify/                # graphify binary + per-project git hook + opencode plugin
-    cass/                    # cass binary + skill download
+    cass/                    # cass binary + skill download + init-project.sh (post-commit hook)
     caveman/                 # caveman skill download (no binary)
     rtk/                     # RTK binary + opencode plugin wiring
     opencode/                # opencode binary + shared storage/opencode.jsonc template
