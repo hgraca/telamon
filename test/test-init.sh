@@ -167,26 +167,36 @@ echo
 echo -e "${BOLD}ADK init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── 1. Vault scaffold (in project .ai/adk/memory/, not in ADK storage) ───────
-_section "1. Vault scaffold (.ai/adk/memory/)"
-MEMORY_DIR="${PROJ}/.ai/adk/memory"
-BRAIN_DIR="${MEMORY_DIR}/brain"
+# ── 1. Vault scaffold (in storage/obsidian/<proj>/, symlinked from <proj>/.ai/adk/memory) ──
+_section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/)"
+VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
+BRAIN_DIR="${VAULT_ROOT}/brain"
+VAULT_TMPL="${ADK_ROOT}/src/skills/memory/obsidian-vault/_tmpl"
 
-assert_dir  "${BRAIN_DIR}"                          "brain/"
-assert_file "${BRAIN_DIR}/memories.md"              "brain/memories.md"
-assert_file "${BRAIN_DIR}/key_decisions.md"         "brain/key_decisions.md"
-assert_file "${BRAIN_DIR}/patterns.md"              "brain/patterns.md"
-assert_file "${BRAIN_DIR}/gotchas.md"               "brain/gotchas.md"
-assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" \
-  "key_decisions.md contains project name"
-assert_file_contains "${BRAIN_DIR}/memories.md"      "${PROJECT_NAME}" \
-  "memories.md contains project name"
+# Dirs must be real directories (not symlinks)
+assert_dir "${VAULT_ROOT}"                     "storage/obsidian/${PROJECT_NAME}/"
+assert_dir "${BRAIN_DIR}"                      "brain/"
+assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
+assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
+assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
+assert_dir "${VAULT_ROOT}/reference"           "reference/"
+assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 
-assert_dir "${MEMORY_DIR}/work/active"    "work/active/"
-assert_dir "${MEMORY_DIR}/work/archive"   "work/archive/"
-assert_dir "${MEMORY_DIR}/work/incidents" "work/incidents/"
-assert_dir "${MEMORY_DIR}/reference"      "reference/"
-assert_dir "${MEMORY_DIR}/thinking"       "thinking/"
+# Brain files with substituted placeholders must be real files (copied)
+assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
+assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
+assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
+assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
+assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
+assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+
+# Non-placeholder files must be symlinks pointing into _tmpl/
+assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
+  "_tmpl/bootstrap/session.md" \
+  "bootstrap/session.md → _tmpl source"
+assert_symlink "${VAULT_ROOT}/reference/git.md" \
+  "_tmpl/reference/git.md" \
+  "reference/git.md → _tmpl source"
 
 # ── 2. .opencode/skills/adk symlink ──────────────────────────────────────────
 _section "2. .opencode/skills/adk symlink"
@@ -207,12 +217,11 @@ _section "5. .ai/adk/secrets"
 assert_symlink "${PROJ}/.ai/adk/secrets" "storage/secrets" \
   ".ai/adk/secrets → <adk-root>/storage/secrets"
 
-# ── 5b. .ai/adk/memory is a real directory; storage/obsidian/<proj> symlinks to it ──
-_section "5b. .ai/adk/memory (real dir) + storage/obsidian/${PROJECT_NAME} (symlink)"
-assert_dir "${PROJ}/.ai/adk/memory" ".ai/adk/memory (real directory)"
-assert_symlink "${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}" \
-  ".ai/adk/memory" \
-  "storage/obsidian/${PROJECT_NAME} → <proj>/.ai/adk/memory"
+# ── 5b. <proj>/.ai/adk/memory → storage/obsidian/<proj>/ ─────────────────────
+_section "5b. .ai/adk/memory symlink"
+assert_symlink "${PROJ}/.ai/adk/memory" \
+  "storage/obsidian/${PROJECT_NAME}" \
+  ".ai/adk/memory → <adk-root>/storage/obsidian/${PROJECT_NAME}"
 
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"

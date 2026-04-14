@@ -7,8 +7,12 @@
 #   bin/init.sh <path/to/project>
 #
 # What it does:
-#   1. Copies src/skills/obsidian-vault/_tmpl/ → <project>/.ai/adk/memory/
-#      and creates storage/obsidian/<project-name> → <project>/.ai/adk/memory
+#   1. Builds storage/obsidian/<project-name>/ by:
+#        - mirroring the _tmpl/ folder structure (real dirs)
+#        - symlinking every file that has no placeholders → _tmpl/<rel-path>
+#        - copying + substituting every file that contains PROJECT_NAME /
+#          DATE_PLACEHOLDER (currently the four brain/*.md files)
+#      Then symlinks <project>/.ai/adk/memory → storage/obsidian/<project-name>
 #   2. Symlinks <project>/.opencode/skills/adk → <adk-root>/src/skills
 #   3. Writes   <project>/.ai/adk/adk.ini with the project name variable
 #   4. Symlinks <project>/.ai/adk/secrets → <adk-root>/storage/secrets
@@ -42,42 +46,59 @@ PROJECT_NAME="$(basename "${PROJ}")"
 
 header "ADK init — ${PROJECT_NAME}"
 
-# ── 1. Vault scaffold: copy _tmpl into <proj>/.ai/adk/memory/ ─────────────────
-# <proj>/.ai/adk/memory/ is the source of truth (real files).
-# storage/obsidian/<project-name> is a symlink pointing back to it so that
-# the shared Obsidian vault config at storage/obsidian/.obsidian/ picks it up.
-MEMORY_DIR="${PROJ}/.ai/adk/memory"
-BRAIN_DIR="${MEMORY_DIR}/brain"
+# ── 1. Vault scaffold ─────────────────────────────────────────────────────────
+# Layout:
+#   storage/obsidian/<proj>/   — mirrored dir tree; files are symlinks → _tmpl
+#                                except the 4 brain files which are real copies
+#                                (they contain PROJECT_NAME / DATE_PLACEHOLDER
+#                                substitutions so they cannot be symlinks)
+#   <proj>/.ai/adk/memory      — symlink → storage/obsidian/<proj>
 VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
 VAULT_TMPL="${ADK_ROOT}/src/skills/memory/obsidian-vault/_tmpl"
+MEMORY_LINK="${PROJ}/.ai/adk/memory"
+BRAIN_DIR="${VAULT_ROOT}/brain"
 TODAY="$(date +%Y-%m-%d)"
 
-step "Creating vault at .ai/adk/memory/ ..."
-if [[ -d "${MEMORY_DIR}" ]]; then
-  skip ".ai/adk/memory/ (already exists)"
-else
-  mkdir -p "${PROJ}/.ai/adk"
-  cp -r "${VAULT_TMPL}" "${MEMORY_DIR}"
-  # Substitute placeholders in every copied .md file
-  find "${MEMORY_DIR}" -name "*.md" | while IFS= read -r f; do
-    sed -i \
-      -e "s/PROJECT_NAME/${PROJECT_NAME}/g" \
-      -e "s/DATE_PLACEHOLDER/${TODAY}/g" \
-      "${f}"
-  done
-  log "Created .ai/adk/memory/"
-fi
-
-# Create the storage/obsidian/<project> symlink pointing to the project memory dir
-step "Symlinking storage/obsidian/${PROJECT_NAME} → .ai/adk/memory/ ..."
-if [[ -L "${VAULT_ROOT}" ]]; then
-  skip "storage/obsidian/${PROJECT_NAME} symlink (already exists)"
-elif [[ -d "${VAULT_ROOT}" ]]; then
-  warn "storage/obsidian/${PROJECT_NAME} is a real directory — skipping symlink creation"
+step "Building vault at storage/obsidian/${PROJECT_NAME}/ ..."
+if [[ -d "${VAULT_ROOT}" ]]; then
+  skip "storage/obsidian/${PROJECT_NAME}/ (already exists)"
 else
   mkdir -p "${ADK_ROOT}/storage/obsidian"
-  ln -s "${MEMORY_DIR}" "${VAULT_ROOT}"
-  log "Symlinked storage/obsidian/${PROJECT_NAME} → ${MEMORY_DIR}"
+
+  # Walk the template tree: create real dirs, symlink or copy each file
+  while IFS= read -r tmpl_file; do
+    rel="${tmpl_file#"${VAULT_TMPL}/"}"          # e.g. brain/memories.md
+    dest="${VAULT_ROOT}/${rel}"
+    dest_dir="$(dirname "${dest}")"
+
+    mkdir -p "${dest_dir}"
+
+    if grep -q "PROJECT_NAME\|DATE_PLACEHOLDER" "${tmpl_file}" 2>/dev/null; then
+      # File has placeholders → real copy with substitution
+      cp "${tmpl_file}" "${dest}"
+      sed -i \
+        -e "s/PROJECT_NAME/${PROJECT_NAME}/g" \
+        -e "s/DATE_PLACEHOLDER/${TODAY}/g" \
+        "${dest}"
+    else
+      # No placeholders → symlink to the template source
+      ln -s "${tmpl_file}" "${dest}"
+    fi
+  done < <(find "${VAULT_TMPL}" -type f | sort)
+
+  log "Built storage/obsidian/${PROJECT_NAME}/"
+fi
+
+# Symlink <proj>/.ai/adk/memory → storage/obsidian/<proj>
+step "Symlinking .ai/adk/memory → storage/obsidian/${PROJECT_NAME} ..."
+if [[ -L "${MEMORY_LINK}" ]]; then
+  skip ".ai/adk/memory symlink (already exists)"
+elif [[ -d "${MEMORY_LINK}" ]]; then
+  warn ".ai/adk/memory is a real directory — skipping symlink creation"
+else
+  mkdir -p "${PROJ}/.ai/adk"
+  ln -s "${VAULT_ROOT}" "${MEMORY_LINK}"
+  log "Symlinked .ai/adk/memory → ${VAULT_ROOT}"
 fi
 
 # ── 2. Symlink .opencode/skills/adk → <adk-root>/src/skills ─────────────────
