@@ -7,6 +7,14 @@ description: "Capture everything worth keeping before context is compacted. Runs
 
 Run this before compaction or when wrapping up a session. It combines memory promotion, freeform routing, and cleanup into a single pass.
 
+## 0. Check Last-Capture Watermark
+
+Before scanning anything, check `.ai/adk/memory/thinking/.last-capture`:
+- If it **exists**: only process content produced *after* the `timestamp` recorded there. Use `git log --oneline --after="<timestamp>" --no-merges` to scope commit history. Skip anything already filed.
+- If it **does not exist**: this is the first capture — process all session content.
+
+(When triggered via the compaction plugin, the scope is already injected into the prompt — no need to re-read the file.)
+
 ## 1. Identify What Happened
 
 Scan the session for things worth keeping:
@@ -18,7 +26,7 @@ Scan the session for things worth keeping:
 - **Freeform notes** — anything the user dumped or mentioned that wasn't filed
 
 Also check:
-- `git log --oneline --since="4 hours ago" --no-merges` for recent commits
+- `git log --oneline --after="<last-capture timestamp, or 4 hours ago if first run>" --no-merges` for recent commits
 - `.ai/adk/memory/thinking/` for existing scratch files from this session
 
 ## 2. Route to Brain Notes
