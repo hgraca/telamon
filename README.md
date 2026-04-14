@@ -134,11 +134,12 @@ Useful for recovering context from previous sessions: *"what did we decide about
 
 ### 📸 Session Capture — Automatic Memory Promotion
 
-An OpenCode plugin that fires before every context compaction and on explicit wrap-up. 
+An OpenCode plugin that fires after every completed agent turn (`session.idle`) and on explicit wrap-up. 
 It promotes session learnings to the vault's `brain/` notes and Ogham automatically — no manual intervention needed.
 
-- **Pre-compaction hook**: runs before the LLM generates a compaction summary; ensures nothing is lost when the context window shrinks
+- **Idle trigger**: fires after every agent turn; throttled to at most once per 30 minutes so it doesn't interrupt active work
 - **Wrap-up trigger**: say *"wrap up"* to run a full capture pass at any time
+- **Infinite-loop safe**: watermark is written before the capture prompt is sent, so the agent's response to the capture request doesn't re-trigger the plugin
 - **Per-worktree watermark**: tracks what has already been captured so concurrent agents in different git worktrees don't duplicate entries
 - Routes content to the right destination automatically: decisions → `key_decisions.md`, patterns → `patterns.md`, bugs → `gotchas.md`, etc.
 
@@ -223,7 +224,7 @@ A skill that switches the agent into an ultra-compressed communication mode — 
 | **Long sessions** | Caveman | Reduces response verbosity ~75% on demand |
 | **After significant work** | Ogham | Stores new decisions, patterns, bug fixes |
 | **After significant work** | Obsidian | Promotes learnings to `brain/` notes |
-| **Before compaction** | Session Capture | Auto-promotes learnings; runs before every context compaction |
+| **After each agent turn** | Session Capture | Auto-promotes learnings every 30 min (throttled); runs after `session.idle` |
 | **End of session** | Ogham + Obsidian | Inscribes session summary; archives completed work notes |
 
 ---

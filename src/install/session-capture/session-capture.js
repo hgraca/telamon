@@ -1,41 +1,44 @@
 // session-capture plugin
-// Injects the session-capture skill into the compaction prompt so the model
-// saves everything worth keeping to the Obsidian vault before context is lost.
+// Triggers the session-capture skill after the agent goes idle (session.idle),
+// so learnings are promoted to the Obsidian vault and Ogham automatically
+// after each completed work block — not just at compaction time.
 //
-// Watermark: reads .ai/adk/memory/thinking/.last-capture-<worktree-slug>.json
-// before each run and writes an updated one after, so the skill only processes
-// content produced since the previous capture — preventing duplicate entries on
-// repeat compactions.
+// Throttle: only fires when at least MIN_CAPTURE_INTERVAL_MS have elapsed
+// since the last capture. The watermark is written BEFORE the prompt is sent
+// so that when the agent finishes the capture and fires session.idle again,
+// the interval check skips it — preventing an infinite loop.
 //
-// The watermark is scoped to the git worktree directory name so that concurrent
-// agents working in different worktrees track their own capture history
-// independently, even though they share the same vault thinking/ directory.
+// Watermark is scoped to the git worktree directory name so concurrent agents
+// in different worktrees track their own capture history independently.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname, basename } from "path";
 
+// Minimum time between automated captures. Must be longer than the time the
+// agent takes to complete a capture run (typically < 5 min), with headroom.
+const MIN_CAPTURE_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
+
 function worktreeSlug(worktree, directory) {
-  // Use the worktree directory basename as a human-readable discriminator.
-  // Falls back to the project directory basename if worktree is not set.
   const raw = basename(worktree || directory || "default");
   return raw.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
 }
 
-export const SessionCapturePlugin = async ({ directory, worktree }) => {
+export const SessionCapturePlugin = async ({ directory, worktree, client }) => {
   const slug = worktreeSlug(worktree, directory);
   const WATERMARK_REL = `.ai/adk/memory/thinking/.last-capture-${slug}.json`;
 
   return {
-    "experimental.session.compacting": async (input, output) => {
-      const skillPath = join(
-        directory,
-        ".opencode/skills/session-capture/SKILL.md"
-      );
-      if (!existsSync(skillPath)) return;
+    event: async ({ event }) => {
+      if (event.type !== "session.idle") return;
 
-      const skill = readFileSync(skillPath, "utf8");
+      // Extract session ID — guard against different event shapes across versions
+      const sessionId =
+        event?.properties?.info?.id ||
+        event?.properties?.sessionID ||
+        event?.properties?.id;
+      if (!sessionId) return;
 
-      // Read existing watermark for this worktree (if any)
+      // Throttle: skip if last capture was recent
       const watermarkFile = join(directory, WATERMARK_REL);
       let lastCapture = null;
       if (existsSync(watermarkFile)) {
@@ -46,30 +49,50 @@ export const SessionCapturePlugin = async ({ directory, worktree }) => {
         }
       }
 
-      // Write updated watermark now (before the model runs) so that if
-      // compaction fires again before the model finishes, we don't double-run.
-      const now = new Date().toISOString();
+      const now = Date.now();
+      if (lastCapture?.timestamp) {
+        const elapsed = now - new Date(lastCapture.timestamp).getTime();
+        if (elapsed < MIN_CAPTURE_INTERVAL_MS) return;
+      }
+
+      // Write watermark BEFORE sending the prompt so that when the agent
+      // finishes the capture response and fires session.idle again, the
+      // interval check above skips it — no infinite loop.
+      const nowIso = new Date(now).toISOString();
       mkdirSync(dirname(watermarkFile), { recursive: true });
       writeFileSync(
         watermarkFile,
-        JSON.stringify({ timestamp: now, worktree: worktree || directory }),
+        JSON.stringify({ timestamp: nowIso, worktree: worktree || directory }),
         "utf8"
       );
 
-      const sinceClause = lastCapture
-        ? `**Only process content produced AFTER ${lastCapture.timestamp}** — everything before that timestamp was already captured in a previous run of this worktree. Use \`git log --oneline --after="${lastCapture.timestamp}" --no-merges\` to scope commit history.`
-        : `This is the first capture for this worktree — process all session content.`;
-
-      output.context.push(`## Pre-Compaction Memory Capture
-
-Before generating the continuation summary, run the session-capture skill in full.
-Do not skip or abbreviate it — compaction is the last chance to preserve session knowledge.
-
-Watermark file for this worktree: \`${WATERMARK_REL}\`
-
-${sinceClause}
-
-${skill}`);
+      // Prompt the agent to run the session-capture skill.
+      // At idle the agent still has full context and skills loaded, so we only
+      // need a brief trigger — no need to inject the skill content here.
+      try {
+        await client.session.prompt({
+          path: { id: sessionId },
+          body: {
+            parts: [
+              {
+                type: "text",
+                text: "[ADK] Please run the session-capture skill now.",
+              },
+            ],
+          },
+        });
+      } catch (err) {
+        // Non-fatal. Roll back the watermark so the next idle can retry.
+        console.error(
+          "[session-capture] Failed to send capture prompt:",
+          err?.message ?? err
+        );
+        if (lastCapture) {
+          try {
+            writeFileSync(watermarkFile, JSON.stringify(lastCapture), "utf8");
+          } catch {}
+        }
+      }
     },
   };
 };

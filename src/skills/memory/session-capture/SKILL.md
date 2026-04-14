@@ -1,11 +1,11 @@
 ---
 name: session-capture
-description: "Capture everything worth keeping before context is compacted. Runs automatically before compaction and on explicit wrap-up. Promotes learnings to brain/ notes, routes freeform content to the right vault files, cleans up thinking/ drafts, and saves to Ogham."
+description: "Capture everything worth keeping from the current session. Runs automatically after the agent goes idle (session.idle) and on explicit wrap-up. Promotes learnings to brain/ notes, routes freeform content to the right vault files, cleans up thinking/ drafts, and saves to Ogham."
 ---
 
 # Session Capture
 
-Run this before compaction or when wrapping up a session. It combines memory promotion, freeform routing, and cleanup into a single pass.
+Run this when the agent goes idle or when wrapping up a session. It combines memory promotion, freeform routing, and cleanup into a single pass.
 
 ## 0. Check Last-Capture Watermark
 
@@ -23,9 +23,6 @@ directory (e.g. `my-project`, `my-project-feat-auth`).
   scope commit history. Skip anything already filed.
 - If it **does not exist**: this is the first capture for this worktree —
   process all session content.
-
-(When triggered via the compaction plugin, the watermark path and scope clause
-are already injected into the prompt — no need to re-read the file.)
 
 ## 1. Identify What Happened
 
@@ -87,7 +84,7 @@ New notes must link to at least one existing note via `[[wikilink]]`. An orphan 
 
 ## 6. Report (on explicit wrap-up only)
 
-When triggered manually (not by compaction), present a concise summary:
+When triggered manually (not by the automated session.idle plugin), present a concise summary:
 - **Captured**: what was added to brain notes and where
 - **Promoted**: what was promoted from thinking/ to brain files
 - **Saved**: what was sent to Ogham
