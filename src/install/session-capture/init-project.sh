@@ -1,31 +1,20 @@
 #!/usr/bin/env bash
-# Install the session-capture OpenCode plugin in the current project.
+# Session-capture project setup.
 #
-# The plugin hooks into experimental.session.compacting to inject the
-# session-capture skill before the LLM generates a compaction summary.
-# This ensures session learnings are captured to the Obsidian vault before
-# context is discarded.
+# The plugin entry (".opencode/plugins/adk/session-capture.js") is already
+# present in storage/opencode.jsonc (added during `make up`). Projects receive
+# the plugin JS via the .opencode/plugins/adk symlink created by `make init`.
+# No per-project copying or configuration is required.
 #
-# The plugin entry ("session-capture") is already present in
-# storage/opencode.jsonc (added during `make up`). For projects with their own
-# opencode config it flows in via merge-config.py in bin/init.sh.
+# This script is intentionally empty; it exists as a placeholder in case
+# future per-project setup steps are added for the session-capture plugin.
 
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 header "Session Capture"
 
-PLUGIN_SRC="${SCRIPT_DIR}/session-capture.js"
-PLUGIN_DEST="src/plugins/session-capture.js"
-
-mkdir -p "src/plugins"
-if [[ -f "${PLUGIN_DEST}" ]]; then
-  skip "${PLUGIN_DEST} (already exists)"
-else
-  cp "${PLUGIN_SRC}" "${PLUGIN_DEST}"
-  log "Copied session-capture plugin → ${PLUGIN_DEST}"
-fi
+skip "No per-project setup required (plugin delivered via .opencode/plugins/adk symlink)"

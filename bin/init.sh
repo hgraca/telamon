@@ -14,15 +14,15 @@
 #          DATE_PLACEHOLDER (currently the four brain/*.md files)
 #      Then symlinks <project>/.ai/adk/memory → storage/obsidian/<project-name>
 #   2. Symlinks <project>/.opencode/skills/adk → <adk-root>/src/skills
-#   3. Writes   <project>/.ai/adk/adk.ini with the project name variable
-#   4. Symlinks <project>/.ai/adk/secrets → <adk-root>/storage/secrets
-#   5. Symlinks <project>/opencode.jsonc → <adk-root>/storage/opencode.jsonc
-#   6. Writes   <project>/.opencode/codebase-index.json
-#   7. Writes or merges AGENTS.md from src/AGENTS.md
-#   8. Installs Graphify git hooks and OpenCode plugin in the project
-#   9. Installs session-capture OpenCode plugin in the project
- #  10. Installs cass post-commit git hook in the project
- #  11. Registers QMD vault collections and builds initial semantic index
+#   3. Symlinks <project>/.opencode/plugins/adk → <adk-root>/src/plugins
+#   4. Writes   <project>/.ai/adk/adk.ini with the project name variable
+#   5. Symlinks <project>/.ai/adk/secrets → <adk-root>/storage/secrets
+#   6. Symlinks <project>/opencode.jsonc → <adk-root>/storage/opencode.jsonc
+#   7. Writes   <project>/.opencode/codebase-index.json
+#   8. Writes or merges AGENTS.md from src/AGENTS.md
+#   9. Installs Graphify git hooks in the project
+#  10. Installs cass post-commit git hook in the project
+#  11. Registers QMD vault collections and builds initial semantic index
 
 set -euo pipefail
 
@@ -119,7 +119,19 @@ else
   log "Symlinked .opencode/skills/adk → ${ADK_ROOT}/src/skills"
 fi
 
-# ── 3. Write .ai/adk/adk.ini ─────────────────────────────────────────────────
+# ── 3. Symlink .opencode/plugins/adk → <adk-root>/src/plugins ───────────────
+PLUGINS_DIR="${PROJ}/.opencode/plugins"
+mkdir -p "${PLUGINS_DIR}"
+
+PLUGINS_LINK="${PLUGINS_DIR}/adk"
+if [[ -L "${PLUGINS_LINK}" ]]; then
+  skip ".opencode/plugins/adk symlink (already exists)"
+else
+  ln -s "${ADK_ROOT}/src/plugins" "${PLUGINS_LINK}"
+  log "Symlinked .opencode/plugins/adk → ${ADK_ROOT}/src/plugins"
+fi
+
+# ── 4. Write .ai/adk/adk.ini ─────────────────────────────────────────────────
 ADK_INI="${PROJ}/.ai/adk/adk.ini"
 if [[ -f "${ADK_INI}" ]]; then
   skip ".ai/adk/adk.ini (already exists)"
@@ -218,16 +230,13 @@ else
   fi
 fi
 
-# ── 9. Graphify git hooks + OpenCode plugin ───────────────────────────────────
+# ── 9. Graphify git hooks ────────────────────────────────────────────────────
 (cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/graphify/init-project.sh")
 
-# ── 10. Session-capture OpenCode plugin ──────────────────────────────────────
-(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/session-capture/init-project.sh")
-
-# ── 11. cass post-commit git hook ────────────────────────────────────────────
+# ── 10. cass post-commit git hook ────────────────────────────────────────────
 (cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/cass/init-project.sh")
 
-# ── 12. QMD vault collections ─────────────────────────────────────────────────
+# ── 11. QMD vault collections ─────────────────────────────────────────────────
 (cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" ADK_ROOT="${ADK_ROOT}" bash "${ADK_ROOT}/src/install/qmd/init-project.sh")
 
 echo

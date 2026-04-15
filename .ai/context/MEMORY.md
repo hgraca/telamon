@@ -4,6 +4,38 @@ Reusable decisions and discoveries across sessions. Add new entries at the top o
 
 ---
 
+## QMD
+
+### QMD index path is controlled via `XDG_CACHE_HOME` only
+**Date**: 2026-04-15
+QMD has no `--db-path` flag or `QMD_HOME` env var. The only way to redirect its index (and model cache) away from `~/.cache/qmd/` is `XDG_CACHE_HOME`. Setting it to `${ADK_ROOT}/storage` puts both `storage/qmd/index.sqlite` and `storage/qmd/models/` under the ADK's storage tree (all gitignored by `storage/*`).
+
+### `XDG_CACHE_HOME` for QMD must be set in four places
+**Date**: 2026-04-15
+Because `XDG_CACHE_HOME` is a global variable (affects all XDG-compliant apps), it must NOT be exported globally. Instead set it in every context where `qmd` runs:
+1. **ADK scripts** (`init-project.sh`, `update.sh`): `export XDG_CACHE_HOME="${ADK_ROOT}/storage"` at the top of the qmd section
+2. **MCP server** (`opencode.jsonc`): `"environment": { "XDG_CACHE_HOME": "{file:.ai/adk/secrets/qmd-cache-home}" }`
+3. **Secrets file** (`storage/secrets/qmd-cache-home`): written by `install.sh` with the absolute ADK storage path; referenced by opencode.jsonc
+4. **Shell RC** (`~/.bashrc` / `~/.zshrc`): `qmd() { XDG_CACHE_HOME="<path>" command qmd "$@"; }` wrapper function written by `write-env.sh`
+
+### Shell function wrapper pattern for env-scoped CLI tools
+**Date**: 2026-04-15
+When a CLI tool needs an env var set on every invocation but setting it globally would affect other tools, use a shell function wrapper:
+```bash
+qmd() { XDG_CACHE_HOME="/absolute/path" command qmd "$@"; }
+```
+The `command` builtin bypasses the function and calls the real binary, preventing infinite recursion. This pattern is idempotent when written with a marker comment and refreshed in-place by the installer.
+
+### `{file:...}` in opencode.jsonc can inject any value, not just API keys
+**Date**: 2026-04-15
+The `{file:.ai/adk/secrets/<name>}` pattern in opencode.jsonc MCP `environment` blocks reads the file content and injects it as the env var value. This works for any string — not just secrets. Used to inject the absolute ADK storage path (`storage/secrets/qmd-cache-home`) as `XDG_CACHE_HOME` for the `qmd mcp` server.
+
+### QMD collections: one per vault section, not one big collection
+**Date**: 2026-04-15
+Register separate QMD collections per vault section (`<project>-brain`, `<project>-work`, `<project>-reference`, `<project>-thinking`) rather than one `vault` collection. This lets agents query a specific area without noise from unrelated content. The `bootstrap/` folder is intentionally excluded — it is already loaded via AGENTS.md and does not benefit from semantic search.
+
+---
+
 ## Shell / Bash
 
 ### `docker ps | grep` fails in pipefail subshells

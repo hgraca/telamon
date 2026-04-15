@@ -20,6 +20,6 @@ else
 fi
 
 # ── Register OpenCode plugin in storage/opencode.jsonc ────────────────────────
-# The plugin JS is shipped as a static asset at src/install/graphify/graphify.js.
-# Projects receive it via init-project.sh which copies it to src/plugins/.
-opencode.upsert_plugin "src/plugins/graphify.js"
+# The plugin JS lives in src/plugins/graphify.js (ADK source of truth).
+# Projects receive it via the .opencode/plugins/adk symlink created by `make init`.
+opencode.upsert_plugin ".opencode/plugins/adk/graphify.js"

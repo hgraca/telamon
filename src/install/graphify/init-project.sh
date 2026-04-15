@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # Set up Graphify in the current project: redirect graphify-out to
-# storage/graphify, copy the OpenCode plugin JS, and install git hooks.
+# storage/graphify and install git hooks.
 #
 # graphify always writes to ./graphify-out relative to CWD. We redirect it
 # to <adk-root>/storage/graphify via a symlink so all output is centralised
 # and never scattered across the project tree.
 #
-# The plugin entry ("src/plugins/graphify.js") is already present in
+# The plugin entry (".opencode/plugins/adk/graphify.js") is already present in
 # storage/opencode.jsonc (added by graphify/install.sh during `make up`).
+# Projects receive the plugin JS via the .opencode/plugins/adk symlink created
+# by `make init` — no copying is needed.
 # For projects with their own opencode config it flows in via merge-config.py
-# in bin/init.sh. No separate opencode.json is written here.
+# in bin/init.sh.
 #
 # The graphify skill is shipped as a static file in src/skills/graphify/SKILL.md
 # and is made available to projects via the .opencode/skills/adk symlink created
@@ -18,7 +20,6 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
@@ -47,18 +48,6 @@ elif [[ -d "graphify-out" ]]; then
 else
   ln -s "${GRAPHIFY_STORAGE}" graphify-out
   log "Symlinked graphify-out → ${GRAPHIFY_STORAGE}"
-fi
-
-# ── Copy plugin JS into project ───────────────────────────────────────────────
-PLUGIN_SRC="${SCRIPT_DIR}/graphify.js"
-PLUGIN_DEST="src/plugins/graphify.js"
-
-mkdir -p "src/plugins"
-if [[ -f "${PLUGIN_DEST}" ]]; then
-  skip "${PLUGIN_DEST} (already exists)"
-else
-  cp "${PLUGIN_SRC}" "${PLUGIN_DEST}"
-  log "Copied graphify plugin → ${PLUGIN_DEST}"
 fi
 
 # ── Install git hooks ─────────────────────────────────────────────────────────
