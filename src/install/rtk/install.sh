@@ -41,5 +41,7 @@ else
   warn "RTK global plugin not found at ${RTK_GLOBAL_PLUGIN} — skipping copy"
 fi
 
-# Register in storage/opencode.jsonc so all projects see it via the symlink
-opencode.upsert_plugin ".opencode/plugins/adk/rtk.ts"
+# Register the dedupe wrapper in storage/opencode.jsonc.
+# rtk.ts is kept in src/plugins/ as an import dependency of rtk-dedupe.ts
+# but is NOT registered directly — only the wrapper is registered.
+opencode.upsert_plugin ".opencode/plugins/adk/rtk-dedupe.ts"
