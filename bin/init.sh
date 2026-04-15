@@ -203,7 +203,7 @@ fi
 
 # ── 7. Write .opencode/codebase-index.json ───────────────────────────────────
 step "Writing codebase-index config..."
-(cd "${PROJ}" && bash "${ADK_ROOT}/src/install/codebase-index/init-project.sh")
+(cd "${PROJ}" && bash "${ADK_ROOT}/src/install/codebase-index/init.sh")
 
 # ── 8. Write or merge AGENTS.md ──────────────────────────────────────────────
 # If the project has no AGENTS.md, copy ours. If it does, append any lines from
@@ -231,13 +231,13 @@ else
 fi
 
 # ── 9. Graphify git hooks ────────────────────────────────────────────────────
-(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/graphify/init-project.sh")
+(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/graphify/init.sh")
 
 # ── 10. cass post-commit git hook ────────────────────────────────────────────
-(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/cass/init-project.sh")
+(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" bash "${ADK_ROOT}/src/install/cass/init.sh")
 
 # ── 11. QMD vault collections ─────────────────────────────────────────────────
-(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" ADK_ROOT="${ADK_ROOT}" bash "${ADK_ROOT}/src/install/qmd/init-project.sh")
+(cd "${PROJ}" && INSTALL_PATH="${ADK_ROOT}/src/install" ADK_ROOT="${ADK_ROOT}" bash "${ADK_ROOT}/src/install/qmd/init.sh")
 
 echo
 log "Project '${PROJECT_NAME}' initialised."

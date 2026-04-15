@@ -485,14 +485,14 @@ src/
     nodejs/install.sh
     ogham/                   # ogham binary + config + FlashRank reranking
     graphify/                # graphify binary + per-project git hook + opencode plugin
-    cass/                    # cass binary + skill download + init-project.sh (post-commit hook)
+    cass/                    # cass binary + skill download + init.sh (post-commit hook)
     caveman/                 # caveman skill download (no binary)
-    qmd/                     # qmd binary install + skill download + init-project.sh (vault collections)
+    qmd/                     # qmd binary install + skill download + init.sh (vault collections)
     rtk/                     # RTK binary + opencode plugin wiring
     opencode/                # opencode binary + shared storage/opencode.jsonc template
     codebase-index/          # MCP registration + per-project codebase-index.json
     obsidian/                # Obsidian binary install + MCP registration
-    session-capture/         # session-capture opencode plugin + init-project.sh
+    session-capture/         # session-capture opencode plugin + init.sh
     shell/write-env.sh       # shell profile PATH additions
 
 storage/                     # runtime data — git-ignored except opencode.jsonc

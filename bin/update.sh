@@ -196,7 +196,7 @@ fi
 header "QMD (semantic vault search)"
 
 if command -v qmd &>/dev/null; then
-  # Redirect QMD cache to ADK storage (same as install/init-project.sh)
+  # Redirect QMD cache to ADK storage (same as install/qmd/init.sh)
   export XDG_CACHE_HOME="${ADK_ROOT}/storage"
   mkdir -p "${ADK_ROOT}/storage/qmd"
 
