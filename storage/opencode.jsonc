@@ -10,7 +10,8 @@
   "plugin": [
     "opencode-scheduler",
     ".opencode/plugins/adk/graphify.js",
-    ".opencode/plugins/adk/session-capture.js"
+    ".opencode/plugins/adk/session-capture.js",
+    ".opencode/plugins/adk/rtk.ts"
   ],
   "permission": {
     "edit": "allow",

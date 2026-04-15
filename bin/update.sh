@@ -160,6 +160,22 @@ if command -v rtk &>/dev/null; then
     || brew upgrade rtk 2>/dev/null \
     || true
   log "rtk → $(rtk --version 2>/dev/null || echo 'updated')"
+
+  # Re-run rtk init to refresh the global plugin (picks up any rtk changes)
+  step "Refreshing RTK OpenCode plugin..."
+  rtk init -g --opencode --auto-patch 2>/dev/null \
+    && log "RTK OpenCode plugin refreshed" \
+    || warn "RTK init failed — run 'rtk init -g --opencode' manually"
+
+  # Copy refreshed plugin into the ADK plugin source tree
+  RTK_GLOBAL_PLUGIN="${HOME}/.config/opencode/plugins/rtk.ts"
+  RTK_ADK_PLUGIN="${ADK_ROOT}/src/plugins/rtk.ts"
+  if [[ -f "${RTK_GLOBAL_PLUGIN}" ]]; then
+    cp "${RTK_GLOBAL_PLUGIN}" "${RTK_ADK_PLUGIN}"
+    log "Updated src/plugins/rtk.ts from global plugin"
+  else
+    warn "RTK global plugin not found at ${RTK_GLOBAL_PLUGIN} — skipping copy"
+  fi
 else
   _skip_tool "rtk"
 fi
