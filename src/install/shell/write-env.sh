@@ -5,6 +5,11 @@
 # Reads OBSIDIAN_API_KEY from .env if not already set in the environment.
 # Writes shell exports for OBSIDIAN_API_KEY and OGHAM_PROFILE; skips
 # OBSIDIAN_API_KEY silently if it is still unset or a placeholder.
+#
+# Also writes a qmd() wrapper function that sets XDG_CACHE_HOME so that
+# interactive `qmd` commands use the ADK's centralised storage/qmd/ directory
+# instead of the system-wide ~/.cache/qmd/.  The path is hardcoded at install
+# time because XDG_CACHE_HOME must be absolute.
 
 set -euo pipefail
 
@@ -66,4 +71,43 @@ export OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY}"
 export OGHAM_PROFILE="${OGHAM_PROFILE}"
 SH
   log "Shell env added to ${SHELL_RC}"
+fi
+
+# ── QMD wrapper function ───────────────────────────────────────────────────────
+# Writes (or refreshes) a qmd() shell function that sets XDG_CACHE_HOME to the
+# ADK's storage directory.  This ensures every interactive `qmd` invocation uses
+# storage/qmd/index.sqlite rather than the default ~/.cache/qmd/index.sqlite.
+#
+# ADK scripts and the opencode MCP server set XDG_CACHE_HOME themselves;
+# this wrapper covers interactive terminal use.
+
+QMD_MARKER="# ai-qmd-wrapper"
+QMD_STORAGE="${ADK_ROOT}/storage"
+
+if grep -q "${QMD_MARKER}" "${SHELL_RC}" 2>/dev/null; then
+  # Refresh the hardcoded path in-place (handles ADK directory moves/renames)
+  python3 - "${SHELL_RC}" "${QMD_STORAGE}" <<'PYEOF'
+import re, sys
+path, storage = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    content = f.read()
+# Replace the XDG_CACHE_HOME value inside the qmd wrapper function
+content = re.sub(
+    r'(XDG_CACHE_HOME=")[^"]*(" command qmd)',
+    rf'\g<1>{storage}\g<2>',
+    content,
+)
+with open(path, 'w') as f:
+    f.write(content)
+PYEOF
+  skip "QMD shell wrapper (refreshed path in ${SHELL_RC})"
+else
+  cat >> "${SHELL_RC}" <<SH
+
+${QMD_MARKER}
+# Redirect QMD cache to the ADK's centralised storage directory.
+# XDG_CACHE_HOME must be absolute; path is refreshed by 'make up'.
+qmd() { XDG_CACHE_HOME="${QMD_STORAGE}" command qmd "\$@"; }
+SH
+  log "QMD shell wrapper added to ${SHELL_RC}"
 fi

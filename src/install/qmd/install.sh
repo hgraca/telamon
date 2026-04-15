@@ -4,11 +4,16 @@
 # src/skills/memory/qmd/SKILL.md so it is available to all initialized projects
 # via the .opencode/skills/adk symlink.
 #
-# QMD stores a global index at ~/.cache/qmd/index.sqlite and supports multiple
-# named collections in one index.  The initial collection registration and
-# embedding happen in qmd/init-project.sh, not here.
+# QMD's cache location is controlled by XDG_CACHE_HOME.  This ADK redirects it
+# to <adk-root>/storage so the index and model files live alongside all other ADK
+# runtime data instead of in the system-wide ~/.cache directory:
+#   storage/qmd/index.sqlite   — the search index
+#   storage/qmd/models/        — GGUF model cache (~2 GB, downloaded on first use)
 #
-# Models are auto-downloaded on first use (~2 GB total):
+# The absolute storage path is written to storage/secrets/qmd-cache-home so that
+# opencode.jsonc can inject it as XDG_CACHE_HOME for the `qmd mcp` server.
+#
+# Models auto-downloaded on first use (~2 GB total):
 #   - 300 MB  embeddinggemma   (embedding)
 #   - 640 MB  qwen3-reranker   (reranker)
 #   - 1.1 GB  qmd-query-expansion (query expansion)
@@ -28,7 +33,21 @@ if ! command -v qmd &>/dev/null; then
   npm install -g @tobilu/qmd
   log "QMD installed"
 else
-  skip "QMD ($(qmd --version 2>/dev/null || echo 'installed'))"
+  skip "QMD ($(XDG_CACHE_HOME="${ADK_ROOT}/storage" qmd --version 2>/dev/null || echo 'installed'))"
+fi
+
+# ── Write storage path to secrets so opencode.jsonc can reference it ──────────
+# opencode resolves {file:.ai/adk/secrets/qmd-cache-home} relative to the project
+# root (where opencode.jsonc is symlinked). The symlink .ai/adk/secrets →
+# <adk-root>/storage/secrets makes this file visible from every project.
+QMD_CACHE_SECRET="${ADK_ROOT}/storage/secrets/qmd-cache-home"
+mkdir -p "${ADK_ROOT}/storage/secrets"
+
+if [[ -f "${QMD_CACHE_SECRET}" ]] && [[ "$(cat "${QMD_CACHE_SECRET}")" == "${ADK_ROOT}/storage" ]]; then
+  skip "storage/secrets/qmd-cache-home (already correct)"
+else
+  printf '%s' "${ADK_ROOT}/storage" > "${QMD_CACHE_SECRET}"
+  log "Written storage/secrets/qmd-cache-home → ${ADK_ROOT}/storage"
 fi
 
 # ── Download QMD agent skill into src/skills/memory/qmd/ ──────────────────────

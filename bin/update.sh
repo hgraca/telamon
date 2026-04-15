@@ -180,16 +180,20 @@ fi
 header "QMD (semantic vault search)"
 
 if command -v qmd &>/dev/null; then
+  # Redirect QMD cache to ADK storage (same as install/init-project.sh)
+  export XDG_CACHE_HOME="${ADK_ROOT}/storage"
+  mkdir -p "${ADK_ROOT}/storage/qmd"
+
   step "Upgrading QMD via npm..."
   npm install -g @tobilu/qmd --quiet 2>/dev/null \
-    && log "qmd → $(qmd --version 2>/dev/null || echo 'updated')" \
+    && log "qmd → $(XDG_CACHE_HOME="${ADK_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')" \
     || _fail "QMD upgrade failed — try: npm install -g @tobilu/qmd"
 
   step "Refreshing QMD vault index..."
   if qmd update 2>/dev/null && qmd embed 2>/dev/null; then
     log "QMD vault index refreshed"
   else
-    warn "QMD re-index did not complete cleanly — run manually: qmd update && qmd embed"
+    warn "QMD re-index did not complete cleanly — run manually: XDG_CACHE_HOME=${ADK_ROOT}/storage qmd update && qmd embed"
   fi
 else
   _skip_tool "qmd"

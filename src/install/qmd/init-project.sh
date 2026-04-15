@@ -15,7 +15,8 @@
 #   <project>-reference  reference/    — architecture maps, flow docs
 #   <project>-thinking   thinking/     — scratchpad drafts
 #
-# Collections are registered in QMD's global index (~/.cache/qmd/index.sqlite).
+# Collections are registered in the ADK-managed index at
+# <adk-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
 # Re-running this script is safe (collection add is idempotent).
 #
 # The initial `qmd embed` can take a few minutes the first time because QMD
@@ -29,6 +30,12 @@ ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 header "QMD vault collections"
+
+# ── Redirect QMD cache to ADK storage ─────────────────────────────────────────
+# All qmd commands in this script run with XDG_CACHE_HOME set so the index and
+# model cache live at storage/qmd/ instead of the system-wide ~/.cache/qmd/.
+export XDG_CACHE_HOME="${ADK_ROOT}/storage"
+mkdir -p "${ADK_ROOT}/storage/qmd"
 
 # ── Guard: qmd must be installed ──────────────────────────────────────────────
 if ! command -v qmd &>/dev/null; then

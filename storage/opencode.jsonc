@@ -150,7 +150,13 @@
         "qmd",
         "mcp"
       ],
-      "enabled": true
+      "enabled": true,
+      // XDG_CACHE_HOME redirects QMD's index and model cache from ~/.cache/qmd/
+      // to <adk-root>/storage/qmd/ — consistent with the ADK's storage layout.
+      // The path is written to storage/secrets/qmd-cache-home by qmd/install.sh.
+      "environment": {
+        "XDG_CACHE_HOME": "{file:.ai/adk/secrets/qmd-cache-home}"
+      }
     }
   }
 }

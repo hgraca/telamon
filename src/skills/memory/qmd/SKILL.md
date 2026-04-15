@@ -6,7 +6,7 @@ description: "Semantic search over the project's Obsidian vault using QMD. Use P
 # QMD — Vault Semantic Search
 
 QMD provides semantic (vector) search over the ADK Obsidian vault. It runs fully
-locally using GGUF models and stores its index at `~/.cache/qmd/index.sqlite`.
+locally using GGUF models and stores its index at `<adk-root>/storage/qmd/index.sqlite`.
 
 ## Vault collection names
 
@@ -21,6 +21,14 @@ Read the project name from `.ai/adk/adk.ini` or use `$(basename $(pwd))`.
 | `<project>-thinking` | scratchpad drafts, exploratory notes |
 
 Replace `<project>` with the actual project name (e.g. `myapp-brain`).
+
+**Index location:** `<adk-root>/storage/qmd/index.sqlite` (not `~/.cache/qmd/`).
+The ADK sets `XDG_CACHE_HOME` automatically in all contexts:
+- MCP server (`qmd mcp`): set via `opencode.jsonc` environment
+- ADK scripts (`make init`, `make update`): set inline
+- Interactive terminal: `qmd()` wrapper function installed by `make up`
+
+You do not need to set `XDG_CACHE_HOME` manually.
 
 ---
 
