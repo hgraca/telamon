@@ -37,7 +37,7 @@ if ! docker info &>/dev/null 2>&1; then
     step "Starting Docker Desktop..."
     open -a Docker
     info "Waiting for Docker daemon (up to 90s)..."
-    local tries=0
+    tries=0
     until docker info &>/dev/null 2>&1; do
       sleep 3; tries=$((tries+1))
       [[ $tries -gt 30 ]] && error "Docker did not start. Open Docker Desktop manually and re-run."

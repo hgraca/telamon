@@ -68,4 +68,13 @@ else
   warn "To retry manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
 fi
 
+# ── Register QMD MCP server in opencode.jsonc ─────────────────────────────────
+# The {file:.ai/adk/secrets/qmd-cache-home} reference is resolved by opencode
+# relative to the project root (where opencode.jsonc is symlinked). The symlink
+# .ai/adk/secrets → <adk-root>/storage/secrets makes the secret visible there.
+step "Registering QMD MCP in storage/opencode.jsonc ..."
+opencode.upsert_mcp "qmd" \
+  '{"type":"local","command":["qmd","mcp"],"enabled":true,"environment":{"XDG_CACHE_HOME":"{file:.ai/adk/secrets/qmd-cache-home}"}}'
+log "QMD MCP registered"
+
 info "Run 'make init PROJ=<path>' to register QMD collections for a project (initial embed can take a few minutes)."
