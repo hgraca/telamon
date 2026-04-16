@@ -68,7 +68,7 @@ secrets.write "ogham-database-url" "postgresql://ogham:${POSTGRES_PASSWORD}@loca
 opencode.upsert_mcp "ogham" "$(cat <<JSON
 {
   "type": "local",
-  "command": ["uvx", "--with", "ogham-mcp[postgres,rerank]", "ogham-mcp"],
+  "command": ["uvx", "--from", "ogham-mcp[postgres,rerank]", "ogham", "serve"],
   "enabled": true,
   "environment": {
     "DATABASE_BACKEND": "postgres",

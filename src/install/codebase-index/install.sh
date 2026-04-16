@@ -12,6 +12,6 @@ header "codebase-index MCP"
 
 opencode.upsert_mcp "codebase-index" '{
   "type": "local",
-  "command": ["npx", "opencode-codebase-index-mcp", "--project", "."],
+  "command": ["npx", "-y", "-p", "opencode-codebase-index", "-p", "@modelcontextprotocol/sdk", "opencode-codebase-index-mcp", "--project", "."],
   "enabled": true
 }'

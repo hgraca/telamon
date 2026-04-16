@@ -208,7 +208,7 @@ PRE_DOCKER_APPS=(homebrew docker)
 # Phase 2: tools that require the containers to already be running (ogham needs
 #           Postgres; nomic-embed-text model must be in Ollama). Called by
 #           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index obsidian graphify cass rtk caveman shell)
+POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index obsidian graphify cass rtk caveman qmd shell)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
