@@ -5,7 +5,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -28,7 +28,7 @@ log "cass → $(cass --version 2>/dev/null || echo 'updated')"
 
 step "Updating cass skill → src/skills/memory/cass/SKILL.md ..."
 SKILL_URL="https://raw.githubusercontent.com/dicklesworthstone/coding_agent_session_search/main/SKILL.md"
-SKILL_FILE="${ADK_ROOT}/src/skills/memory/cass/SKILL.md"
+SKILL_FILE="${TELAMON_ROOT}/src/skills/memory/cass/SKILL.md"
 mkdir -p "$(dirname "${SKILL_FILE}")"
 if curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null; then
   log "cass skill updated"

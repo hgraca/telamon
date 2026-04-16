@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # bin/update.sh
-# Upgrade all ADK-managed tools to their latest versions.
+# Upgrade all Telamon-managed tools to their latest versions.
 #
 # Usage:
 #   bin/update.sh
@@ -10,9 +10,9 @@
 
 set -euo pipefail
 
-ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${ADK_ROOT}/src/install"
-export INSTALL_PATH ADK_ROOT
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${TELAMON_ROOT}/src/install"
+export INSTALL_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
@@ -21,22 +21,22 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew
 
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
 echo "  ╔═════════════════════════════════════════════════╗"
-echo "  ║   AI Agentic Development Kit — Update          ║"
+echo "  ║   Telamon — Harness for Agentic Software Development          ║"
 echo "  ╚═════════════════════════════════════════════════╝"
 echo -e "${TEXT_CLEAR}"
 
 FAILED=0
 SKIPPED=0
 
-# ── ADK repo self-update ───────────────────────────────────────────────────────
-header "ADK repo"
+# ── Telamon repo self-update ───────────────────────────────────────────────────────
+header "Telamon repo"
 
 _STASHED=0
-if git -C "${ADK_ROOT}" diff --quiet && git -C "${ADK_ROOT}" diff --cached --quiet; then
+if git -C "${TELAMON_ROOT}" diff --quiet && git -C "${TELAMON_ROOT}" diff --cached --quiet; then
   skip "stash (nothing to stash)"
 else
   step "Stashing local changes..."
-  git -C "${ADK_ROOT}" stash push --include-untracked -m "update.sh auto-stash" \
+  git -C "${TELAMON_ROOT}" stash push --include-untracked -m "update.sh auto-stash" \
     && log "Changes stashed" \
     && _STASHED=1 \
     || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git stash failed — aborting rebase"; FAILED=$((FAILED + 1)); }
@@ -44,14 +44,14 @@ fi
 
 if [[ "${FAILED}" -eq 0 ]]; then
   step "Rebasing onto origin..."
-  git -C "${ADK_ROOT}" pull --rebase \
-    && log "Rebased onto $(git -C "${ADK_ROOT}" rev-parse --abbrev-ref HEAD)" \
+  git -C "${TELAMON_ROOT}" pull --rebase \
+    && log "Rebased onto $(git -C "${TELAMON_ROOT}" rev-parse --abbrev-ref HEAD)" \
     || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git pull --rebase failed — resolve conflicts, then run 'git stash pop' if needed"; FAILED=$((FAILED + 1)); }
 fi
 
 if [[ "${_STASHED}" -eq 1 && "${FAILED}" -eq 0 ]]; then
   step "Restoring stashed changes..."
-  git -C "${ADK_ROOT}" stash pop \
+  git -C "${TELAMON_ROOT}" stash pop \
     && log "Stash restored" \
     || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git stash pop failed — resolve conflicts manually"; FAILED=$((FAILED + 1)); }
 fi

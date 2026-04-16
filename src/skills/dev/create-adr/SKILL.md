@@ -1,5 +1,5 @@
 ---
-name: adk.create-adr
+name: telamon.create-adr
 description: "Creates Architecture Decision Records (ADRs). Activates when asked to create, write, or draft an ADR, document an architecture decision, or record a technical decision."
 ---
 # Skill: Create an Architecture Decision Record (ADR)

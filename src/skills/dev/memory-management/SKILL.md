@@ -1,5 +1,5 @@
 ---
-name: adk.memory-management
+name: telamon.memory-management
 description: "Manages the project's memories.md file for capturing, organizing, and applying lessons learned across sessions. Use when recording lessons, pruning stale entries, or consulting memory before starting new work."
 ---
 
@@ -16,9 +16,9 @@ Structured process for maintaining the project's institutional memory across age
 
 ## File Location
 
-`<project-root>/.ai/adk/memory/brain/memories.md`
+`<project-root>/.ai/telamon/memory/brain/memories.md`
 
-This file is loaded automatically during the bootstrap sequence (via `.ai/adk/bootstrap/`), so all agents see its contents at session start.
+This file is loaded automatically during the bootstrap sequence (via `.ai/telamon/bootstrap/`), so all agents see its contents at session start.
 
 ## memories.md Structure
 

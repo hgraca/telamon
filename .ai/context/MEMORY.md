@@ -4,18 +4,41 @@ Reusable decisions and discoveries across sessions. Add new entries at the top o
 
 ---
 
+## Renaming / Refactoring
+
+### Grep sweeps miss files not read in the current session
+**Date**: 2026-04-16
+During the adk → telamon rename, `src/agents/*.md` and `src/commands/*.md` were missed in the final verification sweep because the grep pattern used `rtk grep` with a filter that excluded results containing "telamon" — but those files had *both* `adk` and `telamon` references, so they passed the filter silently. Always use a raw `grep -ri 'adk'` without exclusion filters for final verification, then manually triage the results.
+
+### `src/agents/` and `src/commands/` contain hardcoded vault paths
+**Date**: 2026-04-16
+All agent role files (`src/agents/*.md`) and command files (`src/commands/*.md`) contain hardcoded `.ai/<project-name>/memory/` paths for scratch files and brain notes. When renaming the project, these files must be included in the rename sweep — they are easy to miss because they don't contain shell variables or config keys.
+
+### Rename scope: runtime artifacts vs source files
+**Date**: 2026-04-16
+During the adk → telamon rename, the following were intentionally NOT changed:
+- `.ai/adk/` — runtime directory (gitignored); recreated by `make init`
+- `.ai/adk.ini` — runtime config (gitignored)
+- `storage/graphify/`, `storage/obsidian/` — generated/cache data
+- `tmp/` — gitignored test artifacts
+- `.ai/issues/` — historical issue notes (runtime, gitignored)
+- `no-vcs` files — per bootstrap rules, never touched
+Only tracked source files under `src/`, `bin/`, `test/`, `Makefile`, `docker-compose.yml`, `storage/opencode.jsonc`, and `.ai/context/` were renamed.
+
+---
+
 ## QMD
 
 ### QMD index path is controlled via `XDG_CACHE_HOME` only
 **Date**: 2026-04-15
-QMD has no `--db-path` flag or `QMD_HOME` env var. The only way to redirect its index (and model cache) away from `~/.cache/qmd/` is `XDG_CACHE_HOME`. Setting it to `${ADK_ROOT}/storage` puts both `storage/qmd/index.sqlite` and `storage/qmd/models/` under the ADK's storage tree (all gitignored by `storage/*`).
+QMD has no `--db-path` flag or `QMD_HOME` env var. The only way to redirect its index (and model cache) away from `~/.cache/qmd/` is `XDG_CACHE_HOME`. Setting it to `${TELAMON_ROOT}/storage` puts both `storage/qmd/index.sqlite` and `storage/qmd/models/` under Telamon's storage tree (all gitignored by `storage/*`).
 
 ### `XDG_CACHE_HOME` for QMD must be set in four places
 **Date**: 2026-04-15
 Because `XDG_CACHE_HOME` is a global variable (affects all XDG-compliant apps), it must NOT be exported globally. Instead set it in every context where `qmd` runs:
-1. **ADK scripts** (`init-project.sh`, `update.sh`): `export XDG_CACHE_HOME="${ADK_ROOT}/storage"` at the top of the qmd section
-2. **MCP server** (`opencode.jsonc`): `"environment": { "XDG_CACHE_HOME": "{file:.ai/adk/secrets/qmd-cache-home}" }`
-3. **Secrets file** (`storage/secrets/qmd-cache-home`): written by `install.sh` with the absolute ADK storage path; referenced by opencode.jsonc
+1. **Telamon scripts** (`init-project.sh`, `update.sh`): `export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"` at the top of the qmd section
+2. **MCP server** (`opencode.jsonc`): `"environment": { "XDG_CACHE_HOME": "{file:.ai/telamon/secrets/qmd-cache-home}" }`
+3. **Secrets file** (`storage/secrets/qmd-cache-home`): written by `install.sh` with the absolute Telamon storage path; referenced by opencode.jsonc
 4. **Shell RC** (`~/.bashrc` / `~/.zshrc`): `qmd() { XDG_CACHE_HOME="<path>" command qmd "$@"; }` wrapper function written by `write-env.sh`
 
 ### Shell function wrapper pattern for env-scoped CLI tools
@@ -28,7 +51,7 @@ The `command` builtin bypasses the function and calls the real binary, preventin
 
 ### `{file:...}` in opencode.jsonc can inject any value, not just API keys
 **Date**: 2026-04-15
-The `{file:.ai/adk/secrets/<name>}` pattern in opencode.jsonc MCP `environment` blocks reads the file content and injects it as the env var value. This works for any string — not just secrets. Used to inject the absolute ADK storage path (`storage/secrets/qmd-cache-home`) as `XDG_CACHE_HOME` for the `qmd mcp` server.
+The `{file:.ai/telamon/secrets/<name>}` pattern in opencode.jsonc MCP `environment` blocks reads the file content and injects it as the env var value. This works for any string — not just secrets. Used to inject the absolute Telamon storage path (`storage/secrets/qmd-cache-home`) as `XDG_CACHE_HOME` for the `qmd mcp` server.
 
 ### QMD collections: one per vault section, not one big collection
 **Date**: 2026-04-15
@@ -85,7 +108,7 @@ Any Python script that reads `storage/opencode.jsonc` must strip JSONC comments 
 
 ### `{file:path}` secret paths are relative to the project root
 **Date**: 2026-04-12
-opencode resolves `{file:...}` paths relative to the directory where `opencode.jsonc` lives. Since projects get a symlink `<proj>/opencode.jsonc → <adk-root>/storage/opencode.jsonc`, the secret path in the config must be `storage/secrets/<name>` (relative to the project root, not the ADK root).
+opencode resolves `{file:...}` paths relative to the directory where `opencode.jsonc` lives. Since projects get a symlink `<proj>/opencode.jsonc → <telamon-root>/storage/opencode.jsonc`, the secret path in the config must be `storage/secrets/<name>` (relative to the project root, not the Telamon root).
 
 ---
 
@@ -107,9 +130,9 @@ The always-on `obsidian-mcp` compose service was removed because it crashes at s
 
 ## Storage layout
 
-### All ADK output dirs live under `storage/`
+### All Telamon output dirs live under `storage/`
 **Date**: 2026-04-12
-All runtime data, secrets, state, and cache must be under `storage/` in the ADK root:
+All runtime data, secrets, state, and cache must be under `storage/` in the Telamon root:
 - `storage/pgdata/` — Postgres data volume
 - `storage/ollama/` — Ollama model cache
 - `storage/secrets/` — one plain-text file per secret (git-ignored)

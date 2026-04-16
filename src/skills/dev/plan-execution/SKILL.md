@@ -1,5 +1,5 @@
 ---
-name: adk.plan-execution
+name: telamon.plan-execution
 description: "Executes implementation plan steps systematically. Use when implementing an architect's plan step-by-step, signalling completion, and handling review feedback."
 ---
 

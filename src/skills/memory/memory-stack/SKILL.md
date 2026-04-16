@@ -10,7 +10,7 @@ description: "Use at session start and when deciding what to store or retrieve. 
 ogham use <project-name>
 ogham hooks recall
 ```
-Read `.ai/adk/memory/brain/memories.md` — knowledge index for this project.
+Read `.ai/telamon/memory/brain/memories.md` — knowledge index for this project.
 
 Run QMD incremental update to keep vault index current:
 ```bash
@@ -43,11 +43,11 @@ qmd query "what patterns and gotchas should I know" -n 5
 ## Step 3 — Retrieval priority:
 | Question type | Tool |
 |---|---|
-| Knowledge index | Read `.ai/adk/memory/brain/memories.md` directly |
-| Architectural decisions + stakeholder answers | Read `.ai/adk/memory/brain/key_decisions.md` directly |
-| Codebase patterns | Read `.ai/adk/memory/brain/patterns.md` directly |
-| Known traps and constraints | Read `.ai/adk/memory/brain/gotchas.md` directly |
-| Vault semantic search ("did we ever…") | `qmd query "<question>" -n 10` (load `adk.qmd` skill for full guide) |
+| Knowledge index | Read `.ai/telamon/memory/brain/memories.md` directly |
+| Architectural decisions + stakeholder answers | Read `.ai/telamon/memory/brain/key_decisions.md` directly |
+| Codebase patterns | Read `.ai/telamon/memory/brain/patterns.md` directly |
+| Known traps and constraints | Read `.ai/telamon/memory/brain/gotchas.md` directly |
+| Vault semantic search ("did we ever…") | `qmd query "<question>" -n 10` (load `telamon.qmd` skill for full guide) |
 | Architecture, relationships, god nodes | `graphify query "<question>"` |
 | Code by meaning ("find auth logic") | codebase-index (ask naturally) |
 | Past decisions/bugs this project | `ogham search "<keywords>"` |
@@ -55,16 +55,16 @@ qmd query "what patterns and gotchas should I know" -n 5
 | Specs, ADRs, requirements | Obsidian vault search (follow obsidian-vault skill) |
 
 ## Step 4 — Save to BOTH Ogham AND Obsidian brain/ when:
-- Bug fixed (non-trivial): `ogham store "bug: <desc>"` + add to `.ai/adk/memory/brain/gotchas.md` if recurring
-- Decision made: `ogham store "decision: X over Y because Z"` + add to `.ai/adk/memory/brain/key_decisions.md`
-- Human stakeholder answers a project question: record in `.ai/adk/memory/brain/key_decisions.md`
-- Pattern established: `ogham store "pattern: <desc>"` + add to `.ai/adk/memory/brain/patterns.md`
+- Bug fixed (non-trivial): `ogham store "bug: <desc>"` + add to `.ai/telamon/memory/brain/gotchas.md` if recurring
+- Decision made: `ogham store "decision: X over Y because Z"` + add to `.ai/telamon/memory/brain/key_decisions.md`
+- Human stakeholder answers a project question: record in `.ai/telamon/memory/brain/key_decisions.md`
+- Pattern established: `ogham store "pattern: <desc>"` + add to `.ai/telamon/memory/brain/patterns.md`
 - Session ends with significant work: `ogham hooks inscribe`
 
 ## Never save: ls/git status/cat/pwd, secrets, trivial single-line edits
 
 ## Wrap-up (when user says "wrap up", "wrapping up", "let's wrap"):
-Follow the session-capture skill (adk.session-capture):
+Follow the session-capture skill (telamon.session-capture):
 1. Promote session learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
 3. `ogham hooks inscribe`
@@ -76,4 +76,4 @@ Follow the session-capture skill (adk.session-capture):
 ogham use <new-project-name>
 ogham hooks recall
 ```
-Then read `.ai/adk/memory/brain/memories.md` and run Step 2 checks.
+Then read `.ai/telamon/memory/brain/memories.md` and run Step 2 checks.

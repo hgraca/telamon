@@ -1,5 +1,5 @@
 ---
-name: adk.workflow.plan-story
+name: telamon.workflow.plan-story
 description: "Plans a user story by producing a backlog, architecture specification, and optional UI/UX specification. Use when a human stakeholder provides a story, feature request, or business initiative that needs planning before implementation."
 ---
 
@@ -22,7 +22,7 @@ Place all artifacts in a single `<issue-folder>` under `.ai/issue/`. Planning ar
 
 ### Scratch files
 
-Any ephemeral notes, drafts, or intermediate thinking produced during planning must be saved to `<proj>/.ai/adk/memory/thinking/`. Promote any useful findings from `thinking/` to the appropriate brain file or issue artifact before closing the session. Delete scratch files that add no lasting value.
+Any ephemeral notes, drafts, or intermediate thinking produced during planning must be saved to `<proj>/.ai/telamon/memory/thinking/`. Promote any useful findings from `thinking/` to the appropriate brain file or issue artifact before closing the session. Delete scratch files that add no lasting value.
 
 ### Folder naming
 
@@ -38,7 +38,7 @@ Each epic or story MUST have exactly one folder. NEVER create a second folder fo
 
 ### Step 0: Pre-flight
 
-1. Read `.ai/adk/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in all delegations.
+1. Read `.ai/telamon/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in all delegations.
 2. **Check for existing issue folder**: List `.ai/issue/` and look for a folder that matches the current initiative (by slug or topic). If one exists, reuse it — do NOT create a new folder. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
 
 ### Step 1: Create backlog
@@ -76,13 +76,13 @@ Delegate to @critic for feedback on all documents produced so far.
 
 ### Step 5: Planning summary and approval
 
-Create `<issue-folder>/summary.md` by following the `adk.plan-summary` skill.
+Create `<issue-folder>/summary.md` by following the `telamon.plan-summary` skill.
 
 Output the summary to the human stakeholder and ask for final approval.
 
 ### Step 6: Transition
 
-On approval, proceed to implementation using the `adk.workflow.implement-story` skill.
+On approval, proceed to implementation using the `telamon.workflow.implement-story` skill.
 
 ## Backlog Rules
 
@@ -95,7 +95,7 @@ On approval, proceed to implementation using the `adk.workflow.implement-story` 
 
 ## Post-Planning
 
-Document lessons learned in `.ai/adk/memory/brain/memories.md` using the `adk.memory-management` skill:
+Document lessons learned in `.ai/telamon/memory/brain/memories.md` using the `telamon.memory-management` skill:
 - Reusable questions and answers from interactions with Architect, Critic, and human stakeholder
 - Architecture decisions clarified during planning
 - Domain knowledge uncovered during requirements refinement

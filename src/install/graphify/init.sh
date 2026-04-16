@@ -3,24 +3,24 @@
 # storage/graphify and install git hooks.
 #
 # graphify always writes to ./graphify-out relative to CWD. We redirect it
-# to <adk-root>/storage/graphify via a symlink so all output is centralised
+# to <telamon-root>/storage/graphify via a symlink so all output is centralised
 # and never scattered across the project tree.
 #
-# The plugin entry (".opencode/plugins/adk/graphify.js") is already present in
+# The plugin entry (".opencode/plugins/telamon/graphify.js") is already present in
 # storage/opencode.jsonc (added by graphify/install.sh during `make up`).
-# Projects receive the plugin JS via the .opencode/plugins/adk symlink created
+# Projects receive the plugin JS via the .opencode/plugins/telamon symlink created
 # by `make init` — no copying is needed.
 # For projects with their own opencode config it flows in via merge-config.py
 # in bin/init.sh.
 #
 # The graphify skill is shipped as a static file in src/skills/graphify/SKILL.md
-# and is made available to projects via the .opencode/skills/adk symlink created
+# and is made available to projects via the .opencode/skills/telamon symlink created
 # by `make init`. No download or copying is needed.
 
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -31,10 +31,10 @@ if ! command -v graphify &>/dev/null; then
   return 0 2>/dev/null || exit 0
 fi
 
-# ── Redirect graphify-out → <adk-root>/storage/graphify ──────────────────────
+# ── Redirect graphify-out → <telamon-root>/storage/graphify ──────────────────────
 # graphify hardcodes ./graphify-out as its output directory. A symlink at the
-# project root redirects all output to the ADK's central storage location.
-GRAPHIFY_STORAGE="${ADK_ROOT}/storage/graphify"
+# project root redirects all output to Telamon's central storage location.
+GRAPHIFY_STORAGE="${TELAMON_ROOT}/storage/graphify"
 mkdir -p "${GRAPHIFY_STORAGE}"
 
 if [[ -L "graphify-out" ]]; then

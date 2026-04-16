@@ -7,10 +7,10 @@ description: "Use when reading, searching, or writing the Obsidian vault via obs
 
 ## Vault folder structure (per project)
 
-Each project's vault lives at `.ai/adk/memory/` inside the project. Inside:
+Each project's vault lives at `.ai/telamon/memory/` inside the project. Inside:
 
 ```
-.ai/adk/memory/
+.ai/telamon/memory/
   bootstrap/         ← always loaded into context (treat as part of AGENTS.md)
   brain/
     memories.md       ← knowledge index — READ THIS FIRST
@@ -43,10 +43,10 @@ Exception: the user explicitly names a file, or you're reading brain/ files at s
 
 ### Rule 2 — Direct reads for brain/ files
 brain/ files are small and always relevant — read them directly, no search needed:
-- `.ai/adk/memory/brain/memories.md` — read at session start
-- `.ai/adk/memory/brain/key_decisions.md` — read before architecture work or when stakeholder answers are needed
-- `.ai/adk/memory/brain/patterns.md` — read before writing new code
-- `.ai/adk/memory/brain/gotchas.md` — read before touching known problem areas
+- `.ai/telamon/memory/brain/memories.md` — read at session start
+- `.ai/telamon/memory/brain/key_decisions.md` — read before architecture work or when stakeholder answers are needed
+- `.ai/telamon/memory/brain/patterns.md` — read before writing new code
+- `.ai/telamon/memory/brain/gotchas.md` — read before touching known problem areas
 
 ### Rule 3 — Max 3 notes per task (non-brain)
 Pick top 3 by relevance score. Tell the user if truncated ("Found 7 notes, reading top 3").
@@ -76,16 +76,16 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 ### Where to write things
 | Content | Location |
 |---|---|
-| Agent bootstrap instructions (always-on context) | `.ai/adk/memory/bootstrap/` |
-| Architectural decision + rationale | `.ai/adk/memory/brain/key_decisions.md` |
-| Human stakeholder answer to a project question | `.ai/adk/memory/brain/key_decisions.md` |
-| Codebase pattern established | `.ai/adk/memory/brain/patterns.md` |
-| Hidden trap or constraint found | `.ai/adk/memory/brain/gotchas.md` |
-| In-progress work note | `.ai/adk/memory/work/active/` |
-| Completed work note | `.ai/adk/memory/work/archive/YYYY/` |
-| Incident | `.ai/adk/memory/work/incidents/` |
-| Architecture doc | `.ai/adk/memory/reference/` |
-| Draft / reasoning scratchpad | `.ai/adk/memory/thinking/` (delete after promoting) |
+| Agent bootstrap instructions (always-on context) | `.ai/telamon/memory/bootstrap/` |
+| Architectural decision + rationale | `.ai/telamon/memory/brain/key_decisions.md` |
+| Human stakeholder answer to a project question | `.ai/telamon/memory/brain/key_decisions.md` |
+| Codebase pattern established | `.ai/telamon/memory/brain/patterns.md` |
+| Hidden trap or constraint found | `.ai/telamon/memory/brain/gotchas.md` |
+| In-progress work note | `.ai/telamon/memory/work/active/` |
+| Completed work note | `.ai/telamon/memory/work/archive/YYYY/` |
+| Incident | `.ai/telamon/memory/work/incidents/` |
+| Architecture doc | `.ai/telamon/memory/reference/` |
+| Draft / reasoning scratchpad | `.ai/telamon/memory/thinking/` (delete after promoting) |
 
 ### Never write:
 - Secrets, API keys, passwords
@@ -95,7 +95,7 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 
 ## Wrap-up workflow
 
-When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `session-capture` skill (adk.session-capture). It covers:
+When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `session-capture` skill (telamon.session-capture). It covers:
 1. Promote learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
 3. `ogham hooks inscribe`

@@ -3,7 +3,7 @@
 ### Every session start (mandatory, do this first):
 1. `ogham use <project-name>`
 2. `ogham hooks recall`
-3. Read `.ai/adk/memory/brain/memories.md` — knowledge index for this project
+3. Read `.ai/telamon/memory/brain/memories.md` — knowledge index for this project
 
 ### Self-initialize once per project (check each time, build if missing):
 
@@ -20,10 +20,10 @@
 ### Retrieval priority:
 | Question type | Tool |
 |---|---|
-| Knowledge index | Read `.ai/adk/memory/brain/memories.md` directly |
-| Architectural decisions + stakeholder answers | Read `.ai/adk/memory/brain/key_decisions.md` directly |
-| Codebase patterns | Read `.ai/adk/memory/brain/patterns.md` directly |
-| Known traps and constraints | Read `.ai/adk/memory/brain/gotchas.md` directly |
+| Knowledge index | Read `.ai/telamon/memory/brain/memories.md` directly |
+| Architectural decisions + stakeholder answers | Read `.ai/telamon/memory/brain/key_decisions.md` directly |
+| Codebase patterns | Read `.ai/telamon/memory/brain/patterns.md` directly |
+| Known traps and constraints | Read `.ai/telamon/memory/brain/gotchas.md` directly |
 | Architecture, relationships, god nodes | `graphify query "<question>"` |
 | Code by meaning ("find auth logic") | codebase-index (ask naturally) |
 | Past decisions/bugs this project | `ogham search "<keywords>"` |
@@ -35,4 +35,4 @@
 ogham use <new-project-name>
 ogham hooks recall
 ```
-Then read `.ai/adk/memory/brain/memories.md` and run the self-initialize checks above.
+Then read `.ai/telamon/memory/brain/memories.md` and run the self-initialize checks above.

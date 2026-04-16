@@ -20,10 +20,10 @@ Before starting, confirm:
 
 ## Skills
 
-- When signalling completion, blockers, or responding to review feedback, use the skill `adk.agent-communication`
-- When a session stalls, tools fail, tests loop, or instructions conflict, use the skill `adk.exception-handling`
-- When executing plan steps, signalling completion, and handling review feedback, use the skill `adk.plan-execution`
-- When asked to create a new `use case` - use skill `adk.create-use-case`
+- When signalling completion, blockers, or responding to review feedback, use the skill `telamon.agent-communication`
+- When a session stalls, tools fail, tests loop, or instructions conflict, use the skill `telamon.exception-handling`
+- When executing plan steps, signalling completion, and handling review feedback, use the skill `telamon.plan-execution`
+- When asked to create a new `use case` - use skill `telamon.create-use-case`
 - When implementing changes that touch more than one file, use the skill `incremental-implementation`
 - When tests fail or unexpected errors occur during implementation, use the skill `debugging-and-error-recovery`
 - When implementing new logic or fixing bugs, use the skill `test-driven-development`
@@ -50,7 +50,7 @@ Before starting, confirm:
 
 ## Scratch Files
 
-Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/telamon/memory/thinking/`. Do not create ad-hoc files elsewhere.
 
 ## MUST NOT
 

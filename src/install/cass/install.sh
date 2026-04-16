@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install cass (agent session history search) via Homebrew tap, and download
 # the upstream cass SKILL.md into src/skills/memory/cass/ so it is available
-# to all initialized projects via the .opencode/skills/adk symlink.
+# to all initialized projects via the .opencode/skills/telamon symlink.
 #
 # The initial index is NOT built here — it runs lazily on first `cass search`
 # or can be triggered manually with `cass index`.
@@ -9,7 +9,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -28,9 +28,9 @@ fi
 # ── Download cass agent skill into src/skills/memory/cass/ ────────────────────
 # The skill teaches agents to use --robot mode, token budgets, health checks,
 # and structured error handling. It reaches all initialized projects via the
-# .opencode/skills/adk → src/skills symlink created by bin/init.sh.
+# .opencode/skills/telamon → src/skills symlink created by bin/init.sh.
 SKILL_URL="https://raw.githubusercontent.com/dicklesworthstone/coding_agent_session_search/main/SKILL.md"
-SKILL_DIR="${ADK_ROOT}/src/skills/memory/cass"
+SKILL_DIR="${TELAMON_ROOT}/src/skills/memory/cass"
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
 step "Downloading cass skill → src/skills/memory/cass/SKILL.md ..."

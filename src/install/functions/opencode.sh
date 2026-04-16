@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared helpers for patching the ADK opencode config (storage/opencode.jsonc).
+# Shared helpers for patching Telamon opencode config (storage/opencode.jsonc).
 
 # Resolve the config file path: prefer an explicit override, then derive from
 # INSTALL_PATH (always set by run.sh), then fall back to the global default.

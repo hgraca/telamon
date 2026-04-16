@@ -1,5 +1,5 @@
 ---
-name: adk.evaluation
+name: telamon.evaluation
 description: "Evaluates quality of completed work and runs post-iteration retrospectives. Use after completing a task or iteration to assess quality, capture metrics, and identify process improvements."
 ---
 
@@ -33,7 +33,7 @@ After each task is implemented, reviewed, and committed, the PO evaluates it aga
 
 ## Post-Iteration Retrospective
 
-After all tasks in a backlog are completed (`adk.workflow.implement-story` skill step 3), the PO produces a retrospective:
+After all tasks in a backlog are completed (`telamon.workflow.implement-story` skill step 3), the PO produces a retrospective:
 
 ### Template
 

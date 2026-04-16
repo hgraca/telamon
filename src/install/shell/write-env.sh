@@ -7,7 +7,7 @@
 # OBSIDIAN_API_KEY silently if it is still unset or a placeholder.
 #
 # Also writes a qmd() wrapper function that sets XDG_CACHE_HOME so that
-# interactive `qmd` commands use the ADK's centralised storage/qmd/ directory
+# interactive `qmd` commands use Telamon's centralised storage/qmd/ directory
 # instead of the system-wide ~/.cache/qmd/.  The path is hardcoded at install
 # time because XDG_CACHE_HOME must be absolute.
 
@@ -18,8 +18,8 @@ INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 # ── Resolve OBSIDIAN_API_KEY from .env if not injected by caller ──────────────
-ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
-ENV_FILE="${ADK_ROOT}/.env"
+TELAMON_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+ENV_FILE="${TELAMON_ROOT}/.env"
 if [[ -z "${OBSIDIAN_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
   _key="$(grep -E "^[[:space:]]*OBSIDIAN_API_KEY[[:space:]]*=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' ")"
   [[ -n "${_key}" && "${_key}" != "REPLACE_WITH"* ]] && OBSIDIAN_API_KEY="${_key}" || OBSIDIAN_API_KEY=""
@@ -75,17 +75,17 @@ fi
 
 # ── QMD wrapper function ───────────────────────────────────────────────────────
 # Writes (or refreshes) a qmd() shell function that sets XDG_CACHE_HOME to the
-# ADK's storage directory.  This ensures every interactive `qmd` invocation uses
+# Telamon's storage directory.  This ensures every interactive `qmd` invocation uses
 # storage/qmd/index.sqlite rather than the default ~/.cache/qmd/index.sqlite.
 #
-# ADK scripts and the opencode MCP server set XDG_CACHE_HOME themselves;
+# Telamon scripts and the opencode MCP server set XDG_CACHE_HOME themselves;
 # this wrapper covers interactive terminal use.
 
 QMD_MARKER="# ai-qmd-wrapper"
-QMD_STORAGE="${ADK_ROOT}/storage"
+QMD_STORAGE="${TELAMON_ROOT}/storage"
 
 if grep -q "${QMD_MARKER}" "${SHELL_RC}" 2>/dev/null; then
-  # Refresh the hardcoded path in-place (handles ADK directory moves/renames)
+  # Refresh the hardcoded path in-place (handles Telamon directory moves/renames)
   python3 - "${SHELL_RC}" "${QMD_STORAGE}" <<'PYEOF'
 import re, sys
 path, storage = sys.argv[1], sys.argv[2]
@@ -105,7 +105,7 @@ else
   cat >> "${SHELL_RC}" <<SH
 
 ${QMD_MARKER}
-# Redirect QMD cache to the ADK's centralised storage directory.
+# Redirect QMD cache to Telamon's centralised storage directory.
 # XDG_CACHE_HOME must be absolute; path is refreshed by 'make up'.
 qmd() { XDG_CACHE_HOME="${QMD_STORAGE}" command qmd "\$@"; }
 SH

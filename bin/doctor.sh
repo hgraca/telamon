@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # bin/doctor.sh
-# Comprehensive health check for the full ADK stack.
+# Comprehensive health check for the full Telamon stack.
 # Goes beyond `make status` — verifies tools are installed AND working.
 #
 # Usage:
@@ -11,9 +11,9 @@
 
 set -euo pipefail
 
-ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${ADK_ROOT}/src/install"
-export INSTALL_PATH ADK_ROOT
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${TELAMON_ROOT}/src/install"
+export INSTALL_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
@@ -31,7 +31,7 @@ _info() { echo -e "  ${TEXT_BLUE}ℹ${TEXT_CLEAR}  $1"; }
 
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
 echo "  ╔═════════════════════════════════════════════════╗"
-echo "  ║   AI Agentic Development Kit — Doctor           ║"
+echo "  ║   Telamon — Harness for Agentic Software Development           ║"
 echo "  ╚═════════════════════════════════════════════════╝"
 echo -e "${TEXT_CLEAR}"
 
@@ -63,10 +63,10 @@ else
 fi
 
 # Ollama container
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^adk-ollama$"; then
-  _pass "Ollama container running (adk-ollama)"
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-ollama$"; then
+  _pass "Ollama container running (telamon-ollama)"
   # Check model is available
-  if docker exec adk-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text"; then
+  if docker exec telamon-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text"; then
     _pass "nomic-embed-text model available"
   else
     _warn "nomic-embed-text model not yet pulled — Ollama init may still be running"
@@ -117,7 +117,7 @@ fi
 header "opencode config"
 
 # Check root symlink
-ROOT_CONFIG="${ADK_ROOT}/opencode.jsonc"
+ROOT_CONFIG="${TELAMON_ROOT}/opencode.jsonc"
 if [[ -L "${ROOT_CONFIG}" && ! -e "${ROOT_CONFIG}" ]]; then
   _warn "opencode.jsonc is a dangling symlink — run: make up"
 elif [[ -L "${ROOT_CONFIG}" ]]; then
@@ -128,14 +128,14 @@ else
   _fail "opencode.jsonc missing"
 fi
 
-STORAGE_CONFIG="${ADK_ROOT}/storage/opencode.jsonc"
+STORAGE_CONFIG="${TELAMON_ROOT}/storage/opencode.jsonc"
 if [[ -f "${STORAGE_CONFIG}" ]]; then
   _pass "storage/opencode.jsonc present"
 
   # Check key MCP servers are registered (use proper JSONC tokenizer — not regex)
   _check_mcp() {
     local name="$1"
-    if python3 - "${ADK_ROOT}/src/install/functions/strip_jsonc.py" "${STORAGE_CONFIG}" "${name}" <<'PYEOF' 2>/dev/null
+    if python3 - "${TELAMON_ROOT}/src/install/functions/strip_jsonc.py" "${STORAGE_CONFIG}" "${name}" <<'PYEOF' 2>/dev/null
 import sys, json
 
 exec(open(sys.argv[1]).read())
@@ -166,7 +166,7 @@ fi
 # ── 5. Secrets ─────────────────────────────────────────────────────────────────
 header "Secrets"
 
-SECRETS_DIR="${ADK_ROOT}/storage/secrets"
+SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
 if [[ -d "${SECRETS_DIR}" ]]; then
   _pass "storage/secrets/ directory exists"
   for secret_name in "ogham-database-url"; do
@@ -180,41 +180,41 @@ else
   _fail "storage/secrets/ not found — run: make up"
 fi
 
-# ── 6. ADK storage layout ──────────────────────────────────────────────────────
+# ── 6. Telamon storage layout ──────────────────────────────────────────────────────
 header "Storage layout"
 
 for d in "storage" "storage/state"; do
-  if [[ -d "${ADK_ROOT}/${d}" ]]; then
+  if [[ -d "${TELAMON_ROOT}/${d}" ]]; then
     _pass "${d}/ exists"
   else
     _fail "${d}/ missing — run: make up"
   fi
 done
 
-if [[ -L "${ADK_ROOT}/graphify-out" ]]; then
-  _pass "graphify-out → $(readlink "${ADK_ROOT}/graphify-out")"
+if [[ -L "${TELAMON_ROOT}/graphify-out" ]]; then
+  _pass "graphify-out → $(readlink "${TELAMON_ROOT}/graphify-out")"
 else
   _warn "graphify-out symlink missing (graphify not yet run in this repo)"
 fi
 
-if [[ -L "${ADK_ROOT}/.ai/adk/secrets" ]]; then
-  _pass ".ai/adk/secrets → $(readlink "${ADK_ROOT}/.ai/adk/secrets")"
+if [[ -L "${TELAMON_ROOT}/.ai/telamon/secrets" ]]; then
+  _pass ".ai/telamon/secrets → $(readlink "${TELAMON_ROOT}/.ai/telamon/secrets")"
 else
-  _warn ".ai/adk/secrets symlink missing"
+  _warn ".ai/telamon/secrets symlink missing"
 fi
 
-# ── 7. ADK skills & context ───────────────────────────────────────────────────
+# ── 7. Telamon skills & context ───────────────────────────────────────────────────
 header "Skills & context"
 
-[[ -d "${ADK_ROOT}/src/skills" ]]   && _pass "src/skills/ present"  || _fail "src/skills/ missing"
+[[ -d "${TELAMON_ROOT}/src/skills" ]]   && _pass "src/skills/ present"  || _fail "src/skills/ missing"
 
-skill_count=$(find "${ADK_ROOT}/src/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
+skill_count=$(find "${TELAMON_ROOT}/src/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
 _info "${skill_count} skill(s) in src/skills/"
 
 # ── 8. .env ────────────────────────────────────────────────────────────────────
 header ".env configuration"
 
-ENV_FILE="${ADK_ROOT}/.env"
+ENV_FILE="${TELAMON_ROOT}/.env"
 if [[ -f "${ENV_FILE}" ]]; then
   _pass ".env file present"
 
@@ -239,9 +239,9 @@ fi
 echo
 echo -e "${TEXT_BOLD}────────────────────────────────────────────────${TEXT_CLEAR}"
 if [[ "${FAIL}" -eq 0 && "${WARN_COUNT}" -eq 0 ]]; then
-  echo -e "${TEXT_GREEN}${TEXT_BOLD}  ✔  All ${PASS} checks passed. ADK is healthy.${TEXT_CLEAR}"
+  echo -e "${TEXT_GREEN}${TEXT_BOLD}  ✔  All ${PASS} checks passed. Telamon is healthy.${TEXT_CLEAR}"
 elif [[ "${FAIL}" -eq 0 ]]; then
-  echo -e "${TEXT_YELLOW}${TEXT_BOLD}  ⚠  ${PASS} passed, ${WARN_COUNT} warning(s). ADK is mostly healthy.${TEXT_CLEAR}"
+  echo -e "${TEXT_YELLOW}${TEXT_BOLD}  ⚠  ${PASS} passed, ${WARN_COUNT} warning(s). Telamon is mostly healthy.${TEXT_CLEAR}"
 else
   echo -e "${TEXT_RED}${TEXT_BOLD}  ✖  ${FAIL} failure(s), ${WARN_COUNT} warning(s), ${PASS} passed.${TEXT_CLEAR}"
   echo -e "${TEXT_RED}${TEXT_BOLD}     Run 'make up' to fix failures.${TEXT_CLEAR}"

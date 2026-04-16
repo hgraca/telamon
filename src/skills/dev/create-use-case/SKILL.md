@@ -1,5 +1,5 @@
 ---
-name: adk.create-use-case
+name: telamon.create-use-case
 description: > 
    Generate CQRS Command/CommandHandler pairs, Integration tests covering the CommandHandler,
    Unit tests covering other introduced services. Use this skill when the user wants to create a new UseCase with Command,

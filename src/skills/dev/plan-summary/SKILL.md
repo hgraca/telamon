@@ -1,5 +1,5 @@
 ---
-name: adk.plan-summary
+name: telamon.plan-summary
 description: "Produces a planning summary report after a planning stage completes. Use when a planning stage finishes and a summary must be written to <issue-folder>/summary.md and presented to the human stakeholder."
 ---
 

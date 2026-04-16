@@ -6,7 +6,7 @@ Archive the following work note: $1
 
 ## 1. Locate the Note
 
-Find the file in `.ai/adk/memory/work/active/` matching the argument (by name or slug). If the argument is ambiguous, list candidates and ask.
+Find the file in `.ai/telamon/memory/work/active/` matching the argument (by name or slug). If the argument is ambiguous, list candidates and ask.
 
 ## 2. Verify It's Complete
 
@@ -20,7 +20,7 @@ If there are unresolved items, list them and ask the user before proceeding.
 ## 3. Move to Archive
 
 ```bash
-git mv .ai/adk/memory/work/active/<filename>.md .ai/adk/memory/work/archive/<filename>.md
+git mv .ai/telamon/memory/work/active/<filename>.md .ai/telamon/memory/work/archive/<filename>.md
 ```
 
 Add an `**Archived**: <YYYY-MM-DD>` line to the top of the file under the title.
@@ -28,7 +28,7 @@ Add an `**Archived**: <YYYY-MM-DD>` line to the top of the file under the title.
 ## 4. Update References
 
 Check if any other vault file links to this note:
-- Search `.ai/adk/memory/brain/` for the filename
+- Search `.ai/telamon/memory/brain/` for the filename
 - Search `.ai/issue/` for the filename
 
 For each reference found, update the link path from `work/active/` to `work/archive/`.
@@ -36,9 +36,9 @@ For each reference found, update the link path from `work/active/` to `work/arch
 ## 5. Promote Lessons
 
 Scan the archived note for:
-- Gotchas or traps → append to `.ai/adk/memory/brain/gotchas.md`
-- Reusable patterns → append to `.ai/adk/memory/brain/patterns.md`
-- Standing decisions → add to `.ai/adk/memory/brain/key_decisions.md`
+- Gotchas or traps → append to `.ai/telamon/memory/brain/gotchas.md`
+- Reusable patterns → append to `.ai/telamon/memory/brain/patterns.md`
+- Standing decisions → add to `.ai/telamon/memory/brain/key_decisions.md`
 
 ## 6. Report
 

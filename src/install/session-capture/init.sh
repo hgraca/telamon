@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Session-capture project setup.
 #
-# The plugin entry (".opencode/plugins/adk/session-capture.js") is already
+# The plugin entry (".opencode/plugins/telamon/session-capture.js") is already
 # present in storage/opencode.jsonc (added during `make up`). Projects receive
-# the plugin JS via the .opencode/plugins/adk symlink created by `make init`.
+# the plugin JS via the .opencode/plugins/telamon symlink created by `make init`.
 # No per-project copying or configuration is required.
 #
 # This script is intentionally empty; it exists as a placeholder in case
@@ -17,4 +17,4 @@ INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 header "Session Capture"
 
-skip "No per-project setup required (plugin delivered via .opencode/plugins/adk symlink)"
+skip "No per-project setup required (plugin delivered via .opencode/plugins/telamon symlink)"

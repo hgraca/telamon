@@ -20,6 +20,6 @@ else
 fi
 
 # ── Register OpenCode plugin in storage/opencode.jsonc ────────────────────────
-# The plugin JS lives in src/plugins/graphify.js (ADK source of truth).
-# Projects receive it via the .opencode/plugins/adk symlink created by `make init`.
-opencode.upsert_plugin ".opencode/plugins/adk/graphify.js"
+# The plugin JS lives in src/plugins/graphify.js (Telamon source of truth).
+# Projects receive it via the .opencode/plugins/telamon symlink created by `make init`.
+opencode.upsert_plugin ".opencode/plugins/telamon/graphify.js"

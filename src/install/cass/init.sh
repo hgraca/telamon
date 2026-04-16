@@ -10,7 +10,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -29,7 +29,7 @@ fi
 HOOK_FILE=".git/hooks/post-commit"
 HOOK_BLOCK='# cass-hook-start
 # Incrementally updates the cass session search index after each commit.
-# Installed by: ADK cass/init.sh
+# Installed by: Telamon cass/init.sh
 if command -v cass >/dev/null 2>&1; then
     cass index >/dev/null 2>&1 &
 fi

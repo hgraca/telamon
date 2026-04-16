@@ -1,4 +1,4 @@
-"""Shared JSONC comment stripper — single source of truth for the ADK."""
+"""Shared JSONC comment stripper — single source of truth for Telamon."""
 
 
 def strip_jsonc_comments(text):

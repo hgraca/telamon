@@ -11,9 +11,9 @@ You are the critic. You evaluate plans and audit the codebase for inconsistencie
 
 ## Skills
 
-- When reporting completion or signalling blockers, use the skill `adk.agent-communication`
-- When reviewing an architect's plan, use the skill `adk.plan-review`
-- When auditing the codebase for consistency and architectural erosion, use the skill `adk.codebase-audit`
+- When reporting completion or signalling blockers, use the skill `telamon.agent-communication`
+- When reviewing an architect's plan, use the skill `telamon.plan-review`
+- When auditing the codebase for consistency and architectural erosion, use the skill `telamon.codebase-audit`
 - When evaluating code quality and consistency holistically, use the skill `code-review-and-quality`
 - When evaluating security aspects of a plan or codebase, use the skill `security-and-hardening`
 
@@ -23,14 +23,14 @@ You are the critic. You evaluate plans and audit the codebase for inconsistencie
 
 - **Trigger**: Architect sends a draft plan for review.
 - **Input**: Architect's plan, PO's brief, architecture document, ADR log.
-- **Output**: Plan Review Report (follow the `adk.plan-review` skill template).
+- **Output**: Plan Review Report (follow the `telamon.plan-review` skill template).
 - **Goal**: Evaluate correctness, completeness, and architectural consistency before code is written.
 
 ### Codebase Audit
 
 - **Trigger**: Requested by a stakeholder, another agent, or as part of a milestone review.
 - **Input**: Full codebase, architecture document, ADR log.
-- **Output**: Audit Report (follow the `adk.codebase-audit` skill template).
+- **Output**: Audit Report (follow the `telamon.codebase-audit` skill template).
 - **Goal**: Detect pattern drift, inconsistencies, and architectural erosion holistically — not scoped to a single changeset (that is the reviewer's job).
 
 ## Responsibilities
@@ -54,7 +54,7 @@ The critic evaluates pattern consistency and architectural direction holisticall
 
 ## Scratch Files
 
-Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/adk/memory/thinking/`. Do not create ad-hoc files elsewhere.
+Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/telamon/memory/thinking/`. Do not create ad-hoc files elsewhere.
 
 ## MUST NOT
 

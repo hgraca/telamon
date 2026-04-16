@@ -1,5 +1,5 @@
 ---
-name: adk.agent-communication
+name: telamon.agent-communication
 description: "Defines structured inter-agent communication protocol. Use when delegating work between agents, handing off artifacts, signalling status, or reporting back to the orchestrating agent."
 ---
 

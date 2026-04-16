@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJ="${1:-}"
 PROJECT_NAME="${2:-}"
 
@@ -164,14 +164,14 @@ PYEOF
 # ── Tests ──────────────────────────────────────────────────────────────────────
 
 echo
-echo -e "${BOLD}ADK init assertions — project: ${PROJECT_NAME}${RESET}"
+echo -e "${BOLD}Telamon init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── 1. Vault scaffold (in storage/obsidian/<proj>/, symlinked from <proj>/.ai/adk/memory) ──
+# ── 1. Vault scaffold (in storage/obsidian/<proj>/, symlinked from <proj>/.ai/telamon/memory) ──
 _section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/)"
-VAULT_ROOT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
+VAULT_ROOT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
 BRAIN_DIR="${VAULT_ROOT}/brain"
-VAULT_TMPL="${ADK_ROOT}/src/skills/memory/obsidian-vault/_tmpl"
+VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/obsidian-vault/_tmpl"
 
 # Dirs must be real directories (not symlinks)
 assert_dir "${VAULT_ROOT}"                     "storage/obsidian/${PROJECT_NAME}/"
@@ -198,30 +198,30 @@ assert_symlink "${VAULT_ROOT}/reference/git.md" \
   "_tmpl/reference/git.md" \
   "reference/git.md → _tmpl source"
 
-# ── 2. .opencode/skills/adk symlink ──────────────────────────────────────────
-_section "2. .opencode/skills/adk symlink"
+# ── 2. .opencode/skills/telamon symlink ──────────────────────────────────────────
+_section "2. .opencode/skills/telamon symlink"
 assert_dir  "${PROJ}/.opencode/skills" ".opencode/skills/ directory"
-assert_symlink "${PROJ}/.opencode/skills/adk" "src/skills" \
-  ".opencode/skills/adk → <adk-root>/src/skills"
+assert_symlink "${PROJ}/.opencode/skills/telamon" "src/skills" \
+  ".opencode/skills/telamon → <telamon-root>/src/skills"
 
-# ── 3. .ai/adk/adk.ini ───────────────────────────────────────────────────────
-_section "3. .ai/adk/adk.ini"
-assert_file "${PROJ}/.ai/adk/adk.ini" ".ai/adk/adk.ini"
-assert_file_contains "${PROJ}/.ai/adk/adk.ini" "project_name = ${PROJECT_NAME}" \
-  ".ai/adk/adk.ini contains correct project_name"
-assert_file_contains "${PROJ}/.ai/adk/adk.ini" "\[adk\]" \
-  ".ai/adk/adk.ini has [adk] section"
+# ── 3. .ai/telamon/telamon.ini ───────────────────────────────────────────────────────
+_section "3. .ai/telamon/telamon.ini"
+assert_file "${PROJ}/.ai/telamon/telamon.ini" ".ai/telamon/telamon.ini"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "project_name = ${PROJECT_NAME}" \
+  ".ai/telamon/telamon.ini contains correct project_name"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "\[telamon\]" \
+  ".ai/telamon/telamon.ini has [telamon] section"
 
-# ── 5. .ai/adk/secrets symlink ────────────────────────────────────────────────
-_section "5. .ai/adk/secrets"
-assert_symlink "${PROJ}/.ai/adk/secrets" "storage/secrets" \
-  ".ai/adk/secrets → <adk-root>/storage/secrets"
+# ── 5. .ai/telamon/secrets symlink ────────────────────────────────────────────────
+_section "5. .ai/telamon/secrets"
+assert_symlink "${PROJ}/.ai/telamon/secrets" "storage/secrets" \
+  ".ai/telamon/secrets → <telamon-root>/storage/secrets"
 
-# ── 5b. <proj>/.ai/adk/memory → storage/obsidian/<proj>/ ─────────────────────
-_section "5b. .ai/adk/memory symlink"
-assert_symlink "${PROJ}/.ai/adk/memory" \
+# ── 5b. <proj>/.ai/telamon/memory → storage/obsidian/<proj>/ ─────────────────────
+_section "5b. .ai/telamon/memory symlink"
+assert_symlink "${PROJ}/.ai/telamon/memory" \
   "storage/obsidian/${PROJECT_NAME}" \
-  ".ai/adk/memory → <adk-root>/storage/obsidian/${PROJECT_NAME}"
+  ".ai/telamon/memory → <telamon-root>/storage/obsidian/${PROJECT_NAME}"
 
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"
@@ -235,7 +235,7 @@ done
 
 if [[ -z "${OPENCODE_CONFIG}" ]]; then
   # Check if storage/opencode.jsonc exists — if not, this is expected pre-make-up
-  if [[ ! -f "${ADK_ROOT}/storage/opencode.jsonc" ]]; then
+  if [[ ! -f "${TELAMON_ROOT}/storage/opencode.jsonc" ]]; then
     _warn "opencode.jsonc skipped — storage/opencode.jsonc does not exist yet (run 'make up' first)"
   else
     _fail "opencode.jsonc or opencode.json — neither found in project root"
@@ -246,14 +246,14 @@ else
     assert_symlink "${OPENCODE_CONFIG}" "storage/opencode.jsonc" \
       "$(basename "${OPENCODE_CONFIG}") → storage/opencode.jsonc"
   else
-    # Existing-file path: must contain ADK mcp servers after merge
+    # Existing-file path: must contain Telamon mcp servers after merge
     assert_file "${OPENCODE_CONFIG}" "$(basename "${OPENCODE_CONFIG}") (file)"
     assert_json_key "${OPENCODE_CONFIG}" "mcp.websearch.type" "remote" \
-      "mcp.websearch.type == remote (ADK MCP merged)"
+      "mcp.websearch.type == remote (Telamon MCP merged)"
     assert_json_key "${OPENCODE_CONFIG}" "mcp.context7.type" "remote" \
-      "mcp.context7.type == remote (ADK MCP merged)"
+      "mcp.context7.type == remote (Telamon MCP merged)"
     assert_json_key "${OPENCODE_CONFIG}" "mcp.git.type" "local" \
-      "mcp.git.type == local (ADK MCP merged)"
+      "mcp.git.type == local (Telamon MCP merged)"
   fi
 fi
 
@@ -270,7 +270,7 @@ assert_json_key "${INDEX_JSON}" "indexing.autoIndex" "True" \
 _section "8. AGENTS.md"
 assert_file "${PROJ}/AGENTS.md" "AGENTS.md"
 assert_file_contains "${PROJ}/AGENTS.md" "MANDATORY START SEQUENCE" \
-  "AGENTS.md contains ADK bootstrap instructions"
+  "AGENTS.md contains Telamon bootstrap instructions"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo

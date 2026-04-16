@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # =============================================================================
 # bin/init.sh
-# Initialise a project to use this ADK.
+# Initialise a project to use Telamon.
 #
 # Usage:
 #   bin/init.sh <path/to/project>
 #
 # What it does (delegated to per-app init scripts):
-#   obsidian      — vault scaffold + .ai/adk/memory symlink
-#   opencode      — skills symlink, plugins symlink, adk.ini, secrets
+#   obsidian      — vault scaffold + .ai/telamon/memory symlink
+#   opencode      — skills symlink, plugins symlink, telamon.ini, secrets
 #                   symlink, opencode.jsonc symlink/merge, AGENTS.md
 #   codebase-index — writes .opencode/codebase-index.json
 #   graphify      — graphify-out symlink + git hooks
@@ -18,8 +18,8 @@
 
 set -euo pipefail
 
-ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${ADK_ROOT}/src/install"
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${TELAMON_ROOT}/src/install"
 
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
@@ -39,9 +39,9 @@ fi
 PROJ="$(cd "${PROJ}" && pwd)"
 PROJECT_NAME="$(basename "${PROJ}")"
 
-export ADK_ROOT INSTALL_PATH PROJ PROJECT_NAME
+export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME
 
-header "ADK init — ${PROJECT_NAME}"
+header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
 INIT_APPS=(obsidian opencode codebase-index graphify cass qmd session-capture)
@@ -56,7 +56,7 @@ for _app in "${INIT_APPS[@]}"; do
 done
 
 # ── Done ──────────────────────────────────────────────────────────────────────
-BRAIN_DIR="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}/brain"
+BRAIN_DIR="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}/brain"
 echo
 log "Project '${PROJECT_NAME}' initialised."
 info "Memory notes: ${BRAIN_DIR}/"

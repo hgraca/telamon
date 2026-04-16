@@ -9,9 +9,9 @@
   "default_agent": "developer",
   "plugin": [
     "opencode-scheduler",
-    ".opencode/plugins/adk/graphify.js",
-    ".opencode/plugins/adk/session-capture.js",
-    ".opencode/plugins/adk/rtk-dedupe.ts"
+    ".opencode/plugins/telamon/graphify.js",
+    ".opencode/plugins/telamon/session-capture.js",
+    ".opencode/plugins/telamon/rtk-dedupe.ts"
   ],
   "permission": {
     "edit": "allow",
@@ -108,7 +108,7 @@
       "enabled": true,
       "environment": {
         "DATABASE_BACKEND": "postgres",
-        "DATABASE_URL": "{file:.ai/adk/secrets/ogham-database-url}",
+        "DATABASE_URL": "{file:.ai/telamon/secrets/ogham-database-url}",
         "EMBEDDING_PROVIDER": "ollama",
         "OLLAMA_URL": "http://localhost:11434",
         "OLLAMA_EMBED_MODEL": "nomic-embed-text",
@@ -141,7 +141,7 @@
       ],
       "enabled": true,
       "environment": {
-        "API_KEY": "{file:.ai/adk/secrets/obsidian-api-key}",
+        "API_KEY": "{file:.ai/telamon/secrets/obsidian-api-key}",
         "API_URLS": "[\"https://host.docker.internal:27124\"]"
       }
     },
@@ -153,10 +153,10 @@
       ],
       "enabled": true,
       // XDG_CACHE_HOME redirects QMD's index and model cache from ~/.cache/qmd/
-      // to <adk-root>/storage/qmd/ — consistent with the ADK's storage layout.
+      // to <telamon-root>/storage/qmd/ — consistent with Telamon's storage layout.
       // The path is written to storage/secrets/qmd-cache-home by qmd/install.sh.
       "environment": {
-        "XDG_CACHE_HOME": "{file:.ai/adk/secrets/qmd-cache-home}"
+        "XDG_CACHE_HOME": "{file:.ai/telamon/secrets/qmd-cache-home}"
       }
     }
   }

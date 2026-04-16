@@ -1,5 +1,5 @@
 ---
-name: adk.ux-design
+name: telamon.ux-design
 description: "Creates UX specifications (user flows, screen interactions, states) and validates implementations against UX specs. Use when producing interaction guidance or reviewing implemented UI against a UX spec."
 ---
 

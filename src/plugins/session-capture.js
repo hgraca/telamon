@@ -25,7 +25,7 @@ function worktreeSlug(worktree, directory) {
 
 export const SessionCapturePlugin = async ({ directory, worktree, client }) => {
   const slug = worktreeSlug(worktree, directory);
-  const WATERMARK_REL = `.ai/adk/memory/thinking/.last-capture-${slug}.json`;
+  const WATERMARK_REL = `.ai/telamon/memory/thinking/.last-capture-${slug}.json`;
 
   return {
     event: async ({ event }) => {
@@ -76,7 +76,7 @@ export const SessionCapturePlugin = async ({ directory, worktree, client }) => {
             parts: [
               {
                 type: "text",
-                text: "[ADK] Please run the session-capture skill now.",
+                text: "[Telamon] Please run the session-capture skill now.",
               },
             ],
           },

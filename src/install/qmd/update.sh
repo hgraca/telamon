@@ -5,7 +5,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -16,22 +16,22 @@ if ! command -v qmd &>/dev/null; then
   exit 2
 fi
 
-# Redirect QMD cache to ADK storage (matches install/qmd/init.sh)
-export XDG_CACHE_HOME="${ADK_ROOT}/storage"
-mkdir -p "${ADK_ROOT}/storage/qmd"
+# Redirect QMD cache to Telamon storage (matches install/qmd/init.sh)
+export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
+mkdir -p "${TELAMON_ROOT}/storage/qmd"
 
 _failed=0
 
 step "Upgrading QMD via npm..."
 npm install -g @tobilu/qmd --quiet 2>/dev/null \
-  && log "qmd → $(XDG_CACHE_HOME="${ADK_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')" \
+  && log "qmd → $(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  QMD upgrade failed — try: npm install -g @tobilu/qmd"; _failed=1; }
 
 step "Refreshing QMD vault index..."
 if qmd update 2>/dev/null && qmd embed 2>/dev/null; then
   log "QMD vault index refreshed"
 else
-  warn "QMD re-index did not complete cleanly — run manually: XDG_CACHE_HOME=${ADK_ROOT}/storage qmd update && qmd embed"
+  warn "QMD re-index did not complete cleanly — run manually: XDG_CACHE_HOME=${TELAMON_ROOT}/storage qmd update && qmd embed"
 fi
 
 [[ "${_failed}" -eq 0 ]] || exit 1

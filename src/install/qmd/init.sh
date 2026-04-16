@@ -2,8 +2,8 @@
 # Register QMD collections for the current project's Obsidian vault and run
 # the initial embedding pass.
 #
-# The vault lives at <adk-root>/storage/obsidian/<project-name>/ and is
-# symlinked into the project at <project>/.ai/adk/memory/.
+# The vault lives at <telamon-root>/storage/obsidian/<project-name>/ and is
+# symlinked into the project at <project>/.ai/telamon/memory/.
 # The bootstrap/ subfolder is intentionally excluded from QMD — it is loaded
 # via AGENTS.md and does not benefit from semantic search.
 #
@@ -15,8 +15,8 @@
 #   <project>-reference  reference/    — architecture maps, flow docs
 #   <project>-thinking   thinking/     — scratchpad drafts
 #
-# Collections are registered in the ADK-managed index at
-# <adk-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
+# Collections are registered in Telamon-managed index at
+# <telamon-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
 # Re-running this script is safe (collection add is idempotent).
 #
 # The initial `qmd embed` can take a few minutes the first time because QMD
@@ -25,17 +25,17 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
 header "QMD vault collections"
 
-# ── Redirect QMD cache to ADK storage ─────────────────────────────────────────
+# ── Redirect QMD cache to Telamon storage ─────────────────────────────────────────
 # All qmd commands in this script run with XDG_CACHE_HOME set so the index and
 # model cache live at storage/qmd/ instead of the system-wide ~/.cache/qmd/.
-export XDG_CACHE_HOME="${ADK_ROOT}/storage"
-mkdir -p "${ADK_ROOT}/storage/qmd"
+export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
+mkdir -p "${TELAMON_ROOT}/storage/qmd"
 
 # ── Guard: qmd must be installed ──────────────────────────────────────────────
 if ! command -v qmd &>/dev/null; then
@@ -44,12 +44,12 @@ if ! command -v qmd &>/dev/null; then
   return 0 2>/dev/null || exit 0
 fi
 
-# ── Resolve project name from adk.ini or directory basename ──────────────────
+# ── Resolve project name from telamon.ini or directory basename ──────────────────
 # When called from bin/init.sh we are cd'd into the project root, which has
-# .ai/adk/adk.ini written in step 3.  Fall back to the directory basename.
-ADK_INI="${PWD}/.ai/adk/adk.ini"
-if [[ -f "${ADK_INI}" ]]; then
-  PROJECT_NAME="$(grep -E '^project_name\s*=' "${ADK_INI}" | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')"
+# .ai/telamon/telamon.ini written in step 3.  Fall back to the directory basename.
+TELAMON_INI="${PWD}/.ai/telamon/telamon.ini"
+if [[ -f "${TELAMON_INI}" ]]; then
+  PROJECT_NAME="$(grep -E '^project_name\s*=' "${TELAMON_INI}" | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')"
 else
   PROJECT_NAME="$(basename "${PWD}")"
 fi
@@ -59,7 +59,7 @@ if [[ -z "${PROJECT_NAME}" ]]; then
   return 0 2>/dev/null || exit 0
 fi
 
-VAULT="${ADK_ROOT}/storage/obsidian/${PROJECT_NAME}"
+VAULT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
 
 if [[ ! -d "${VAULT}" ]]; then
   warn "Vault not found at ${VAULT} — run 'make init PROJ=<path>' first"

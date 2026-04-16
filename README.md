@@ -1,12 +1,15 @@
-# Agentic Development Kit (ADK)
+# Telamon
 
-> Everything a developer needs to get the best out of LLMs and coding agents — installed once, shared across every project.
+A harness for agentic software development.
+
+Everything a developer needs to get the best out of LLMs and coding agents — 
+installed once, shared across every project and tailored for every project.
 
 ---
 
 ## Overview
 
-The ADK is a **local infrastructure kit** that installs, wires up, and manages a suite of AI-augmentation 
+Telamon is a **local infrastructure kit** that installs, wires up, and manages a suite of AI-augmentation 
 tools for software development. It provides:
 
 - **Persistent agent memory** — the agent remembers decisions, bugs, and patterns across sessions and projects
@@ -137,7 +140,7 @@ Useful for recovering context from previous sessions: *"what did we decide about
 ### 🔎 QMD — Vault Semantic Search
 [qmd](https://github.com/tobi/qmd)
 
-Provides semantic (vector) search over the ADK Obsidian vault using **fully local GGUF models** (~2 GB, auto-downloaded on first use). Stores a global index at `~/.cache/qmd/index.sqlite`.
+Provides semantic (vector) search over Telamon Obsidian vault using **fully local GGUF models** (~2 GB, auto-downloaded on first use). Stores a global index at `~/.cache/qmd/index.sqlite`.
 
 - One named collection per vault section: `<project>-brain`, `<project>-work`, `<project>-reference`, `<project>-thinking`
 - The `bootstrap/` folder is intentionally excluded — it is already loaded via AGENTS.md and does not benefit from search
@@ -189,8 +192,8 @@ A skill that switches the agent into an ultra-compressed communication mode — 
 | Service | Image | Purpose |
 |---|---|---|
 | `ogham-postgres` | `pgvector/pgvector:pg17` | Vector database for Ogham memory |
-| `adk-ollama` | `ollama/ollama:latest` | Local embedding model server |
-| `adk-ollama-init` | `ollama/ollama:latest` | One-shot job: pulls `nomic-embed-text` on first start |
+| `telamon-ollama` | `ollama/ollama:latest` | Local embedding model server |
+| `telamon-ollama-init` | `ollama/ollama:latest` | One-shot job: pulls `nomic-embed-text` on first start |
 
 > **Obsidian MCP** runs on-demand via `docker run` (not a persistent service) so it does not crash when Obsidian is not running.
 
@@ -249,11 +252,11 @@ A skill that switches the agent into an ultra-compressed communication mode — 
 
 ## Developer Workflow
 
-### 1. One-time: Clone and start the ADK
+### 1. One-time: Clone and start Telamon
 
 ```bash
-git clone <this-repo> ~/adk
-cd ~/adk
+git clone <this-repo> ~/telamon
+cd ~/telamon
 make up
 ```
 
@@ -263,7 +266,7 @@ make up
 3. Start Docker services (`postgres`, `ollama`)
 4. Install remaining tools (opencode, Ogham, Graphify, cass, RTK, codebase-index, Obsidian MCP) — `--post-docker` phase
 
-If `.ai/adk/adk.ini` exists with `project_name` set, the installer reads it silently (no prompts for project name/profile). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
+If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads it silently (no prompts for project name/profile). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
 
 > The installer is **idempotent** — safe to re-run at any time. Already-installed tools are skipped.
 
@@ -281,21 +284,21 @@ This will:
   - `brain/` notes (`memories.md`, `key_decisions.md`, `patterns.md`, `gotchas.md`)
   - `work/active/`, `work/archive/`, `work/incidents/` folders
   - `reference/` and `thinking/` folders
-- Symlink `<project>/.opencode/skills/adk` → `<adk-root>/src/skills` (agent skills)
-- Write `<project>/.ai/adk/adk.ini` with the project name variable
+- Symlink `<project>/.opencode/skills/telamon` → `<telamon-root>/src/skills` (agent skills)
+- Write `<project>/.ai/telamon/telamon.ini` with the project name variable
 - Install the **Graphify** git hook and OpenCode plugin in the project
 - Install the **session-capture** OpenCode plugin in the project (auto-captures before compaction)
 - Install the **cass** post-commit git hook in the project (incremental index after every commit)
 - Register **QMD** vault collections (`<project>-brain`, `-work`, `-reference`, `-thinking`) and build the initial semantic index
 
-After this, when `opencode` starts in the project, it automatically loads the ADK context and skills.
+After this, when `opencode` starts in the project, it automatically loads Telamon context and skills.
 
 ---
 
-### 3. Every day: Start the ADK
+### 3. Every day: Start Telamon
 
 ```bash
-cd ~/adk
+cd ~/telamon
 make up       # if not already running
 ```
 
@@ -375,7 +378,7 @@ When you say *"wrap up"* the agent will:
 | **Linux** (Ubuntu/Debian/Mint) or **macOS** | Apple Silicon and Intel both supported |
 | **Docker** | Installed automatically if missing |
 | **Obsidian** | Install manually from [obsidian.md](https://obsidian.md); enable the *Local REST API* community plugin; copy the API key |
-| **opencode** | The AI coding agent this ADK augments — [opencode.ai](https://opencode.ai) |
+| **opencode** | The AI coding agent Telamon augments — [opencode.ai](https://opencode.ai) |
 
 ---
 
@@ -400,10 +403,10 @@ The Obsidian API key comes from: *Obsidian → Settings → Community Plugins �
 | `make down`             | Stop Docker services                                            |
 | `make restart`          | `down` then `up`                                                |
 | `make purge`            | Stop services and delete all volumes (destructive)              |
-| `make status`           | Quick installation status of all ADK tools                      |
+| `make status`           | Quick installation status of all Telamon tools                      |
 | `make doctor`           | Comprehensive health check (connectivity, config, secrets)      |
-| `make update`           | Upgrade all ADK-managed tools to their latest versions          |
-| `make init PROJ=<path>` | Initialise a project to use this ADK                            |
+| `make update`           | Upgrade all Telamon-managed tools to their latest versions          |
+| `make init PROJ=<path>` | Initialise a project to use Telamon                            |
 | `make test`             | Run the full test suite (make up + init dummy project + assert) |
 
 ---
@@ -414,9 +417,9 @@ The Obsidian API key comes from: *Obsidian → Settings → Community Plugins �
 bin/
   init.sh                    # project initialiser (brain scaffold + symlinks + plugins)
   install.sh                 # orchestrator: --pre-docker, --post-docker phases
-  update.sh                  # upgrades all ADK-managed tools to latest versions
+  update.sh                  # upgrades all Telamon-managed tools to latest versions
   doctor.sh                  # comprehensive health check (connectivity, config, secrets)
-  status.sh                  # quick installation status of all ADK tools
+  status.sh                  # quick installation status of all Telamon tools
 
 src/
   context/                   # agent instruction docs (loaded into every project)

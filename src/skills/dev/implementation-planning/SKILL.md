@@ -1,5 +1,5 @@
 ---
-name: adk.implementation-planning
+name: telamon.implementation-planning
 description: "Creates implementation plans from a PO brief. Use when designing a technical plan that addresses all layers (domain, application, infrastructure, presentation, wiring, migrations, tests)."
 ---
 

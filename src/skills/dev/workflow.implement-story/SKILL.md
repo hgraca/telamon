@@ -1,6 +1,6 @@
 ---
-name: adk.workflow.implement-story
-description: "Implements an approved plan by orchestrating Tester, Developer, and Reviewer in a structured cycle per task. Use after the human stakeholder approves the plan from the adk.workflow.plan-story skill."
+name: telamon.workflow.implement-story
+description: "Implements an approved plan by orchestrating Tester, Developer, and Reviewer in a structured cycle per task. Use after the human stakeholder approves the plan from the telamon.workflow.plan-story skill."
 ---
 
 # Skill: Implement Plan
@@ -9,21 +9,21 @@ Implement an approved plan by orchestrating Tester, Developer, and Reviewer for 
 
 ## When to Apply
 
-- After the human stakeholder approves the plan from the `adk.workflow.plan-story` skill
+- After the human stakeholder approves the plan from the `telamon.workflow.plan-story` skill
 - When the `/implement`, `/story`, or `/epic` command is invoked for implementation
 - When the `/test`, `/dev`, or `/review` command invokes a specific step
 
 ## Artifacts
 
-Place all artifacts in the `<issue-folder>` established during planning (see `adk.workflow.plan-story` skill for naming conventions). Artifacts must not be committed to git.
+Place all artifacts in the `<issue-folder>` established during planning (see `telamon.workflow.plan-story` skill for naming conventions). Artifacts must not be committed to git.
 
 ### Scratch files
 
-Any ephemeral notes, drafts, or intermediate thinking produced during implementation must be saved to `<proj>/.ai/adk/memory/thinking/`. Promote useful findings to brain files before closing the session. Delete scratch files that add no lasting value.
+Any ephemeral notes, drafts, or intermediate thinking produced during implementation must be saved to `<proj>/.ai/telamon/memory/thinking/`. Promote useful findings to brain files before closing the session. Delete scratch files that add no lasting value.
 
 ### Pre-flight check
 
-Before creating any artifact, verify the issue folder already exists in `.ai/issue/`. If it does not, STOP — planning must be completed first via `adk.workflow.plan-story`. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
+Before creating any artifact, verify the issue folder already exists in `.ai/issue/`. If it does not, STOP — planning must be completed first via `telamon.workflow.plan-story`. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
 
 ## Clarification Channels
 
@@ -35,7 +35,7 @@ If the developer needs:
 
 ### Step 0: Pre-flight
 
-Read `.ai/adk/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
+Read `.ai/telamon/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
 
 ### Step 1: Provide the plan
 
@@ -69,7 +69,7 @@ For each task in the backlog:
 7. **Progress report** — Output to human stakeholder:
    > **Progress**: \<completed\>/\<total\> tasks done | \<blocked\> blocked | \<remaining\> remaining
 
-8. **Capture lessons** — Append reusable patterns to `.ai/adk/memory/brain/memories.md` immediately. Do not defer to end of session.
+8. **Capture lessons** — Append reusable patterns to `.ai/telamon/memory/brain/memories.md` immediately. Do not defer to end of session.
 
 9. Move to the next task from step 2.1.
 
@@ -78,9 +78,9 @@ For each task in the backlog:
 When all tasks are done:
 
 1. Verify test coverage has not regressed. If it has, create a follow-up task before approval.
-2. Produce a post-iteration retrospective using the `adk.evaluation` skill.
+2. Produce a post-iteration retrospective using the `telamon.evaluation` skill.
 3. Approve or reject.
-4. Update `.ai/adk/memory/brain/memories.md` with lessons learned using the `adk.memory-management` skill.
+4. Update `.ai/telamon/memory/brain/memories.md` with lessons learned using the `telamon.memory-management` skill.
 5. Notify human stakeholder with completion report and recommended next actions.
 6. Proceed with non-destructive closure actions immediately without asking permission.
 
@@ -94,7 +94,7 @@ When all tasks are done:
 
 ## Exception Handling
 
-- When an unexpected situation arises, use the `adk.exception-handling` skill for structured recovery.
+- When an unexpected situation arises, use the `telamon.exception-handling` skill for structured recovery.
 - If a developer session stalls or produces no usable output:
   1. Inspect working directory for partial progress
   2. Re-delegate only incomplete work to a fresh session with explicit specifications (concrete class signatures, constructor parameters, test file locations)

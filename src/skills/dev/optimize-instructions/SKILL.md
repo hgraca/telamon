@@ -1,5 +1,5 @@
 ---
-name: adk.optimize-instructions
+name: telamon.optimize-instructions
 description: "Optimizes agent instruction files for clarity, token efficiency, and pattern compliance. Use when creating, reviewing, or rewriting role files, skill files, workflow files, or context files for a multi-agent system."
 ---
 
@@ -79,7 +79,7 @@ Skills are loaded on demand. Self-contained — usable without reading the refer
 | Goal | One sentence |
 | Process | Numbered steps: responsible agent + artifact produced |
 | Rules | Atomic, testable constraints |
-| Exception handling | Reference `adk.exception-handling` skill + workflow-specific recovery |
+| Exception handling | Reference `telamon.exception-handling` skill + workflow-specific recovery |
 
 Workflows orchestrate agents. Agent procedures belong in skills.
 

@@ -4,7 +4,7 @@ NEVER read nor modify any file or folder with "no-vcs" in the name, unless expli
 
 ## MANDATORY START SEQUENCE
 
-Read all files matching `.ai/adk/memory/bootstrap/**/*.md` (if they exist) to gather context and agent instructions
+Read all files matching `.ai/telamon/memory/bootstrap/**/*.md` (if they exist) to gather context and agent instructions
 
 If any rule cannot be satisfied:
 STOP and report conflict.

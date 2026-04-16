@@ -25,18 +25,18 @@ set -euo pipefail
 
 # ── Resolve paths ─────────────────────────────────────────────────────────────
 # bin/ lives one level above src/install/
-ADK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${ADK_ROOT}/src/install"
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_PATH="${TELAMON_ROOT}/src/install"
 export INSTALL_PATH
 
 # ── Load shared functions ─────────────────────────────────────────────────────
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
-# ── Resolve ADK root and storage paths ───────────────────────────────────────
-STATE_DIR="${ADK_ROOT}/storage/state"
-SECRETS_DIR="${ADK_ROOT}/storage/secrets"
-export ADK_ROOT STATE_DIR SECRETS_DIR
+# ── Resolve Telamon root and storage paths ───────────────────────────────────────
+STATE_DIR="${TELAMON_ROOT}/storage/state"
+SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
+export TELAMON_ROOT STATE_DIR SECRETS_DIR
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
@@ -101,9 +101,9 @@ collect_inputs() {
     saved_pg_pass="${SAVED_POSTGRES_PASSWORD:-}"
   fi
 
-  # ── 2. Read .ai/adk/adk.ini (higher priority than saved state) ───────────────
+  # ── 2. Read .ai/telamon/telamon.ini (higher priority than saved state) ───────────────
   local ini_project=""
-  ini_project="$(_read_ini_value "${PWD}/.ai/adk/adk.ini" "project_name" 2>/dev/null || true)"
+  ini_project="$(_read_ini_value "${PWD}/.ai/telamon/telamon.ini" "project_name" 2>/dev/null || true)"
 
   # ── 3. Read .env for POSTGRES_PASSWORD (higher priority than saved state) ──
   local env_pg_pass=""
@@ -119,7 +119,7 @@ collect_inputs() {
   local prompted=0
 
   if [[ -n "${ini_project}" ]]; then
-    info "Project name from .ai/adk/adk.ini: ${ini_project}"
+    info "Project name from .ai/telamon/telamon.ini: ${ini_project}"
     OGHAM_PROFILE="${ini_project}"
     PROJECT_NAME="${ini_project}"
   else
@@ -226,7 +226,7 @@ post_docker() {
 main() {
   echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
   echo "  ╔═════════════════════════════════════════════════╗"
-  echo "  ║   AI Agentic Development Kit Installer          ║"
+  echo "  ║   Telamon — Harness for Agentic Software Development          ║"
   echo "  ║   macOS · Linux Mint · Ubuntu · Debian          ║"
   echo "  ║   Ogham · Graphify · cass · codebase-index      ║"
   echo "  ║   Obsidian MCP · Ollama · Postgres · RTK        ║"

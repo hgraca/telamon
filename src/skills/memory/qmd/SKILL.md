@@ -1,17 +1,17 @@
 ---
-name: adk.qmd
+name: telamon.qmd
 description: "Semantic search over the project's Obsidian vault using QMD. Use PROACTIVELY before reading vault files directly, before creating new notes (duplicate check), and after completing significant work (find related notes). Trigger: past decisions, past incidents, people, projects, patterns, 'did we ever', 'what do we know about', 'find notes on', session start, wrap-up."
 ---
 
 # QMD — Vault Semantic Search
 
-QMD provides semantic (vector) search over the ADK Obsidian vault. It runs fully
-locally using GGUF models and stores its index at `<adk-root>/storage/qmd/index.sqlite`.
+QMD provides semantic (vector) search over Telamon Obsidian vault. It runs fully
+locally using GGUF models and stores its index at `<telamon-root>/storage/qmd/index.sqlite`.
 
 ## Vault collection names
 
 Collections are registered per vault section, prefixed with the project name.
-Read the project name from `.ai/adk/adk.ini` or use `$(basename $(pwd))`.
+Read the project name from `.ai/telamon/telamon.ini` or use `$(basename $(pwd))`.
 
 | Collection | Contents |
 |---|---|
@@ -22,10 +22,10 @@ Read the project name from `.ai/adk/adk.ini` or use `$(basename $(pwd))`.
 
 Replace `<project>` with the actual project name (e.g. `myapp-brain`).
 
-**Index location:** `<adk-root>/storage/qmd/index.sqlite` (not `~/.cache/qmd/`).
-The ADK sets `XDG_CACHE_HOME` automatically in all contexts:
+**Index location:** `<telamon-root>/storage/qmd/index.sqlite` (not `~/.cache/qmd/`).
+The Telamon sets `XDG_CACHE_HOME` automatically in all contexts:
 - MCP server (`qmd mcp`): set via `opencode.jsonc` environment
-- ADK scripts (`make init`, `make update`): set inline
+- Telamon scripts (`make init`, `make update`): set inline
 - Interactive terminal: `qmd()` wrapper function installed by `make up`
 
 You do not need to set `XDG_CACHE_HOME` manually.
@@ -92,7 +92,7 @@ qmd query "what patterns and gotchas should I know" -n 5
 
 ### 2 — Before reading a brain file
 ```bash
-# Instead of: cat .ai/adk/memory/brain/key_decisions.md
+# Instead of: cat .ai/telamon/memory/brain/key_decisions.md
 qmd query "key decisions and architectural choices" -n 8
 ```
 

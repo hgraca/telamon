@@ -13,7 +13,7 @@ Watermark files are scoped per git worktree so concurrent agents in different
 worktrees track their own capture history independently.
 
 Find the watermark for the current worktree:
-`.ai/adk/memory/thinking/.last-capture-<worktree-dirname>.json`
+`.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`
 
 Where `<worktree-dirname>` is the lowercase basename of the current working
 directory (e.g. `my-project`, `my-project-feat-auth`).
@@ -36,7 +36,7 @@ Scan the session for things worth keeping:
 
 Also check:
 - `git log --oneline --after="<last-capture timestamp, or 4 hours ago if first run>" --no-merges` for recent commits
-- `.ai/adk/memory/thinking/` for existing scratch files from this session
+- `.ai/telamon/memory/thinking/` for existing scratch files from this session
 
 ## 2. Route to Brain Notes
 
@@ -44,15 +44,15 @@ Append new entries to the appropriate file. Do not overwrite; add to existing se
 
 | Content | Destination |
 |---|---|
-| Architectural or product decision | `.ai/adk/memory/brain/key_decisions.md` |
-| Human stakeholder answer to a project question | `.ai/adk/memory/brain/key_decisions.md` |
-| Reusable pattern or best practice | `.ai/adk/memory/brain/patterns.md` |
-| Bug, trap, or known constraint | `.ai/adk/memory/brain/gotchas.md` |
-| General project knowledge or context | `.ai/adk/memory/brain/memories.md` |
-| Active work note | `.ai/adk/memory/work/active/<name>.md` |
-| Completed work note | `.ai/adk/memory/work/archive/YYYY/<name>.md` |
-| Incident | `.ai/adk/memory/work/incidents/<YYYY-MM-DD>-<slug>.md` |
-| Ephemeral draft still needed | `.ai/adk/memory/thinking/<descriptive-name>.md` |
+| Architectural or product decision | `.ai/telamon/memory/brain/key_decisions.md` |
+| Human stakeholder answer to a project question | `.ai/telamon/memory/brain/key_decisions.md` |
+| Reusable pattern or best practice | `.ai/telamon/memory/brain/patterns.md` |
+| Bug, trap, or known constraint | `.ai/telamon/memory/brain/gotchas.md` |
+| General project knowledge or context | `.ai/telamon/memory/brain/memories.md` |
+| Active work note | `.ai/telamon/memory/work/active/<name>.md` |
+| Completed work note | `.ai/telamon/memory/work/archive/YYYY/<name>.md` |
+| Incident | `.ai/telamon/memory/work/incidents/<YYYY-MM-DD>-<slug>.md` |
+| Ephemeral draft still needed | `.ai/telamon/memory/thinking/<descriptive-name>.md` |
 
 **Routing rules:**
 - Append, don't replace — add to existing sections rather than overwriting
@@ -62,7 +62,7 @@ Append new entries to the appropriate file. Do not overwrite; add to existing se
 
 ## 3. Promote or Discard Thinking Notes
 
-For each file in `.ai/adk/memory/thinking/`:
+For each file in `.ai/telamon/memory/thinking/`:
 - Contains a reusable lesson? → promote to the right brain file, then **delete** the thinking note
 - Completed partial-progress note? → **delete** it (the work is done)
 - Still live WIP? → keep it; rename to `partial-<task>-YYYY-MM-DD.md` if not already descriptive

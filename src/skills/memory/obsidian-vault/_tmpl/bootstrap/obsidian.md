@@ -3,11 +3,11 @@
 Obsidian holds the project's curated knowledge: architectural decisions, patterns, gotchas, and in-progress work notes. It is the source of truth for long-lived human-readable knowledge.
 
 ### Every session start:
-Read `.ai/adk/memory/brain/memories.md` — this is the index of all knowledge topics for this project.
+Read `.ai/telamon/memory/brain/memories.md` — this is the index of all knowledge topics for this project.
 
 ### Vault structure (per project):
 ```
-.ai/adk/memory/
+.ai/telamon/memory/
   brain/
     memories.md        ← knowledge index — READ THIS FIRST
     key_decisions.md   ← architectural decisions + human stakeholder answers
@@ -22,10 +22,10 @@ Read `.ai/adk/memory/brain/memories.md` — this is the index of all knowledge t
 ```
 
 ### Save to brain/ when you:
-- Make an architectural decision → append to `.ai/adk/memory/brain/key_decisions.md`
-- Human stakeholder answers a project question → append to `.ai/adk/memory/brain/key_decisions.md`
-- Establish a codebase pattern → append to `.ai/adk/memory/brain/patterns.md`
-- Find a trap or constraint → append to `.ai/adk/memory/brain/gotchas.md`
+- Make an architectural decision → append to `.ai/telamon/memory/brain/key_decisions.md`
+- Human stakeholder answers a project question → append to `.ai/telamon/memory/brain/key_decisions.md`
+- Establish a codebase pattern → append to `.ai/telamon/memory/brain/patterns.md`
+- Find a trap or constraint → append to `.ai/telamon/memory/brain/gotchas.md`
 
 ### Retrieval rules:
 - **brain/ files**: read directly — always relevant, no search needed

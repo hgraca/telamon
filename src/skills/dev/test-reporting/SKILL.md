@@ -1,5 +1,5 @@
 ---
-name: adk.test-reporting
+name: telamon.test-reporting
 description: "Produces test reports documenting test results, bugs found, and coverage assessment. Use when completing a test writing or validation session and need to document results."
 ---
 

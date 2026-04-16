@@ -1,4 +1,4 @@
-name: adk
+name: telamon
 
 services:
   postgres:
@@ -24,7 +24,7 @@ services:
   # root-owned; `make purge` uses `sudo rm` for cleanup.
   ollama:
     image: ollama/ollama:latest
-    container_name: adk-ollama
+    container_name: telamon-ollama
     restart: unless-stopped
     ports:
       - "127.0.0.1:11434:11434"
@@ -38,7 +38,7 @@ services:
 
   ollama-init:
     image: ollama/ollama:latest
-    container_name: adk-ollama-init
+    container_name: telamon-ollama-init
     # on-failure: retry model pull if it fails (network timeout, Ollama not ready)
     restart: on-failure
     depends_on:

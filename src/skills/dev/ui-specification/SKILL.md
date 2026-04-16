@@ -1,5 +1,5 @@
 ---
-name: adk.ui-specification
+name: telamon.ui-specification
 description: "Creates implementation-ready UI specifications with design tokens, screen specs, visual states, and acceptance criteria. Use when producing visual design guidance for developers."
 ---
 

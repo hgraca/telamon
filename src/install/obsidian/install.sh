@@ -96,12 +96,12 @@ else
 fi
 
 # ── Read API key ──────────────────────────────────────────────────────────────
-ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+TELAMON_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 
 # Source .env so we can check for an existing key before prompting
-if [[ -f "${ADK_ROOT}/.env" ]]; then
+if [[ -f "${TELAMON_ROOT}/.env" ]]; then
   # shellcheck disable=SC1091
-  set -a; source "${ADK_ROOT}/.env"; set +a
+  set -a; source "${TELAMON_ROOT}/.env"; set +a
 fi
 
 _key_is_placeholder() {
@@ -128,10 +128,10 @@ if _key_is_placeholder; then
 
   if [[ -n "${OBSIDIAN_KEY_INPUT}" ]]; then
     OBSIDIAN_API_KEY="${OBSIDIAN_KEY_INPUT}"
-    if [[ -f "${ADK_ROOT}/.env" ]] && grep -q "^OBSIDIAN_API_KEY=" "${ADK_ROOT}/.env"; then
-      sed -i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${ADK_ROOT}/.env"
+    if [[ -f "${TELAMON_ROOT}/.env" ]] && grep -q "^OBSIDIAN_API_KEY=" "${TELAMON_ROOT}/.env"; then
+      sed -i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${TELAMON_ROOT}/.env"
     else
-      echo "OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}" >> "${ADK_ROOT}/.env"
+      echo "OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}" >> "${TELAMON_ROOT}/.env"
     fi
     log "OBSIDIAN_API_KEY saved to .env"
   fi
@@ -169,7 +169,7 @@ opencode.upsert_mcp "obsidian" "$(cat <<JSON
   ],
   "enabled": true,
   "environment": {
-    "API_KEY": "{file:.ai/adk/secrets/obsidian-api-key}",
+    "API_KEY": "{file:.ai/telamon/secrets/obsidian-api-key}",
     "API_URLS": "[\"https://${OBS_HOST}:27124\"]"
   }
 }

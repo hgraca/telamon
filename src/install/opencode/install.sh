@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Install opencode (AI coding agent) and write <adk-root>/storage/opencode.jsonc
+# Install opencode (AI coding agent) and write <telamon-root>/storage/opencode.jsonc
 # from the template if it does not already exist.
 #
 # The storage/opencode.jsonc file is the shared config for all projects using
-# this ADK. On `make init`, each project gets a symlink pointing to it.
+# Telamon. On `make init`, each project gets a symlink pointing to it.
 # Each tool's install script adds its own MCP block via opencode.upsert_mcp.
 
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
+TELAMON_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -31,7 +31,7 @@ else
 fi
 
 # ── Write shared config if missing ────────────────────────────────────────────
-STORAGE_CONFIG="${ADK_ROOT}/storage/opencode.jsonc"
+STORAGE_CONFIG="${TELAMON_ROOT}/storage/opencode.jsonc"
 
 if [[ -f "${STORAGE_CONFIG}" ]]; then
   skip "storage/opencode.jsonc (already exists)"

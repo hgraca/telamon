@@ -5,7 +5,7 @@
 set -euo pipefail
 
 INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-ADK_ROOT="${ADK_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${INSTALL_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
@@ -17,6 +17,6 @@ if ! command -v docker &>/dev/null || ! docker info &>/dev/null 2>&1; then
 fi
 
 step "Pulling latest Docker images..."
-(cd "${ADK_ROOT}" && docker compose pull --quiet 2>/dev/null) \
+(cd "${TELAMON_ROOT}" && docker compose pull --quiet 2>/dev/null) \
   && log "Docker images updated" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  Docker image pull failed"; exit 1; }

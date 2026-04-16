@@ -1,5 +1,5 @@
 ---
-name: adk.exception-handling
+name: telamon.exception-handling
 description: "Provides structured error taxonomy and recovery strategies for agent failures. Use when a session stalls, a tool fails, instructions conflict, tests loop, or any unexpected situation arises during agent work."
 ---
 
@@ -24,7 +24,7 @@ Structured approach to identifying, classifying, and recovering from failures du
 
 **Recovery**:
 1. Inspect working directory for partial progress.
-2. Save a partial progress note to `<proj>/.ai/adk/memory/thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md` summarising what is done and what remains.
+2. Save a partial progress note to `<proj>/.ai/telamon/memory/thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md` summarising what is done and what remains.
 3. Signal `PARTIAL: <summary of what is done and what remains>`.
 4. PO re-delegates only incomplete work to a fresh session with explicit context.
 5. Never re-delegate already-completed work.

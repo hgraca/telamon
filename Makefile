@@ -99,7 +99,7 @@ help:  ## Show this help
 		fi \
 	done
 
-up: ## Start the ADK: install host tools, then bring docker compose services up
+up: ## Start Telamon: install host tools, then bring docker compose services up
 	@test -f .env || cp .env.dist .env
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
@@ -107,10 +107,10 @@ up: ## Start the ADK: install host tools, then bring docker compose services up
 	docker compose up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
-	echo -e "\n\033[1m\033[34m━━━ ADK is up. ━━━\033[0m\n"
+	echo -e "\n\033[1m\033[34m━━━ Telamon is up. ━━━\033[0m\n"
 
-down: ## Shut down the ADK services
-	echo -e "\n\033[1m\033[34m━━━ Shutting down ADK services... ━━━\033[0m"
+down: ## Shut down Telamon services
+	echo -e "\n\033[1m\033[34m━━━ Shutting down Telamon services... ━━━\033[0m"
 	docker compose down
 
 purge: ## Remove all containers and volumes
@@ -118,30 +118,30 @@ purge: ## Remove all containers and volumes
 	docker compose down --volumes --remove-orphans
 	sudo rm -rf storage/pgdata storage/ollama storage/graphify
 
-restart: ## Stop then start ADK services
-	echo -e "\n\033[1m\033[34m━━━ Restarting ADK services... ━━━\033[0m"
+restart: ## Stop then start Telamon services
+	echo -e "\n\033[1m\033[34m━━━ Restarting Telamon services... ━━━\033[0m"
 	$(MAKE) down
 	$(MAKE) up
 
-status: ## Show installation status of all ADK tools
-	echo -e "\n\033[1m\033[34m━━━ ADK Status ━━━\033[0m"
+status: ## Show installation status of all Telamon tools
+	echo -e "\n\033[1m\033[34m━━━ Telamon Status ━━━\033[0m"
 	bash bin/status.sh
 
-update: ## Upgrade all ADK-managed tools to their latest versions
-	echo -e "\n\033[1m\033[34m━━━ Updating ADK tools... ━━━\033[0m"
+update: ## Upgrade all Telamon-managed tools to their latest versions
+	echo -e "\n\033[1m\033[34m━━━ Updating Telamon tools... ━━━\033[0m"
 	bash bin/update.sh
 
-doctor: ## Run a comprehensive health check of the full ADK stack
-	echo -e "\n\033[1m\033[34m━━━ ADK Doctor ━━━\033[0m"
+doctor: ## Run a comprehensive health check of the full Telamon stack
+	echo -e "\n\033[1m\033[34m━━━ Telamon Doctor ━━━\033[0m"
 	bash bin/doctor.sh
 
-init: ## Initialise a project to use this ADK  (usage: make init PROJ=path/to/project)
+init: ## Initialise a project to use Telamon  (usage: make init PROJ=path/to/project)
 	@if [ -z "$(PROJ)" ]; then echo "Usage: make init PROJ=path/to/project"; exit 1; fi
 	echo -e "\n\033[1m\033[34m━━━ Initialising project: $(PROJ) ━━━\033[0m"
 	bash bin/init.sh "$(PROJ)"
 
 test: ## Run the full test suite (make up + init a dummy project + assert wiring)
-	@echo -e "\n\033[1m\033[34m━━━ Step 1/3: Ensuring ADK is up... ━━━\033[0m"
+	@echo -e "\n\033[1m\033[34m━━━ Step 1/3: Ensuring Telamon is up... ━━━\033[0m"
 	$(MAKE) up
 	@echo -e "\n\033[1m\033[34m━━━ Step 2/3: Running make init on a fresh dummy project... ━━━\033[0m"
 	rm -rf tmp/test-proj

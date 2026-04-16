@@ -1,5 +1,5 @@
 ---
-name: adk.plan-review
+name: telamon.plan-review
 description: "Reviews an architect's implementation plan for correctness, completeness, and architectural consistency. Use when evaluating a draft plan before code is written."
 ---
 
