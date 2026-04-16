@@ -37,6 +37,12 @@ RTK_TELAMON_PLUGIN="${TELAMON_ROOT}/src/plugins/rtk.ts"
 if [[ -f "${RTK_GLOBAL_PLUGIN}" ]]; then
   cp "${RTK_GLOBAL_PLUGIN}" "${RTK_TELAMON_PLUGIN}"
   log "Copied rtk plugin → src/plugins/rtk.ts"
+
+  # Remove the global plugin so opencode doesn't auto-load it alongside our
+  # project-level rtk-dedupe.ts wrapper (which imports rtk.ts as a dependency).
+  # Having both registered causes duplicate tool-rewrite hooks.
+  rm -f "${RTK_GLOBAL_PLUGIN}"
+  log "Removed global rtk.ts to prevent duplicate plugin registration"
 else
   warn "RTK global plugin not found at ${RTK_GLOBAL_PLUGIN} — skipping copy"
 fi
