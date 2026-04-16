@@ -19,7 +19,10 @@ if [[ "${OS}" == "macos" ]]; then
   brew install node
 else
   step "Installing Node.js via NodeSource LTS..."
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  setup_script=$(mktemp)
+  trap 'rm -f "${setup_script}"' EXIT
+  curl -fsSL https://deb.nodesource.com/setup_lts.x -o "${setup_script}"
+  sudo -E bash "${setup_script}"
   apt.install nodejs
 fi
 
