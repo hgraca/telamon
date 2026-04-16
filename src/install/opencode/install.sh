@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+INSTALL_PATH="${INSTALL_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ADK_ROOT="$(cd "${INSTALL_PATH}/../.." && pwd)"
 # shellcheck disable=SC1091
