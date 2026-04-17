@@ -74,7 +74,7 @@ src/
     python/install.sh        # installs uv
     nodejs/install.sh
     ogham/                   # ogham binary + config + FlashRank reranking
-    graphify/                # graphify binary + per-project git hook + opencode plugin
+    graphify/                # graphify binary + MCP wrapper + scheduled updates + opencode plugin
     cass/                    # cass binary + skill download + init.sh (post-commit hook)
     caveman/                 # caveman skill download (no binary)
     qmd/                     # qmd binary install + skill download + init.sh (vault collections)

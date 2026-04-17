@@ -67,13 +67,14 @@ make doctor    # comprehensive health check (connectivity, secrets, config)
 
 At the start of every session (via the `memory-stack` skill) **the agent will automatically**:
 
+- Graphify plugin injects god nodes, communities, and surprising connections into the first tool call (no manual action needed)
+
 ```bash
 ogham use <project-name>     # activate this project's memory profile
 ogham hooks recall            # surface relevant past context
 ```
 
 Then check and build (once each, if missing):
-- Graphify knowledge graph: `graphify .`
 - Codebase index: `index_codebase` tool
 - cass index (first time only): `cass index --full`
 
@@ -90,7 +91,7 @@ qmd query "what patterns and gotchas should I know" -n 5
 The agent automatically:
 - Searches Ogham before repeating known work: `ogham search "<topic>"`
 - Searches the codebase semantically via the codebase-index MCP
-- Queries Graphify for architectural context: `graphify query "<question>"`
+- Queries Graphify for architectural context via the Graphify MCP (god nodes, communities, graph queries)
 - Searches past sessions when needed: `cass search --robot "<topic>"`
 - Reads `brain/NorthStar.md` to stay aligned with goals
 

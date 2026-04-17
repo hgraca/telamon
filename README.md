@@ -80,7 +80,7 @@ The agent knows the structure of the codebase and can find code by meaning.
 
 | Tool | Role |
 |---|---|
-| [Graphify](https://github.com/safishamsi/graphify) | Structural knowledge graph — layers, god nodes, module relationships |
+| [Graphify](https://github.com/safishamsi/graphify) | Structural knowledge graph — auto-built, updated every 30 min, MCP server + context injection |
 | [Codebase Index](https://github.com/Helweg/opencode-codebase-index) | Semantic code search — find code by natural language description |
 
 ### Curated Knowledge Vault

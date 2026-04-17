@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Set up Graphify in the current project: redirect graphify-out to
-# storage/graphify and install git hooks.
+# per-project storage, symlink MCP wrapper, and build initial graph.
 #
 # graphify always writes to ./graphify-out relative to CWD. We redirect it
 # to <telamon-root>/storage/graphify via a symlink so all output is centralised
@@ -31,10 +31,15 @@ if ! command -v graphify &>/dev/null; then
   return 0 2>/dev/null || exit 0
 fi
 
-# ── Redirect graphify-out → <telamon-root>/storage/graphify ──────────────────────
+# ── Redirect graphify-out → <telamon-root>/storage/graphify/<project-name> ───────
 # graphify hardcodes ./graphify-out as its output directory. A symlink at the
 # project root redirects all output to Telamon's central storage location.
-GRAPHIFY_STORAGE="${TELAMON_ROOT}/storage/graphify"
+GRAPHIFY_STORAGE="${TELAMON_ROOT}/storage/graphify/${PROJECT_NAME}"
+
+if [[ -f "${TELAMON_ROOT}/storage/graphify/graph.json" ]]; then
+  warn "Detected old flat graphify layout at storage/graphify/graph.json. Delete it and re-run init."
+fi
+
 mkdir -p "${GRAPHIFY_STORAGE}"
 
 if [[ -L "graphify-out" ]]; then
@@ -50,9 +55,22 @@ else
   log "Symlinked graphify-out → ${GRAPHIFY_STORAGE}"
 fi
 
-# ── Install git hooks ─────────────────────────────────────────────────────────
-step "Installing graphify git hooks..."
-graphify hook install 2>/dev/null || true
-log "Graphify git hooks installed"
+# ── Symlink MCP wrapper ──────────────────────────────────────────────────────
+if [[ -d ".opencode" ]]; then
+  ln -sf "${TELAMON_ROOT}/src/install/graphify/serve-wrapper.sh" .opencode/graphify-serve.sh
+  log "Symlinked .opencode/graphify-serve.sh"
+else
+  warn ".opencode/ directory not found — skipping MCP wrapper symlink"
+fi
 
-info "Run 'graphify .' to build the initial knowledge graph."
+# ── Build initial knowledge graph ────────────────────────────────────────────
+if [[ -f "graphify-out/graph.json" ]]; then
+  skip "Graph already built"
+else
+  step "Building initial knowledge graph..."
+  graphify . > /dev/null 2>&1 || warn "graphify build failed — continuing without graph"
+fi
+
+# ── Schedule periodic graph updates ──────────────────────────────────────────
+step "Scheduling 30-min graph update..."
+bash "${INSTALL_PATH}/graphify/schedule.sh" || warn "Failed to create scheduled job — graph updates will need manual runs"

@@ -25,14 +25,21 @@ Exposed to the agent via an MCP server.
 [graphify](https://github.com/safishamsi/graphify)
 
 Builds a structural knowledge graph of the codebase. Identifies god nodes, architectural layers, call relationships, and module boundaries.
-Maintained automatically via git hooks after the initial build.
+Fully automatic — built during `make init`, updated every 30 minutes, and exposed to the agent via an MCP server.
 
-- Built once with `graphify .`; git hooks keep it current after every commit
-- `graphify-out/GRAPH_REPORT.md` is the entry point for architectural context
-- Query with `graphify query "<question>"`
+- **Auto-build**: `make init` builds the graph automatically. Existing projects that already have a graph skip the build.
+- **Scheduled updates**: A platform-native timer (systemd on Linux, launchd on macOS) runs `graphify . --update` every 30 minutes — no git hooks needed.
+- **MCP server**: Exposed as an on-demand MCP server (`graphify.serve`) with tools: `query_graph`, `get_node`, `get_neighbors`, `get_community`, `god_nodes`, `graph_stats`, `shortest_path`.
+- **Context injection**: An opencode plugin extracts god nodes, communities, and surprising connections from `GRAPH_REPORT.md` and injects them into the first bash tool call of each session — agents start every session with architectural awareness.
+- **Per-project storage**: Each project gets its own graph at `storage/graphify/<project-name>/`, preventing cross-project overwrites.
 
 Particularly valuable for large legacy codebases where nobody has a complete mental model anymore.
 God nodes alone — knowing which classes everything routes through — prevents the agent from making changes in the wrong place.
+
+**Manage scheduled updates:**
+- Linux: `systemctl --user status graphify-update-<project-name>.timer`
+- macOS: `launchctl list | grep graphify-update-<project-name>`
+- Remove: `bash src/install/graphify/schedule.sh --remove <project-name>`
 
 ---
 
@@ -201,7 +208,7 @@ Telamon ships a library of skills that guide the agent through structured workfl
 - **AGENTS.md per project** — A well-written AGENTS.md with your stack versions, framework conventions, database patterns, and key contacts is worth more than any indexing tool on a project the agent hasn't seen before.
 
 ### Tier 2 — High value, worth the setup cost
-- **Graphify** — Particularly valuable for large legacy codebases where nobody has a complete mental model anymore.
+- **Graphify** — Fully automatic codebase knowledge graph. Particularly valuable for large legacy codebases where nobody has a complete mental model anymore.
 - **RTK** — Highest ROI for token efficiency — zero config, immediate, compounds with all other tools.
 - **Codebase Index** — Complements Graphify. Find code by meaning, not just by name.
 
