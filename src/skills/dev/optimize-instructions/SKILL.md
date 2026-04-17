@@ -21,12 +21,12 @@ Structured procedure for reviewing and improving agent instruction files. Ensure
 
 Determine the file type. Each type has a required structure (see File Structure below).
 
-| Type | Purpose | Key constraint |
-|---|---|---|
-| Role | Who the agent is, what it may/must/must not do | No procedures — reference skills instead |
-| Skill | How to perform a specific task | Self-contained, loaded on demand |
-| Workflow | How agents coordinate across a multi-step process | Orchestrates agents, not procedures |
-| Context | Facts and rules always loaded at session start | Short, high-signal, global |
+| Type     | Purpose                                           | Key constraint                           |
+|----------|---------------------------------------------------|------------------------------------------|
+| Role     | Who the agent is, what it may/must/must not do    | No procedures — reference skills instead |
+| Skill    | How to perform a specific task                    | Self-contained, loaded on demand         |
+| Workflow | How agents coordinate across a multi-step process | Orchestrates agents, not procedures      |
+| Context  | Facts and rules always loaded at session start    | Short, high-signal, global               |
 
 ### Step 2: Apply writing rules
 
@@ -47,38 +47,38 @@ Validate the file against the required structure for its type.
 
 #### Role files
 
-| Section | Rule |
-|---|---|
-| Identity | One sentence: role name + primary responsibility |
-| Skills | One bullet per skill: trigger condition -> skill name |
-| Activation | Trigger, input, preconditions |
-| Responsibilities | Verifiable actions, not aspirations |
-| MUST | Atomic, measurable, priority-ordered |
-| MUST NOT | Each prevents a specific failure mode |
-| Collaboration | One format definition (e.g., Q/A/Rationale) |
-| Escalation | Template: target role, reason, context, impact |
+| Section          | Rule                                                  |
+|------------------|-------------------------------------------------------|
+| Identity         | One sentence: role name + primary responsibility      |
+| Skills           | One bullet per skill: trigger condition -> skill name |
+| Activation       | Trigger, input, preconditions                         |
+| Responsibilities | Verifiable actions, not aspirations                   |
+| MUST             | Atomic, measurable, priority-ordered                  |
+| MUST NOT         | Each prevents a specific failure mode                 |
+| Collaboration    | One format definition (e.g., Q/A/Rationale)           |
+| Escalation       | Template: target role, reason, context, impact        |
 
 Role files reference skills. Procedures belong in skills, not roles.
 
 #### Skill files
 
-| Section | Rule |
-|---|---|
-| Frontmatter | YAML: `name`, `description` with trigger words |
-| When to Apply | Specific activation criteria |
-| Procedure | Numbered steps, each with verifiable output |
-| Templates | Blockquoted with all required fields |
-| Definitions | Table/bullets for severity, status, categories |
+| Section       | Rule                                           |
+|---------------|------------------------------------------------|
+| Frontmatter   | YAML: `name`, `description` with trigger words |
+| When to Apply | Specific activation criteria                   |
+| Procedure     | Numbered steps, each with verifiable output    |
+| Templates     | Blockquoted with all required fields           |
+| Definitions   | Table/bullets for severity, status, categories |
 
 Skills are loaded on demand. Self-contained — usable without reading the referencing role file.
 
 #### Workflow files
 
-| Section | Rule |
-|---|---|
-| Goal | One sentence |
-| Process | Numbered steps: responsible agent + artifact produced |
-| Rules | Atomic, testable constraints |
+| Section            | Rule                                                                      |
+|--------------------|---------------------------------------------------------------------------|
+| Goal               | One sentence                                                              |
+| Process            | Numbered steps: responsible agent + artifact produced                     |
+| Rules              | Atomic, testable constraints                                              |
 | Exception handling | Reference `telamon.exception-handling` skill + workflow-specific recovery |
 
 Workflows orchestrate agents. Agent procedures belong in skills.

@@ -17,7 +17,10 @@ When you need to implement, you follow the `telamon.workflow.implement-story` sk
 
 - When delegating work to another agent or receiving status signals, use the skill `telamon.agent-communication`
 - When a session stalls, a delegation fails, or an unexpected situation arises, use the skill `telamon.exception-handling`
-- When capturing lessons learned, consulting memory before new work, or pruning stale entries, use the skill `telamon.memory-management`
+- When starting a session, use the skill `telamon.recall_memories`
+- When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
+- When completing a task or significant piece of work, use the skill `telamon.remember_task`
+- When wrapping up or ending a session, use the skill `telamon.remember_session`
 - When evaluating quality of completed work or running post-iteration retrospectives, use the skill `telamon.evaluation`
 - When a stakeholder's idea is vague and needs sharpening before planning, use the skill `idea-refine`
 - When requirements are unclear, ambiguous, or incomplete and need a specification before planning, use the skill `spec-driven-development`
@@ -92,9 +95,9 @@ Any ephemeral notes, drafts, or WIP content produced during a session (not a for
 
 ## MUST
 
-- Document global product decisions in `.ai/telamon/memory/brain/key_decisions.md` with rationale.
-- When the human stakeholder answers a project question, record it in `.ai/telamon/memory/brain/key_decisions.md`.
-- When given a new rule, add it to `.ai/telamon/memory/brain/key_decisions.md`.
+- Document global product decisions with rationale — follow the `telamon.remember_lessons_learned` skill for where and how.
+- When the human stakeholder answers a project question, record it as a decision.
+- When given a new rule, record it as a decision.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
 

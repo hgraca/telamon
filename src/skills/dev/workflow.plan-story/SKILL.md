@@ -38,7 +38,7 @@ Each epic or story MUST have exactly one folder. NEVER create a second folder fo
 
 ### Step 0: Pre-flight
 
-1. Read `.ai/telamon/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in all delegations.
+1. Read `.ai/telamon/memory/brain/memories.md` (if it exists) per the `telamon.recall_memories` skill. Identify entries relevant to the current scope. Include applicable lessons in all delegations.
 2. **Check for existing issue folder**: List `.ai/issue/` and look for a folder that matches the current initiative (by slug or topic). If one exists, reuse it — do NOT create a new folder. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
 
 ### Step 1: Create backlog
@@ -95,7 +95,7 @@ On approval, proceed to implementation using the `telamon.workflow.implement-sto
 
 ## Post-Planning
 
-Document lessons learned in `.ai/telamon/memory/brain/memories.md` using the `telamon.memory-management` skill:
+When planning is complete, follow the `telamon.remember_task` skill to document lessons learned:
 - Reusable questions and answers from interactions with Architect, Critic, and human stakeholder
 - Architecture decisions clarified during planning
 - Domain knowledge uncovered during requirements refinement

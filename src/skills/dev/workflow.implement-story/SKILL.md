@@ -35,7 +35,7 @@ If the developer needs:
 
 ### Step 0: Pre-flight
 
-Read `.ai/telamon/memory/brain/memories.md` (if it exists). Identify entries relevant to the current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
+Read `.ai/telamon/memory/brain/memories.md` (if it exists) per the `telamon.recall_memories` skill. Identify entries relevant to the current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
 
 ### Step 1: Provide the plan
 
@@ -69,7 +69,7 @@ For each task in the backlog:
 7. **Progress report** — Output to human stakeholder:
    > **Progress**: \<completed\>/\<total\> tasks done | \<blocked\> blocked | \<remaining\> remaining
 
-8. **Capture lessons** — Append reusable patterns to `.ai/telamon/memory/brain/memories.md` immediately. Do not defer to end of session.
+8. **Capture lessons** — When a task is complete, follow the `telamon.remember_task` skill immediately. Do not defer to end of session.
 
 9. Move to the next task from step 2.1.
 
@@ -80,7 +80,7 @@ When all tasks are done:
 1. Verify test coverage has not regressed. If it has, create a follow-up task before approval.
 2. Produce a post-iteration retrospective using the `telamon.evaluation` skill.
 3. Approve or reject.
-4. Update `.ai/telamon/memory/brain/memories.md` with lessons learned using the `telamon.memory-management` skill.
+4. When all tasks are done, follow the `telamon.remember_task` skill to capture lessons learned.
 5. Notify human stakeholder with completion report and recommended next actions.
 6. Proceed with non-destructive closure actions immediately without asking permission.
 

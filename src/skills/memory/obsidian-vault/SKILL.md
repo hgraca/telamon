@@ -11,18 +11,18 @@ Each project's vault lives at `.ai/telamon/memory/` inside the project. Inside:
 
 ```
 .ai/telamon/memory/
-  bootstrap/         ← always loaded into context (treat as part of AGENTS.md)
+  bootstrap/                 ← always loaded into context (treat as part of AGENTS.md)
   brain/
-    memories.md       ← knowledge index — READ THIS FIRST
-    key_decisions.md  ← architectural decisions + human stakeholder answers
-    patterns.md       ← established patterns in this codebase
-    gotchas.md        ← known traps and constraints
+    memories.md              ← knowledge index — READ THIS FIRST
+    key_decisions.md         ← architectural decisions + human stakeholder answers
+    patterns.md              ← established patterns in this codebase
+    gotchas.md               ← known traps and constraints
   work/
-    active/            ← current in-progress work notes (1-3 files max)
-    archive/YYYY/      ← completed work notes by year
-    incidents/         ← incident docs
-  reference/           ← architecture maps, flow docs, codebase knowledge
-  thinking/            ← scratchpad for drafts (delete after promoting to notes)
+    active/                  ← current in-progress work notes (1-3 files max)
+    archive/YYYY-MM-DD/      ← completed work notes by year-month-day
+    incidents/               ← incident docs
+  reference/                 ← architecture maps, flow docs, codebase knowledge
+  thinking/                  ← scratchpad for drafts (delete after promoting to notes)
 ```
 
 ## Retrieval rules
@@ -63,7 +63,7 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 ## Writing rules
 
 ### Creating notes
-1. Use YAML frontmatter: `date`, `description` (~150 chars), `tags`, `status`
+1. Use YAML frontmatter: `date`, `description` (~150 chars), `tags`, `status`, `project`
 2. Place files in the correct subfolder (see structure above)
 3. Every new note must link to at least one existing note via `[[wikilink]]`
 4. A note without links is a bug — add links before finishing
@@ -74,18 +74,19 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 - Keep the same heading structure
 
 ### Where to write things
-| Content | Location |
-|---|---|
-| Agent bootstrap instructions (always-on context) | `.ai/telamon/memory/bootstrap/` |
-| Architectural decision + rationale | `.ai/telamon/memory/brain/key_decisions.md` |
-| Human stakeholder answer to a project question | `.ai/telamon/memory/brain/key_decisions.md` |
-| Codebase pattern established | `.ai/telamon/memory/brain/patterns.md` |
-| Hidden trap or constraint found | `.ai/telamon/memory/brain/gotchas.md` |
-| In-progress work note | `.ai/telamon/memory/work/active/` |
-| Completed work note | `.ai/telamon/memory/work/archive/YYYY/` |
-| Incident | `.ai/telamon/memory/work/incidents/` |
-| Architecture doc | `.ai/telamon/memory/reference/` |
-| Draft / reasoning scratchpad | `.ai/telamon/memory/thinking/` (delete after promoting) |
+| Content                                          | Location                                                |
+|--------------------------------------------------|---------------------------------------------------------|
+| Agent bootstrap instructions (always-on context) | `.ai/telamon/memory/bootstrap/`                         |
+| Architectural decision + rationale               | `.ai/telamon/memory/brain/key_decisions.md`             |
+| Product decision + rationale                     | `.ai/telamon/memory/brain/key_decisions.md`             |
+| Human stakeholder answer to a project question   | `.ai/telamon/memory/brain/key_decisions.md`             |
+| Codebase pattern established                     | `.ai/telamon/memory/brain/patterns.md`                  |
+| Hidden trap or constraint found                  | `.ai/telamon/memory/brain/gotchas.md`                   |
+| In-progress work note                            | `.ai/telamon/memory/work/active/`                       |
+| Completed work note                              | `.ai/telamon/memory/work/archive/YYYY-MM-DD/`           |
+| Incident                                         | `.ai/telamon/memory/work/incidents/`                    |
+| Architecture doc                                 | `.ai/telamon/memory/reference/`                         |
+| Draft / reasoning scratchpad                     | `.ai/telamon/memory/thinking/` (delete after promoting) |
 
 ### Never write:
 - Secrets, API keys, passwords
@@ -95,9 +96,4 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 
 ## Wrap-up workflow
 
-When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `session-capture` skill (telamon.session-capture). It covers:
-1. Promote learnings to brain/ notes (key_decisions, patterns, gotchas)
-2. Archive completed work/active/ notes
-3. Save to Ogham via `ogham store_memory` (or the `ogham store` CLI) — capture significant decisions, patterns, and bugs
-4. Verify new notes have [[wikilinks]]
-5. Report what was promoted and saved
+When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `telamon.remember_session` skill.
