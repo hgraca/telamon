@@ -27,7 +27,30 @@ Only tracked source files under `src/`, `bin/`, `test/`, `Makefile`, `docker-com
 
 ---
 
+## Obsidian MCP
+
+### Obsidian REST API binds to `127.0.0.1` only — Docker bridge can't reach it
+**Date**: 2026-04-16
+The Obsidian Local REST API plugin listens on `127.0.0.1:27124` (loopback only), not `0.0.0.0`. Docker containers on the default bridge network reach the host via `172.17.0.1` (Docker bridge gateway), so connection is refused. On Linux, the fix is `--network host` in the `docker run` command so the container shares the host's network namespace and can reach `127.0.0.1` directly. On macOS, Docker Desktop transparently maps `host.docker.internal` to the host loopback, so the default bridge works fine.
+
+### Obsidian MCP Docker command is OS-dependent
+**Date**: 2026-04-16
+`src/install/obsidian/install.sh` now emits different MCP configs per OS:
+- **Linux**: `--network host` + `https://127.0.0.1:27124`
+- **macOS**: default bridge + `https://host.docker.internal:27124`
+The `opencode.jsonc` is written at install time and is OS-specific.
+
+### `obsidian-mcp` Docker service removed from compose
+**Date**: 2026-04-12
+The always-on `obsidian-mcp` compose service was removed because it crashes at startup when Obsidian is not running (tests the API URL on boot, exits 1 if unreachable). The MCP is registered in `opencode.jsonc` as an on-demand `docker run` command instead — no persistent service needed.
+
+---
+
 ## QMD
+
+### QMD skill upstream URL is `tobi/qmd`, not `tobi/obsidian-mind`
+**Date**: 2026-04-16
+The QMD skill SKILL.md lives at `https://raw.githubusercontent.com/tobi/qmd/main/skills/qmd/SKILL.md`. The old URL referencing `tobi/obsidian-mind` was a 404 — that repo doesn't exist.
 
 ### QMD index path is controlled via `XDG_CACHE_HOME` only
 **Date**: 2026-04-15
@@ -109,14 +132,6 @@ Any Python script that reads `storage/opencode.jsonc` must strip JSONC comments 
 ### `{file:path}` secret paths are relative to the project root
 **Date**: 2026-04-12
 opencode resolves `{file:...}` paths relative to the directory where `opencode.jsonc` lives. Since projects get a symlink `<proj>/opencode.jsonc → <telamon-root>/storage/opencode.jsonc`, the secret path in the config must be `storage/secrets/<name>` (relative to the project root, not the Telamon root).
-
----
-
-## Obsidian MCP
-
-### `obsidian-mcp` Docker service removed from compose
-**Date**: 2026-04-12
-The always-on `obsidian-mcp` compose service was removed because it crashes at startup when Obsidian is not running (tests the API URL on boot, exits 1 if unreachable). The MCP is registered in `opencode.jsonc` as an on-demand `docker run` command instead — no persistent service needed.
 
 ---
 

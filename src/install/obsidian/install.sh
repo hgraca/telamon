@@ -154,23 +154,30 @@ fi
 secrets.write "obsidian-api-key" "${OBSIDIAN_API_KEY}"
 
 # ── Register MCP server in opencode.jsonc ─────────────────────────────────────
-# host.docker.internal resolves to the host on macOS; on Linux it is added to
-# /etc/hosts by docker/install.sh pointing to the bridge gateway (172.17.0.1).
-OBS_HOST="host.docker.internal"
+# On macOS Docker Desktop, host.docker.internal transparently reaches the host's
+# loopback so the default bridge network works fine.
+# On Linux, the Obsidian REST API typically binds to 127.0.0.1 only — unreachable
+# from the Docker bridge (172.17.0.1). --network host lets the container share
+# the host's network namespace and reach 127.0.0.1 directly.
+if [[ "${OS}" == "linux" ]]; then
+  OBS_DOCKER_ARGS='"docker", "run", "--rm", "-i", "--network", "host", "-e", "API_KEY", "-e", "API_URLS"'
+  OBS_API_URL="https://127.0.0.1:27124"
+else
+  OBS_DOCKER_ARGS='"docker", "run", "--rm", "-i", "-e", "API_KEY", "-e", "API_URLS"'
+  OBS_API_URL="https://host.docker.internal:27124"
+fi
 
 opencode.upsert_mcp "obsidian" "$(cat <<JSON
 {
   "type": "local",
   "command": [
-    "docker", "run", "--rm", "-i",
-    "-e", "API_KEY",
-    "-e", "API_URLS",
+    ${OBS_DOCKER_ARGS},
     "oleksandrkucherenko/obsidian-mcp:latest"
   ],
   "enabled": true,
   "environment": {
     "API_KEY": "{file:.ai/telamon/secrets/obsidian-api-key}",
-    "API_URLS": "[\"https://${OBS_HOST}:27124\"]"
+    "API_URLS": "[\"${OBS_API_URL}\"]"
   }
 }
 JSON
