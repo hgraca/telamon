@@ -40,6 +40,17 @@ os.version_to_number() {
   echo $((10#$major * 10000 + 10#$minor * 100 + 10#$patch))
 }
 
+# Portable in-place sed — works on both macOS (BSD sed) and Linux (GNU sed)
+# Usage: os.sed_i "s|old|new|" file
+#        os.sed_i -e "s|a|b|" -e "s|c|d|" file
+os.sed_i() {
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' "$@"
+  else
+    sed -i "$@"
+  fi
+}
+
 # Detect Docker bridge gateway for Linux (replaces host.docker.internal)
 os.docker_host() {
   if [[ "$(os.get_os)" == "macos" ]]; then

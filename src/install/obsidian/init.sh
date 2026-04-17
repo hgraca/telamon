@@ -53,7 +53,7 @@ else
     elif grep -q "PROJECT_NAME\|DATE_PLACEHOLDER" "${tmpl_file}" 2>/dev/null; then
       # File has placeholders → real copy with substitution
       cp "${tmpl_file}" "${dest}"
-      sed -i \
+      os.sed_i \
         -e "s/PROJECT_NAME/${PROJECT_NAME}/g" \
         -e "s/DATE_PLACEHOLDER/${TODAY}/g" \
         "${dest}"

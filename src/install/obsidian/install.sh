@@ -129,7 +129,7 @@ if _key_is_placeholder; then
   if [[ -n "${OBSIDIAN_KEY_INPUT}" ]]; then
     OBSIDIAN_API_KEY="${OBSIDIAN_KEY_INPUT}"
     if [[ -f "${TELAMON_ROOT}/.env" ]] && grep -q "^OBSIDIAN_API_KEY=" "${TELAMON_ROOT}/.env"; then
-      sed -i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${TELAMON_ROOT}/.env"
+      os.sed_i "s|^OBSIDIAN_API_KEY=.*|OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}|" "${TELAMON_ROOT}/.env"
     else
       echo "OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY}" >> "${TELAMON_ROOT}/.env"
     fi
