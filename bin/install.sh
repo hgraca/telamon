@@ -58,6 +58,14 @@ load_saved_inputs() {
   POSTGRES_PASSWORD="${SAVED_POSTGRES_PASSWORD:-ogham}"
 
   export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
+
+  # Selectively export optional-service flags for install module guards.
+  # Do NOT use `set -a; source .env` — it would export OPENAI_API_KEY and other secrets globally.
+  # Each install module reads its own secrets from .env via _read_env_value as needed.
+  if [[ -f "${TELAMON_ROOT}/.env" ]]; then
+    export LANGFUSE_ENABLED="$(grep -s '^LANGFUSE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
+    export GRAPHITI_ENABLED="$(grep -s '^GRAPHITI_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
+  fi
 }
 
 # ── _read_ini_value ────────────────────────────────────────────────────────────
@@ -208,7 +216,7 @@ PRE_DOCKER_APPS=(homebrew docker)
 # Phase 2: tools that require the containers to already be running (ogham needs
 #           Postgres; nomic-embed-text model must be in Ollama). Called by
 #           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index obsidian graphify cass rtk caveman qmd shell)
+POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index obsidian graphify cass rtk caveman qmd shell langfuse graphiti)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do

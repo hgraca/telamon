@@ -59,6 +59,11 @@ Append new entries to the appropriate file. Do not overwrite; add to existing se
 - One entry per insight — don't bundle multiple takeaways into one entry
 - Be specific — "always pass `--no-interaction` to Artisan" beats "be careful with CLI"
 - Include date for new brain entries
+- When writing to `brain/key_decisions.md`: if Graphiti is enabled (check: `telamon-graphiti` container running), also create a Graphiti entity for the decision via `add_episode` with:
+  - `name`: decision title
+  - `episode_body`: decision text + rationale
+  - `source`: "session-capture"
+  This ensures decisions are persisted both in the Obsidian vault (flat file) and in the Graphiti knowledge graph (relational/temporal). If Graphiti is not enabled, the existing `brain/key_decisions.md` write path is unchanged.
 
 ## 3. Promote or Discard Thinking Notes
 
@@ -71,7 +76,7 @@ Flag any thinking/ file older than 7 days for user review.
 
 ## 4. Update Ogham
 
-Run `ogham hooks inscribe` to persist session activity to the semantic memory store.
+Call `ogham store_memory` (or the `ogham store` CLI) to persist session activity to the semantic memory store.
 
 Explicitly store anything important that ogham might not pick up automatically:
 - `ogham store "decision: X over Y because Z"`

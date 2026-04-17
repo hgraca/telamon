@@ -34,6 +34,22 @@ docker info &>/dev/null 2>&1                                               && _o
 docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^ogham-postgres$"  && _ok "Postgres container" || _no "Postgres container"
 docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-ollama$"      && _ok "Ollama container"   || _no "Ollama container"
 docker exec telamon-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text" && _ok "nomic-embed-text" || _no "nomic-embed-text"
+
+# ── Optional: Langfuse ────────────────────────────────────────────────────────
+if env.is_enabled LANGFUSE_ENABLED; then
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-langfuse-web$" \
+    && _ok "Langfuse web"      || _no "Langfuse web"
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-langfuse-db$" \
+    && _ok "Langfuse Postgres" || _no "Langfuse Postgres"
+fi
+
+# ── Optional: Graphiti ────────────────────────────────────────────────────────
+if env.is_enabled GRAPHITI_ENABLED; then
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-neo4j$" \
+    && _ok "Neo4j"    || _no "Neo4j"
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-graphiti$" \
+    && _ok "Graphiti" || _no "Graphiti"
+fi
 command -v uv       &>/dev/null && _ok "uv"       || _no "uv"
 command -v ogham    &>/dev/null && _ok "Ogham"    || _no "Ogham"
 command -v node     &>/dev/null && _ok "Node.js"  || _no "Node.js"

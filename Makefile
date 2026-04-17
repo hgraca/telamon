@@ -48,6 +48,15 @@ EXEC_ROOT=docker exec -it --workdir /app --user 0:0 ${PROJECT_NAME}-app-1
 SH=$(EXEC) /bin/bash
 
 IS_DOCKER := $(shell ./scripts/is-in-docker.sh)
+
+COMPOSE_PROFILES :=
+ifneq ($(shell grep -s '^LANGFUSE_ENABLED=true' .env),)
+  COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile langfuse
+endif
+ifneq ($(shell grep -s '^GRAPHITI_ENABLED=true' .env),)
+  COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile graphiti
+endif
+
 .docker-wrap-%:
 ifeq ($(IS_DOCKER),1)
 	$(MAKE) ".$*"
@@ -104,7 +113,7 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
-	docker compose up -d --no-recreate
+	docker compose $(COMPOSE_PROFILES) up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
 	echo -e "\n\033[1m\033[34m━━━ Starting Obsidian... ━━━\033[0m"
@@ -123,12 +132,12 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 
 down: ## Shut down Telamon services
 	echo -e "\n\033[1m\033[34m━━━ Shutting down Telamon services... ━━━\033[0m"
-	docker compose down
+	docker compose $(COMPOSE_PROFILES) down --remove-orphans
 
 purge: ## Remove all containers and volumes
 	echo -e "\n\033[1m\033[34m━━━ Purging all containers and volumes... ━━━\033[0m"
-	docker compose down --volumes --remove-orphans
-	sudo rm -rf storage/pgdata storage/ollama storage/graphify
+	docker compose $(COMPOSE_PROFILES) down -v --remove-orphans
+	sudo rm -rf storage/pgdata storage/ollama storage/graphify storage/langfuse-pgdata storage/langfuse-clickhouse storage/neo4j-data
 
 restart: ## Stop then start Telamon services
 	echo -e "\n\033[1m\033[34m━━━ Restarting Telamon services... ━━━\033[0m"

@@ -5,10 +5,23 @@ description: "Use at session start and when deciding what to store or retrieve. 
 
 # Memory Stack — Session Rules
 
+## Memory Tiers
+
+| Tier | Store | What goes here | Who writes |
+|---|---|---|---|
+| **Working** | AGENTS.md + session context | Active goals, current task state, in-flight constraints | Human + agent at session start |
+| **Episodic** | Ogham + cass | Past actions, bugs fixed, patterns discovered, session logs | Agent automatically during/after sessions |
+| **Long-term** | Obsidian brain/ notes | Architectural decisions, domain knowledge, patterns, gotchas | Agent deliberately at wrap-up, human for strategy |
+
 ## Step 1 — Every session (mandatory):
+
+Switch Ogham profile via `ogham switch_profile` (or the `ogham use` CLI):
 ```
 ogham use <project-name>
-ogham hooks recall
+```
+Search Ogham via `ogham hybrid_search` (or the `ogham search` CLI) — recall past context:
+```
+ogham search "<current task or recent topic>"
 ```
 Read `.ai/telamon/memory/brain/memories.md` — knowledge index for this project.
 
@@ -49,6 +62,7 @@ qmd query "what patterns and gotchas should I know" -n 5
 | Known traps and constraints | Read `.ai/telamon/memory/brain/gotchas.md` directly |
 | Vault semantic search ("did we ever…") | `qmd query "<question>" -n 10` (load `telamon.qmd` skill for full guide) |
 | Architecture, relationships, god nodes | `graphify query "<question>"` |
+| Relational/temporal queries ("what depends on X?", "what changed when Y broke?") | Graphiti MCP `search` / `add_episode` (only when Graphiti is enabled — check: is `telamon-graphiti` container running?) |
 | Code by meaning ("find auth logic") | codebase-index (ask naturally) |
 | Past decisions/bugs this project | `ogham search "<keywords>"` |
 | Past session conversations | `cass search "<topic>" --robot --workspace "$(pwd)"` (load `cass` skill for full guide) |
@@ -59,21 +73,34 @@ qmd query "what patterns and gotchas should I know" -n 5
 - Decision made: `ogham store "decision: X over Y because Z"` + add to `.ai/telamon/memory/brain/key_decisions.md`
 - Human stakeholder answers a project question: record in `.ai/telamon/memory/brain/key_decisions.md`
 - Pattern established: `ogham store "pattern: <desc>"` + add to `.ai/telamon/memory/brain/patterns.md`
-- Session ends with significant work: `ogham hooks inscribe`
+- Session ends with significant work: Save to Ogham via `ogham store_memory` (or the `ogham store` CLI) — capture significant decisions, patterns, and bugs
+- If Graphiti is enabled, also save decisions and relationships via Graphiti `add_episode` for temporal/relational queries
 
 ## Never save: ls/git status/cat/pwd, secrets, trivial single-line edits
+
+## Context overflow protocol
+If context nears limit (repetition, slow responses, opencode warns of compaction):
+1. Save checkpoint: call `ogham store_memory` (or `ogham store` CLI) with content `"checkpoint: <task> — done: <X> — next: <Y>"`
+2. Promote any new learnings to the relevant brain/ notes (key_decisions.md, patterns.md, gotchas.md)
+3. Run `/compact` in opencode
+4. After compaction, search Ogham for recent checkpoints: call `ogham hybrid_search` (or `ogham search` CLI) with query `"checkpoint"`
+5. Re-read relevant brain/ notes to re-anchor goals
 
 ## Wrap-up (when user says "wrap up", "wrapping up", "let's wrap"):
 Follow the session-capture skill (telamon.session-capture):
 1. Promote session learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
-3. `ogham hooks inscribe`
+3. Save to Ogham via `ogham store_memory` (or the `ogham store` CLI) — capture significant decisions, patterns, and bugs
 4. Verify new vault notes have [[wikilinks]]
 5. Tell the user what was promoted and saved
 
 ## Switching projects:
+Switch Ogham profile via `ogham switch_profile` (or the `ogham use` CLI):
 ```
 ogham use <new-project-name>
-ogham hooks recall
+```
+Search Ogham via `ogham hybrid_search` (or the `ogham search` CLI) — recall past context:
+```
+ogham search "<current task or recent topic>"
 ```
 Then read `.ai/telamon/memory/brain/memories.md` and run Step 2 checks.

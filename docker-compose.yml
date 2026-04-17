@@ -49,3 +49,114 @@ services:
       - OLLAMA_HOST=http://ollama:11434
     volumes:
       - ./storage/ollama:/root/.ollama
+
+  # ── Optional: Langfuse (profile: langfuse) ────────────────────────────────
+  langfuse-db:
+    image: postgres:16
+    container_name: telamon-langfuse-db
+    restart: unless-stopped
+    profiles: [langfuse]
+    environment:
+      POSTGRES_DB: langfuse
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - ./storage/langfuse-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  langfuse-redis:
+    image: redis:7-alpine
+    container_name: telamon-langfuse-redis
+    restart: unless-stopped
+    profiles: [langfuse]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  langfuse-clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: telamon-langfuse-clickhouse
+    restart: unless-stopped
+    profiles: [langfuse]
+    volumes:
+      - ./storage/langfuse-clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  langfuse-web:
+    image: langfuse/langfuse:latest
+    container_name: telamon-langfuse-web
+    restart: unless-stopped
+    profiles: [langfuse]
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+      langfuse-redis:
+        condition: service_healthy
+      langfuse-clickhouse:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:4000:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      NEXTAUTH_SECRET: ${LANGFUSE_SECRET}
+      SALT: ${LANGFUSE_SALT}
+      REDIS_CONNECTION_STRING: redis://langfuse-redis:6379
+      CLICKHOUSE_URL: http://langfuse-clickhouse:8123
+      NEXTAUTH_URL: http://localhost:4000
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/public/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # ── Optional: Graphiti + Neo4j (profile: graphiti) ───────────────────────
+  neo4j:
+    image: neo4j:5
+    container_name: telamon-neo4j
+    restart: unless-stopped
+    profiles: [graphiti]
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - ./storage/neo4j-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  graphiti:
+    image: zepai/graphiti:latest
+    container_name: telamon-graphiti
+    restart: unless-stopped
+    profiles: [graphiti]
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
