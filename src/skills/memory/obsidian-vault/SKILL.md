@@ -98,6 +98,6 @@ Discard results with relevance score < 0.6. Say "No relevant notes found" and us
 When the user says "wrap up", "let's wrap", "wrapping up", or similar — follow the `session-capture` skill (telamon.session-capture). It covers:
 1. Promote learnings to brain/ notes (key_decisions, patterns, gotchas)
 2. Archive completed work/active/ notes
-3. `ogham hooks inscribe`
+3. Save to Ogham via `ogham store_memory` (or the `ogham store` CLI) — capture significant decisions, patterns, and bugs
 4. Verify new notes have [[wikilinks]]
 5. Report what was promoted and saved

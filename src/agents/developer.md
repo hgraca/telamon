@@ -52,6 +52,13 @@ Before starting, confirm:
 
 Any ephemeral notes, drafts, or WIP content produced during a session (not a formal artifact) must be saved to `<proj>/.ai/telamon/memory/thinking/`. Do not create ad-hoc files elsewhere.
 
+## Context overflow protocol
+If context nears limit or opencode triggers compaction:
+1. Save checkpoint to Ogham: call `ogham store_memory` (or `ogham store` CLI) with content `"checkpoint: <task> — done: <X> — next: <Y>"`
+2. Promote new learnings to brain/ notes (key_decisions.md, patterns.md, gotchas.md)
+3. Run `/compact` in opencode
+4. After compaction: search Ogham for recent checkpoints via `ogham hybrid_search` (or `ogham search` CLI), re-read relevant brain/ notes
+
 ## MUST NOT
 
 - Make architectural decisions — follow the plan; if it seems wrong, escalate

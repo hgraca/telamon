@@ -1,8 +1,8 @@
 ## Session Rules — Memory & Knowledge Stack
 
 ### Every session start (mandatory, do this first):
-1. `ogham use <project-name>`
-2. `ogham hooks recall`
+1. Switch Ogham profile via `ogham switch_profile` (or the `ogham use` CLI): `ogham use <project-name>`
+2. Search Ogham via `ogham hybrid_search` (or the `ogham search` CLI) — recall past context: `ogham search "<current task or recent topic>"`
 3. Read `.ai/telamon/memory/brain/memories.md` — knowledge index for this project
 
 ### Self-initialize once per project (check each time, build if missing):
@@ -31,8 +31,12 @@
 | Specs, ADRs, requirements | Obsidian vault search (follow obsidian-vault skill) |
 
 ### Switching projects:
+Switch Ogham profile via `ogham switch_profile` (or the `ogham use` CLI):
 ```
 ogham use <new-project-name>
-ogham hooks recall
+```
+Search Ogham via `ogham hybrid_search` (or the `ogham search` CLI) — recall past context:
+```
+ogham search "<current task or recent topic>"
 ```
 Then read `.ai/telamon/memory/brain/memories.md` and run the self-initialize checks above.

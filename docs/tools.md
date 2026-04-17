@@ -16,7 +16,8 @@ Exposed to the agent via an MCP server.
 - Searches by meaning, not exact text
 - FlashRank cross-encoder reranking improves result precision (~+8pp MRR)
 
-**Agent commands:** `ogham use <profile>`, `ogham store "..."`, `ogham search "..."`, `ogham hooks recall`, `ogham hooks inscribe`
+**Agent commands (MCP tools):** `ogham switch_profile`, `ogham store_memory`, `ogham hybrid_search`, `ogham explore_knowledge`, `ogham list_recent`, `ogham find_related`
+**CLI equivalents:** `ogham use <profile>`, `ogham store "..."`, `ogham search "..."`
 
 ---
 

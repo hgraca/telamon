@@ -35,6 +35,6 @@ Read `.ai/telamon/memory/brain/memories.md` — this is the index of all knowled
 ### Wrap-up (on "wrap up" / "wrapping up"):
 1. Promote session learnings to the appropriate `brain/` note
 2. Archive completed `work/active/` notes → `work/archive/YYYY/`
-3. Run `ogham hooks inscribe`
+3. Save to Ogham via `ogham store_memory` (or the `ogham store` CLI) — capture significant decisions, patterns, and bugs
 4. Verify every new vault note has at least one `[[wikilink]]`
 5. Tell the user what was promoted and saved

@@ -70,8 +70,8 @@ At the start of every session (via the `memory-stack` skill) **the agent will au
 - Graphify plugin injects god nodes, communities, and surprising connections into the first tool call (no manual action needed)
 
 ```bash
-ogham use <project-name>     # activate this project's memory profile
-ogham hooks recall            # surface relevant past context
+ogham use <project-name>     # activate this project's memory profile (ogham switch_profile MCP tool)
+ogham search "<topic>"        # surface relevant past context (ogham hybrid_search MCP tool)
 ```
 
 Then check and build (once each, if missing):
@@ -106,7 +106,7 @@ The agent saves to **both** Ogham (fast semantic recall) and Obsidian `brain/` (
 | Non-trivial bug fixed | `ogham store "bug: <desc>"` | Append to `brain/Gotchas.md` |
 | Architectural decision | `ogham store "decision: X over Y because Z"` | Append to `brain/KeyDecisions.md` |
 | Pattern established | `ogham store "pattern: <desc>"` | Append to `brain/Patterns.md` |
-| Session ends | `ogham hooks inscribe` | Archive completed `work/active/` notes |
+| Session ends | `ogham store "session: <summary>"` (ogham store_memory MCP tool) | Archive completed `work/active/` notes |
 
 The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
 
@@ -117,7 +117,7 @@ The **session-capture plugin** handles this automatically before every compactio
 When you say *"wrap up"* the agent will:
 1. Promote session learnings to `brain/` notes
 2. Archive completed `work/active/` notes to `work/archive/YYYY/`
-3. Run `ogham hooks inscribe` to save the session summary
+3. Save to Ogham via `ogham store_memory` (MCP tool) or `ogham store` (CLI) — capture significant decisions, patterns, and bugs
 4. Report what was saved
 
 > This also runs automatically before every context compaction via the session-capture plugin.
