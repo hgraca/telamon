@@ -11,8 +11,8 @@
 #   opencode      — skills symlink, plugins symlink, telamon.ini, secrets
 #                   symlink, opencode.jsonc symlink/merge, AGENTS.md
 #   codebase-index — writes .opencode/codebase-index.json
-#   graphify      — graphify-out symlink + git hooks
-#   cass          — post-commit git hook
+#   graphify      — graphify-out symlink + MCP wrapper + scheduled updates
+#   cass          — scheduled index updates (every 30 min)
 #   qmd           — vault collections + initial semantic index
 # =============================================================================
 

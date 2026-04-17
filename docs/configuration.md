@@ -60,26 +60,36 @@ The wrapper script checks for `graph.json` before starting. If the graph hasn't 
 
 ---
 
-## Scheduled Graph Updates
+## Scheduled Background Jobs
 
-`make init` creates a platform-native timer that runs `graphify . --update` every 30 minutes per project.
+`make init` creates platform-native timers that run every 30 minutes:
+
+| Job | Command | Scope |
+|---|---|---|
+| **Graphify update** | `graphify . --update` (falls back to full build) | Per project |
+| **Cass index** | `cass index` (incremental session index) | Global (one timer regardless of project count) |
 
 | Platform | Timer mechanism | Location |
 |---|---|---|
-| Linux | systemd user timer | `~/.config/systemd/user/graphify-update-<project>.{service,timer}` |
-| macOS | launchd agent | `~/Library/LaunchAgents/com.telamon.graphify-update-<project>.plist` |
+| Linux | systemd user timer | `~/.config/systemd/user/<job-name>.{service,timer}` |
+| macOS | launchd agent | `~/Library/LaunchAgents/com.telamon.<job-name>.plist` |
+
+Job names: `graphify-update-<project>` (per project), `cass-index` (global).
 
 **Managing timers:**
 
 ```bash
 # Linux — check status
 systemctl --user status graphify-update-<project>.timer
+systemctl --user status cass-index.timer
 
 # macOS — check status
-launchctl list | grep graphify-update-<project>
+launchctl list | grep graphify-update
+launchctl list | grep cass-index
 
-# Remove a timer (any platform)
+# Remove timers
 bash src/install/graphify/schedule.sh --remove <project-name>
+bash src/install/cass/schedule.sh --remove
 ```
 
 Timers are idempotent — re-running `make init` does not create duplicates. If the timer content is identical, it is skipped.

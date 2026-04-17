@@ -110,8 +110,13 @@ Provides semantic (vector) search over the Obsidian vault using **fully local GG
 Indexes past agent session conversations and makes them full-text searchable.
 Useful for recovering context from previous sessions: *"what did we decide about the payment flow last week?"*
 
-- Built once with `cass index --full`; a **post-commit git hook** installed by `make init` runs `cass index` incrementally after every commit to keep the index current
+- Built once with `cass index --full`; a **scheduled background job** (every 30 min) runs `cass index` incrementally to keep the index current
 - Search with `cass search --robot "<topic>"` (the `--robot` flag is required — bare `cass search` launches a blocking interactive TUI)
+
+**Manage scheduled updates:**
+- Linux: `systemctl --user status cass-index.timer`
+- macOS: `launchctl list | grep cass-index`
+- Remove: `bash src/install/cass/schedule.sh --remove`
 
 ---
 

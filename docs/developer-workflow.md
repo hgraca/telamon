@@ -40,7 +40,7 @@ This will:
 - Write `<project>/.ai/telamon/telamon.ini` with the project name variable
 - Install the **Graphify** git hook and OpenCode plugin in the project
 - Install the **session-capture** OpenCode plugin in the project (auto-captures before compaction)
-- Install the **cass** post-commit git hook in the project (incremental index after every commit)
+- Schedule a **cass** background job to incrementally index agent sessions every 30 minutes
 - Register **QMD** vault collections (`<project>-brain`, `-work`, `-reference`, `-thinking`) and build the initial semantic index
 
 After this, when `opencode` starts in the project, it automatically loads Telamon context and skills.

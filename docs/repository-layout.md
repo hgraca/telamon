@@ -75,7 +75,7 @@ src/
     nodejs/install.sh
     ogham/                   # ogham binary + config + FlashRank reranking
     graphify/                # graphify binary + MCP wrapper + scheduled updates + opencode plugin
-    cass/                    # cass binary + skill download + init.sh (post-commit hook)
+    cass/                    # cass binary + skill download + scheduled index updates
     caveman/                 # caveman skill download (no binary)
     qmd/                     # qmd binary install + skill download + init.sh (vault collections)
     rtk/                     # RTK binary + opencode plugin wiring
