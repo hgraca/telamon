@@ -1,141 +1,144 @@
 ---
-name: telamon.qmd
-description: "Semantic search over the project's Obsidian vault using QMD. Use PROACTIVELY before reading vault files directly, before creating new notes (duplicate check), and after completing significant work (find related notes). Trigger: past decisions, past incidents, people, projects, patterns, 'did we ever', 'what do we know about', 'find notes on', session start, wrap-up."
+name: qmd
+description: Search markdown knowledge bases, notes, and documentation using QMD. Use when users ask to search notes, find documents, or look up information.
+license: MIT
+compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobilu/qmd`.
+metadata:
+  author: tobi
+  version: "2.0.0"
+allowed-tools: Bash(qmd:*), mcp__qmd__*
 ---
 
-# QMD — Vault Semantic Search
+# QMD - Quick Markdown Search
 
-QMD provides semantic (vector) search over Telamon Obsidian vault. It runs fully
-locally using GGUF models and stores its index at `<telamon-root>/storage/qmd/index.sqlite`.
+Local search engine for markdown content.
 
-## Vault collection names
+## Status
 
-Collections are registered per vault section, prefixed with the project name.
-Read the project name from `.ai/telamon/telamon.ini` or use `$(basename $(pwd))`.
+!`qmd status 2>/dev/null || echo "Not installed: npm install -g @tobilu/qmd"`
 
-| Collection | Contents |
-|---|---|
-| `<project>-brain` | memories, key decisions, patterns, gotchas |
-| `<project>-work` | active tasks, archived work, incidents |
-| `<project>-reference` | architecture maps, flow docs, reference |
-| `<project>-thinking` | scratchpad drafts, exploratory notes |
+## MCP: `query`
 
-Replace `<project>` with the actual project name (e.g. `myapp-brain`).
-
-**Index location:** `<telamon-root>/storage/qmd/index.sqlite` (not `~/.cache/qmd/`).
-The Telamon sets `XDG_CACHE_HOME` automatically in all contexts:
-- MCP server (`qmd mcp`): set via `opencode.jsonc` environment
-- Telamon scripts (`make init`, `make update`): set inline
-- Interactive terminal: `qmd()` wrapper function installed by `make up`
-
-You do not need to set `XDG_CACHE_HOME` manually.
-
----
-
-## When to use QMD
-
-Use QMD **before** reading vault files directly:
-- Searching for past decisions, incidents, bugs, or patterns
-- Checking for duplicate notes before creating a new one
-- Finding notes related to what you just wrote or decided
-- Answering "did we ever…" / "what do we know about…" questions
-- Session start: check for relevant context before diving in
-
-Use direct file reads **only** when you know the exact note path.
-
----
-
-## Commands
-
-### Semantic query (best for "what do we know about X")
-```bash
-qmd query "<natural language question>" -n 10
-qmd query "<question>" --json -n 10          # structured output
+```json
+{
+  "searches": [
+    { "type": "lex", "query": "CAP theorem consistency" },
+    { "type": "vec", "query": "tradeoff between consistency and availability" }
+  ],
+  "collections": ["docs"],
+  "limit": 10
+}
 ```
 
-### Keyword search (best for "find notes containing X")
-```bash
-qmd search "<keywords>"
-qmd vsearch "<keywords>"                      # verbose — shows scores
+### Query Types
+
+| Type | Method | Input |
+|------|--------|-------|
+| `lex` | BM25 | Keywords — exact terms, names, code |
+| `vec` | Vector | Question — natural language |
+| `hyde` | Vector | Answer — hypothetical result (50-100 words) |
+
+### Writing Good Queries
+
+**lex (keyword)**
+- 2-5 terms, no filler words
+- Exact phrase: `"connection pool"` (quoted)
+- Exclude terms: `performance -sports` (minus prefix)
+- Code identifiers work: `handleError async`
+
+**vec (semantic)**
+- Full natural language question
+- Be specific: `"how does the rate limiter handle burst traffic"`
+- Include context: `"in the payment service, how are refunds processed"`
+
+**hyde (hypothetical document)**
+- Write 50-100 words of what the *answer* looks like
+- Use the vocabulary you expect in the result
+
+**expand (auto-expand)**
+- Use a single-line query (implicit) or `expand: question` on its own line
+- Lets the local LLM generate lex/vec/hyde variations
+- Do not mix `expand:` with other typed lines — it's either a standalone expand query or a full query document
+
+### Intent (Disambiguation)
+
+When a query term is ambiguous, add `intent` to steer results:
+
+```json
+{
+  "searches": [
+    { "type": "lex", "query": "performance" }
+  ],
+  "intent": "web page load times and Core Web Vitals"
+}
 ```
 
-### Retrieve a specific note by URI
-```bash
-qmd get "qmd://<project>-brain/brain/key_decisions.md"
-qmd multi-get "qmd://..." "qmd://..."
+Intent affects expansion, reranking, chunk selection, and snippet extraction. It does not search on its own — it's a steering signal that disambiguates queries like "performance" (web-perf vs team health vs fitness).
+
+### Combining Types
+
+| Goal | Approach |
+|------|----------|
+| Know exact terms | `lex` only |
+| Don't know vocabulary | Use a single-line query (implicit `expand:`) or `vec` |
+| Best recall | `lex` + `vec` |
+| Complex topic | `lex` + `vec` + `hyde` |
+| Ambiguous query | Add `intent` to any combination above |
+
+First query gets 2x weight in fusion — put your best guess first.
+
+### Lex Query Syntax
+
+| Syntax | Meaning | Example |
+|--------|---------|---------|
+| `term` | Prefix match | `perf` matches "performance" |
+| `"phrase"` | Exact phrase | `"rate limiter"` |
+| `-term` | Exclude | `performance -sports` |
+
+Note: `-term` only works in lex queries, not vec/hyde.
+
+### Collection Filtering
+
+```json
+{ "collections": ["docs"] }              // Single
+{ "collections": ["docs", "notes"] }     // Multiple (OR)
 ```
 
-### Check index status
+Omit to search all collections.
+
+## Other MCP Tools
+
+| Tool | Use |
+|------|-----|
+| `get` | Retrieve doc by path or `#docid` |
+| `multi_get` | Retrieve multiple by glob/list |
+| `status` | Collections and health |
+
+## CLI
+
 ```bash
-qmd status
+qmd query "question"              # Auto-expand + rerank
+qmd query $'lex: X\nvec: Y'       # Structured
+qmd query $'expand: question'     # Explicit expand
+qmd query --json --explain "q"    # Show score traces (RRF + rerank blend)
+qmd search "keywords"             # BM25 only (no LLM)
+qmd get "#abc123"                 # By docid
+qmd multi-get "journals/2026-*.md" -l 40  # Batch pull snippets by glob
+qmd multi-get notes/foo.md,notes/bar.md   # Comma-separated list, preserves order
 ```
 
-### Keep index current
+## HTTP API
+
 ```bash
-qmd update          # scan collections for new/changed files
-qmd embed           # embed any queued files
+curl -X POST http://localhost:8181/query \
+  -H "Content-Type: application/json" \
+  -d '{"searches": [{"type": "lex", "query": "test"}]}'
 ```
 
----
+## Setup
 
-## Usage patterns
-
-### 1 — Session start (fast context bootstrap)
 ```bash
-# Run incremental update first (fast after initial build)
-qmd update && qmd embed
-
-# Then query for recent relevant context
-qmd query "what was the last major decision we made" -n 5
-qmd query "what patterns and gotchas should I know" -n 5
+npm install -g @tobilu/qmd
+qmd collection add ~/notes --name notes
+qmd embed
 ```
-
-### 2 — Before reading a brain file
-```bash
-# Instead of: cat .ai/telamon/memory/brain/key_decisions.md
-qmd query "key decisions and architectural choices" -n 8
-```
-
-### 3 — Before creating a new note
-```bash
-# Check for duplicates
-qmd query "<proposed note title or summary>" -n 3
-# If results overlap with your intended note, update the existing note instead
-```
-
-### 4 — After completing significant work
-```bash
-qmd query "<what you just built or decided>" -n 5
-# Review related notes — update them if your work changes what they say
-```
-
-### 5 — Incident investigation
-```bash
-qmd query "errors similar to <error message>" -n 5
-qmd query "previous incidents with <component>" -n 5
-```
-
----
-
-## Tips
-
-- **Query width**: use a full sentence, not just keywords — QMD is semantic
-- **Collection scope**: query a specific collection to reduce noise:
-  `qmd query "..." -n 10` searches all collections;  
-  use `qmd get "qmd://<project>-brain/..."` to target brain notes
-- **After `qmd update`**: always run `qmd embed` — update enqueues, embed processes
-- **First run**: models download automatically (~2 GB); subsequent runs are fast
-- **MCP alternative**: the QMD MCP server (`qmd mcp`) exposes `query`, `get`,
-  `multi_get`, and `status` — the same commands, accessible as MCP tools
-
----
-
-## Quick reference
-
-| Task | Command |
-|---|---|
-| Semantic question | `qmd query "<question>" -n 10` |
-| Keyword search | `qmd search "<terms>"` |
-| Get specific note | `qmd get "qmd://<collection>/path/to/note.md"` |
-| Incremental update | `qmd update && qmd embed` |
-| Check status | `qmd status` |

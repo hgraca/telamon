@@ -55,7 +55,7 @@ fi
 # before creating notes (duplicate check), and after creating notes (find related).
 # It reaches all initialized projects via the .opencode/skills/telamon → src/skills
 # symlink created by bin/init.sh.
-SKILL_URL="https://raw.githubusercontent.com/tobi/obsidian-mind/main/.claude/skills/qmd/SKILL.md"
+SKILL_URL="https://raw.githubusercontent.com/tobi/qmd/main/skills/qmd/SKILL.md"
 SKILL_DIR="${TELAMON_ROOT}/src/skills/memory/qmd"
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
