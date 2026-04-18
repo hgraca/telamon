@@ -8,6 +8,7 @@ description: >
 ---
 
 # Create UseCase Skill
+(shamelessly stolen from [Nickita Kirichenko](https://github.com/Kirich11))
 
 Generate a complete CQRS UseCase folder containing:
 - A **Command** class implementing `GetE\MessageBus\Port\CommandBus\Command`
