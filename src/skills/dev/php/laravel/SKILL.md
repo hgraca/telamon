@@ -1,9 +1,17 @@
 ---
-tags: [project-rules, php, laravel]
-description: Laravel conventions, configuration, database, testing
+name: telamon.laravel
+description: "Laravel conventions: project structure (Laravel 10), configuration, Eloquent, controllers, validation, authentication, Artisan commands, testing. Use when writing Laravel application code, working with Eloquent models, creating controllers, or running Artisan commands."
 ---
 
 # Laravel
+
+## When to Apply
+
+- Writing or modifying Laravel application code
+- Working with Eloquent models, migrations, or database queries
+- Creating controllers, Form Requests, or route definitions
+- Running Artisan commands or creating new files via Artisan
+- Writing Laravel-specific tests
 
 ## Foundational Context
 
@@ -84,6 +92,6 @@ This project upgraded from Laravel 10 without migrating to the new file structur
 
 ## See also
 
-- [[php/universal_rules|PHP Rules]]
-- [[php/message_bus|Message Bus]]
-- [[testing]]
+- `telamon.php_rules` skill
+- `telamon.message_bus` skill
+- `telamon.testing` skill

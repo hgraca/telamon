@@ -28,7 +28,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
     active/                  <- in-progress work notes (1-3 files max)
     archive/YYYY/            <- completed work notes by year
     incidents/               <- incident docs
-  project-rules/             <- coding rules, architecture standards, conventions
   reference/                 <- architecture maps, flow docs, codebase knowledge
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
@@ -47,7 +46,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 | In-progress work note | `work/active/` |
 | Completed work note | `work/archive/YYYY/` |
 | Incident doc | `work/incidents/YYYY-MM-DD-<slug>.md` |
-| Coding rule, architecture standard, or convention | `project-rules/` |
 | Architecture map or flow doc | `reference/` |
 | Draft or reasoning scratchpad | `thinking/` (promote or delete, see section 7) |
 | Partial-progress checkpoint | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md` |

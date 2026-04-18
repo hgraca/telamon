@@ -194,9 +194,6 @@ assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_deci
 assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
   "_tmpl/bootstrap/session.md" \
   "bootstrap/session.md → _tmpl source"
-assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
-  "_tmpl/project-rules/git.md" \
-  "project-rules/git.md → _tmpl source"
 
 # ── 2. .opencode/skills/telamon symlink ──────────────────────────────────────────
 _section "2. .opencode/skills/telamon symlink"

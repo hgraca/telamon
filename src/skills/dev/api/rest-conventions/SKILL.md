@@ -1,11 +1,18 @@
 ---
-tags: [project-rules, api]
-description: RESTful API URL structure, methods, errors, pagination
+name: telamon.rest_conventions
+description: "RESTful API conventions: URL structure, HTTP methods, response envelopes, pagination, errors (RFC 9457), filtering, sorting, headers, naming, versioning. Use when designing or reviewing API endpoints, writing controllers, or defining route structures."
 ---
 
 # RESTful API Conventions
 
 Status: Accepted | Date: April 3, 2026
+
+## When to Apply
+
+- Designing new API endpoints or reviewing existing ones
+- Writing controllers or route definitions
+- Defining response shapes, error formats, or pagination
+- Reviewing API naming conventions
 
 ## URL Structure
 
@@ -169,4 +176,4 @@ Build APIs per these conventions, but only implement what is needed when it is n
 
 ## See also
 
-- [[architecture/universal_rules|Architecture Rules]]
+- `telamon.architecture_rules` skill

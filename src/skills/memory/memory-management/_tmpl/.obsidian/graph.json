@@ -9,10 +9,6 @@
       "color": { "a": 1, "rgb": 38536 }
     },
     {
-      "query": "tag:#project-rules",
-      "color": { "a": 1, "rgb": 15022389 }
-    },
-    {
       "query": "tag:#reference",
       "color": { "a": 1, "rgb": 4149685 }
     },

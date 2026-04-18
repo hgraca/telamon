@@ -1,9 +1,16 @@
 ---
-tags: [project-rules, architecture]
-description: DDD + Hexagonal + CQRS directory structure and dependency rules
+name: telamon.explicit_architecture
+description: "Project directory structure and dependency rules: DDD + Hexagonal + CQRS layers, component boundaries, port/adapter layout. Use when understanding project structure, placing new files, checking layer dependencies, or reviewing code placement."
 ---
 
-# EXPLICIT ARCHITECTURE
+# Explicit Architecture
+
+## When to Apply
+
+- Understanding the project directory structure and where files belong
+- Placing new classes, interfaces, or modules
+- Checking dependency direction between layers
+- Reviewing whether code is in the correct layer
 
 In this document:
 
@@ -52,4 +59,4 @@ Presentation -> Application -> Port <- Infrastructure
 
 ## See also
 
-- [[architecture/universal_rules|Architecture Rules]]
+- `telamon.architecture_rules` skill

@@ -1,9 +1,16 @@
 ---
-tags: [project-rules, testing]
-description: Test commands, strategy, and conventions
+name: telamon.testing
+description: "Test commands, strategy, conventions: make targets, static analysis, test naming, test locations by layer, testing strategy, MUST/MUST NOT rules. Use when writing tests, running the test suite, choosing test strategy, or checking test conventions."
 ---
 
-# TESTING
+# Testing
+
+## When to Apply
+
+- Writing new tests or modifying existing ones
+- Running the test suite or static analysis
+- Choosing test strategy for a new feature or layer
+- Reviewing test naming, location, or structure
 
 ## Test Commands
 
@@ -95,4 +102,4 @@ Method names describe the scenario, not the implementation:
 
 ## See also
 
-- [[makefile]]
+- `telamon.makefile` skill

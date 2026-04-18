@@ -1,9 +1,15 @@
 ---
-tags: [project-rules, php]
-description: PHP strict typing, constructors, enums, PHPDoc
+name: telamon.php_rules
+description: "PHP coding rules: strict typing, constructor promotion, type declarations, enums, comments, PHPDoc, array shapes. Use when writing PHP code, reviewing PHP files, or checking PHP conventions."
 ---
 
-# PHP UNIVERSAL RULES
+# PHP Universal Rules
+
+## When to Apply
+
+- Writing or reviewing any PHP code
+- Checking PHP type declarations, constructors, or enum conventions
+- Writing PHPDoc blocks or array shape annotations
 
 ## Strict Typing
 
@@ -46,4 +52,4 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ## See also
 
-- [[php/laravel|Laravel]]
+- `telamon.laravel` skill

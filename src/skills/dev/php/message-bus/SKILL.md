@@ -1,9 +1,15 @@
 ---
-tags: [project-rules, php, message-bus]
-description: PHP message bus integration and handler testing
+name: telamon.message_bus
+description: "PHP message bus integration: dispatching commands/events/queries, handler testing patterns, test traits. Use when working with the message bus, writing command/event/query handlers, or testing bus-related code."
 ---
 
-# PHP MESSAGE BUS
+# PHP Message Bus
+
+## When to Apply
+
+- Working with the message bus (dispatching commands, events, or queries)
+- Writing or modifying command handlers, event listeners, or query handlers
+- Writing integration tests for handlers
 
 ## MUST
 
@@ -22,5 +28,5 @@ description: PHP message bus integration and handler testing
 
 ## See also
 
-- [[php/laravel|Laravel]]
-- [[php/universal_rules|PHP Rules]]
+- `telamon.laravel` skill
+- `telamon.php_rules` skill

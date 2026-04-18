@@ -1,11 +1,18 @@
 ---
-tags: [project-rules, architecture]
-description: Architecture priority order, security, forbidden patterns
+name: telamon.architecture_rules
+description: "Architecture universal rules: priority order, security, forbidden patterns, code quality, design rules, defaults. Use when making architectural decisions, reviewing code quality, checking security constraints, or when uncertain about design direction."
 ---
 
-# ARCHITECTURE UNIVERSAL RULES
+# Architecture Universal Rules
 
 Architecture: Explicit Architecture (DDD + Hexagonal + CQRS), modular monolith
+
+## When to Apply
+
+- Making architectural decisions or reviewing design choices
+- Checking security constraints or forbidden patterns
+- Reviewing code quality or static analysis compliance
+- When uncertain about design direction — consult the defaults
 
 ## Priority Order
 
@@ -72,5 +79,5 @@ Prefer: stricter layer separation, Value Objects over primitives, explicit model
 
 ## See also
 
-- [[architecture/explicit_architecture|Explicit Architecture]]
-- [[api/rest_conventions|REST Conventions]]
+- `telamon.explicit_architecture` skill
+- `telamon.rest_conventions` skill
