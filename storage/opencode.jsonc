@@ -1,0 +1,189 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "github-copilot/claude-opus-4.6",
+  "small_model": "github-copilot/claude-haiku-4.5",
+  "instructions": [
+    "AGENTS.md",
+    ".ai/context*/*.md"
+  ],
+  "default_agent": "developer",
+  "plugin": [
+    "opencode-scheduler",
+    ".opencode/plugins/telamon/graphify.js",
+    ".opencode/plugins/telamon/rtk-dedupe.ts"
+  ],
+  "permission": {
+    "edit": "allow",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "bash": {
+      "*": "allow",
+      "rm *": "ask",
+      "sudo *": "ask"
+    },
+    "task": "allow",
+    "external_directory": "deny",
+    "todowrite": "allow",
+    "todoread": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "codesearch": "allow",
+    "lsp": "allow",
+    "doom_loop": "allow",
+    "skill": "allow"
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "vendor/**",
+      "dist/**",
+      "build/**",
+      ".git/**",
+      ".cache/**",
+      "*no-vcs*",
+      "*no-vcs*/**",
+      "storage/**",
+      ".idea/**",
+      ".vscode/**",
+      ".env*"
+    ]
+  },
+  "mcp": {
+    "websearch": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
+      "enabled": true,
+      "oauth": false
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "oauth": false
+    },
+    "grep_app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true,
+      "oauth": false
+    },
+    "git": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "./:/repo",
+        "mcp/git"
+      ],
+      "enabled": true
+    },
+    "ast-grep": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "./:/app",
+        "mcp/ast-grep"
+      ],
+      "enabled": true
+    },
+    "ogham": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "--from",
+        "ogham-mcp[postgres,rerank]",
+        "ogham",
+        "serve"
+      ],
+      "enabled": true,
+      "environment": {
+        "DATABASE_BACKEND": "postgres",
+        "DATABASE_URL": "{file:.ai/telamon/secrets/ogham-database-url}",
+        "EMBEDDING_PROVIDER": "ollama",
+        "OLLAMA_URL": "http://localhost:11434",
+        "OLLAMA_EMBED_MODEL": "nomic-embed-text",
+        "RERANK_ENABLED": "true",
+        "RERANK_ALPHA": "0.55"
+      }
+    },
+    "codebase-index": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "-p",
+        "opencode-codebase-index",
+        "-p",
+        "@modelcontextprotocol/sdk",
+        "opencode-codebase-index-mcp",
+        "--project",
+        "."
+      ],
+      "enabled": true
+    },
+    "obsidian": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "host",
+        "-e",
+        "API_KEY",
+        "-e",
+        "API_URLS",
+        "oleksandrkucherenko/obsidian-mcp:latest"
+      ],
+      "enabled": true,
+      "environment": {
+        "API_KEY": "{file:.ai/telamon/secrets/obsidian-api-key}",
+        "API_URLS": "[\"https://127.0.0.1:27124\"]"
+      }
+    },
+    "qmd": {
+      "type": "local",
+      "command": [
+        "qmd",
+        "mcp"
+      ],
+      "enabled": true,
+      "environment": {
+        "XDG_CACHE_HOME": "{file:.ai/telamon/secrets/qmd-cache-home}"
+      }
+    },
+    "laravel-boost": {
+      "type": "local",
+      "command": ["docker", "compose", "-f", ".docker/compose.dev.yml", "exec", "-i", "app", "php", "artisan", "boost:mcp"],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "mcp/github"],
+      "enabled": true,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{file:.ai/telamon/secrets/gh_pat}"
+      }
+    }
+  }
+}
