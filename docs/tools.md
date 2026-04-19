@@ -160,6 +160,93 @@ A skill that switches the agent into an ultra-compressed communication mode — 
 
 ---
 
+## Langfuse — Observability (Optional)
+
+[langfuse](https://langfuse.com)
+
+Self-hosted LLM observability platform. Tracks token usage, latency, cost, and prompt/response pairs across agent sessions.
+Enabled by setting `LANGFUSE_ENABLED=true` in `.env`.
+
+- **Profile-gated**: only starts when `LANGFUSE_ENABLED=true`
+- Runs as a Docker Compose profile (`langfuse`) with four services: Postgres, Redis, ClickHouse, and the Langfuse web app
+- Accessible at `http://localhost:4000` after startup
+- Requires `LANGFUSE_SECRET` and `LANGFUSE_SALT` in `.env`
+
+---
+
+## Graphiti — Temporal Knowledge Graph (Optional)
+
+[graphiti](https://github.com/getzep/graphiti)
+
+Temporal knowledge graph backed by Neo4j. Stores entities and relationships with temporal metadata — useful for tracking how architectural decisions and codebase structure evolve over time.
+Enabled by setting `GRAPHITI_ENABLED=true` in `.env`.
+
+- **Profile-gated**: only starts when `GRAPHITI_ENABLED=true`
+- Runs as a Docker Compose profile (`graphiti`) with Neo4j and the Graphiti API server
+- Requires `NEO4J_PASSWORD` and `OPENAI_API_KEY` in `.env` (OpenAI used for entity extraction)
+- Neo4j browser at `http://localhost:7474`, Graphiti API at `http://localhost:8001`
+
+---
+
+## MCP Integrations
+
+Beyond Telamon-managed tools, the shared `storage/opencode.jsonc` registers several MCP servers available to every project:
+
+| MCP Server | Purpose |
+|---|---|
+| **ast-grep** | Structural code search using AST patterns |
+| **chrome-devtools** | Browser inspection and debugging via Chrome DevTools Protocol |
+| **context7** | Up-to-date library and framework documentation lookup |
+| **git** | Git operations (status, diff, commit, branch, etc.) |
+| **github** | GitHub integration (issues, PRs, code search, reviews) |
+| **grep.app** | Code search across public GitHub repositories |
+| **laravel-boost** | Laravel Artisan commands, migrations, database queries, doc search |
+| **playwright** | Browser automation and testing |
+| **exa** | Web search |
+
+These are configured in `storage/opencode.jsonc` and symlinked into each project by `make init`.
+
+---
+
+## Multi-Agent Roles
+
+Telamon defines a team of specialized agents (in `src/agents/`), each with a focused responsibility:
+
+| Agent | Role |
+|---|---|
+| **telamon** (orchestrator) | Classifies requests, delegates to specialists, leads planning and implementation workflows |
+| **architect** | Designs technical plans and ADRs; does not write production code |
+| **critic** | Audits codebase for inconsistencies, architectural erosion, and pattern drift |
+| **developer** | Implements the architect's plan into production code |
+| **po** (product owner) | Domain expert — owns backlog grooming, answers business and requirements questions |
+| **reviewer** | Reviews changesets against the plan and project conventions |
+| **security** | Security audits, threat modelling, vulnerability assessment, secure code review |
+| **tester** | Validates implementations, writes and executes automated tests |
+| **ui-designer** | Visual specs, design tokens, screen layouts |
+| **ux-designer** | User flows, interaction specs, state definitions |
+
+---
+
+## Slash Commands
+
+Telamon provides slash commands (in `src/commands/`) that trigger structured workflows:
+
+| Command | Purpose |
+|---|---|
+| `/plan` | Plan a story or feature (backlog + architecture spec) |
+| `/implement` | Implement an approved plan |
+| `/story` | Plan and implement a story end-to-end |
+| `/epic` | Break an epic into stories, plan and implement each |
+| `/dev` | Delegate a code task directly to the developer |
+| `/test` | Write or run tests |
+| `/review` | Review a code changeset |
+| `/gh_review` | Review a GitHub pull request |
+| `/archive` | Archive completed work notes |
+| `/caveman` | Toggle token-efficient communication mode |
+| `/vault-audit` | Audit the knowledge vault structure and content |
+
+---
+
 ## Specialized Agent Skills
 
 Telamon ships a library of skills that guide the agent through structured workflows:
@@ -174,32 +261,51 @@ Telamon ships a library of skills that guide the agent through structured workfl
 - **remember-session** — end-of-session wrap-up and promotion
 - **qmd** — vault semantic search (initialization, querying, index maintenance)
 - **ogham** — semantic agent memory (profile switching, storing, searching)
+- **obsidian** — Obsidian MCP vault interaction (searching, reading, writing, linking)
 - **cass** — session history search
 - **graphify** — codebase knowledge graph
 
-### Development Workflow Skills
-- **agent-communication** — inter-agent communication protocol
-- **workflow.plan-story** — plans a user story (backlog + architecture spec)
-- **workflow.implement-story** — implements an approved plan (tester -> developer -> reviewer cycle)
-- **implementation-planning** — creates implementation plans from a brief
-- **plan-execution** — executes plans step-by-step
-- **plan-review** — reviews an architect's plan
-- **changeset-review** — code review against a plan
-- **codebase-audit** — holistic codebase health review
+### Development Convention Skills
+- **architecture-rules** — universal architecture rules (priorities, security, forbidden patterns)
+- **explicit-architecture** — DDD + Hexagonal + CQRS layer structure and dependency rules
+- **rest-conventions** — RESTful API conventions (URL structure, errors, pagination)
 - **create-adr** — architecture decision records
 - **create-use-case** — CQRS command/handler generation
-- **evaluation** — post-iteration quality assessment
+- **documentation-rules** — repository documentation conventions
+- **git-rules** — git commit conventions (gitignored paths, conventional commits)
+- **makefile** — Makefile lifecycle commands
+- **testing** — test commands, strategy, conventions
+- **php-rules** — PHP coding rules (strict typing, enums, PHPDoc)
+- **laravel** — Laravel conventions
+- **message-bus** — PHP message bus integration
+
+### Workflow Skills
+- **agent-communication** — inter-agent communication protocol
+- **plan-story** — plans a user story (backlog + architecture spec)
+- **implement-story** — implements an approved plan (tester -> developer -> reviewer cycle)
+- **epic** — breaks an epic into stories, plans and implements each
+- **plan-implementation** — creates implementation plans from a brief
+- **execute-plan** — executes plans step-by-step
+- **review-plan** — reviews an architect's plan
+- **review-changeset** — code review against a plan
+- **review-security** — PHP security review (STRIDE, OWASP, vulnerability checklist)
+- **audit-codebase** — holistic codebase health review
+- **retrospective** — post-iteration quality assessment
+- **summarize-plan** — produces planning summary after a planning stage
+- **test-codebase** — test result documentation
 - **exception-handling** — structured error recovery for agent failures
-- **memory-management** — vault structure, routing, retrieval, writing, and quality rules
 - **optimize-instructions** — agent instruction file optimization
-- **test-reporting** — test result documentation
+- **ui-specification** — implementation-ready UI specifications
+- **ux-design** — UX specifications and validation
 
 ### General Engineering Skills (from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills))
-- api-and-interface-design, browser-testing-with-devtools, ci-cd-and-automation, code-review-and-quality, code-simplification, context-engineering, debugging-and-error-recovery, deprecation-and-migration, documentation-and-adrs, frontend-ui-engineering, git-workflow-and-versioning, idea-refine, incremental-implementation, performance-optimization, planning-and-task-breakdown, security-and-hardening, shipping-and-launch, spec-driven-development, test-driven-development, using-agent-skills
+- api-and-interface-design, browser-testing-with-devtools, ci-cd-and-automation, code-review-and-quality, code-simplification, context-engineering, debugging-and-error-recovery, deprecation-and-migration, documentation-and-adrs, frontend-ui-engineering, git-workflow-and-versioning, idea-refine, incremental-implementation, performance-optimization, planning-and-task-breakdown, security-and-hardening, shipping-and-launch, source-driven-development, spec-driven-development, test-driven-development, using-agent-skills
 
 ---
 
 ## Infrastructure Services (Docker)
+
+### Core Services (always running)
 
 | Service | Image | Purpose |
 |---|---|---|
@@ -208,6 +314,26 @@ Telamon ships a library of skills that guide the agent through structured workfl
 | `telamon-ollama-init` | `ollama/ollama:latest` | One-shot job: pulls `nomic-embed-text` on first start |
 
 > **Obsidian MCP** runs on-demand via `docker run` (not a persistent service) so it does not crash when Obsidian is not running.
+
+### Optional: Langfuse (profile: `langfuse`)
+
+Enabled by setting `LANGFUSE_ENABLED=true` in `.env`.
+
+| Service | Image | Purpose |
+|---|---|---|
+| `telamon-langfuse-db` | `postgres:16` | Langfuse metadata database |
+| `telamon-langfuse-redis` | `redis:7-alpine` | Langfuse cache |
+| `telamon-langfuse-clickhouse` | `clickhouse/clickhouse-server:latest` | Langfuse analytics store |
+| `telamon-langfuse-web` | `langfuse/langfuse:latest` | Langfuse web UI (port 4000) |
+
+### Optional: Graphiti + Neo4j (profile: `graphiti`)
+
+Enabled by setting `GRAPHITI_ENABLED=true` in `.env`.
+
+| Service | Image | Purpose |
+|---|---|---|
+| `telamon-neo4j` | `neo4j:5` | Graph database for Graphiti |
+| `telamon-graphiti` | `zepai/graphiti:latest` | Temporal knowledge graph API (port 8001) |
 
 ---
 
@@ -228,3 +354,7 @@ Telamon ships a library of skills that guide the agent through structured workfl
 - **QMD** — Semantic search over the Obsidian vault using local models.
 - **Obsidian MCP** — High value if you actually maintain notes. If nobody writes docs it adds nothing.
 - **Specialized agents** — The gains from routing planning to a smarter model and execution to a cheaper one compound with project size.
+
+### Optional — Situational
+- **Langfuse** — Worth enabling when you need to track token costs across sessions or debug prompt quality.
+- **Graphiti** — Worth enabling for projects where temporal evolution of architecture matters (requires OpenAI API key).

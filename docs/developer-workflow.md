@@ -93,7 +93,7 @@ The agent automatically:
 - Searches the codebase semantically via the codebase-index MCP
 - Queries Graphify for architectural context via the Graphify MCP (god nodes, communities, graph queries)
 - Searches past sessions when needed: `cass search --robot "<topic>"`
-- Reads `brain/NorthStar.md` to stay aligned with goals
+- Reads `brain/key_decisions.md`, `brain/patterns.md`, and `brain/gotchas.md` to stay aligned with project context
 
 ---
 
@@ -103,9 +103,9 @@ The agent saves to **both** Ogham (fast semantic recall) and Obsidian `brain/` (
 
 | Event | Ogham | Obsidian |
 |---|---|---|
-| Non-trivial bug fixed | `ogham store "bug: <desc>"` | Append to `brain/Gotchas.md` |
-| Architectural decision | `ogham store "decision: X over Y because Z"` | Append to `brain/KeyDecisions.md` |
-| Pattern established | `ogham store "pattern: <desc>"` | Append to `brain/Patterns.md` |
+| Non-trivial bug fixed | `ogham store "bug: <desc>"` | Append to `brain/gotchas.md` |
+| Architectural decision | `ogham store "decision: X over Y because Z"` | Append to `brain/key_decisions.md` |
+| Pattern established | `ogham store "pattern: <desc>"` | Append to `brain/patterns.md` |
 | Session ends | `ogham store "session: <summary>"` (ogham store_memory MCP tool) | Archive completed `work/active/` notes |
 
 The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.

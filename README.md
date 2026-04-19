@@ -20,7 +20,11 @@ tools for software development. It provides:
 - **Session recall** — searchable history of every past agent conversation
 - **Automatic session capture** — learnings are promoted to memory before context is compacted
 - **Token efficiency** — automatic compression of context sent to the LLM
-- **Multi-agent workflow** — structured skills for planning, implementing, reviewing, and shipping software
+- **Multi-agent system** — 10 specialized agent roles (architect, developer, tester, reviewer, and more) with structured delegation
+- **Slash commands** — `/plan`, `/implement`, `/story`, `/epic`, `/review`, `/test`, and more
+- **Rich MCP integrations** — GitHub, browser DevTools, Playwright, AST search, library docs, web search
+- **Optional observability** — Langfuse for token tracking and prompt debugging (opt-in)
+- **Optional temporal knowledge graph** — Graphiti + Neo4j for tracking architectural evolution (opt-in)
 
 ---
 
@@ -125,6 +129,29 @@ Structured skills for planning, implementing, reviewing, and shipping software.
 |---|---|
 | [Telamon workflow skills](docs/tools.md#specialized-agent-skills) | Plan stories, implement with tester->developer->reviewer cycles, review changesets, audit codebases |
 | [Addy Osmani skills](https://github.com/addyosmani/agent-skills) | General engineering skills — TDD, debugging, API design, security, CI/CD, and more |
+| [Multi-agent roles](docs/tools.md#multi-agent-roles) | 10 specialized agents: orchestrator, architect, developer, tester, reviewer, critic, PO, security, UI designer, UX designer |
+| [Slash commands](docs/tools.md#slash-commands) | `/plan`, `/implement`, `/story`, `/epic`, `/review`, `/test`, `/dev`, `/gh_review`, `/archive`, `/caveman`, `/vault-audit` |
+
+### Optional: Observability & Advanced Knowledge
+
+| Tool | Role |
+|---|---|
+| [Langfuse](https://langfuse.com) | Self-hosted LLM observability — token usage, latency, cost tracking (opt-in via `LANGFUSE_ENABLED=true`) |
+| [Graphiti](https://github.com/getzep/graphiti) + [Neo4j](https://neo4j.com) | Temporal knowledge graph — tracks how entities and relationships evolve (opt-in via `GRAPHITI_ENABLED=true`) |
+
+### MCP Integrations
+
+External tools exposed to every project via MCP servers.
+
+| Tool | Role |
+|---|---|
+| [GitHub MCP](https://github.com/modelcontextprotocol/servers) | Issues, PRs, code search, reviews |
+| [Chrome DevTools MCP](https://github.com/nichochar/chrome-devtools-mcp) | Browser inspection and debugging |
+| [Playwright](https://github.com/modelcontextprotocol/servers) | Browser automation and testing |
+| [ast-grep](https://github.com/modelcontextprotocol/servers) | Structural code search using AST patterns |
+| [Context7](https://context7.com) | Up-to-date library and framework documentation |
+| [Exa](https://exa.ai) | Web search |
+| [grep.app](https://grep.app) | Code search across public GitHub repositories |
 
 ---
 
@@ -140,3 +167,8 @@ Structured skills for planning, implementing, reviewing, and shipping software.
 - [Caveman](https://github.com/JuliusBrussee/caveman)
 - [Addy Osmani Skills](https://github.com/addyosmani/agent-skills)
 - [PentAGI](https://github.com/vxcontrol/pentagi)
+- [Langfuse](https://langfuse.com)
+- [Graphiti](https://github.com/getzep/graphiti)
+- [Context7](https://context7.com)
+- [Exa](https://exa.ai)
+- [grep.app](https://grep.app)
