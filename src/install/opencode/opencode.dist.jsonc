@@ -94,15 +94,15 @@
     ]
   },
   "mcp": {
-    //    "laravel-boost": {
-    //      "type": "local",
-    //      "command": ["docker", "compose", "-f", ".docker/compose.dev.yml", "exec", "-i", "app", "php", "artisan", "boost:mcp"],
-    //      "enabled": true
-    //    },
-    //    "chrome-devtools": {
-    //      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
-    //      "type": "local"
-    //    },
+    "laravel-boost": {
+      "type": "local",
+      "command": ["docker", "compose", "-f", ".docker/compose.dev.yml", "exec", "-i", "app", "php", "artisan", "boost:mcp"],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "type": "local"
+    },
     "websearch": {
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
@@ -121,24 +121,24 @@
       "enabled": true,
       "oauth": false
     },
-    //    "playwright": {
-    //      "type": "local",
-    //      "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
-    //      "enabled": true
-    //    },
+    "playwright": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
+      "enabled": true
+    },
     "git": {
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-v", "./:/repo", "mcp/git"],
       "enabled": true
     },
-    //    "github": {
-    //      "type": "local",
-    //      "command": ["docker", "run", "--rm", "-i", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "mcp/github"],
-    //      "enabled": true,
-    //      "environment": {
-    //        "GITHUB_PERSONAL_ACCESS_TOKEN": "CREATE_A_PAT_AS_IN_IMAGE-GH_PAT_FOR_AGENT.png"
-    //      }
-    //    },
+    "github": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "mcp/github"],
+      "enabled": true,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "CREATE_A_PAT_AS_IN_IMAGE-GH_PAT_FOR_AGENT.png"
+      }
+    },
     "ast-grep": {
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],
