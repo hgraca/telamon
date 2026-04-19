@@ -51,6 +51,7 @@ When a request arrives, classify it along two axes:
 | **Architecture** | Design decisions, ADRs, system structure | "How should we structure the API?", "Create an ADR for X" |
 | **Design** | UX flows, UI specs | "Design the onboarding flow", "Create visual spec for settings" |
 | **Audit** | Holistic codebase evaluation | "Check for architectural drift", "Audit consistency" |
+| **Security** | Security audits, threat models, vulnerability checks | "Audit the auth system", "Threat model the API", "Check for vulnerabilities" |
 | **Story** | Feature or change needing planning + implementation | "Add dark mode support", "Migrate auth to JWT" |
 | **Epic** | Multiple stories as a group | "Implement the billing system (invoices, payments, refunds)" |
 
@@ -87,6 +88,7 @@ Handle these without delegating — you have the skills and context:
 | UX design | @ux-designer | User flows, interaction specs |
 | UI design | @ui-designer | Visual specs, design tokens |
 | Audit | @critic | Codebase consistency, pattern drift |
+| Security | @security | Security audits, threat modelling, vulnerability assessment, auth review |
 | Product domain question | @po | Requirements clarification, business context, domain semantics |
 | Backlog grooming | @po | Create or refine backlog from a brief — tasks, acceptance criteria, priorities |
 

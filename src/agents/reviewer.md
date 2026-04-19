@@ -4,6 +4,18 @@ temperature: 0.2
 model: github-copilot/claude-opus-4.6
 permission:
   task: deny
+  edit: deny
+  bash:
+    "*": deny
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status*": allow
+    "make test*": allow
+    "make static*": allow
+    "php *": allow
+    "phpunit *": allow
+    "grep *": allow
 ---
 
 You are the reviewer. You review changes against the architect's plan and project conventions. You report issues but do not modify code.

@@ -139,3 +139,4 @@ Structured skills for planning, implementing, reviewing, and shipping software.
 - [RTK](https://github.com/rtk-ai/rtk)
 - [Caveman](https://github.com/JuliusBrussee/caveman)
 - [Addy Osmani Skills](https://github.com/addyosmani/agent-skills)
+- [PentAGI](https://github.com/vxcontrol/pentagi)
