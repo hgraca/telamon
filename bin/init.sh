@@ -52,7 +52,7 @@ for _app in "${INIT_APPS[@]}"; do
     warn "No init.sh for ${_app} — skipping"
     continue
   fi
-  (cd "${PROJ}" && bash "${_script}")
+  (cd "${PROJ}" && timed_run "${_app}" bash "${_script}")
 done
 
 # ── Done ──────────────────────────────────────────────────────────────────────
@@ -61,3 +61,4 @@ echo
 log "Project '${PROJECT_NAME}' initialised."
 info "Memory notes: ${BRAIN_DIR}/"
 info "Edit ${BRAIN_DIR}/memories.md to record project lessons."
+echo -e "  ${TEXT_DIM}⏱  Total init time: $(_fmt_duration ${SECONDS})${TEXT_CLEAR}"

@@ -224,18 +224,19 @@ POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index obsidian graphify 
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
-    bash "${INSTALL_PATH}/${_app}/install.sh"
+    timed_run "${_app}" bash "${INSTALL_PATH}/${_app}/install.sh"
   done
 }
 
 post_docker() {
   for _app in "${POST_DOCKER_APPS[@]}"; do
-    bash "${INSTALL_PATH}/${_app}/install.sh"
+    timed_run "${_app}" bash "${INSTALL_PATH}/${_app}/install.sh"
   done
 }
 
 # ── main ──────────────────────────────────────────────────────────────────────
 main() {
+  local total_start=${SECONDS}
   echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
   echo "  ╔═════════════════════════════════════════════════╗"
   echo "  ║   Telamon — Harness for Agentic Software Development          ║"
@@ -249,10 +250,12 @@ main() {
   pre_docker
   post_docker
   print_summary
+  echo -e "  ${TEXT_DIM}⏱  Total install time: $(_fmt_duration $(( SECONDS - total_start )))${TEXT_CLEAR}"
+  echo
 }
 
 case "${1:-}" in
   --pre-docker)  collect_inputs; pre_docker ;;
-  --post-docker) load_saved_inputs; post_docker; print_summary ;;
+  --post-docker) load_saved_inputs; post_docker; print_summary; echo -e "  ${TEXT_DIM}⏱  Post-docker install time: $(_fmt_duration ${SECONDS})${TEXT_CLEAR}"; echo ;;
   *)             main "$@" ;;
 esac

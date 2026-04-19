@@ -77,7 +77,7 @@ for _app in "${UPDATE_APPS[@]}"; do
     warn "No update.sh for ${_app} — skipping"
     continue
   fi
-  bash "${_script}" && true   # suppress errexit for exit-code capture
+  timed_run "${_app}" bash "${_script}" && true   # suppress errexit for exit-code capture
   _rc=$?
   case "${_rc}" in
     0) : ;;                               # success — nothing to tally
@@ -95,6 +95,7 @@ echo
 [[ "${SKIPPED}" -gt 0 ]] && echo -e "  ${TEXT_DIM}–  Skipped ${SKIPPED} tool(s) not installed on this machine${TEXT_CLEAR}"
 [[ "${FAILED}"  -gt 0 ]] && echo -e "  ${TEXT_RED}✖  ${FAILED} upgrade(s) failed — see above for details${TEXT_CLEAR}"
 [[ "${FAILED}"  -eq 0 ]] && echo -e "  ${TEXT_GREEN}✔  All installed tools are up to date${TEXT_CLEAR}"
+echo -e "  ${TEXT_DIM}⏱  Total update time: $(_fmt_duration ${SECONDS})${TEXT_CLEAR}"
 echo
 
 [[ "${FAILED}" -gt 0 ]] && exit 1 || exit 0

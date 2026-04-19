@@ -50,3 +50,28 @@ error()  { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  ERROR: $1"; exit 1; }
 header() { echo -e "\n${TEXT_BOLD}${TEXT_BLUE}━━━ $1 ━━━${TEXT_CLEAR}"; }
 ask()    { echo -en "  ${TEXT_YELLOW}?${TEXT_CLEAR}  $1 "; }
 step()   { echo -e "  ${TEXT_BOLD}→${TEXT_CLEAR}  $1"; }
+
+# ── Timing helpers ─────────────────────────────────────────────────────────────
+# Format seconds into human-readable duration (e.g. "1m 23s", "45s", "2m 0s")
+_fmt_duration() {
+  local secs=$1
+  if (( secs >= 60 )); then
+    printf '%dm %ds' $(( secs / 60 )) $(( secs % 60 ))
+  else
+    printf '%ds' "${secs}"
+  fi
+}
+
+# Run a command and print elapsed time after it completes.
+# Usage: timed_run "label" command [args...]
+# The label is printed in the timing line; the command is executed as-is.
+# Exit code of the command is preserved.
+timed_run() {
+  local label="$1"; shift
+  local start=${SECONDS}
+  "$@"
+  local rc=$?
+  local elapsed=$(( SECONDS - start ))
+  echo -e "  ${TEXT_DIM}⏱  ${label} completed in $(_fmt_duration ${elapsed})${TEXT_CLEAR}"
+  return $rc
+}
