@@ -1,28 +1,11 @@
 ---
-name: telamon.cass
-description: "Cass session history search -- initialization, searching, and index management. Use when searching past agent sessions, initializing cass at session start, or needing cass query reference. Triggers: 'cass search', 'past sessions', 'session history', 'what did we do'."
+name: cass
+description: "Coding Agent Session Search - unified CLI/TUI to index and search local coding agent history from Claude Code, Codex, Gemini, Cursor, Aider, ChatGPT, Pi-Agent, Factory, and more. Purpose-built for AI agent consumption with robot mode."
 ---
 
 # CASS - Coding Agent Session Search
 
 Unified, high-performance CLI/TUI to index and search your local coding agent history. Aggregates sessions from **11 agents**: Codex, Claude Code, Gemini CLI, Cline, OpenCode, Amp, Cursor, ChatGPT, Aider, Pi-Agent, and Factory (Droid).
-
-## When to Apply
-
-- Session-start initialization (ensure cass index is current)
-- Searching past agent session conversations
-- Cross-agent knowledge transfer and recovery
-- Needing cass CLI reference or robot mode guidance
-
-## Session-Start Initialization
-
-At session start, search for relevant prior work:
-
-```bash
-cass search "<current task or topic>" --robot --workspace "$(pwd)" --limit 5
-```
-
-**Always use `--robot`** -- bare `cass search` launches a TUI and blocks the session.
 
 ## CRITICAL: Robot Mode Required for AI Agents
 

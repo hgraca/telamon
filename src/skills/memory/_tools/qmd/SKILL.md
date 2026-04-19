@@ -1,6 +1,6 @@
 ---
-name: telamon.qmd
-description: "QMD vault semantic search -- initialization, querying, and index maintenance. Use when searching vault notes semantically, updating the vault index, or needing QMD query syntax reference. Triggers: vault semantic search, 'did we ever...', 'search notes', 'find documents'."
+name: qmd
+description: Search markdown knowledge bases, notes, and documentation using QMD. Use when users ask to search notes, find documents, or look up information.
 license: MIT
 compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobilu/qmd`.
 metadata:
@@ -9,38 +9,15 @@ metadata:
 allowed-tools: Bash(qmd:*), mcp__qmd__*
 ---
 
-# QMD -- Vault Semantic Search
+# QMD - Quick Markdown Search
 
-Local search engine for markdown content. Provides semantic (vector) and keyword search over the Obsidian vault.
+Local search engine for markdown content.
 
-## When to Apply
-
-- When searching vault notes by meaning ("did we ever discuss X?")
-- When initializing or refreshing the vault index at session start
-- When you need QMD query syntax reference (MCP or CLI)
-
-## 1. Initialization (session start)
-
-Run at session start to ensure the vault index is current:
-
-```bash
-qmd update && qmd embed
-```
-
-Then gather initial context:
-
-```bash
-qmd query "what was the last major decision we made" -n 5
-qmd query "what patterns and gotchas should I know" -n 5
-```
-
-## 2. Querying
-
-### Status check
+## Status
 
 !`qmd status 2>/dev/null || echo "Not installed: npm install -g @tobilu/qmd"`
 
-### MCP: `query`
+## MCP: `query`
 
 ```json
 {
@@ -55,11 +32,11 @@ qmd query "what patterns and gotchas should I know" -n 5
 
 ### Query Types
 
-| Type   | Method   | Input                                       |
-|--------|----------|---------------------------------------------|
-| `lex`  | BM25     | Keywords -- exact terms, names, code        |
-| `vec`  | Vector   | Question -- natural language                |
-| `hyde` | Vector   | Answer -- hypothetical result (50-100 words)|
+| Type | Method | Input |
+|------|--------|-------|
+| `lex` | BM25 | Keywords — exact terms, names, code |
+| `vec` | Vector | Question — natural language |
+| `hyde` | Vector | Answer — hypothetical result (50-100 words) |
 
 ### Writing Good Queries
 
@@ -81,7 +58,7 @@ qmd query "what patterns and gotchas should I know" -n 5
 **expand (auto-expand)**
 - Use a single-line query (implicit) or `expand: question` on its own line
 - Lets the local LLM generate lex/vec/hyde variations
-- Do not mix `expand:` with other typed lines
+- Do not mix `expand:` with other typed lines — it's either a standalone expand query or a full query document
 
 ### Intent (Disambiguation)
 
@@ -96,27 +73,27 @@ When a query term is ambiguous, add `intent` to steer results:
 }
 ```
 
-Intent affects expansion, reranking, chunk selection, and snippet extraction. It does not search on its own.
+Intent affects expansion, reranking, chunk selection, and snippet extraction. It does not search on its own — it's a steering signal that disambiguates queries like "performance" (web-perf vs team health vs fitness).
 
 ### Combining Types
 
-| Goal                  | Approach                                              |
-|-----------------------|-------------------------------------------------------|
-| Know exact terms      | `lex` only                                            |
+| Goal | Approach |
+|------|----------|
+| Know exact terms | `lex` only |
 | Don't know vocabulary | Use a single-line query (implicit `expand:`) or `vec` |
-| Best recall           | `lex` + `vec`                                         |
-| Complex topic         | `lex` + `vec` + `hyde`                                |
-| Ambiguous query       | Add `intent` to any combination above                 |
+| Best recall | `lex` + `vec` |
+| Complex topic | `lex` + `vec` + `hyde` |
+| Ambiguous query | Add `intent` to any combination above |
 
-First query gets 2x weight in fusion -- put your best guess first.
+First query gets 2x weight in fusion — put your best guess first.
 
 ### Lex Query Syntax
 
-| Syntax     | Meaning      | Example                      |
-|------------|--------------|------------------------------|
-| `term`     | Prefix match | `perf` matches "performance" |
-| `"phrase"` | Exact phrase | `"rate limiter"`             |
-| `-term`    | Exclude      | `performance -sports`        |
+| Syntax | Meaning | Example |
+|--------|---------|---------|
+| `term` | Prefix match | `perf` matches "performance" |
+| `"phrase"` | Exact phrase | `"rate limiter"` |
+| `-term` | Exclude | `performance -sports` |
 
 Note: `-term` only works in lex queries, not vec/hyde.
 
@@ -129,15 +106,15 @@ Note: `-term` only works in lex queries, not vec/hyde.
 
 Omit to search all collections.
 
-## 3. Other MCP Tools
+## Other MCP Tools
 
-| Tool        | Use                              |
-|-------------|----------------------------------|
-| `get`       | Retrieve doc by path or `#docid` |
-| `multi_get` | Retrieve multiple by glob/list   |
-| `status`    | Collections and health           |
+| Tool | Use |
+|------|-----|
+| `get` | Retrieve doc by path or `#docid` |
+| `multi_get` | Retrieve multiple by glob/list |
+| `status` | Collections and health |
 
-## 4. CLI Reference
+## CLI
 
 ```bash
 qmd query "question"              # Auto-expand + rerank
@@ -150,7 +127,7 @@ qmd multi-get "journals/2026-*.md" -l 40  # Batch pull snippets by glob
 qmd multi-get notes/foo.md,notes/bar.md   # Comma-separated list, preserves order
 ```
 
-## 5. HTTP API
+## HTTP API
 
 ```bash
 curl -X POST http://localhost:8181/query \
@@ -158,7 +135,7 @@ curl -X POST http://localhost:8181/query \
   -d '{"searches": [{"type": "lex", "query": "test"}]}'
 ```
 
-## 6. Setup
+## Setup
 
 ```bash
 npm install -g @tobilu/qmd
