@@ -17,6 +17,14 @@
     ".ai/telamon/memory/bootstrap/**/*.md"
   ],
   "default_agent": "telamon/telamon",
+  "agent": {
+    "plan": {
+      "disable": true
+    },
+    "build": {
+      "disable": true
+    }
+  },
   //  "agent": {
   //    "po": {
   //      "model": "opencode/minimax-m2.5-free"
