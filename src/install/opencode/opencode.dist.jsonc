@@ -14,7 +14,7 @@
 
   "instructions": [
     "AGENTS.md",
-    ".ai/context*/*.md"
+    ".ai/telamon/memory/bootstrap/**/*.md"
   ],
   "default_agent": "telamon/telamon",
   //  "agent": {
