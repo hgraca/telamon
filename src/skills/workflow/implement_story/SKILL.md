@@ -48,6 +48,7 @@ For each task in the backlog:
 1. **Test** — Delegate to @tester:
    - Create a test for each acceptance criterion
    - Create additional automated tests deemed necessary
+   - For infrastructure tasks (shell scripts, YAML configs, markdown) where unit tests don't apply, create a simple integration test (e.g., `test-init.sh` pattern) that validates the install/init/doctor chain programmatically. If no integration test is feasible, document why in the session report.
    - Save session report to task folder, signal FINISHED with report
 
 2. **Implement** — When Tester is finished, delegate to @developer:
@@ -59,7 +60,7 @@ For each task in the backlog:
 3. **Review** — When Developer is finished, delegate to @reviewer:
    - Save Review Report to task folder, signal FINISHED
 
-4. **Address findings** — When Reviewer is finished, delegate to @developer to address issues. Developer must commit fixes before signalling FINISHED. Iterate from step 2.3 until no remaining issues.
+4. **Address findings** — When Reviewer is finished, delegate to @developer to address issues. Developer must commit fixes before signalling FINISHED. After fixes are committed, create an architecture spec addendum file referring the differences from the architecture spec plan to the actual final implementation. Iterate from step 2.3 until no remaining issues.
 
 5. **Mark done** — Set task title in _strikethrough_ in `backlog.md`.
 
@@ -125,3 +126,7 @@ By default, tasks execute sequentially (Tester -> Developer -> Reviewer per task
 - Tasks where one introduces a new abstraction that the other consumes
 - Database migrations (always sequential to avoid ordering issues)
 - Tasks where the Architect's plan specifies an explicit ordering
+
+## MUST
+
+- Run the retrospective (Step 3.2) in the same session as the final commit — do not defer to a later session.

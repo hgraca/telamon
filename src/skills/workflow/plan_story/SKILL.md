@@ -73,6 +73,7 @@ Delegate to @critic for feedback on all documents produced so far.
 - Critic saves to `<issue-folder>/CRITIC-YYYY-MM-DD-NNN.md`.
 - Address issues deemed necessary.
 - Justify issues that will not be addressed.
+- After addressing findings, update the architecture spec (if one exists) so its code snippets and details match the revised backlog. Change ARCH spec status from DRAFT to FINAL when the critic loop concludes with no remaining issues.
 - Terminate the loop if progress stalls or goals shift — ask human stakeholder for direction.
 - Iterate from step 3 until no remaining issues to address.
 
