@@ -1,0 +1,43 @@
+description: "Verify code review catches seeded bugs in PHP code"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "../fixtures/code-review"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      tools: [read, grep, glob, skill]
+      permission:
+        read: "allow"
+        write: "deny"
+        bash: "deny"
+
+prompts:
+  - "Review the file {{filename}} for code quality issues, bugs, and architectural violations."
+
+tests:
+  - description: "Detects missing error handling"
+    vars:
+      filename: "missing-error-handling.php"
+    assert:
+      - type: llm-rubric
+        value: "The review must identify that the code lacks error handling — specifically that exceptions from the payment gateway call are not caught and the function can fail silently or crash"
+      - type: javascript
+        value: "output.includes('error') || output.includes('exception') || output.includes('try') || output.includes('catch')"
+
+  - description: "Detects wrong layer dependency"
+    vars:
+      filename: "wrong-layer-dep.php"
+    assert:
+      - type: llm-rubric
+        value: "The review must identify an architectural violation — a domain layer class directly importing or depending on an infrastructure layer class"
+      - type: javascript
+        value: "output.includes('layer') || output.includes('depend') || output.includes('import') || output.includes('architecture') || output.includes('violation')"
+
+  - description: "Detects missing type declarations"
+    vars:
+      filename: "missing-type-decl.php"
+    assert:
+      - type: llm-rubric
+        value: "The review must identify missing type declarations — return types, parameter types, or property types that should be declared for type safety"
+      - type: javascript
+        value: "output.includes('type') || output.includes('Type') || output.includes('return') || output.includes('declaration')"

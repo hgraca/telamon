@@ -69,7 +69,7 @@ git -C "${TELAMON_ROOT}" submodule update --init --recursive \
 #   0 — success
 #   1 — failure
 #   2 — tool not installed (skip)
-UPDATE_APPS=(homebrew docker opencode ogham graphify cass caveman rtk nodejs qmd repomix)
+UPDATE_APPS=(homebrew docker opencode ogham graphify cass caveman rtk nodejs qmd repomix promptfoo)
 
 for _app in "${UPDATE_APPS[@]}"; do
   _script="${INSTALL_PATH}/${_app}/update.sh"

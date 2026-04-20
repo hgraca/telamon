@@ -1,0 +1,54 @@
+# promptfoo configuration — Agent Evaluation Framework
+# Copied by init.sh → test/eval/promptfooconfig.yaml
+#
+# Run all evals:  cd test/eval && npx -y promptfoo eval
+# Run one eval:   cd test/eval && npx -y promptfoo eval -c evals/<name>.yaml
+# View results:   cd test/eval && npx -y promptfoo view
+#
+# Before first run: cd test/eval && npm install
+
+description: "Agent evaluation suite"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      # Starts ephemeral opencode server per eval
+      # Override working_dir and custom_agent per eval file
+      working_dir: "./fixtures"
+      tools:
+        - read
+        - grep
+        - glob
+      permission:
+        read: "allow"
+        write: "deny"
+        bash: "deny"
+      # custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      # mcp: [] (add MCP servers if needed)
+
+# Individual eval configs live in evals/ — one YAML per eval.
+# Each eval can override provider settings (working_dir, custom_agent, tools).
+#
+# Example eval file (evals/my-eval.yaml):
+#
+#   description: "My agent evaluation"
+#   providers:
+#     - id: "opencode:sdk"
+#       config:
+#         working_dir: "../fixtures/my-eval"
+#         custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+#         tools: [read, grep, glob, skill]
+#         permission:
+#           read: "allow"
+#           write: "deny"
+#           bash: "deny"
+#   prompts:
+#     - "{{request}}"
+#   tests:
+#     - vars:
+#         request: "What does this codebase do?"
+#       assert:
+#         - type: javascript
+#           value: "output.length > 100"
+#         - type: cost
+#           threshold: 0.50

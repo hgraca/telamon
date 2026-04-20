@@ -355,6 +355,29 @@ else
   _warn "Repomix config missing (repomix.config.json) — run: bin/init.sh <project>"
 fi
 
+# ── 6c. promptfoo (Agent Evaluation) ──────────────────────────────────────
+header "promptfoo (Agent Evaluation)"
+
+# Check npx cache — never trigger download from doctor
+PROMPTFOO_BIN=$(find "${HOME}/.npm/_npx" -path "*/node_modules/.bin/promptfoo" 2>/dev/null | head -1)
+if [[ -n "${PROMPTFOO_BIN}" && -x "${PROMPTFOO_BIN}" ]]; then
+  pf_ver=$("${PROMPTFOO_BIN}" --version 2>/dev/null) || true
+  if [[ -n "${pf_ver}" ]]; then
+    _pass "promptfoo cached (${pf_ver})"
+  else
+    _warn "promptfoo binary found but --version failed"
+  fi
+else
+  _warn "promptfoo not yet cached — run 'npx -y promptfoo --version' to initialize"
+fi
+
+EVAL_CONFIG="$(pwd)/test/eval/promptfooconfig.yaml"
+if [[ -f "${EVAL_CONFIG}" ]]; then
+  _pass "Eval config present (test/eval/promptfooconfig.yaml)"
+else
+  _warn "Eval config missing (test/eval/promptfooconfig.yaml) — run: bin/init.sh <project>"
+fi
+
 # ── 7. Graphify (knowledge graph) ─────────────────────────────────────────────
 header "Graphify (knowledge graph)"
 

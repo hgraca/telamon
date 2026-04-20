@@ -83,6 +83,7 @@ How Telamon's tools connect and what each provides at each stage of a session.
 | **Long sessions** | Caveman | Reduces response verbosity ~75% on demand |
 | **After significant work** | Ogham | Stores new decisions, patterns, bug fixes |
 | **After significant work** | Obsidian | Promotes learnings to `brain/` notes |
+| **Evaluating agent behavior** | promptfoo | Automated quality checks: routing, plan structure, code review |
 | **After each agent turn** | Session Capture | Auto-promotes learnings every 30 min (throttled); runs after `session.idle` |
 | **End of session** | Ogham + Obsidian | Inscribes session summary; archives completed work notes |
 | **Observability** | Langfuse (optional) | Tracks token usage, latency, cost across sessions |

@@ -18,6 +18,10 @@ CLAUDE.md
 mcp.json
 ###< ai ###
 
+# ── promptfoo eval cache & deps ───────────────────────────────────────────────
+test/eval/.promptfoo/
+test/eval/node_modules/
+
 # ── Vendor submodules ─────────────────────────────────────────────────────────
 vendor/
 vendor/**

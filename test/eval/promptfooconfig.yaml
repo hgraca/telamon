@@ -1,0 +1,20 @@
+# Telamon's own agent evaluation suite
+# Run all:  cd test/eval && npx -y promptfoo eval
+# Run one:  cd test/eval && npx -y promptfoo eval -c evals/<name>.yaml
+# View:     cd test/eval && npx -y promptfoo view
+#
+# Before first run: cd test/eval && npm install
+
+description: "Telamon agent evaluation suite"
+
+# Default provider — individual eval files override as needed
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "./fixtures"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      tools: [read, grep, glob, skill]
+      permission:
+        read: "allow"
+        write: "deny"
+        bash: "deny"

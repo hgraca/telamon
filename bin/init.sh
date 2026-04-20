@@ -45,7 +45,7 @@ export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(obsidian opencode codebase-index repomix graphify cass qmd session-capture)
+INIT_APPS=(obsidian opencode codebase-index repomix promptfoo graphify cass qmd session-capture)
 
 for _app in "${INIT_APPS[@]}"; do
   _script="${INSTALL_PATH}/${_app}/init.sh"

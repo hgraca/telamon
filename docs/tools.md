@@ -78,6 +78,25 @@ Do **not** combine with codebase-index for the same files — redundant context 
 
 ---
 
+## promptfoo — Agent Evaluation Framework
+
+[promptfoo](https://github.com/promptfoo/promptfoo)
+
+Automated quality checks for agent behavior. Tests request classification, plan structure, code review quality, and skill activation. Runs via `npx -y promptfoo` — no global install needed.
+
+- **Declarative YAML configs**: each eval is a standalone YAML file with prompts, test cases, and assertions
+- **`opencode:sdk` provider**: starts an ephemeral opencode server per eval — reproducible, no state leakage
+- **Multiple assertion types**: JavaScript checks, LLM-as-judge rubrics, cost/latency thresholds, trajectory analysis
+- **Web UI**: `npx -y promptfoo view` shows interactive results dashboard
+- **Per-project evals**: configs live in `test/eval/` alongside the project they test
+
+Use after changing agent instructions, adding skills, or before merging behavior changes.
+
+**Commands:** `cd test/eval && npx -y promptfoo eval`, `npx -y promptfoo eval -c evals/<name>.yaml`, `npx -y promptfoo view`
+**Slash command:** `/eval`
+
+---
+
 ## Obsidian MCP — Curated Knowledge Vault
 
 [obsidian-mcp](https://github.com/oleksandrkucherenko/obsidian-mcp)
@@ -256,6 +275,7 @@ Telamon provides slash commands (in `src/commands/`) that trigger structured wor
 | `/implement` | Implement an approved plan |
 | `/story` | Plan and implement a story end-to-end |
 | `/epic` | Break an epic into stories, plan and implement each |
+| `/eval` | Run agent evaluations with promptfoo |
 | `/dev` | Delegate a code task directly to the developer |
 | `/test` | Write or run tests |
 | `/review` | Review a code changeset |
@@ -294,6 +314,7 @@ Telamon ships a library of skills that guide the agent through structured workfl
 - **git-rules** — git commit conventions (gitignored paths, conventional commits)
 - **makefile** — Makefile lifecycle commands
 - **testing** — test commands, strategy, conventions
+- **testing/promptfoo** — agent evaluation with promptfoo (running evals, adding test cases)
 - **php-rules** — PHP coding rules (strict typing, enums, PHPDoc)
 - **laravel** — Laravel conventions
 - **message-bus** — PHP message bus integration
@@ -367,6 +388,7 @@ Enabled by setting `GRAPHITI_ENABLED=true` in `.env`.
 - **Graphify** — Fully automatic codebase knowledge graph. Particularly valuable for large legacy codebases where nobody has a complete mental model anymore.
 - **RTK** — Highest ROI for token efficiency — zero config, immediate, compounds with all other tools.
 - **Repomix** — ~70% token reduction when reading multiple files from the same area. Use instead of individual file reads for 5+ files.
+- **promptfoo** — Automated agent evaluation. Catches instruction regressions before they reach production.
 - **Codebase Index** — Complements Graphify. Find code by meaning, not just by name.
 
 ### Tier 3 — Useful

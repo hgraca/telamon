@@ -1,0 +1,60 @@
+description: "Verify correct agent routing for different request types"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "../fixtures/request-classification"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      tools: [read, grep, glob, skill]
+      permission:
+        read: "allow"
+        write: "deny"
+        bash: "deny"
+
+prompts:
+  - "{{request}}"
+
+tests:
+  - description: "Planning request → architect delegation"
+    vars:
+      request: "Plan a user authentication feature with OAuth2 support"
+    assert:
+      - type: javascript
+        value: "output.includes('architect') || output.includes('plan') || output.includes('Plan')"
+      - type: cost
+        threshold: 0.50
+
+  - description: "Bug fix → developer delegation"
+    vars:
+      request: "Fix the null pointer exception in UserService.php line 42"
+    assert:
+      - type: javascript
+        value: "output.includes('developer') || output.includes('Developer') || output.includes('fix') || output.includes('Fix')"
+
+  - description: "Code review → reviewer delegation"
+    vars:
+      request: "Review the changes in the authentication module for security issues"
+    assert:
+      - type: javascript
+        value: "output.includes('review') || output.includes('Review') || output.includes('security')"
+
+  - description: "Test writing → tester delegation"
+    vars:
+      request: "Write unit tests for the PaymentGateway class"
+    assert:
+      - type: javascript
+        value: "output.includes('test') || output.includes('Test') || output.includes('tester')"
+
+  - description: "Question → direct answer (no delegation)"
+    vars:
+      request: "What does the UserRepository interface look like?"
+    assert:
+      - type: javascript
+        value: "output.length > 50"
+
+  - description: "Security audit → security delegation"
+    vars:
+      request: "Audit the authentication system for vulnerabilities"
+    assert:
+      - type: javascript
+        value: "output.includes('security') || output.includes('Security') || output.includes('audit') || output.includes('Audit')"

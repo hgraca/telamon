@@ -26,6 +26,7 @@ src/
     caveman.md               # /caveman — toggle token-efficient communication
     dev.md                   # /dev — delegate a code task to the developer
     epic.md                  # /epic — break an epic into stories and implement
+    eval.md                  # /eval — run agent evaluations
     gh_review.md             # /gh_review — review a GitHub pull request
     implement.md             # /implement — implement an approved plan
     plan.md                  # /plan — plan a story or feature
@@ -80,6 +81,7 @@ src/
         message-bus/         # PHP message bus integration
         php-rules/           # PHP coding rules (strict typing, enums, PHPDoc)
       testing/               # test commands, strategy, conventions
+        promptfoo/           # agent evaluation with promptfoo (nested skill)
     workflow/                # workflow orchestration skills
       agent-communication/   # inter-agent communication protocol
       audit_codebase/        # holistic codebase health review
@@ -139,6 +141,7 @@ src/
     codebase-index/          # MCP registration + per-project codebase-index.json
     obsidian/                # Obsidian binary install + MCP registration
     repomix/                 # Repomix MCP installer, init, update, doctor scripts
+    promptfoo/               # promptfoo eval framework installer, init, update scripts
     session-capture/         # session-capture opencode plugin + init.sh
     shell/write-env.sh       # shell profile PATH additions
 
@@ -147,6 +150,14 @@ scripts/
 
 test/
   test-init.sh               # assertions for make init wiring
+  eval/                      # agent evaluation suite (promptfoo)
+    promptfooconfig.yaml     # root eval config (opencode:sdk provider)
+    package.json             # @opencode-ai/sdk dependency
+    evals/                   # per-eval YAML configs
+      request-classification.yaml
+      plan-structure.yaml
+      code-review-quality.yaml
+    fixtures/                # test inputs per eval (story briefs, seeded-bug PHP code)
 
 storage/                     # runtime data — git-ignored except opencode.jsonc
   opencode.jsonc             # shared opencode config (tracked); projects symlink to this

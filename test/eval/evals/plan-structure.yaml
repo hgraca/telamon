@@ -1,0 +1,54 @@
+description: "Verify plan output contains required structural elements"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "../fixtures/plan-structure"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      tools: [read, grep, glob, skill, write, edit]
+      permission:
+        read: "allow"
+        write: "allow"
+        bash: "deny"
+
+prompts:
+  - "{{brief}}"
+
+tests:
+  - description: "Simple feature produces structured backlog"
+    vars:
+      brief: |
+        Plan a feature: Add a dark mode toggle to the application settings page.
+        Users should be able to switch between light and dark themes.
+        The preference should persist across sessions.
+    assert:
+      - type: llm-rubric
+        value: "The output must contain a structured plan with numbered tasks, each having a priority level and acceptance criteria"
+      - type: javascript
+        value: "output.includes('Task') || output.includes('task')"
+      - type: cost
+        threshold: 2.00
+
+  - description: "Complex story produces dependencies"
+    vars:
+      brief: |
+        Plan a feature: Implement a notification system. Requirements:
+        1. Email notifications for account events
+        2. In-app notification bell with unread count
+        3. User preferences for notification channels
+        4. Admin panel to manage notification templates
+    assert:
+      - type: llm-rubric
+        value: "The output must contain multiple tasks with dependency declarations between them and priority assignments"
+      - type: javascript
+        value: "output.includes('depend') || output.includes('Depend') || output.includes('priority') || output.includes('Priority')"
+
+  - description: "Bug fix brief produces focused plan"
+    vars:
+      brief: |
+        Fix: Users report that password reset emails are not being sent.
+        The issue started after the last deployment. Email service logs show
+        no errors but no emails are queued for password resets specifically.
+    assert:
+      - type: llm-rubric
+        value: "The output should focus on debugging steps and a targeted fix, not a large feature plan"

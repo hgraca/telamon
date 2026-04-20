@@ -14,6 +14,7 @@
 #   Graphify                   — codebase knowledge graph
 #   opencode-codebase-index    — semantic codebase search (MCP)
 #   Repomix                    — pack directories into compressed LLM context
+#   promptfoo                  — agent evaluation framework (via npx)
 #   cass                       — agent session history search
 #   RTK                        — token compression proxy
 #   Obsidian MCP (Docker)      — knowledge vault bridge
@@ -221,7 +222,7 @@ PRE_DOCKER_APPS=(homebrew docker)
 # Phase 2: tools that require the containers to already be running (ogham needs
 #           Postgres; nomic-embed-text model must be in Ollama). Called by
 #           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix obsidian graphify cass rtk caveman qmd shell langfuse graphiti)
+POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify cass rtk caveman qmd shell langfuse graphiti)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do

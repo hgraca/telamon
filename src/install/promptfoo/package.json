@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Agent evaluation dependencies — run 'npm install' before first eval",
+  "dependencies": {
+    "@opencode-ai/sdk": "latest"
+  }
+}
