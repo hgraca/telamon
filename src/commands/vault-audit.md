@@ -42,7 +42,7 @@ For each folder in `.ai/telamon/memory/work/active/`:
 - Does `backlog.md` exist and have accurate task statuses?
 - Are there orphaned artifacts (e.g., `DONE.md` with no corresponding task)?
 - Are there duplicate issue folders for the same initiative?
-- Is the folder name following the `NN-<title_slug>` convention?
+- Is the folder name following the `YYYYMMDD-HHMMSS-NN-<title_slug>` convention?
 
 ## 5. Check Reference Files
 

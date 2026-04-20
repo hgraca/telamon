@@ -20,17 +20,17 @@ Place all artifacts under a single `<epic-folder>` in `.ai/telamon/memory/work/a
 ### Folder structure
 
 ```
-.ai/telamon/memory/work/active/NN-<epic_slug>/
+.ai/telamon/memory/work/active/YYYYMMDD-HHMMSS-NN-<epic_slug>/
   backlog.md                          # Epic-level backlog (stories, not tasks)
   summary.md                          # Epic planning summary
-  NN-<story_slug>/                    # One sub-folder per story
+  YYYYMMDD-HHMMSS-NN-<story_slug>/    # One sub-folder per story
     backlog.md                        # Story-level backlog (tasks)
     ARCH-YYYY-MM-DD-NNN.md            # Architecture spec (if needed)
     summary.md                        # Story planning summary
     ...
 ```
 
-`NN` is a zero-padded sequential number. Check existing folders in `.ai/telamon/memory/work/active/` and use the next available number.
+`YYYYMMDD-HHMMSS` is the current UTC timestamp. `NN` is a zero-padded sequential number. Check existing folders in `.ai/telamon/memory/work/active/` and use the next available number. The timestamp prefix provides chronological ordering; the sequential number disambiguates folders created in the same second.
 
 ### One folder per initiative — MUST
 
@@ -60,7 +60,7 @@ Delegate to @po to break the epic into stories and create `<epic-folder>/backlog
 
 For each story in the epic backlog, in priority order:
 
-1. Create the story sub-folder: `<epic-folder>/NN-<story_slug>/`
+1. Create the story sub-folder: `<epic-folder>/YYYYMMDD-HHMMSS-NN-<story_slug>/`
 2. Follow the `telamon.plan_story` skill to produce the story plan. Use the story sub-folder as the `<issue-folder>`.
 3. Output a planning progress report to the human stakeholder after each story:
    > **Epic planning progress**: \<planned\>/\<total\> stories planned | \<remaining\> remaining

@@ -26,13 +26,13 @@ When you need to create a temporary file, use the `telamon.thinking` skill. Prom
 
 ### Folder naming
 
-`.ai/telamon/memory/work/active/NN-<title_slug>/`
+`.ai/telamon/memory/work/active/YYYYMMDD-HHMMSS-NN-<title_slug>/`
 
-`NN` is a zero-padded sequential number. Check existing folders in `.ai/telamon/memory/work/active/` and use the next available number.
+`YYYYMMDD-HHMMSS` is the current UTC timestamp. `NN` is a zero-padded sequential number. Check existing folders in `.ai/telamon/memory/work/active/` and use the next available number. The timestamp prefix provides chronological ordering; the sequential number disambiguates folders created in the same second.
 
 ### One folder per initiative — MUST
 
-Each epic or story MUST have exactly one folder. NEVER create a second folder for the same initiative. Sub-story artifacts within an epic go in sub-folders of the epic folder (e.g., `.ai/telamon/memory/work/active/01-helm-migration/03-openbao/`).
+Each epic or story MUST have exactly one folder. NEVER create a second folder for the same initiative. Sub-story artifacts within an epic go in sub-folders of the epic folder (e.g., `.ai/telamon/memory/work/active/20260420-143000-01-helm-migration/20260420-144500-03-openbao/`).
 
 ## Procedure
 
