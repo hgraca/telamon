@@ -259,7 +259,10 @@ else
     "https://127.0.0.1:27124/" >/dev/null 2>&1; then
     _pass "Obsidian Local REST API: reachable and authenticated"
   else
-    _fail "Obsidian Local REST API: not reachable — ensure Obsidian is running with Local REST API plugin enabled"
+    _fail "Obsidian Local REST API: not reachable on port 27124"
+    _info "  Ensure Obsidian is running with the Local REST API plugin enabled."
+    _info "  In Obsidian: Settings → Community plugins → enable 'Local REST API'."
+    _info "  If the plugin is missing, install it from the community plugin browser."
   fi
 fi
 
@@ -444,6 +447,40 @@ if [[ -f "${TELAMON_ROOT}/.opencode/graphify-serve.sh" ]]; then
   _pass "Graphify MCP serve wrapper present"
 else
   _warn "Graphify MCP serve wrapper missing (.opencode/graphify-serve.sh) — run: bin/init.sh <project>"
+fi
+
+# ── 7b. MCP Runtime Health ────────────────────────────────────────────────────
+header "MCP Runtime Health"
+
+# a) Graphify mcp dependency
+if [[ -f "${TELAMON_ROOT}/storage/secrets/graphify-python" ]]; then
+  GRAPHIFY_PY="$(cat "${TELAMON_ROOT}/storage/secrets/graphify-python")"
+  if [[ -x "${GRAPHIFY_PY}" ]]; then
+    if "${GRAPHIFY_PY}" -c "import mcp" &>/dev/null 2>&1; then
+      _pass "Graphify MCP: 'mcp' Python package installed"
+    else
+      _warn "Graphify MCP: 'mcp' Python package missing — attempting auto-fix..."
+      if uv pip install --python "${GRAPHIFY_PY}" mcp &>/dev/null 2>&1; then
+        _pass "Graphify MCP: 'mcp' installed successfully"
+      else
+        _fail "Graphify MCP: could not install 'mcp' — run manually: uv pip install --python ${GRAPHIFY_PY} mcp"
+      fi
+    fi
+  fi
+fi
+
+# b) npm cache health
+if command -v npm &>/dev/null; then
+  if npm cache verify &>/dev/null 2>&1; then
+    _pass "npm cache: healthy"
+  else
+    _warn "npm cache: corrupted — attempting auto-fix..."
+    if npm cache clean --force &>/dev/null 2>&1; then
+      _pass "npm cache: cleaned successfully"
+    else
+      _fail "npm cache: could not clean — run manually: npm cache clean --force"
+    fi
+  fi
 fi
 
 # ── 8. Scheduled jobs ─────────────────────────────────────────────────────────
@@ -665,6 +702,7 @@ else
   echo -e "${TEXT_RED}${TEXT_BOLD}     Run 'make up' to fix failures.${TEXT_CLEAR}"
 fi
 echo -e "${TEXT_BOLD}────────────────────────────────────────────────${TEXT_CLEAR}"
+echo -e "  ${TEXT_DIM}If any problem persists, start opencode and ask it to help debug the issue.${TEXT_CLEAR}"
 echo
 
 [[ "${FAIL}" -gt 0 ]] && exit 1 || exit 0

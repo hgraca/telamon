@@ -129,6 +129,7 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 		echo "  ⚠ Obsidian not found — install it or run 'make up' after installing"; \
 	fi
 	echo -e "\n\033[1m\033[34m━━━ Telamon is up. ━━━\033[0m\n"
+	$(MAKE) status
 
 down: ## Shut down Telamon services
 	echo -e "\n\033[1m\033[34m━━━ Shutting down Telamon services... ━━━\033[0m"

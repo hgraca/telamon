@@ -187,6 +187,55 @@ elif [[ "${OS}" == "macos" ]]; then
 fi
 [[ ${_jobs_found} -eq 0 ]] && echo -e "  ${TEXT_DIM}(no scheduled jobs found)${TEXT_CLEAR}"
 
+# ── MCP Runtime Health ────────────────────────────────────────────────────────
+header "MCP Runtime Health"
+_mcp_issues=0
+
+# Graphify mcp dependency
+if [[ -f "${TELAMON_ROOT}/storage/secrets/graphify-python" ]]; then
+  _graphify_py="$(cat "${TELAMON_ROOT}/storage/secrets/graphify-python")"
+  if [[ -x "${_graphify_py}" ]]; then
+    if "${_graphify_py}" -c "import mcp" &>/dev/null 2>&1; then
+      _ok "Graphify MCP: 'mcp' dependency present"
+    else
+      _no "Graphify MCP: 'mcp' Python package not installed"
+      _mcp_issues=$((_mcp_issues + 1))
+    fi
+  else
+    _no "Graphify MCP: Python interpreter not found at ${_graphify_py}"
+    _mcp_issues=$((_mcp_issues + 1))
+  fi
+else
+  echo -e "  ${TEXT_DIM}(graphify-python secret not found — skipping mcp dependency check)${TEXT_CLEAR}"
+fi
+
+# npm cache health
+if command -v npm &>/dev/null; then
+  if npm cache verify &>/dev/null 2>&1; then
+    _ok "npm cache: healthy"
+  else
+    _no "npm cache: corrupted (EACCES permission errors)"
+    _mcp_issues=$((_mcp_issues + 1))
+  fi
+else
+  echo -e "  ${TEXT_DIM}(npm not found — skipping cache check)${TEXT_CLEAR}"
+fi
+
+# Obsidian Local REST API
+if curl -sfk --max-time 3 https://127.0.0.1:27124/ &>/dev/null 2>&1; then
+  _ok "Obsidian Local REST API: reachable"
+else
+  _no "Obsidian Local REST API: not reachable on port 27124"
+  _mcp_issues=$((_mcp_issues + 1))
+fi
+
+if [[ "${_mcp_issues}" -gt 0 ]]; then
+  echo
+  echo -e "  ${TEXT_YELLOW}${TEXT_BOLD}⚠  ${_mcp_issues} MCP issue(s) detected — running doctor for auto-fix...${TEXT_CLEAR}"
+  echo -e "  ${TEXT_DIM}────────────────────────────────────────────────${TEXT_CLEAR}"
+  bash "${TELAMON_ROOT}/bin/doctor.sh" || true
+fi
+
 # ── Cass ──────────────────────────────────────────────────────────────────────
 header "Cass"
 if command -v cass &>/dev/null; then
