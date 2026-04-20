@@ -12,8 +12,8 @@ permission:
     "git log *": allow
     "git show *": allow
     "git status*": allow
-    "make test*": allow
-    "make static*": allow
+    "make *": allow
+    "APP_ENV=* make *": allow
     "php *": allow
     "phpunit *": allow
     "grep *": allow

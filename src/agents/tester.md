@@ -11,8 +11,8 @@ permission:
     "phpunit *": allow
     "pest *": allow
     "composer *": allow
-    "make test*": allow
-    "make static*": allow
+    "make *": allow
+    "APP_ENV=* make *": allow
     "grep *": allow
     "cat *": allow
     "find *": allow
