@@ -2,8 +2,8 @@ title: Telamon
 description: >-
   A harness for agentic software development.
   Everything a developer needs to get the best out of LLMs and coding agents.
-url: ""
-baseurl: ""
+url: "https://hgraca.github.io"
+baseurl: "/telamon"
 
 markdown: kramdown
 highlighter: rouge
