@@ -229,6 +229,24 @@ else
   _mcp_issues=$((_mcp_issues + 1))
 fi
 
+# GitHub MCP authentication
+_gh_pat_file="${TELAMON_ROOT}/storage/secrets/gh_pat"
+if [[ -f "${_gh_pat_file}" ]]; then
+  _gh_pat="$(cat "${_gh_pat_file}" 2>/dev/null)"
+  if [[ -z "${_gh_pat}" || "${_gh_pat}" == CREATE_A_PAT_AS_IN_IMAGE* ]]; then
+    _no "GitHub MCP: PAT not configured (placeholder or empty)"
+    _mcp_issues=$((_mcp_issues + 1))
+  elif curl -sf --max-time 5 -H "Authorization: token ${_gh_pat}" https://api.github.com/user &>/dev/null 2>&1; then
+    _ok "GitHub MCP: PAT authenticated"
+  else
+    _no "GitHub MCP: PAT authentication failed (expired or invalid)"
+    _mcp_issues=$((_mcp_issues + 1))
+  fi
+else
+  _no "GitHub MCP: PAT file missing (storage/secrets/gh_pat)"
+  _mcp_issues=$((_mcp_issues + 1))
+fi
+
 if [[ "${_mcp_issues}" -gt 0 ]]; then
   echo
   echo -e "  ${TEXT_YELLOW}${TEXT_BOLD}⚠  ${_mcp_issues} MCP issue(s) detected — running doctor for auto-fix...${TEXT_CLEAR}"

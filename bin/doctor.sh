@@ -483,6 +483,21 @@ if command -v npm &>/dev/null; then
   fi
 fi
 
+# c) GitHub MCP authentication
+GH_PAT_FILE="${TELAMON_ROOT}/storage/secrets/gh_pat"
+if [[ -f "${GH_PAT_FILE}" ]]; then
+  GH_PAT="$(cat "${GH_PAT_FILE}" 2>/dev/null)"
+  if [[ -z "${GH_PAT}" || "${GH_PAT}" == CREATE_A_PAT_AS_IN_IMAGE* ]]; then
+    _fail "GitHub MCP: PAT not configured — replace placeholder in storage/secrets/gh_pat with a valid token"
+  elif curl -sf --max-time 5 -H "Authorization: token ${GH_PAT}" https://api.github.com/user &>/dev/null 2>&1; then
+    _pass "GitHub MCP: PAT authenticated"
+  else
+    _fail "GitHub MCP: PAT authentication failed — token may be expired or revoked"
+  fi
+else
+  _fail "GitHub MCP: PAT file missing — create storage/secrets/gh_pat with a valid GitHub token"
+fi
+
 # ── 8. Scheduled jobs ─────────────────────────────────────────────────────────
 header "Scheduled jobs"
 
