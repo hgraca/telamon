@@ -120,8 +120,13 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	@if pgrep -x obsidian >/dev/null 2>&1; then \
 		echo "  ✓ Obsidian already running"; \
 	elif command -v obsidian >/dev/null 2>&1; then \
-		nohup obsidian >/dev/null 2>&1 & \
-		echo "  ✓ Obsidian launched"; \
+		if command -v xvfb-run >/dev/null 2>&1; then \
+			nohup xvfb-run obsidian --disable-gpu --no-sandbox >/dev/null 2>&1 & \
+			echo "  ✓ Obsidian launched (headless)"; \
+		else \
+			nohup obsidian >/dev/null 2>&1 & \
+			echo "  ✓ Obsidian launched"; \
+		fi; \
 	elif [ "$$(uname -s)" = "Darwin" ] && [ -d "/Applications/Obsidian.app" ]; then \
 		open -a Obsidian; \
 		echo "  ✓ Obsidian launched"; \
