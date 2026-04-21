@@ -71,10 +71,10 @@ langfuse.generate_secret "LANGFUSE_SALT"   "langfuse-salt"
 echo
 echo -e "  ${TEXT_BOLD}Langfuse is enabled.${TEXT_CLEAR}"
 echo
-echo -e "  ${TEXT_BOLD}Web UI:${TEXT_CLEAR}  http://localhost:4000"
+echo -e "  ${TEXT_BOLD}Web UI:${TEXT_CLEAR}  http://localhost:17400"
 echo
 echo -e "  ${TEXT_BOLD}First login:${TEXT_CLEAR}"
-echo "    1. Open http://localhost:4000 in your browser."
+echo "    1. Open http://localhost:17400 in your browser."
 echo "    2. Create an admin account."
 echo "    3. Generate API keys in Settings → API Keys."
 echo
@@ -82,5 +82,5 @@ echo -e "  ${TEXT_BOLD}Connect opencode to Langfuse:${TEXT_CLEAR}"
 echo "    Export these env vars before starting opencode:"
 echo "      export LANGFUSE_PUBLIC_KEY=<from Langfuse UI after first login>"
 echo "      export LANGFUSE_SECRET_KEY=<from Langfuse UI after first login>"
-echo "      export LANGFUSE_HOST=http://localhost:4000"
+echo "      export LANGFUSE_HOST=http://localhost:17400"
 echo

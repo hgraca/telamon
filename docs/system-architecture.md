@@ -37,7 +37,7 @@ How Telamon's tools connect and what each provides at each stage of a session.
 |       |                  |            |          |                    |
 |       |          +-------v------+  +--v----+  +--v--------+          |
 |       |          |  Postgres +  |  |Ollama |  | Obsidian  |          |
-|       |          |  pgvector    |  |:11434 |  |   vault   |          |
+|       |          |  pgvector    |  |:17434|  |   vault   |          |
 |       |          +--------------+  +-------+  +-----------+          |
 |       |                                                              |
 |  +----v---------------------------------------------------------+    |

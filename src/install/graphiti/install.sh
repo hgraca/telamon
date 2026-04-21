@@ -74,7 +74,7 @@ step "Registering Graphiti MCP server in opencode.jsonc..."
 opencode.upsert_mcp "graphiti" "$(cat <<JSON
 {
   "type": "local",
-  "command": ["npx", "-y", "graphiti-mcp", "--url", "http://localhost:8001"],
+  "command": ["npx", "-y", "graphiti-mcp", "--url", "http://localhost:17801"],
   "enabled": true
 }
 JSON
@@ -85,8 +85,8 @@ echo
 echo -e "  ${TEXT_BOLD}Graphiti is enabled.${TEXT_CLEAR}"
 echo
 echo -e "  ${TEXT_BOLD}Services:${TEXT_CLEAR}"
-echo "    Neo4j browser:  http://localhost:7474  (user: neo4j)"
-echo "    Graphiti API:   http://localhost:8001"
+echo "    Neo4j browser:  http://localhost:17474  (user: neo4j)"
+echo "    Graphiti API:   http://localhost:17801"
 echo
 echo -e "  ${TEXT_BOLD}MCP server registered:${TEXT_CLEAR} graphiti"
 echo "    Agents can now use Graphiti for temporal/relational queries:"

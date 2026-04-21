@@ -224,7 +224,7 @@ Enabled by setting `LANGFUSE_ENABLED=true` in `.env`.
 
 - **Profile-gated**: only starts when `LANGFUSE_ENABLED=true`
 - Runs as a Docker Compose profile (`langfuse`) with four services: Postgres, Redis, ClickHouse, and the Langfuse web app
-- Accessible at `http://localhost:4000` after startup
+- Accessible at `http://localhost:17400` after startup
 - Requires `LANGFUSE_SECRET` and `LANGFUSE_SALT` in `.env`
 
 ---
@@ -239,7 +239,7 @@ Enabled by setting `GRAPHITI_ENABLED=true` in `.env`.
 - **Profile-gated**: only starts when `GRAPHITI_ENABLED=true`
 - Runs as a Docker Compose profile (`graphiti`) with Neo4j and the Graphiti API server
 - Requires `NEO4J_PASSWORD` and `OPENAI_API_KEY` in `.env` (OpenAI used for entity extraction)
-- Neo4j browser at `http://localhost:7474`, Graphiti API at `http://localhost:8001`
+- Neo4j browser at `http://localhost:17474`, Graphiti API at `http://localhost:17801`
 
 ---
 

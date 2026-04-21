@@ -88,8 +88,8 @@ if env.is_enabled LANGFUSE_ENABLED; then
   if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-langfuse-web$"; then
     _pass "Langfuse web container running (telamon-langfuse-web)"
     # HTTP health check — use _warn since the service may still be starting
-    if wget -qO- --timeout=5 http://localhost:4000/api/public/health &>/dev/null 2>&1; then
-      _pass "Langfuse HTTP health: http://localhost:4000/api/public/health"
+    if wget -qO- --timeout=5 http://localhost:17400/api/public/health &>/dev/null 2>&1; then
+      _pass "Langfuse HTTP health: http://localhost:17400/api/public/health"
     else
       _warn "Langfuse HTTP health check failed — service may still be starting"
     fi
@@ -129,8 +129,8 @@ if env.is_enabled GRAPHITI_ENABLED; then
   if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-graphiti$"; then
     _pass "Graphiti container running (telamon-graphiti)"
     # HTTP health check — use _warn since the service may still be starting
-    if wget -qO- --timeout=5 http://localhost:8001/healthcheck &>/dev/null 2>&1; then
-      _pass "Graphiti HTTP health: http://localhost:8001/healthcheck"
+    if wget -qO- --timeout=5 http://localhost:17801/healthcheck &>/dev/null 2>&1; then
+      _pass "Graphiti HTTP health: http://localhost:17801/healthcheck"
     else
       _warn "Graphiti HTTP health check failed — service may still be starting"
     fi

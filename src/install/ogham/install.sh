@@ -69,7 +69,7 @@ ogham use "${OGHAM_PROFILE}" 2>/dev/null || true
 log "Profile: ${OGHAM_PROFILE}"
 
 # ── Write database URL secret ─────────────────────────────────────────────────
-secrets.write "ogham-database-url" "postgresql://ogham:${POSTGRES_PASSWORD}@localhost:5432/ogham"
+secrets.write "ogham-database-url" "postgresql://ogham:${POSTGRES_PASSWORD}@localhost:17432/ogham"
 
 # ── Register MCP server in opencode.jsonc ─────────────────────────────────────
 # Env var names must match pydantic-settings field names (uppercased).
@@ -82,7 +82,7 @@ opencode.upsert_mcp "ogham" "$(cat <<JSON
     "DATABASE_BACKEND": "postgres",
     "DATABASE_URL": "{file:.ai/telamon/secrets/ogham-database-url}",
     "EMBEDDING_PROVIDER": "ollama",
-    "OLLAMA_URL": "http://localhost:11434",
+    "OLLAMA_URL": "http://localhost:17434",
     "OLLAMA_EMBED_MODEL": "nomic-embed-text",
     "RERANK_ENABLED": "true",
     "RERANK_ALPHA": "0.55"

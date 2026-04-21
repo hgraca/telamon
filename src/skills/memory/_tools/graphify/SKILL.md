@@ -38,7 +38,7 @@ Check at session start and build if missing:
 /graphify <path> --svg                                # also export graph.svg (embeds in Notion, GitHub)
 /graphify <path> --graphml                            # export graph.graphml (Gephi, yEd)
 /graphify <path> --neo4j                              # generate graphify-out/cypher.txt for Neo4j
-/graphify <path> --neo4j-push bolt://localhost:7687   # push directly to Neo4j
+/graphify <path> --neo4j-push bolt://localhost:17687   # push directly to Neo4j
 /graphify <path> --mcp                                # start MCP stdio server for agent access
 /graphify <path> --watch                              # watch folder, auto-rebuild on code changes (no LLM needed)
 /graphify <path> --wiki                               # build agent-crawlable wiki (index.md + one article per community)
@@ -596,7 +596,7 @@ print(f'Pushed to Neo4j: {result[\"nodes\"]} nodes, {result[\"edges\"]} edges')
 "
 ```
 
-Replace `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` with actual values. Default URI is `bolt://localhost:7687`, default user is `neo4j`. Uses MERGE - safe to re-run without creating duplicates.
+Replace `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` with actual values. Default URI is `bolt://localhost:17687`, default user is `neo4j`. Uses MERGE - safe to re-run without creating duplicates.
 
 ### Step 7b - SVG export (only if --svg flag)
 
