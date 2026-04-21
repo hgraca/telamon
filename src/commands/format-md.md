@@ -1,6 +1,6 @@
 ---
 description: Format markdown tables in a folder or file so columns are properly aligned
-agent: telamon
+agent: telamon/telamon
 ---
 
 Run `.ai/telamon/scripts/format-md.py $1` to format all markdown tables in the given path.
