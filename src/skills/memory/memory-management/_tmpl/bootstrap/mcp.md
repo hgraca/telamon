@@ -11,7 +11,7 @@ description: MCP server tool selection and Laravel Boost usage guide
 - **chrome-devtools-mcp**: Inspect or debug a browser via Chrome DevTools
 - **context7**: Look up library or framework documentation
 - **git**: Run git operations
-- **github**: Interact with GitHub repositories, pull requests, issues, and code reviews
+- **github**: Interact with GitHub repositories, pull requests, issues, and code reviews. **Always prefer over `gh` CLI** — the CLI output is often swallowed by `rtk` or shell piping, while the MCP returns structured data reliably.
 - **grep**: Search code across public GitHub repositories
 - **playwright**: Interact with a browser or test web pages
 - **repomix**: Pack directory contents into compressed context. Use when reading 5+ files from same area. Replaces multi-file reads with single structured dump. Do not combine with codebase-index for the same files.

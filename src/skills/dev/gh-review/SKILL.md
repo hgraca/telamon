@@ -21,6 +21,7 @@ PR number (`$1`).
 ### Step 1: Read PR comments
 
 Use the `github` MCP to read all review comments on PR `$1`.
+Only use the `gh` CLI if the `github` MCP is not available and not working as expected.
 
 ### Step 2: Ensure correct branch
 
