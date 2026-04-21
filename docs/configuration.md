@@ -1,5 +1,8 @@
-# Configuration
-
+---
+layout: page
+title: Configuration
+description: Prerequisites, environment variables, and Docker services.
+nav_section: docs
 ---
 
 ## Prerequisites

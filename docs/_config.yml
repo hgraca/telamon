@@ -1,0 +1,32 @@
+title: Telamon
+description: >-
+  A harness for agentic software development.
+  Everything a developer needs to get the best out of LLMs and coding agents.
+url: ""
+baseurl: ""
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+plugins:
+  - jekyll-seo-tag
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+
+collections_dir: .
+
+permalink: pretty

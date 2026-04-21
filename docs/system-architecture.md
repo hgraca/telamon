@@ -1,4 +1,9 @@
-# System Architecture
+---
+layout: page
+title: System Architecture
+description: How Telamon's tools connect and what each provides at each stage of a session.
+nav_section: docs
+---
 
 How Telamon's tools connect and what each provides at each stage of a session.
 

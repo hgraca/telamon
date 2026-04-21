@@ -1,4 +1,9 @@
-# Make Targets
+---
+layout: page
+title: Make Targets
+description: All available make commands.
+nav_section: docs
+---
 
 | Target                  | Description                                                     |
 |-------------------------|-----------------------------------------------------------------|

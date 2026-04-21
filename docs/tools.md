@@ -1,4 +1,9 @@
-# Tools
+---
+layout: page
+title: Tools
+description: Detailed descriptions of every tool Telamon installs and manages.
+nav_section: docs
+---
 
 Detailed descriptions of every tool Telamon installs and manages.
 

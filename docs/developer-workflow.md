@@ -1,4 +1,9 @@
-# Developer Workflow
+---
+layout: page
+title: Developer Workflow
+description: Step-by-step guide to using Telamon day-to-day.
+nav_section: docs
+---
 
 Step-by-step guide to using Telamon day-to-day.
 

@@ -1,4 +1,9 @@
-# Repository Layout
+---
+layout: page
+title: Repository Layout
+description: Full directory structure explained.
+nav_section: docs
+---
 
 ```
 bin/
