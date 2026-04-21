@@ -34,7 +34,7 @@ tools for software development. It provides:
 |---|---|
 | **Linux** (Ubuntu/Debian/Mint) or **macOS** | Apple Silicon and Intel both supported |
 
-> `make up` installs **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Obsidian, Ogham, Graphify, cass, RTK, QMD, Codebase Index, and Caveman.
+> `make up` installs **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Obsidian, Ogham, Graphify, cass, RTK, QMD, Codebase Index, Caveman, and the global `telamon` CLI.
 > The only manual step: after Obsidian is installed, the installer pauses and walks you through enabling the *Local REST API* plugin.
 
 ```bash
@@ -43,13 +43,16 @@ git clone <this-repo> ~/telamon
 cd ~/telamon
 make up
 
-# 2. Initialise a project (one-time per project)
-make init PROJ=path/to/your-project
+# 2. Initialise a project (one-time per project — from anywhere)
+telamon init path/to/your-project
+# or: cd path/to/your-project && telamon init
 
 # 3. Start working — open the project in opencode
 cd path/to/your-project
 opencode
 ```
+
+After `make up`, the `telamon` command is available globally — see [Commands](docs/make-targets.md) for the full list.
 
 See [Developer Workflow](docs/developer-workflow.md) for the full day-to-day guide.
 
@@ -63,7 +66,7 @@ See [Developer Workflow](docs/developer-workflow.md) for the full day-to-day gui
 | [Developer Workflow](docs/developer-workflow.md) | Day-to-day usage: install, init, session lifecycle, saving knowledge, wrap-up |
 | [System Architecture](docs/system-architecture.md) | System flow diagram and what each tool provides at each stage |
 | [Configuration](docs/configuration.md) | Prerequisites, environment variables, Docker services |
-| [Make Targets](docs/make-targets.md) | All available `make` commands |
+| [Commands](docs/make-targets.md) | `telamon` CLI commands and `make` targets |
 | [Repository Layout](docs/repository-layout.md) | Full directory structure explained |
 
 ## Tools

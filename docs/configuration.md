@@ -20,6 +20,7 @@ nav_section: docs
 | Python (uv) | Via Homebrew/Linuxbrew |
 | [opencode](https://opencode.ai) | `npm install -g opencode-ai` |
 | [Obsidian](https://obsidian.md) | `.deb` (Linux) / `brew install --cask` (macOS) |
+| `telamon` CLI | Symlink at `~/.local/bin/telamon` + desktop menu entry |
 | Ogham, Graphify, cass, RTK, QMD, Codebase Index, Caveman | Various (see [Tools](tools.md)) |
 
 > **One manual step:** After Obsidian is installed, the installer pauses and walks you through enabling the *Local REST API* community plugin and copying the API key.

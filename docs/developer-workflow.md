@@ -22,18 +22,28 @@ make up
 2. Install prerequisite host tools (Homebrew, Docker) — `--pre-docker` phase
 3. Start Docker services (`postgres`, `ollama`)
 4. Install remaining tools (opencode, Ogham, Graphify, cass, RTK, codebase-index, Obsidian MCP) — `--post-docker` phase
+5. Install the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
 
 If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads it silently (no prompts for project name/profile). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
 
 > The installer is **idempotent** — safe to re-run at any time. Already-installed tools are skipped.
+
+After this initial `make up`, you can use the `telamon` CLI from anywhere on the system.
 
 ---
 
 ## 2. One-time per project: Initialise
 
 ```bash
-make init PROJ=path/to/your-project
+# From anywhere:
+telamon init path/to/your-project
+
+# Or cd into the project first:
+cd path/to/your-project
+telamon init
 ```
+
+> **Equivalent make target:** `make init PROJ=path/to/your-project` (from the Telamon directory)
 
 This will:
 - Create the full Obsidian vault at `storage/obsidian/<project-name>/` with:
@@ -55,15 +65,14 @@ After this, when `opencode` starts in the project, it automatically loads Telamo
 ## 3. Every day: Start Telamon
 
 ```bash
-cd ~/telamon
-make up       # if not already running
+telamon up        # from anywhere — if not already running
 ```
 
 Check status at any time:
 
 ```bash
-make status    # quick installation status
-make doctor    # comprehensive health check (connectivity, secrets, config)
+telamon status    # quick installation status
+telamon doctor    # comprehensive health check (connectivity, secrets, config)
 ```
 
 ---
