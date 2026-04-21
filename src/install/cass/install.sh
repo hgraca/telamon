@@ -47,16 +47,29 @@ if [[ -d "${HOME}/.agents/skills/cass" ]]; then
   log "Removed ~/.agents/skills/cass/"
 fi
 
-step "Building initial cass index (this may take a few minutes)..."
+# Index strategy:
+#   - First install (no DB): block and build synchronously — cass is unusable without it
+#   - DB exists but unhealthy: rebuild in background — scheduled job will also catch it
+#   - DB exists and healthy: skip — the every-30-min scheduled job keeps it fresh
+_cass_db="${HOME}/.local/share/coding-agent-search/agent_search.db"
 if command -v cass &>/dev/null; then
-  _cass_out=$(CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --json 2>&1)
-  _cass_exit=$?
-  if [[ $_cass_exit -eq 0 ]]; then
-    log "cass index built"
-  elif echo "$_cass_out" | grep -q '"kind":"index_busy"\|"kind": "index_busy"'; then
-    skip "cass index already in progress (scheduled job) — skipping redundant build"
+  if [[ ! -f "${_cass_db}" ]]; then
+    step "Building initial cass index (first install — this may take a few minutes)..."
+    _cass_out=$(CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --json 2>&1)
+    _cass_exit=$?
+    if [[ $_cass_exit -eq 0 ]]; then
+      log "cass index built"
+    elif echo "$_cass_out" | grep -q '"kind":"index_busy"\|"kind": "index_busy"'; then
+      skip "cass index already in progress (scheduled job) — skipping redundant build"
+    else
+      warn "cass index failed — retry with 'cass index' later"
+    fi
+  elif ! CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass health --json >/dev/null 2>&1; then
+    step "cass index unhealthy — rebuilding in background (non-blocking)..."
+    CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --json >/dev/null 2>&1 &
+    log "cass index running in background (PID $!)"
   else
-    warn "cass index failed — retry with 'cass index' later"
+    skip "cass index (healthy — scheduled job maintains freshness)"
   fi
 else
   warn "cass not found — skipping index"
