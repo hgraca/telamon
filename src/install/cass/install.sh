@@ -55,7 +55,7 @@ _cass_db="${HOME}/.local/share/coding-agent-search/agent_search.db"
 if command -v cass &>/dev/null; then
   if [[ ! -f "${_cass_db}" ]]; then
     step "Building initial cass index (first install — this may take a few minutes)..."
-    _cass_out=$(CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --json 2>&1)
+    _cass_out=$(CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --progress --json 2>&1)
     _cass_exit=$?
     if [[ $_cass_exit -eq 0 ]]; then
       log "cass index built"
@@ -66,7 +66,7 @@ if command -v cass &>/dev/null; then
     fi
   elif ! CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass health --json >/dev/null 2>&1; then
     step "cass index unhealthy — rebuilding in background (non-blocking)..."
-    CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --json >/dev/null 2>&1 &
+    CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --progress --json >/dev/null 2>&1 &
     log "cass index running in background (PID $!)"
   else
     skip "cass index (healthy — scheduled job maintains freshness)"
