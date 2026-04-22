@@ -37,6 +37,7 @@ When a class, method, or interface is deleted or renamed:
 When constructor or factory signatures change:
 - Verify all container bindings, registrations, and factories supply the new parameters.
 - Verify variadic/collection parameters are wired, not silently defaulting to empty.
+- Verify new bindings are registered in the component's own ServiceProvider, not in the root AppServiceProvider (unless the binding is cross-cutting). Component encapsulation requires each bounded context to own its wiring.
 
 ### 4. Import Hygiene
 
@@ -61,6 +62,7 @@ For every added or modified test method:
 - If assertions were removed or narrowed (e.g. full-row content comparison reduced to header-only), flag it as a WARNING unless the test's name was also updated to reflect the reduced scope.
 - A test named `amounts_are_converted_using_billing_rate` that no longer asserts anything about amounts or conversion is a BLOCKER — the test name makes a promise the body must keep.
 - Fixture files (`*.csv`, `*.json`, `*.xml`, snapshot files) that are updated in the changeset but are no longer loaded by any test are dead fixtures — flag as WARNING and require deletion or re-use.
+- Verify test classes don't import traits already provided by the base TestCase (e.g. `RefreshDatabase` when base uses `LazilyRefreshDatabase`). Redundant traits can cause subtle behavior changes.
 
 ### 7. Static Analysis Baseline Hygiene
 
@@ -100,6 +102,28 @@ When a `@phpstan-ignore` or `@phpstan-ignore-next-line` comment is added or alre
 - Under `strict_types=1`, passing a `string` where `int` is declared raises a `TypeError` at runtime. Eloquent commonly returns numeric strings for integer columns when the attribute lacks a cast. A callback typed as `fn (int $id)` applied to a plucked integer column is unsafe without a cast — flag as WARNING and suggest `fn (string|int $id): T => new T((int) $id)`.
 - An `@phpstan-ignore` that hides a real type mismatch rather than a PHPStan false positive is a WARNING, not an acceptable suppression.
 
+### 13. Primitive Obsession in Commands & Boundaries
+
+When a command, query, or controller is added or modified:
+- Verify constructor parameters use Value Objects when one exists in the domain (e.g. `UserId` not `int`, `HotelId` not `int`, `Mailbox[]` not `string[]`).
+- Verify controller `authorize()` calls pass VOs to policies, not raw primitives, when the VO is already constructed in the controller.
+- Verify policy methods accept the corresponding VO type, not the primitive.
+- A command accepting a raw primitive when a domain VO exists for that concept is a WARNING.
+
+### 14. Hardcoded Configuration Values
+
+When application or domain layer handlers are added or modified:
+- Flag hardcoded URLs, hostnames, ports, API keys, or environment-dependent strings. These should be injected via constructor + config binding (`giveConfig` or similar).
+- Hardcoded values that vary per environment (dev/staging/prod) are a WARNING — they break deployment flexibility and testability.
+- Pure domain constants (e.g. mathematical formulas, enum values) are not configuration and should remain inline or as class constants.
+
+### 15. Magic Values — Use Class Constants
+
+When a handler, service, or domain class uses literal numbers or strings with domain meaning:
+- Flag inline magic numbers (e.g. TTL durations, retry counts, thresholds) and magic strings (e.g. email subjects, status labels) that should be class constants.
+- Class constants make intent explicit, enable reuse, and simplify testing.
+- A magic value used in more than one place is a WARNING. A single-use magic value with non-obvious meaning is an INFO.
+
 ## Review Report
 
 Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
@@ -128,6 +152,9 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Utility Method Abstraction Bypass** — Sibling method state machine not driven into inconsistent state?
 > - **N+1 Query Regression** — Bulk-loads not undermined by remaining per-row lazy loads in the same pipeline (including in called helper methods)?
 > - **`@phpstan-ignore` and Type-Masking** — Suppressions masking real type mismatches (e.g. `string` vs `int` under `strict_types=1`) rather than PHPStan false positives?
+> - **Primitive Obsession** — Commands, queries, and controller authorize calls use VOs when domain VO exists? Policies accept VOs not primitives?
+> - **Hardcoded Configuration** — No hardcoded URLs, hostnames, or environment-dependent values in application/domain handlers?
+> - **Magic Values** — Domain-meaningful literals extracted to class constants?
 > - **Code Style** — Symbols imported? No FQCNs inline? Explicit guards? Sealed/final convention?
 > - **Role Compliance** — All code changes made by the Developer?
 > - **Documentation** — Manual config steps documented? Obsolete steps removed?
