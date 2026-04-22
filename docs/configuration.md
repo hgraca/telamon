@@ -63,6 +63,17 @@ caveman_enabled = true
 | `rtk_enabled` | `true` | Enable [RTK](tools.md#rtk--token-compression-proxy) output compression. Set to `false` to run all bash commands without RTK rewriting. |
 | `caveman_enabled` | `true` | Enable [Caveman](tools.md#caveman--token-efficient-communication-mode) terse communication mode. Set to `false` for normal verbose responses. |
 
+### Auto-detection
+
+When `rtk_enabled` or `caveman_enabled` is **not set** in `telamon.ini`, Telamon auto-detects the LLM provider and disables both features for **GitHub Copilot** models (where token savings don't reduce cost). Explicit settings always override auto-detection.
+
+| `telamon.ini` value | LLM provider | Result |
+|---|---|---|
+| `true` (explicit) | any | **enabled** |
+| `false` (explicit) | any | **disabled** |
+| not set | `github-copilot/*` | **disabled** (auto) |
+| not set | anything else | **enabled** (default) |
+
 Changes take effect on the next opencode session — no restart required for RTK (read at plugin init) or Caveman (read at bootstrap).
 
 ---
