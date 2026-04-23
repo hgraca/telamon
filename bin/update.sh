@@ -214,6 +214,48 @@ while IFS= read -r _ppath_file; do
   fi
 done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 
+# ── Codebase-index config migration ───────────────────────────────────────────
+header "Codebase-index config migration"
+
+while IFS= read -r _ppath_file; do
+  [[ -f "${_ppath_file}" ]] || continue
+  _project_dir="$(cat "${_ppath_file}")"
+  _project_name="$(basename "$(dirname "${_ppath_file}")")"
+
+  if [[ ! -d "${_project_dir}" ]]; then
+    skip "${_project_name}: project directory not found (${_project_dir})"
+    continue
+  fi
+
+  _index_config="${_project_dir}/.opencode/codebase-index.json"
+
+  if [[ ! -f "${_index_config}" ]]; then
+    skip "${_project_name}: no codebase-index config"
+    continue
+  fi
+
+  if grep -q '"embeddingProvider": "ollama"' "${_index_config}"; then
+    python3 -c "
+import json, sys
+with open(sys.argv[1], 'r') as f:
+    cfg = json.load(f)
+cfg['embeddingProvider'] = 'custom'
+cfg['customProvider'] = {
+    'baseUrl': 'http://127.0.0.1:17434/v1',
+    'model': 'nomic-embed-text',
+    'dimensions': 768,
+    'apiKey': 'ollama'
+}
+with open(sys.argv[1], 'w') as f:
+    json.dump(cfg, f, indent=2)
+    f.write('\n')
+" "${_index_config}"
+    log "${_project_name}: migrated codebase-index from ollama to custom provider (port 17434)"
+  else
+    info "${_project_name}: codebase-index config up to date"
+  fi
+done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
+
 # ── Per-app updates ────────────────────────────────────────────────────────────
 # Each src/install/<app>/update.sh exits:
 #   0 — success
