@@ -7,9 +7,9 @@ description: "Recall context at session start. Switch Ogham profile, search past
 
 Run at the beginning of every session, regardless of workflow. Even standalone tasks must start here.
 
-## 1. Switch memory profile
+## 1. Resolve memory profile
 
-Use the `telamon.ogham` skill to switch to the project profile.
+Use the `telamon.ogham` skill (Profile Resolution) to determine the profile name for this project. Cache it for the session — all subsequent Ogham calls must pass `--profile <resolved-profile>`.
 
 ## 2. Recall past context
 
@@ -49,4 +49,4 @@ When you need information, use the right tool for the question type:
 
 ## Switching projects
 
-Use the `telamon.ogham` skill to switch profiles, then re-run steps 2-4 for the new project context.
+Use the `telamon.ogham` skill (Profile Resolution) to resolve the new project's profile, then re-run steps 2-4 for the new project context.

@@ -15,46 +15,46 @@ Persistent vector memory for decisions, patterns, bugs, lessons, and checkpoints
 - Searching past knowledge by meaning
 - Recalling checkpoints after context compaction
 
-## 1. Profile Management
+## 1. Profile Resolution
 
-Switch profile at session start (one profile per project):
+Resolve the profile name once per session and use it on every ogham call.
 
-```
-ogham use <project-name>
-```
+**Resolution order** (first match wins):
+1. Read `.ai/telamon/telamon.ini` — if `project_name` key exists, use its value.
+2. Otherwise, use the lowercase basename of the project root directory (e.g., `/home/user/dev/k8s-gete` → `k8s-gete`).
 
-When switching projects mid-session:
+Cache the resolved profile for the rest of the session.
 
-```
-ogham use <new-project-name>
-```
+**IMPORTANT — always pass `--profile`**: Every `ogham store` and `ogham search` call MUST include `--profile <resolved-profile>`. This prevents cross-project contamination when multiple sessions run concurrently. Never rely on `ogham use` alone — it sets global state that other sessions can overwrite.
+
+You MAY still run `ogham use <profile>` at session start for convenience (e.g., so `ogham list` works interactively), but it is NOT a substitute for `--profile` on store/search calls.
 
 ## 2. Searching
 
 Search by meaning (semantic + keyword hybrid):
 
 ```
-ogham search "<keywords or question>"
+ogham search --profile <profile> "<keywords or question>"
 ```
 
 Common searches:
-- Session start: `ogham search "<current task or recent topic>"`
-- After compaction: `ogham search "checkpoint"`
-- Past decisions: `ogham search "decision <topic>"`
+- Session start: `ogham search --profile <profile> "<current task or recent topic>"`
+- After compaction: `ogham search --profile <profile> "checkpoint"`
+- Past decisions: `ogham search --profile <profile> "decision <topic>"`
 
 ## 3. Storing
 
 Store knowledge the moment it arises. One fact per call -- do not bundle.
 
-| What happened                        | Command                                                      |
-|--------------------------------------|--------------------------------------------------------------|
-| Architectural or product decision    | `ogham store "decision: X over Y because Z"`                 |
-| Human stakeholder answers a question | `ogham store "decision: <Q> -> <A>"`                         |
-| New rule given by stakeholder        | `ogham store "rule: <rule>"`                                 |
-| Bug fixed (non-trivial)              | `ogham store "bug: <desc and fix>"`                          |
-| Pattern established                  | `ogham store "pattern: <desc>"`                              |
-| Lesson learned                       | `ogham store "lesson: <one-line summary>"`                   |
-| Checkpoint before compaction         | `ogham store "checkpoint: <task> -- done: <X> -- next: <Y>"` |
+| What happened                        | Command                                                                         |
+|--------------------------------------|---------------------------------------------------------------------------------|
+| Architectural or product decision    | `ogham store --profile <profile> "decision: X over Y because Z"`                |
+| Human stakeholder answers a question | `ogham store --profile <profile> "decision: <Q> -> <A>"`                        |
+| New rule given by stakeholder        | `ogham store --profile <profile> "rule: <rule>"`                                |
+| Bug fixed (non-trivial)              | `ogham store --profile <profile> "bug: <desc and fix>"`                         |
+| Pattern established                  | `ogham store --profile <profile> "pattern: <desc>"`                             |
+| Lesson learned                       | `ogham store --profile <profile> "lesson: <one-line summary>"`                  |
+| Checkpoint before compaction         | `ogham store --profile <profile> "checkpoint: <task> -- done: <X> -- next: <Y>"` |
 
 ## 4. What NOT to Store
 
