@@ -55,7 +55,7 @@ _derive_path() {
 # Prints each configured URL on its own line (empty output if none).
 _read_submodules() {
   local raw
-  raw="$(grep -s '^TELAMON_SUBMODULES=' "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"'")"
+  raw="$(grep -s '^TELAMON_SUBMODULES=' "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"'" || true)"
   [[ -z "${raw}" ]] && return 0
   # split on commas, print one per line, skip blanks
   IFS=',' read -ra _urls <<< "${raw}"
