@@ -16,6 +16,7 @@ graphify-out/
 AGENTS.md
 CLAUDE.md
 mcp.json
+repomix.config.json
 ###< ai ###
 
 # ── promptfoo eval cache & deps ───────────────────────────────────────────────
