@@ -127,6 +127,42 @@ def open_db(db_path: Path) -> sqlite3.Connection:
     return conn
 
 
+def get_all_session_ids(db_path: Path, project_dir: str) -> set[str]:
+    """Get all session IDs for the given project directory."""
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        rows = conn.execute(
+            "SELECT id FROM session WHERE directory = ?",
+            (project_dir,),
+        ).fetchall()
+        return {r[0] for r in rows}
+    finally:
+        conn.close()
+
+
+def delete_sessions(db_path: Path, session_ids: set[str]) -> None:
+    """Delete sessions and their messages/parts from the opencode database."""
+    if not session_ids:
+        return
+    conn = sqlite3.connect(str(db_path))
+    try:
+        for sid in session_ids:
+            try:
+                conn.execute(
+                    "DELETE FROM part WHERE message_id IN "
+                    "(SELECT id FROM message WHERE session_id = ?)",
+                    (sid,),
+                )
+                conn.execute("DELETE FROM message WHERE session_id = ?", (sid,))
+                conn.execute("DELETE FROM session WHERE id = ?", (sid,))
+            except sqlite3.Error as e:
+                warn(f"Failed to delete recovery session {sid}: {e}")
+        conn.commit()
+        log(f"  Deleted {len(session_ids)} recovery session(s) from opencode DB")
+    finally:
+        conn.close()
+
+
 def discover_sessions(conn: sqlite3.Connection, project_dir: str) -> list[dict[str, Any]]:
     """Return all sessions for the given project directory, sorted chronologically."""
     rows = conn.execute(
@@ -580,6 +616,7 @@ def process_batches(
     profile: str,
     batch_size: int,
     dry_run: bool,
+    db_path: Path,
 ) -> dict[str, int]:
     """Process all sessions in batches. Returns totals dict."""
     totals = {"decisions": 0, "patterns": 0, "gotchas": 0, "lessons": 0}
@@ -601,7 +638,12 @@ def process_batches(
 
         prompt = build_batch_prompt(batch, conn)
 
+        pre_call_ids = get_all_session_ids(db_path, str(project_dir))
         raw_response = call_llm(opencode_bin, model, str(project_dir), prompt)
+        post_call_ids = get_all_session_ids(db_path, str(project_dir))
+        new_session_ids = post_call_ids - pre_call_ids
+        if new_session_ids:
+            delete_sessions(db_path, new_session_ids)
         if raw_response is None:
             warn(f"  Batch {batch_idx + 1} LLM call failed — skipping")
             continue
@@ -749,6 +791,7 @@ def main() -> None:
         profile=profile,
         batch_size=args.batch_size,
         dry_run=args.dry_run,
+        db_path=args.db,
     )
 
     # ── Step 7: Update tracking file ─────────────────────────────────────────
