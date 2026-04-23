@@ -41,20 +41,20 @@ export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME
 
 header "Telamon purge — ${PROJECT_NAME}"
 
-# ── Step 1: reset project wiring ─────────────────────────────────────────────
-step "Running reset first..."
-bash "${TELAMON_ROOT}/bin/reset.sh" "${PROJ}"
-
-# ── Step 2: remove vault data ─────────────────────────────────────────────────
-header "Removing storage data — ${PROJECT_NAME}"
-
-# Read memory_owner from telamon.ini (may have been removed by reset, so check first)
+# Read memory_owner from telamon.ini BEFORE reset runs, because reset.sh deletes telamon.ini
 _MEMORY_OWNER="telamon"
 _INI_FILE="${PROJ}/.ai/telamon/telamon.ini"
 if [[ -f "${_INI_FILE}" ]]; then
   _val="$(config.read_ini "${_INI_FILE}" "memory_owner" 2>/dev/null || true)"
   [[ -n "${_val}" ]] && _MEMORY_OWNER="${_val}"
 fi
+
+# ── Step 1: reset project wiring ─────────────────────────────────────────────
+step "Running reset first..."
+bash "${TELAMON_ROOT}/bin/reset.sh" "${PROJ}"
+
+# ── Step 2: remove vault data ─────────────────────────────────────────────────
+header "Removing storage data — ${PROJECT_NAME}"
 
 OBSIDIAN_DIR="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
 if [[ "${_MEMORY_OWNER}" == "project" ]]; then
