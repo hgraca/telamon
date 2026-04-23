@@ -115,8 +115,21 @@ else
   remove_symlink "${PROJ}/.ai/telamon/memory" ".ai/telamon/memory"
 fi
 
-remove_symlink "${PROJ}/.ai/telamon/secrets" ".ai/telamon/secrets"
 remove_symlink "${PROJ}/.ai/telamon/scripts" ".ai/telamon/scripts"
+
+# Handle both old-style directory symlink and new-style real directory
+if [[ -L "${PROJ}/.ai/telamon/secrets" ]]; then
+  # Old-style: directory symlink
+  rm "${PROJ}/.ai/telamon/secrets"
+  log "Removed symlink: .ai/telamon/secrets"
+elif [[ -d "${PROJ}/.ai/telamon/secrets" ]]; then
+  # New-style: real directory with individual secret symlinks
+  rm -rf "${PROJ}/.ai/telamon/secrets"
+  log "Removed directory: .ai/telamon/secrets"
+else
+  skip ".ai/telamon/secrets (not found)"
+fi
+
 remove_file    "${PROJ}/.ai/telamon/telamon.ini" ".ai/telamon/telamon.ini"
 
 # ── 3. opencode.jsonc ─────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@
 # Initialise a project to use Telamon.
 #
 # Usage:
-#   bin/init.sh [--memory-owner=telamon|project] <path/to/project>
+#   bin/init.sh [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] <path/to/project>
 #
 # What it does (delegated to per-app init scripts):
 #   obsidian      — vault scaffold + .ai/telamon/memory symlink
@@ -26,12 +26,16 @@ INSTALL_PATH="${TELAMON_ROOT}/src/install"
 
 # ── Flag parsing ──────────────────────────────────────────────────────────────
 MEMORY_OWNER_FLAG=""
+OGHAM_DB_FLAG=""
 POSITIONAL_ARGS=()
 
 for _arg in "$@"; do
   case "${_arg}" in
     --memory-owner=*)
       MEMORY_OWNER_FLAG="${_arg#--memory-owner=}"
+      ;;
+    --ogham-db=*)
+      OGHAM_DB_FLAG="${_arg#--ogham-db=}"
       ;;
     *)
       POSITIONAL_ARGS+=("${_arg}")
@@ -42,7 +46,7 @@ done
 # ── Argument ──────────────────────────────────────────────────────────────────
 PROJ="${POSITIONAL_ARGS[0]:-}"
 if [[ -z "${PROJ}" ]]; then
-  echo "Usage: $0 [--memory-owner=telamon|project] <path/to/project>" >&2
+  echo "Usage: $0 [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] <path/to/project>" >&2
   exit 1
 fi
 
@@ -96,6 +100,57 @@ else
 fi
 
 export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME MEMORY_OWNER
+
+# ── Resolve OGHAM_DB ──────────────────────────────────────────────────────────
+# Priority: CLI flag > existing telamon.ini > interactive prompt > default (telamon)
+OGHAM_DB=""
+OGHAM_DB_URL=""
+
+if [[ -n "${OGHAM_DB_FLAG}" ]]; then
+  if [[ "${OGHAM_DB_FLAG}" == "telamon" ]]; then
+    OGHAM_DB="telamon"
+  else
+    # Treat any other value as a PostgreSQL URL (external mode)
+    OGHAM_DB="external"
+    OGHAM_DB_URL="${OGHAM_DB_FLAG}"
+  fi
+else
+  # Check existing telamon.ini (re-init scenario)
+  _ini_file="${PROJ}/.ai/telamon/telamon.ini"
+  if [[ -f "${_ini_file}" ]]; then
+    _existing_ogham="$(config.read_ini "${_ini_file}" "ogham_db" 2>/dev/null || true)"
+    if [[ -n "${_existing_ogham}" ]]; then
+      OGHAM_DB="${_existing_ogham}"
+    fi
+  fi
+
+  # Interactive prompt if still unset and stdin is a TTY
+  if [[ -z "${OGHAM_DB}" ]]; then
+    if [[ -t 0 ]]; then
+      echo
+      echo "? Ogham database for ${PROJECT_NAME}:"
+      echo "  1) telamon — local Postgres managed by Telamon (default)"
+      echo "  2) external — provide a PostgreSQL connection URL"
+      echo
+      printf "? Your choice [1-2]: "
+      read -r _ogham_choice
+      case "${_ogham_choice}" in
+        2)
+          OGHAM_DB="external"
+          printf "? PostgreSQL URL: "
+          read -r OGHAM_DB_URL
+          ;;
+        *)
+          OGHAM_DB="telamon"
+          ;;
+      esac
+    else
+      OGHAM_DB="telamon"
+    fi
+  fi
+fi
+
+export OGHAM_DB OGHAM_DB_URL
 
 header "Telamon init — ${PROJECT_NAME}"
 

@@ -80,6 +80,15 @@ fi
 TELAMON_INI="${PROJ}/.ai/telamon/telamon.ini"
 if [[ -f "${TELAMON_INI}" ]]; then
   skip ".ai/telamon/telamon.ini (already exists)"
+  # Ensure new keys are present (migration for older ini files)
+  if ! grep -q "^[[:space:]]*memory_owner[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null; then
+    printf '\nmemory_owner = %s\n' "${MEMORY_OWNER:-telamon}" >> "${TELAMON_INI}"
+    log "Added missing memory_owner to .ai/telamon/telamon.ini"
+  fi
+  if ! grep -q "^[[:space:]]*ogham_db[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null; then
+    printf 'ogham_db = %s\n' "${OGHAM_DB:-telamon}" >> "${TELAMON_INI}"
+    log "Added missing ogham_db to .ai/telamon/telamon.ini"
+  fi
 else
   mkdir -p "${PROJ}/.ai/telamon"
   cat > "${TELAMON_INI}" <<INI
@@ -89,21 +98,48 @@ rtk_enabled = false
 caveman_enabled = false
 medium_model =
 memory_owner = ${MEMORY_OWNER:-telamon}
+ogham_db = ${OGHAM_DB:-telamon}
 INI
   log "Written .ai/telamon/telamon.ini"
 fi
 
-# ── 6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets ─────────────────
+# ── 6. Create .ai/telamon/secrets/ real directory with individual symlinks ────
 # opencode resolves {file:.ai/telamon/secrets/<name>} relative to the project root
-# where opencode.jsonc lives. This symlink makes Telamon secrets visible there.
-TELAMON_SECRETS_DIR="${PROJ}/.ai/telamon"
-mkdir -p "${TELAMON_SECRETS_DIR}"
-SECRETS_LINK="${TELAMON_SECRETS_DIR}/secrets"
-if [[ -L "${SECRETS_LINK}" ]]; then
-  skip ".ai/telamon/secrets symlink (already exists)"
+# where opencode.jsonc lives. Individual symlinks make Telamon secrets visible there,
+# while allowing per-project overrides (e.g. ogham-database-url for external DB).
+SECRETS_DIR="${PROJ}/.ai/telamon/secrets"
+
+# Handle migration: if secrets is an old-style directory symlink, replace it
+if [[ -L "${SECRETS_DIR}" ]]; then
+  rm "${SECRETS_DIR}"
+  mkdir -p "${SECRETS_DIR}"
+  log "Migrated .ai/telamon/secrets from directory symlink to per-project directory"
 else
-  ln -s "${TELAMON_ROOT}/storage/secrets" "${SECRETS_LINK}"
-  log "Symlinked .ai/telamon/secrets → ${TELAMON_ROOT}/storage/secrets"
+  mkdir -p "${SECRETS_DIR}"
+fi
+
+# Symlink each global secret into the per-project directory
+for _secret_file in "${TELAMON_ROOT}/storage/secrets"/*; do
+  [[ -f "${_secret_file}" ]] || continue
+  _secret_name="$(basename "${_secret_file}")"
+  _secret_link="${SECRETS_DIR}/${_secret_name}"
+
+  if [[ -e "${_secret_link}" || -L "${_secret_link}" ]]; then
+    skip "secret: ${_secret_name} (already exists)"
+  else
+    ln -s "${_secret_file}" "${_secret_link}"
+    log "Linked secret: ${_secret_name}"
+  fi
+done
+
+# ── 6b. Handle ogham-database-url based on OGHAM_DB mode ─────────────────────
+if [[ "${OGHAM_DB:-telamon}" == "external" && -n "${OGHAM_DB_URL:-}" ]]; then
+  _ogham_secret="${SECRETS_DIR}/ogham-database-url"
+  # Remove existing symlink if present
+  [[ -L "${_ogham_secret}" ]] && rm "${_ogham_secret}"
+  printf '%s' "${OGHAM_DB_URL}" > "${_ogham_secret}"
+  chmod 600 "${_ogham_secret}"
+  log "Wrote project-specific ogham-database-url (external DB)"
 fi
 
 # ── 7. Symlink .ai/telamon/scripts → <telamon-root>/scripts ─────────────────────

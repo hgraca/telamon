@@ -98,6 +98,10 @@ If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory
   - If the flag is omitted and the project is already initialised, the existing `memory_owner` value from `telamon.ini` is used. For a fresh project on an interactive terminal, you are prompted to choose.
+- Control the Ogham database with the `--ogham-db` flag:
+  - `telamon init --ogham-db=telamon path/to/project` — use local Postgres managed by Telamon (default)
+  - `telamon init --ogham-db=postgresql://user:pass@host:5432/db path/to/project` — use an external PostgreSQL database
+  - If the flag is omitted and the project is already initialised, the existing `ogham_db` value from `telamon.ini` is used. For a fresh project on an interactive terminal, you are prompted to choose.
 - Symlinks agent skills into `<project>/.opencode/skills/telamon`
 - Writes `<project>/.ai/telamon/telamon.ini` with the project name
 - Installs the Graphify git hook and OpenCode plugin

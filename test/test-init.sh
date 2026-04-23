@@ -170,9 +170,12 @@ echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 # ── Read memory_owner from telamon.ini ───────────────────────────────────────
 TELAMON_INI="${PROJ}/.ai/telamon/telamon.ini"
 MEMORY_OWNER="telamon"
+OGHAM_DB="telamon"
 if [[ -f "${TELAMON_INI}" ]]; then
   _mo_val="$(grep -E "^[[:space:]]*memory_owner[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)"
   [[ -n "${_mo_val}" ]] && MEMORY_OWNER="${_mo_val}"
+  _ogham_val="$(grep -E "^[[:space:]]*ogham_db[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)"
+  [[ -n "${_ogham_val}" ]] && OGHAM_DB="${_ogham_val}"
 fi
 
 VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/memory-management/_tmpl"
@@ -262,11 +265,50 @@ assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "caveman_enabled = false"
   ".ai/telamon/telamon.ini has caveman_enabled = false"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "memory_owner = " \
   ".ai/telamon/telamon.ini has memory_owner key"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "ogham_db = " \
+  ".ai/telamon/telamon.ini has ogham_db key"
 
-# ── 5. .ai/telamon/secrets symlink ────────────────────────────────────────────────
+# ── 5. .ai/telamon/secrets directory ─────────────────────────────────────────
 _section "5. .ai/telamon/secrets"
-assert_symlink "${PROJ}/.ai/telamon/secrets" "storage/secrets" \
-  ".ai/telamon/secrets → <telamon-root>/storage/secrets"
+SECRETS_DIR="${PROJ}/.ai/telamon/secrets"
+
+# Must be a real directory, not a symlink
+if [[ -d "${SECRETS_DIR}" && ! -L "${SECRETS_DIR}" ]]; then
+  _pass ".ai/telamon/secrets is a real directory (not a symlink)"
+else
+  _fail ".ai/telamon/secrets — expected a real directory, got: $(ls -lad "${SECRETS_DIR}" 2>/dev/null || echo 'missing')"
+fi
+
+# Each global secret must have a symlink in the per-project directory
+_GLOBAL_SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
+for _sf in "${_GLOBAL_SECRETS_DIR}"/*; do
+  [[ -f "${_sf}" ]] || continue
+  _sn="$(basename "${_sf}")"
+  _sl="${SECRETS_DIR}/${_sn}"
+  if [[ "${_sn}" == "ogham-database-url" ]]; then
+    # Handled separately below based on ogham_db mode
+    continue
+  fi
+  if [[ -L "${_sl}" ]]; then
+    _pass "secret symlink: ${_sn}"
+  else
+    _fail "secret symlink: ${_sn} — expected a symlink at ${_sl}"
+  fi
+done
+
+# ogham-database-url: mode-dependent assertion
+if [[ "${OGHAM_DB}" == "external" ]]; then
+  # External mode: must be a real file (not a symlink)
+  if [[ -f "${SECRETS_DIR}/ogham-database-url" && ! -L "${SECRETS_DIR}/ogham-database-url" ]]; then
+    _pass "ogham-database-url is a real file (external DB mode)"
+  else
+    _fail "ogham-database-url — expected a real file in external mode, got: $(ls -lad "${SECRETS_DIR}/ogham-database-url" 2>/dev/null || echo 'missing')"
+  fi
+else
+  # Telamon mode: must be a symlink to storage/secrets/ogham-database-url
+  assert_symlink "${SECRETS_DIR}/ogham-database-url" "storage/secrets/ogham-database-url" \
+    "ogham-database-url → storage/secrets/ogham-database-url (telamon mode)"
+fi
 
 # ── 5b. memory symlink — mode-dependent ──────────────────────────────────────
 _section "5b. .ai/telamon/memory (${MEMORY_OWNER} mode)"
