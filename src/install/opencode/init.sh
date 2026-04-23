@@ -85,8 +85,8 @@ else
   cat > "${TELAMON_INI}" <<INI
 [telamon]
 project_name = ${PROJECT_NAME}
-rtk_enabled = true
-caveman_enabled = true
+rtk_enabled = false
+caveman_enabled = false
 INI
   log "Written .ai/telamon/telamon.ini"
 fi

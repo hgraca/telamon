@@ -23,17 +23,17 @@ import { RtkOpenCodePlugin } from "./rtk.ts"
 
 export const RtkDedupePlugin: Plugin = async (ctx) => {
   // Read telamon.ini and check rtk_enabled flag.
-  // Defaults to enabled if file is missing or key is absent.
-  let rtkEnabled = true
+  // Defaults to disabled if file is missing or key is absent.
+  let rtkEnabled = false
   try {
     const iniPath = join(process.cwd(), ".ai/telamon/telamon.ini")
     const iniContent = readFileSync(iniPath, "utf8")
     const match = iniContent.match(/^\s*rtk_enabled\s*=\s*(\S+)/m)
-    if (match && match[1].toLowerCase() === "false") {
-      rtkEnabled = false
+    if (match && match[1].toLowerCase() === "true") {
+      rtkEnabled = true
     }
   } catch {
-    // File missing — default to enabled
+    // File missing — default to disabled
   }
 
   if (!rtkEnabled) {

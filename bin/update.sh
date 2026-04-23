@@ -127,8 +127,8 @@ header "Project config sync"
 
 # Defaults MUST match src/install/opencode/init.sh template (step 5)
 _INI_DEFAULTS=(
-  "rtk_enabled=true"
-  "caveman_enabled=true"
+  "rtk_enabled=false"
+  "caveman_enabled=false"
 )
 
 while IFS= read -r _ppath_file; do

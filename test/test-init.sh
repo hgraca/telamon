@@ -211,10 +211,10 @@ assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "project_name = ${PROJECT
   ".ai/telamon/telamon.ini contains correct project_name"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "\[telamon\]" \
   ".ai/telamon/telamon.ini has [telamon] section"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "rtk_enabled = true" \
-  ".ai/telamon/telamon.ini has rtk_enabled = true"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "caveman_enabled = true" \
-  ".ai/telamon/telamon.ini has caveman_enabled = true"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "rtk_enabled = false" \
+  ".ai/telamon/telamon.ini has rtk_enabled = false"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "caveman_enabled = false" \
+  ".ai/telamon/telamon.ini has caveman_enabled = false"
 
 # ── 5. .ai/telamon/secrets symlink ────────────────────────────────────────────────
 _section "5. .ai/telamon/secrets"

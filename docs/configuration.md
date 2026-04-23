@@ -53,26 +53,17 @@ Each initialized project has a config file at `.ai/telamon/telamon.ini` (created
 ```ini
 [telamon]
 project_name = my-app
-rtk_enabled = true
-caveman_enabled = true
+rtk_enabled = false
+caveman_enabled = false
 ```
 
 | Key | Default | Description |
 |---|---|---|
 | `project_name` | Directory basename | Display name used in memory vaults and logs |
-| `rtk_enabled` | `true` | Enable [RTK](tools.md#rtk--token-compression-proxy) output compression. Set to `false` to run all bash commands without RTK rewriting. |
-| `caveman_enabled` | `true` | Enable [Caveman](tools.md#caveman--token-efficient-communication-mode) terse communication mode. Set to `false` for normal verbose responses. |
+| `rtk_enabled` | `false` | Enable [RTK](tools.md#rtk--token-compression-proxy) output compression. Set to `true` to run bash commands through RTK rewriting for token savings. |
+| `caveman_enabled` | `false` | Enable [Caveman](tools.md#caveman--token-efficient-communication-mode) terse communication mode. Set to `true` for compressed responses that save tokens. |
 
-### Auto-detection
-
-When `rtk_enabled` or `caveman_enabled` is **not set** in `telamon.ini`, Telamon auto-detects the LLM provider and disables both features for **GitHub Copilot** models (where token savings don't reduce cost). Explicit settings always override auto-detection.
-
-| `telamon.ini` value | LLM provider | Result |
-|---|---|---|
-| `true` (explicit) | any | **enabled** |
-| `false` (explicit) | any | **disabled** |
-| not set | `github-copilot/*` | **disabled** (auto) |
-| not set | anything else | **enabled** (default) |
+Both features are **disabled by default**. Set to `true` in projects where token savings matter (e.g. when using metered API providers).
 
 Changes take effect on the next opencode session — no restart required for RTK (read at plugin init) or Caveman (read at bootstrap).
 

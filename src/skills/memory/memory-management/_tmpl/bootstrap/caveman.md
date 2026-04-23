@@ -1,19 +1,19 @@
 ---
 tags: [bootstrap, caveman]
-description: Ultra-compressed communication mode — active by default, can be disabled per project
+description: Ultra-compressed communication mode — disabled by default, enable per project
 ---
 
 ## Caveman Mode
 
 **Before activating**, read `.ai/telamon/telamon.ini` and check the `caveman_enabled` key.
 
-- If `caveman_enabled = false` → **do NOT** activate caveman mode. Use normal communication. Skip the rest of this file.
-- If `caveman_enabled = true` or the key is missing (default) → activate caveman mode as described below.
+- If `caveman_enabled = true` → activate caveman mode as described below.
+- If `caveman_enabled = false` or the key is missing (default) → **do NOT** activate caveman mode. Use normal communication. Skip the rest of this file.
 
-Caveman mode is **active** at session start. Default intensity: **full**.
+Caveman mode is **inactive** at session start. Default intensity: **full**.
 
-**Activation**: Load the `caveman` skill immediately after reading bootstrap files. Apply caveman communication rules to all responses from that point forward.
+**Activation**: Only if `caveman_enabled = true` in `telamon.ini`, load the `caveman` skill immediately after reading bootstrap files. Apply caveman communication rules to all responses from that point forward.
 
-No user prompt needed. No `/caveman` command needed. Active by default.
+No user prompt needed. No `/caveman` command needed. Activates automatically when enabled in config.
 
-Only deactivate when user says "stop caveman" or "normal mode".
+Deactivate when user says "stop caveman" or "normal mode".
