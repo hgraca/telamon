@@ -204,12 +204,12 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
   assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
-  assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
-    "_tmpl/bootstrap/session.md" \
-    "bootstrap/session.md → _tmpl source"
-  assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
-    "_tmpl/project-rules/git.md" \
-    "project-rules/git.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \
+    "_tmpl/bootstrap/memory.md" \
+    "bootstrap/memory.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/bootstrap/mcp.md" \
+    "_tmpl/bootstrap/mcp.md" \
+    "bootstrap/mcp.md → _tmpl source"
 
   # storage/obsidian/<proj> must be a symlink pointing to the project vault
   assert_symlink "${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}" \
@@ -238,12 +238,12 @@ else
   assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
-  assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
-    "_tmpl/bootstrap/session.md" \
-    "bootstrap/session.md → _tmpl source"
-  assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
-    "_tmpl/project-rules/git.md" \
-    "project-rules/git.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \
+    "_tmpl/bootstrap/memory.md" \
+    "bootstrap/memory.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/bootstrap/mcp.md" \
+    "_tmpl/bootstrap/mcp.md" \
+    "bootstrap/mcp.md → _tmpl source"
 fi
 
 # ── 2. .opencode/skills/telamon symlink ──────────────────────────────────────────

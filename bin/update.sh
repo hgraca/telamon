@@ -130,6 +130,8 @@ _INI_DEFAULTS=(
   "rtk_enabled=false"
   "caveman_enabled=false"
   "medium_model="
+  "memory_owner=telamon"
+  "ogham_db=telamon"
 )
 
 while IFS= read -r _ppath_file; do
@@ -162,6 +164,53 @@ while IFS= read -r _ppath_file; do
     log "${_project_name}: added $(IFS=', '; echo "${_added[*]}")"
   else
     info "${_project_name}: up to date"
+  fi
+done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
+
+# ── Secrets migration ─────────────────────────────────────────────────────────
+header "Secrets migration"
+
+while IFS= read -r _ppath_file; do
+  [[ -f "${_ppath_file}" ]] || continue
+  _project_dir="$(cat "${_ppath_file}")"
+  _project_name="$(basename "$(dirname "${_ppath_file}")")"
+
+  if [[ ! -d "${_project_dir}" ]]; then
+    skip "${_project_name}: project directory not found (${_project_dir})"
+    continue
+  fi
+
+  _secrets_dir="${_project_dir}/.ai/telamon/secrets"
+
+  if [[ -L "${_secrets_dir}" ]]; then
+    # Old style: secrets is a directory symlink — migrate to per-file symlinks
+    rm "${_secrets_dir}"
+    mkdir -p "${_secrets_dir}"
+    for _secret_file in "${TELAMON_ROOT}/storage/secrets"/*; do
+      [[ -f "${_secret_file}" ]] || continue
+      _secret_name="$(basename "${_secret_file}")"
+      ln -s "${_secret_file}" "${_secrets_dir}/${_secret_name}"
+    done
+    log "${_project_name}: migrated secrets from directory symlink to per-project directory"
+  elif [[ -d "${_secrets_dir}" ]]; then
+    # Already a real directory — add any missing secret symlinks
+    _added_secrets=()
+    for _secret_file in "${TELAMON_ROOT}/storage/secrets"/*; do
+      [[ -f "${_secret_file}" ]] || continue
+      _secret_name="$(basename "${_secret_file}")"
+      if [[ ! -e "${_secrets_dir}/${_secret_name}" ]]; then
+        ln -s "${_secret_file}" "${_secrets_dir}/${_secret_name}"
+        _added_secrets+=("${_secret_name}")
+      fi
+    done
+    if [[ "${#_added_secrets[@]}" -gt 0 ]]; then
+      log "${_project_name}: added ${#_added_secrets[@]} missing secret symlink(s): $(IFS=', '; echo "${_added_secrets[*]}")"
+    else
+      info "${_project_name}: secrets up to date"
+    fi
+  else
+    skip "${_project_name}: no secrets directory"
+    continue
   fi
 done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 
