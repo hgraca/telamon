@@ -30,8 +30,6 @@ Use the `telamon.qmd` skill to initialize and query the vault index.
 - If NO: call `index_codebase` tool — one-time build
 - If YES: index is ready
 
-**cass session history:** Use the `telamon.cass` skill to initialize cass context.
-
 ## 5. Retrieval priority
 
 When you need information, use the right tool for the question type:
@@ -47,7 +45,6 @@ When you need information, use the right tool for the question type:
 | Relational/temporal queries ("what depends on X?") | Graphiti MCP (only when `telamon-graphiti` container is running)                     |
 | Code by meaning ("find auth logic")                | codebase-index (ask naturally)                                                       |
 | Past decisions/bugs this project                   | Use the `telamon.ogham` skill                                                        |
-| Past session conversations                         | Use the `telamon.cass` skill                                                         |
 | Specs, ADRs, requirements                          | Obsidian vault search (follow `telamon.memory_management` skill for retrieval rules) |
 
 ## Switching projects

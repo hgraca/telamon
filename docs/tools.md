@@ -17,7 +17,6 @@ Every tool Telamon installs and manages — all local, all automatic.
 | [Repomix](#repomix--directory-context-packer) | Packs many files into a single compressed context dump | Tier 2 |
 | [Obsidian MCP](#obsidian-mcp--curated-knowledge-vault) | Read/write bridge to a human-curated knowledge vault | Tier 3 |
 | [QMD](#qmd--vault-semantic-search) | Semantic search over the Obsidian vault | Tier 3 |
-| [Cass](#cass--agent-session-history-search) | Search past agent session transcripts | Tier 3 |
 | [RTK](#rtk--token-compression-proxy) | Compresses bash output before it reaches the LLM | Tier 2 |
 | [Caveman](#caveman--token-efficient-communication-mode) | Ultra-compressed communication (~75% token reduction) | Tier 2 |
 | [promptfoo](#promptfoo--agent-evaluation-framework) | Automated quality checks for agent behavior | Tier 2 |
@@ -130,17 +129,6 @@ Semantic search over the Obsidian vault using **fully local GGUF models** (~2 GB
 - One named collection per vault section: `<project>-brain`, `-work`, `-reference`, `-thinking`
 - MCP server with `query`, `get`, `multi_get`, and `status` tools
 - `qmd update && qmd embed` keeps the index current (fast incremental refresh)
-
----
-
-### Cass — Agent Session History Search
-
-[cass](https://github.com/dicklesworthstone/coding_agent_session_search)
-
-Full-text search over past agent session transcripts. Useful for recovering context from previous sessions.
-
-- Built once with `cass index --full`; a scheduled background job keeps it current every 30 minutes
-- Search: `cass search --robot "<topic>"` (the `--robot` flag is required — bare `cass search` launches a blocking TUI)
 
 ---
 
@@ -304,7 +292,7 @@ Telamon delegates to these specialists. Each sub-agent has constrained permissio
 Skills are structured instruction sets that guide agents through specific tasks. Telamon loads the right skill automatically based on context. Companion loads project-convention skills (architecture rules, PHP rules, testing, etc.) to inform its suggestions.
 
 ### Memory & context
-recall-memories, remember-lessons-learned, remember-task, remember-checkpoint, remember-session, memory-management, thinking, qmd, ogham, obsidian, cass, graphify, repomix
+recall-memories, remember-lessons-learned, remember-task, remember-checkpoint, remember-session, memory-management, thinking, qmd, ogham, obsidian, graphify, repomix
 
 ### Workflow (Telamon only)
 agent-communication, plan-story, implement-story, epic, plan-implementation, execute-plan, review-plan, review-changeset, review-security, audit-codebase, retrospective, summarize-plan, test-codebase, exception-handling, optimize-instructions, ui-specification, ux-design, address-retro, improve-reviewer, gh-review, caveman

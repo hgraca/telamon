@@ -15,7 +15,6 @@
 #   opencode-codebase-index    — semantic codebase search (MCP)
 #   Repomix                    — pack directories into compressed LLM context
 #   promptfoo                  — agent evaluation framework (via npx)
-#   cass                       — agent session history search
 #   RTK                        — token compression proxy
 #   Obsidian MCP (Docker)      — knowledge vault bridge
 #
@@ -222,7 +221,7 @@ print_summary() {
     echo "    bin/status.sh"
     echo "    ogham health"
   echo "    ogham store \"test: setup complete\""
-  echo "    cass --version"
+
   echo "    graphify --version"
   echo
   echo -e "  ${TEXT_BOLD}Re-run in a new project:${TEXT_CLEAR}"
@@ -243,7 +242,7 @@ PRE_DOCKER_APPS=(homebrew docker)
 # Phase 2: tools that require the containers to already be running (ogham needs
 #           Postgres; nomic-embed-text model must be in Ollama). Called by
 #           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify cass rtk caveman qmd cli shell langfuse graphiti diff-context)
+POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli shell langfuse graphiti diff-context)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
@@ -261,12 +260,12 @@ post_docker() {
 main() {
   local total_start=${SECONDS}
   echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
-  echo "  ╔═════════════════════════════════════════════════╗"
-  echo "  ║   Telamon — Harness for Agentic Software Development          ║"
-  echo "  ║   macOS · Linux Mint · Ubuntu · Debian          ║"
-  echo "  ║   Ogham · Graphify · cass · codebase-index      ║"
-  echo "  ║   Obsidian MCP · Ollama · Postgres · RTK        ║"
-  echo "  ╚═════════════════════════════════════════════════╝"
+  echo "  ╔══════════════════════════════════════════════════════╗"
+  echo "  ║   Telamon — Harness for Agentic Software Development ║"
+  echo "  ║   macOS · Linux Mint · Ubuntu · Debian               ║"
+  echo "  ║   Ogham · Graphify · codebase-index                  ║"
+  echo "  ║   Obsidian MCP · Ollama · Postgres · RTK             ║"
+  echo "  ╚══════════════════════════════════════════════════════╝"
   echo -e "${TEXT_CLEAR}"
 
   collect_inputs

@@ -66,7 +66,6 @@ src/
     graphify/                # Graphify binary + MCP wrapper + scheduled updates + plugin
     graphiti/                # Graphiti + Neo4j setup (optional, profile-gated)
     langfuse/                # Langfuse observability stack (optional, profile-gated)
-    cass/                    # Cass binary + skill download + scheduled index updates
     caveman/                 # Caveman skill download
     qmd/                     # QMD binary + skill download + vault collection init
     rtk/                     # RTK binary + opencode plugin wiring

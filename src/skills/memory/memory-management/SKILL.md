@@ -149,5 +149,5 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 | Tier | Store | Content | Writer |
 |---|---|---|---|
 | Working | AGENTS.md + session context | Active goals, current task state | Human + agent at session start |
-| Episodic | Ogham + cass | Past actions, bugs, patterns, sessions | Agent during/after sessions |
+| Episodic | Ogham | Past actions, bugs, patterns, sessions | Agent during/after sessions |
 | Long-term | brain/ notes | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |

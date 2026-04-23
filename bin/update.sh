@@ -169,7 +169,7 @@ done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/nu
 #   0 — success
 #   1 — failure
 #   2 — tool not installed (skip)
-UPDATE_APPS=(homebrew docker opencode ogham graphify cass caveman rtk nodejs qmd repomix promptfoo)
+UPDATE_APPS=(homebrew docker opencode ogham graphify caveman rtk nodejs qmd repomix promptfoo)
 
 for _app in "${UPDATE_APPS[@]}"; do
   _script="${INSTALL_PATH}/${_app}/update.sh"
@@ -185,6 +185,55 @@ for _app in "${UPDATE_APPS[@]}"; do
     *) FAILED=$((FAILED + 1)) ;;         # any other non-zero = failure
   esac
 done
+
+# ── Cass migration ─────────────────────────────────────────────────────────────
+# Cass was removed from Telamon. If still installed, offer to uninstall it.
+if command -v cass &>/dev/null; then
+  echo
+  header "Cass (deprecated)"
+  warn "cass is installed but is no longer part of Telamon."
+  ask "Remove cass from this system? (Y/n):"
+  read -r _cass_confirm
+  if [[ ! "${_cass_confirm}" =~ ^[Nn] ]]; then
+    step "Removing cass-index scheduled jobs..."
+    if [[ -f "${INSTALL_PATH}/cass/schedule.sh" ]]; then
+      bash "${INSTALL_PATH}/cass/schedule.sh" --remove 2>/dev/null || true
+    fi
+    _cass_os="$(uname -s)"
+    if [[ "${_cass_os}" == "Linux" ]]; then
+      for _timer in "${HOME}/.config/systemd/user"/cass-index-*.timer; do
+        [[ -f "${_timer}" ]] || continue
+        _tname="$(basename "${_timer}" .timer)"
+        systemctl --user disable --now "${_tname}.timer" 2>/dev/null || true
+        rm -f "${HOME}/.config/systemd/user/${_tname}.service" "${HOME}/.config/systemd/user/${_tname}.timer"
+      done
+      systemctl --user daemon-reload 2>/dev/null || true
+    elif [[ "${_cass_os}" == "Darwin" ]]; then
+      for _plist in "${HOME}/Library/LaunchAgents"/com.telamon.cass-index-*.plist; do
+        [[ -f "${_plist}" ]] || continue
+        launchctl bootout "gui/$(id -u)" "${_plist}" 2>/dev/null || true
+        rm -f "${_plist}"
+      done
+    fi
+    log "Scheduled jobs removed"
+
+    step "Uninstalling cass via Homebrew..."
+    if command -v brew &>/dev/null; then
+      brew uninstall cass 2>/dev/null || true
+      brew untap dicklesworthstone/tap 2>/dev/null || true
+    fi
+    log "cass uninstalled"
+
+    # Remove skill file if still present
+    _cass_skill="${TELAMON_ROOT}/src/skills/memory/_tools/cass"
+    if [[ -d "${_cass_skill}" ]]; then
+      rm -rf "${_cass_skill}"
+      log "Removed cass skill"
+    fi
+  else
+    info "Keeping cass installed — you can remove it manually later with: brew uninstall cass"
+  fi
+fi
 
 # ── Summary ────────────────────────────────────────────────────────────────────
 echo

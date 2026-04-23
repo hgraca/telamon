@@ -172,7 +172,6 @@ _check_binary "npm"                        "npm"      "npm --version"
 _check_binary "opencode"                   "opencode" "opencode --version"
 _check_binary "ogham"                      "ogham"    "ogham --version"
 _check_binary "graphify"                   "graphify" "graphify --version"
-_check_binary "cass"                       "cass"     "cass --version"
 _check_binary "rtk"                        "rtk"      "rtk --version"
 
 # ── 3. Ogham health ───────────────────────────────────────────────────────────
@@ -517,32 +516,9 @@ if [[ "${OS}" == "Linux" ]]; then
     JOBS_FOUND=$((JOBS_FOUND + 1))
   done
 
-  # Check for cass index timer
-  for timer in "${HOME}/.config/systemd/user"/cass-index-*.timer; do
-    [[ -f "${timer}" ]] || continue
-    timer_name="$(basename "${timer}" .timer)"
-    if systemctl --user is-active "${timer_name}.timer" &>/dev/null 2>&1; then
-      _pass "Timer active: ${timer_name}"
-    else
-      _warn "Timer inactive: ${timer_name}"
-    fi
-    JOBS_FOUND=$((JOBS_FOUND + 1))
-  done
-
 elif [[ "${OS}" == "Darwin" ]]; then
   # Check launchd agents for graphify
   for plist in "${HOME}/Library/LaunchAgents"/com.telamon.graphify-update-*.plist; do
-    [[ -f "${plist}" ]] || continue
-    job_name="$(basename "${plist}" .plist)"
-    if launchctl list 2>/dev/null | grep -q "${job_name}"; then
-      _pass "LaunchAgent active: ${job_name}"
-    else
-      _warn "LaunchAgent inactive: ${job_name}"
-    fi
-    JOBS_FOUND=$((JOBS_FOUND + 1))
-  done
-
-  for plist in "${HOME}/Library/LaunchAgents"/com.telamon.cass-index-*.plist; do
     [[ -f "${plist}" ]] || continue
     job_name="$(basename "${plist}" .plist)"
     if launchctl list 2>/dev/null | grep -q "${job_name}"; then

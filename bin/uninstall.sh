@@ -10,8 +10,8 @@
 #   1. Confirm with user (destructive!)
 #   2. docker compose down -v --remove-orphans
 #   3. Remove docker volume data dirs from storage/
-#   4. Remove ALL scheduled jobs (all graphify-update-* timers + cass-index)
-#   5. Uninstall tools: ogham-mcp, graphifyy, cass, qmd, opencode-ai
+#   4. Remove ALL scheduled jobs (all graphify-update-* timers)
+#   5. Uninstall tools: ogham-mcp, graphifyy, qmd, opencode-ai
 #   6. Remove ~/.ogham/config.env
 #   7. Remove shell RC modifications (the telamon block)
 #   8. Remove ALL storage/ contents
@@ -107,14 +107,6 @@ done
 header "Removing scheduled jobs"
 OS="$(uname -s)"
 
-# Remove cass-index
-step "Removing cass-index timer..."
-if bash "${INSTALL_PATH}/cass/schedule.sh" --remove 2>/dev/null; then
-  REMOVED+=("cass-index scheduled job")
-else
-  skip "cass-index (not found or already removed)"
-fi
-
 # Remove all graphify-update-* timers
 step "Removing all graphify-update-* timers..."
 if [[ "${OS}" == "Linux" ]]; then
@@ -190,11 +182,10 @@ _uninstall_brew() {
 
 _uninstall_uv_tool "ogham-mcp"
 _uninstall_uv_tool "graphifyy"
-_uninstall_brew "cass"
 _uninstall_npm_global "@tobilu/qmd"
 _uninstall_npm_global "opencode-ai"
 
-step "Removing homebrew tap: dicklesworthstone/tap..."
+step "Removing homebrew tap: dicklesworthstone/tap (cass, legacy)..."
 if command -v brew &>/dev/null; then
   if brew untap dicklesworthstone/tap 2>/dev/null; then
     log "Removed tap: dicklesworthstone/tap"

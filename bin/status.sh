@@ -54,7 +54,6 @@ command -v uv       &>/dev/null && _ok "uv"       || _no "uv"
 command -v ogham    &>/dev/null && _ok "Ogham"    || _no "Ogham"
 command -v node     &>/dev/null && _ok "Node.js"  || _no "Node.js"
 command -v graphify &>/dev/null && _ok "Graphify" || _no "Graphify"
-command -v cass     &>/dev/null && _ok "cass"     || _no "cass"
 command -v rtk      &>/dev/null && _ok "RTK"      || _no "RTK"
 command -v opencode &>/dev/null && _ok "opencode" || _no "opencode"
 [[ -f "${TELAMON_ROOT}/storage/opencode.jsonc" ]] && _ok "storage/opencode.jsonc" || _no "storage/opencode.jsonc"
@@ -176,7 +175,7 @@ if [[ "${OS}" == "linux" ]]; then
     [[ -n "${_tsched}" ]] && _tlabel="${_tstate} (${_tsched})"
     echo -e "  ${TEXT_BOLD}${_tname}:${TEXT_CLEAR} ${_tlabel}"
     _jobs_found=1
-  done < <(systemctl --user list-timers --no-legend 2>/dev/null | grep -E "graphify-update-|cass-index")
+  done < <(systemctl --user list-timers --no-legend 2>/dev/null | grep -E "graphify-update-")
 elif [[ "${OS}" == "macos" ]]; then
   while IFS= read -r _agent; do
     [[ -z "${_agent}" ]] && continue
@@ -252,20 +251,6 @@ if [[ "${_mcp_issues}" -gt 0 ]]; then
   echo -e "  ${TEXT_YELLOW}${TEXT_BOLD}⚠  ${_mcp_issues} MCP issue(s) detected — running doctor for auto-fix...${TEXT_CLEAR}"
   echo -e "  ${TEXT_DIM}────────────────────────────────────────────────${TEXT_CLEAR}"
   bash "${TELAMON_ROOT}/bin/doctor.sh" || true
-fi
-
-# ── Cass ──────────────────────────────────────────────────────────────────────
-header "Cass"
-if command -v cass &>/dev/null; then
-  _cass_version=$(timeout 5 cass --version 2>/dev/null || true)
-  _cass_caps=$(timeout 5 cass capabilities --robot-format json 2>/dev/null || true)
-  [[ -n "${_cass_version}" ]] && echo -e "  ${TEXT_BOLD}Version:${TEXT_CLEAR} ${_cass_version}"
-  if [[ -n "${_cass_caps}" ]]; then
-    _cass_connectors=$(echo "${_cass_caps}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('connectors', d.get('features', []))))" 2>/dev/null || true)
-    [[ -n "${_cass_connectors}" ]] && echo -e "  ${TEXT_DIM}Connectors: ${_cass_connectors}${TEXT_CLEAR}"
-  fi
-else
-  echo -e "  ${TEXT_DIM}(cass not available)${TEXT_CLEAR}"
 fi
 
 echo

@@ -26,7 +26,7 @@ telamon init path/to/your-project
 cd path/to/your-project && opencode
 ```
 
-> The installer sets up **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Obsidian, Ogham, Graphify, cass, RTK, QMD, Codebase Index, Caveman, and the global `telamon` CLI.
+> The installer sets up **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Obsidian, Ogham, Graphify, RTK, QMD, Codebase Index, Caveman, and the global `telamon` CLI.
 > The only manual step: after Obsidian is installed, the installer pauses and walks you through enabling the *Local REST API* plugin.
 
 ---
@@ -63,4 +63,17 @@ cd path/to/your-project && opencode
 
 ## Acknowledgements
 
-[Ogham MCP](https://ogham-mcp.dev) · [Graphify](https://github.com/safishamsi/graphify) · [Codebase Index](https://github.com/Helweg/opencode-codebase-index) · [Obsidian MCP](https://github.com/oleksandrkucherenko/obsidian-mcp) · [QMD](https://github.com/tobi/qmd) · [Cass](https://github.com/dicklesworthstone/coding_agent_session_search) · [RTK](https://github.com/rtk-ai/rtk) · [Caveman](https://github.com/JuliusBrussee/caveman) · [Addy Osmani Skills](https://github.com/addyosmani/agent-skills) · [PentAGI](https://github.com/vxcontrol/pentagi) · [Langfuse](https://langfuse.com) · [Graphiti](https://github.com/getzep/graphiti) · [Context7](https://context7.com) · [Exa](https://exa.ai) · [grep.app](https://grep.app)
+- [Ogham MCP](https://ogham-mcp.dev)
+- [Graphify](https://github.com/safishamsi/graphify)
+- [Codebase Index](https://github.com/Helweg/opencode-codebase-index)
+- [Obsidian MCP](https://github.com/oleksandrkucherenko/obsidian-mcp)
+- [QMD](https://github.com/tobi/qmd)
+- [RTK](https://github.com/rtk-ai/rtk)
+- [Caveman](https://github.com/JuliusBrussee/caveman)
+- [Addy Osmani Skills](https://github.com/addyosmani/agent-skills)
+- [PentAGI](https://github.com/vxcontrol/pentagi)
+- [Langfuse](https://langfuse.com)
+- [Graphiti](https://github.com/getzep/graphiti)
+- [Context7](https://context7.com)
+- [Exa](https://exa.ai)
+- [grep.app](https://grep.app)

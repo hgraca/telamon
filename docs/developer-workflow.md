@@ -84,7 +84,7 @@ The curl script clones the repository to `~/.telamon` and runs `make up`, which:
 1. Copies `.env.dist` → `.env` (if not present)
 2. Installs prerequisite host tools (Homebrew, Docker) — pre-docker phase
 3. Starts Docker services (Postgres, Ollama)
-4. Installs remaining tools (opencode, Ogham, Graphify, cass, RTK, codebase-index, Obsidian MCP) — post-docker phase
+4. Installs remaining tools (opencode, Ogham, Graphify, RTK, codebase-index, Obsidian MCP) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
 
 If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads it silently (no prompts). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
@@ -98,7 +98,6 @@ If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads
 - Writes `<project>/.ai/telamon/telamon.ini` with the project name
 - Installs the Graphify git hook and OpenCode plugin
 - Installs the session-capture OpenCode plugin (auto-captures before compaction)
-- Schedules a cass background job to index agent sessions every 30 minutes
 - Registers QMD vault collections and builds the initial semantic index
 
 ### What the agent does at session start
@@ -119,7 +118,6 @@ The agent uses Telamon tools transparently:
 - Searches Ogham before repeating known work
 - Searches the codebase semantically via codebase-index
 - Queries Graphify for architectural context (god nodes, communities, relationships)
-- Searches past sessions when needed via cass
 - Reads `brain/` notes to stay aligned with project decisions and patterns
 
 ### How knowledge is saved

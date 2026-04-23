@@ -40,7 +40,7 @@ Telamon runs entirely on the developer's machine. An MCP layer connects the codi
 |       |                                                              |
 |  +----v---------------------------------------------------------+    |
 |  |                    Host CLI Tools                             |    |
-|  |  graphify  .  cass  .  rtk  .  ogham  .  qmd                 |    |
+|  |  graphify  .  rtk  .  ogham  .  qmd                      |    |
 |  +---------------------------------------------------------------+   |
 |                                                                       |
 |  +---------------------------------------------------------------+    |

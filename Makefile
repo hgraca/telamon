@@ -138,7 +138,6 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 
 down: ## Shut down Telamon services
 	echo -e "\n\033[1m\033[34m━━━ Shutting down Telamon services... ━━━\033[0m"
-	@command -v cass >/dev/null 2>&1 && { echo "Flushing cass index..."; CODING_AGENT_SEARCH_NO_UPDATE_PROMPT=1 cass index --progress >/dev/null 2>&1 || true; } || true
 	docker compose $(COMPOSE_PROFILES) down --remove-orphans
 
 reset: ## Remove project-side wiring created by init, keep storage data  (usage: make reset PROJ=path/to/project)
