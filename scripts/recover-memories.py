@@ -317,6 +317,7 @@ def call_llm(
                 "--pure",
                 "--dangerously-skip-permissions",
                 "--file", tmp_path,
+                "--",
                 "Extract memories from the attached session transcripts. Return JSON only.",
             ],
             capture_output=True,
@@ -340,6 +341,7 @@ def call_llm(
         return None
 
     # Parse JSON event stream — collect all text events
+    # Event format: {"type":"text","part":{"type":"text","text":"..."},...}
     text_parts: list[str] = []
     for line in result.stdout.splitlines():
         line = line.strip()
@@ -350,7 +352,8 @@ def call_llm(
         except json.JSONDecodeError:
             continue
         if isinstance(event, dict) and event.get("type") == "text":
-            t = event.get("text", "")
+            part = event.get("part", {})
+            t = part.get("text", "") if isinstance(part, dict) else ""
             if t:
                 text_parts.append(t)
 
