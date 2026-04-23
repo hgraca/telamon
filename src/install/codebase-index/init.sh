@@ -20,4 +20,18 @@ fi
 mkdir -p "$(pwd)/.opencode"
 cp "${SCRIPT_DIR}/codebase-index.json" "${INDEX_CONFIG}"
 log "codebase-index config written → .opencode/codebase-index.json"
-info "Run /index inside OpenCode to build the initial codebase index."
+
+# ── Build initial codebase index ─────────────────────────────────────────────
+if [[ -d "$(pwd)/.opencode/codebase-index" ]]; then
+  skip "Codebase index (already exists)"
+elif ! command -v opencode &>/dev/null; then
+  info "opencode not found — index will be built on first session"
+elif ! curl -sf http://127.0.0.1:17434/v1/models >/dev/null 2>&1; then
+  info "Ollama not reachable — index will be built on first session"
+else
+  step "Building initial codebase index..."
+  opencode run --dangerously-skip-permissions \
+    "Call the codebase-index index_codebase tool to build the semantic codebase index. Do nothing else. Do not read any files. Just call index_codebase and report the result." \
+    && log "Codebase index built" \
+    || warn "Codebase index build failed — the agent will build it on first session"
+fi
