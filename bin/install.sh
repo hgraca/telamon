@@ -213,9 +213,9 @@ print_summary() {
   echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
   echo
 
-  echo -e "  ${TEXT_BOLD}First session in each project:${TEXT_CLEAR}"
-  echo "    The agent will self-initialize Graphify and codebase-index"
-  echo "    automatically on first use — no manual steps needed."
+  echo -e "  ${TEXT_BOLD}Project init:${TEXT_CLEAR}"
+  echo "    Graphify and codebase-index are built during 'bin/init.sh'."
+  echo "    If either fails, the agent will self-initialize on first session."
   echo
   echo -e "  ${TEXT_BOLD}Verify:${TEXT_CLEAR}"
     echo "    bin/status.sh"
