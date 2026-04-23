@@ -132,3 +132,19 @@ The agent saves to **both** Ogham (fast semantic recall) and Obsidian `brain/` (
 | Session ends | Stored as a session summary | Work notes archived from `active/` to `archive/` |
 
 The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
+
+### Recovering memories from past sessions
+
+If you started using Telamon before the session-capture plugin existed, or if memories were lost, you can backfill them from your entire opencode session history:
+
+```bash
+telamon recover-memories              # incremental — only new sessions
+telamon recover-memories --full       # full reset — reprocess everything
+telamon recover-memories --dry-run    # preview first
+```
+
+This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to both Ogham and the `brain/` markdown files — the same destinations the session-capture plugin uses.
+
+**Recommended first run:** use `--full` to get a clean, deduplicated baseline. Subsequent runs are incremental — only sessions not yet processed are analyzed.
+
+See [Commands → recover-memories](make-targets.md#recover-memories) for all flags and options.

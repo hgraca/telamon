@@ -53,6 +53,7 @@ Each initialized project has a config file at `.ai/telamon/telamon.ini` (created
 ```ini
 [telamon]
 project_name = my-app
+medium_model =
 rtk_enabled = false
 caveman_enabled = false
 ```
@@ -60,6 +61,7 @@ caveman_enabled = false
 | Key | Default | Description |
 |---|---|---|
 | `project_name` | Directory basename | Display name used in memory vaults and logs |
+| `medium_model` | *(empty — prompts on first use)* | LLM model for batch operations like `recover-memories`. On first use, the CLI prompts with suggestions from the project's `model`/`small_model` in `opencode.jsonc` (e.g. Opus+Haiku → suggests Sonnet). |
 | `rtk_enabled` | `false` | Enable [RTK](tools.md#rtk--token-compression-proxy) output compression. Set to `true` to run bash commands through RTK rewriting for token savings. |
 | `caveman_enabled` | `false` | Enable [Caveman](tools.md#caveman--token-efficient-communication-mode) terse communication mode. Set to `true` for compressed responses that save tokens. |
 
