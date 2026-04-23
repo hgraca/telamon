@@ -138,9 +138,12 @@ The **session-capture plugin** handles this automatically before every compactio
 If you started using Telamon before the session-capture plugin existed, or if memories were lost, you can backfill them from your entire opencode session history:
 
 ```bash
-telamon recover-memories              # incremental — only new sessions
-telamon recover-memories --full       # full reset — reprocess everything
-telamon recover-memories --dry-run    # preview first
+telamon recover-memories                 # incremental — current project
+telamon recover-memories ~/my-project    # incremental — specific project
+telamon recover-memories --all           # incremental — all initialized projects
+telamon recover-memories --full          # full reset — clear existing, reprocess all
+telamon recover-memories --dry-run       # preview without making changes
+telamon recover-memories --batch-size 10 # larger batches (default: 5)
 ```
 
 This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to both Ogham and the `brain/` markdown files — the same destinations the session-capture plugin uses.
