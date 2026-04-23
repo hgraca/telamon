@@ -167,36 +167,81 @@ echo
 echo -e "${BOLD}Telamon init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── 1. Vault scaffold (in storage/obsidian/<proj>/, symlinked from <proj>/.ai/telamon/memory) ──
-_section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/)"
-VAULT_ROOT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
-BRAIN_DIR="${VAULT_ROOT}/brain"
+# ── Read memory_owner from telamon.ini ───────────────────────────────────────
+TELAMON_INI="${PROJ}/.ai/telamon/telamon.ini"
+MEMORY_OWNER="telamon"
+if [[ -f "${TELAMON_INI}" ]]; then
+  _mo_val="$(grep -E "^[[:space:]]*memory_owner[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)"
+  [[ -n "${_mo_val}" ]] && MEMORY_OWNER="${_mo_val}"
+fi
+
 VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/memory-management/_tmpl"
 
-# Dirs must be real directories (not symlinks)
-assert_dir "${VAULT_ROOT}"                     "storage/obsidian/${PROJECT_NAME}/"
-assert_dir "${BRAIN_DIR}"                      "brain/"
-assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
-assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
-assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
-assert_dir "${VAULT_ROOT}/reference"           "reference/"
-assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
+# ── 1. Vault scaffold ─────────────────────────────────────────────────────────
+if [[ "${MEMORY_OWNER}" == "project" ]]; then
+  _section "1. Vault scaffold (.ai/telamon/memory/ — project mode)"
+  VAULT_ROOT="${PROJ}/.ai/telamon/memory"
+  BRAIN_DIR="${VAULT_ROOT}/brain"
 
-# Brain files with substituted placeholders must be real files (copied)
-assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
-assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
-assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
-assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
-assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
-assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+  # In project mode, .ai/telamon/memory is a real directory
+  assert_dir "${VAULT_ROOT}"                     ".ai/telamon/memory/ (real directory)"
+  assert_dir "${BRAIN_DIR}"                      "brain/"
+  assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
+  assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
+  assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
+  assert_dir "${VAULT_ROOT}/reference"           "reference/"
+  assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 
-# Non-placeholder files must be symlinks pointing into _tmpl/
-assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
-  "_tmpl/bootstrap/session.md" \
-  "bootstrap/session.md → _tmpl source"
-assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
-  "_tmpl/project-rules/git.md" \
-  "project-rules/git.md → _tmpl source"
+  # Brain files with substituted placeholders must be real files (copied)
+  assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
+  assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
+  assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
+  assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
+  assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+
+  # Non-placeholder files must be symlinks pointing into _tmpl/
+  assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
+    "_tmpl/bootstrap/session.md" \
+    "bootstrap/session.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
+    "_tmpl/project-rules/git.md" \
+    "project-rules/git.md → _tmpl source"
+
+  # storage/obsidian/<proj> must be a symlink pointing to the project vault
+  assert_symlink "${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}" \
+    ".ai/telamon/memory" \
+    "storage/obsidian/${PROJECT_NAME} → .ai/telamon/memory"
+else
+  _section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/ — telamon mode)"
+  VAULT_ROOT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
+  BRAIN_DIR="${VAULT_ROOT}/brain"
+
+  # Dirs must be real directories (not symlinks)
+  assert_dir "${VAULT_ROOT}"                     "storage/obsidian/${PROJECT_NAME}/"
+  assert_dir "${BRAIN_DIR}"                      "brain/"
+  assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
+  assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
+  assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
+  assert_dir "${VAULT_ROOT}/reference"           "reference/"
+  assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
+
+  # Brain files with substituted placeholders must be real files (copied)
+  assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
+  assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
+  assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
+  assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
+  assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+
+  # Non-placeholder files must be symlinks pointing into _tmpl/
+  assert_symlink "${VAULT_ROOT}/bootstrap/session.md" \
+    "_tmpl/bootstrap/session.md" \
+    "bootstrap/session.md → _tmpl source"
+  assert_symlink "${VAULT_ROOT}/project-rules/git.md" \
+    "_tmpl/project-rules/git.md" \
+    "project-rules/git.md → _tmpl source"
+fi
 
 # ── 2. .opencode/skills/telamon symlink ──────────────────────────────────────────
 _section "2. .opencode/skills/telamon symlink"
@@ -215,17 +260,31 @@ assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "rtk_enabled = false" \
   ".ai/telamon/telamon.ini has rtk_enabled = false"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "caveman_enabled = false" \
   ".ai/telamon/telamon.ini has caveman_enabled = false"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "memory_owner = " \
+  ".ai/telamon/telamon.ini has memory_owner key"
 
 # ── 5. .ai/telamon/secrets symlink ────────────────────────────────────────────────
 _section "5. .ai/telamon/secrets"
 assert_symlink "${PROJ}/.ai/telamon/secrets" "storage/secrets" \
   ".ai/telamon/secrets → <telamon-root>/storage/secrets"
 
-# ── 5b. <proj>/.ai/telamon/memory → storage/obsidian/<proj>/ ─────────────────────
-_section "5b. .ai/telamon/memory symlink"
-assert_symlink "${PROJ}/.ai/telamon/memory" \
-  "storage/obsidian/${PROJECT_NAME}" \
-  ".ai/telamon/memory → <telamon-root>/storage/obsidian/${PROJECT_NAME}"
+# ── 5b. memory symlink — mode-dependent ──────────────────────────────────────
+_section "5b. .ai/telamon/memory (${MEMORY_OWNER} mode)"
+if [[ "${MEMORY_OWNER}" == "project" ]]; then
+  # Project mode: .ai/telamon/memory is a real directory (already asserted in section 1)
+  if [[ -d "${PROJ}/.ai/telamon/memory" && ! -L "${PROJ}/.ai/telamon/memory" ]]; then
+    _pass ".ai/telamon/memory is a real directory (project mode)"
+  else
+    _fail ".ai/telamon/memory — expected a real directory in project mode"
+  fi
+  assert_symlink "${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}" \
+    ".ai/telamon/memory" \
+    "storage/obsidian/${PROJECT_NAME} → .ai/telamon/memory (already checked in section 1)"
+else
+  assert_symlink "${PROJ}/.ai/telamon/memory" \
+    "storage/obsidian/${PROJECT_NAME}" \
+    ".ai/telamon/memory → <telamon-root>/storage/obsidian/${PROJECT_NAME}"
+fi
 
 # ── 6. opencode config ────────────────────────────────────────────────────────
 _section "6. opencode.jsonc"

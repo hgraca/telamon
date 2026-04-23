@@ -93,7 +93,11 @@ If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads
 
 `telamon init` wires up a project with all Telamon tools:
 
-- Creates the Obsidian vault at `storage/obsidian/<project-name>/` with `bootstrap/`, `brain/`, `work/`, `reference/`, and `thinking/` folders
+- Creates the Obsidian vault with `bootstrap/`, `brain/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/obsidian/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/obsidian/<project-name>`.
+- Control vault ownership with the `--memory-owner` flag:
+  - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
+  - `telamon init --memory-owner=project path/to/project` — vault in project directory
+  - If the flag is omitted and the project is already initialised, the existing `memory_owner` value from `telamon.ini` is used. For a fresh project on an interactive terminal, you are prompted to choose.
 - Symlinks agent skills into `<project>/.opencode/skills/telamon`
 - Writes `<project>/.ai/telamon/telamon.ini` with the project name
 - Installs the Graphify git hook and OpenCode plugin

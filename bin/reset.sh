@@ -96,7 +96,25 @@ remove_symlink "${PROJ}/.opencode/graphify-serve.sh" ".opencode/graphify-serve.s
 
 # ── 2. .ai/telamon symlinks and files ─────────────────────────────────────────
 step "Removing .ai/telamon wiring..."
-remove_symlink "${PROJ}/.ai/telamon/memory"  ".ai/telamon/memory"
+
+# Read memory_owner before removing telamon.ini
+_MEMORY_OWNER="telamon"
+_INI_FILE="${PROJ}/.ai/telamon/telamon.ini"
+if [[ -f "${_INI_FILE}" ]]; then
+  _val="$(config.read_ini "${_INI_FILE}" "memory_owner" 2>/dev/null || true)"
+  [[ -n "${_val}" ]] && _MEMORY_OWNER="${_val}"
+fi
+
+if [[ "${_MEMORY_OWNER}" == "project" ]]; then
+  # Project mode: symlink is on the storage side; project dir is real
+  _STORAGE_LINK="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
+  remove_symlink "${_STORAGE_LINK}" "storage/obsidian/${PROJECT_NAME} (telamon-side symlink)"
+  warn ".ai/telamon/memory/ is a project-owned directory — left intact"
+else
+  # Telamon mode (default): symlink is on the project side
+  remove_symlink "${PROJ}/.ai/telamon/memory" ".ai/telamon/memory"
+fi
+
 remove_symlink "${PROJ}/.ai/telamon/secrets" ".ai/telamon/secrets"
 remove_symlink "${PROJ}/.ai/telamon/scripts" ".ai/telamon/scripts"
 remove_file    "${PROJ}/.ai/telamon/telamon.ini" ".ai/telamon/telamon.ini"

@@ -88,6 +88,7 @@ project_name = ${PROJECT_NAME}
 rtk_enabled = false
 caveman_enabled = false
 medium_model =
+memory_owner = ${MEMORY_OWNER:-telamon}
 INI
   log "Written .ai/telamon/telamon.ini"
 fi

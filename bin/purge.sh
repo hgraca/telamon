@@ -48,13 +48,32 @@ bash "${TELAMON_ROOT}/bin/reset.sh" "${PROJ}"
 # ── Step 2: remove vault data ─────────────────────────────────────────────────
 header "Removing storage data — ${PROJECT_NAME}"
 
+# Read memory_owner from telamon.ini (may have been removed by reset, so check first)
+_MEMORY_OWNER="telamon"
+_INI_FILE="${PROJ}/.ai/telamon/telamon.ini"
+if [[ -f "${_INI_FILE}" ]]; then
+  _val="$(config.read_ini "${_INI_FILE}" "memory_owner" 2>/dev/null || true)"
+  [[ -n "${_val}" ]] && _MEMORY_OWNER="${_val}"
+fi
+
 OBSIDIAN_DIR="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
-step "Removing vault: ${OBSIDIAN_DIR}..."
-if [[ -d "${OBSIDIAN_DIR}" ]]; then
-  rm -rf "${OBSIDIAN_DIR}"
-  log "Removed vault: storage/obsidian/${PROJECT_NAME}/"
+if [[ "${_MEMORY_OWNER}" == "project" ]]; then
+  step "Removing storage symlink: storage/obsidian/${PROJECT_NAME} ..."
+  if [[ -L "${OBSIDIAN_DIR}" ]]; then
+    rm "${OBSIDIAN_DIR}"
+    log "Removed symlink: storage/obsidian/${PROJECT_NAME}"
+    warn "Project-owned vault at ${PROJ}/.ai/telamon/memory/ left intact"
+  else
+    skip "storage/obsidian/${PROJECT_NAME} symlink (not found)"
+  fi
 else
-  skip "storage/obsidian/${PROJECT_NAME}/ (not found)"
+  step "Removing vault: storage/obsidian/${PROJECT_NAME}/ ..."
+  if [[ -d "${OBSIDIAN_DIR}" ]]; then
+    rm -rf "${OBSIDIAN_DIR}"
+    log "Removed vault: storage/obsidian/${PROJECT_NAME}/"
+  else
+    skip "storage/obsidian/${PROJECT_NAME}/ (not found)"
+  fi
 fi
 
 # ── Step 3: remove graphify data ──────────────────────────────────────────────
