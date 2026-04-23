@@ -129,6 +129,7 @@ header "Project config sync"
 _INI_DEFAULTS=(
   "rtk_enabled=false"
   "caveman_enabled=false"
+  "medium_model="
 )
 
 while IFS= read -r _ppath_file; do

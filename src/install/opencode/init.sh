@@ -87,6 +87,7 @@ else
 project_name = ${PROJECT_NAME}
 rtk_enabled = false
 caveman_enabled = false
+medium_model =
 INI
   log "Written .ai/telamon/telamon.ini"
 fi
