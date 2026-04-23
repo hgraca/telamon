@@ -124,6 +124,13 @@ When a handler, service, or domain class uses literal numbers or strings with do
 - Class constants make intent explicit, enable reuse, and simplify testing.
 - A magic value used in more than one place is a WARNING. A single-use magic value with non-obvious meaning is an INFO.
 
+### 16. Kubernetes Manifest Consistency
+
+When a changeset includes Kubernetes YAML manifests (any file with `apiVersion` and `kind`):
+- When multiple resources share the same `apiVersion`/`kind`, verify they have consistent ArgoCD annotations (`sync-wave`, `sync-options`). Inconsistent annotations across resources of the same kind is a WARNING.
+- When a resource uses a Custom Resource `apiVersion` (not core `v1`, `apps/v1`, `batch/v1`, `networking.k8s.io/v1`, etc.), verify it has `argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true` if the CRD is installed by another Application in the same changeset. Missing this annotation causes ArgoCD dry-run failures on first sync — flag as WARNING.
+- When a `kustomization.yaml` exists in the same directory as a new resource file, verify the new file is listed in `resources:`. An unlisted resource in a Kustomize-managed directory will not be synced — flag as BLOCKER.
+
 ## Review Report
 
 Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
@@ -155,6 +162,7 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Primitive Obsession** — Commands, queries, and controller authorize calls use VOs when domain VO exists? Policies accept VOs not primitives?
 > - **Hardcoded Configuration** — No hardcoded URLs, hostnames, or environment-dependent values in application/domain handlers?
 > - **Magic Values** — Domain-meaningful literals extracted to class constants?
+> - **Kubernetes Manifest Consistency** — Same-kind resources have consistent ArgoCD annotations? Custom CRD resources have `SkipDryRunOnMissingResource`? New files listed in `kustomization.yaml`?
 > - **Code Style** — Symbols imported? No FQCNs inline? Explicit guards? Sealed/final convention?
 > - **Role Compliance** — All code changes made by the Developer?
 > - **Documentation** — Manual config steps documented? Obsolete steps removed?
