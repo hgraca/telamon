@@ -1,9 +1,9 @@
 # Telamon's own agent evaluation suite
-# Run all:  cd test/eval && npx -y promptfoo eval
-# Run one:  cd test/eval && npx -y promptfoo eval -c evals/<name>.yaml
-# View:     cd test/eval && npx -y promptfoo view
+# Run all:  cd tests/agents && npx -y promptfoo eval
+# Run one:  cd tests/agents && npx -y promptfoo eval -c evals/<name>.yaml
+# View:     cd tests/agents && npx -y promptfoo view
 #
-# Before first run: cd test/eval && npm install
+# Before first run: cd tests/agents && npm install
 
 description: "Telamon agent evaluation suite"
 

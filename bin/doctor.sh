@@ -373,11 +373,11 @@ else
   _warn "promptfoo not yet cached — run 'npx -y promptfoo --version' to initialize"
 fi
 
-EVAL_CONFIG="$(pwd)/test/eval/promptfooconfig.yaml"
+EVAL_CONFIG="$(pwd)/tests/agents/promptfooconfig.yaml"
 if [[ -f "${EVAL_CONFIG}" ]]; then
-  _pass "Eval config present (test/eval/promptfooconfig.yaml)"
+  _pass "Eval config present (tests/agents/promptfooconfig.yaml)"
 else
-  _warn "Eval config missing (test/eval/promptfooconfig.yaml) — run: bin/init.sh <project>"
+  _warn "Eval config missing (tests/agents/promptfooconfig.yaml) — run: bin/init.sh --with-tests <project>"
 fi
 
 # ── 7. Graphify (knowledge graph) ─────────────────────────────────────────────

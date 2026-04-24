@@ -166,7 +166,7 @@ Automated quality checks for agent behavior. Tests request classification, plan 
 - `opencode:sdk` provider starts an ephemeral opencode server per eval
 - Web UI: `npx -y promptfoo view`
 
-**Commands:** `cd test/eval && npx -y promptfoo eval`, `npx -y promptfoo view`
+**Commands:** `cd tests/agents && npx -y promptfoo eval`, `npx -y promptfoo view`
 **Slash command:** `/eval`
 
 ---

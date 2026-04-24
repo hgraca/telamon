@@ -4,7 +4,7 @@
 # Initialise a project to use Telamon.
 #
 # Usage:
-#   bin/init.sh [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] <path/to/project>
+#   bin/init.sh [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] [--with-tests] <path/to/project>
 #
 # What it does (delegated to per-app init scripts):
 #   obsidian      — vault scaffold + .ai/telamon/memory symlink
@@ -14,6 +14,7 @@
 #   repomix       — writes repomix.config.json
 #   graphify      — graphify-out symlink + MCP wrapper + scheduled updates
 #   qmd           — vault collections + initial semantic index
+#   promptfoo     — agent eval scaffold (only with --with-tests)
 # =============================================================================
 
 set -euo pipefail
@@ -27,6 +28,7 @@ INSTALL_PATH="${TELAMON_ROOT}/src/install"
 # ── Flag parsing ──────────────────────────────────────────────────────────────
 MEMORY_OWNER_FLAG=""
 OGHAM_DB_FLAG=""
+WITH_TESTS="false"
 POSITIONAL_ARGS=()
 
 for _arg in "$@"; do
@@ -37,6 +39,9 @@ for _arg in "$@"; do
     --ogham-db=*)
       OGHAM_DB_FLAG="${_arg#--ogham-db=}"
       ;;
+    --with-tests)
+      WITH_TESTS="true"
+      ;;
     *)
       POSITIONAL_ARGS+=("${_arg}")
       ;;
@@ -46,7 +51,7 @@ done
 # ── Argument ──────────────────────────────────────────────────────────────────
 PROJ="${POSITIONAL_ARGS[0]:-}"
 if [[ -z "${PROJ}" ]]; then
-  echo "Usage: $0 [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] <path/to/project>" >&2
+  echo "Usage: $0 [--memory-owner=telamon|project] [--ogham-db=telamon|<url>] [--with-tests] <path/to/project>" >&2
   exit 1
 fi
 
@@ -99,7 +104,7 @@ else
   fi
 fi
 
-export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME MEMORY_OWNER
+export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
 
 # ── Resolve OGHAM_DB ──────────────────────────────────────────────────────────
 # Priority: CLI flag > existing telamon.ini > interactive prompt > default (telamon)

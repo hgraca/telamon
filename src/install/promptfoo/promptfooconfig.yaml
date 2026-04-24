@@ -1,11 +1,11 @@
 # promptfoo configuration — Agent Evaluation Framework
-# Copied by init.sh → test/eval/promptfooconfig.yaml
+# Copied by init.sh → tests/agents/promptfooconfig.yaml
 #
-# Run all evals:  cd test/eval && npx -y promptfoo eval
-# Run one eval:   cd test/eval && npx -y promptfoo eval -c evals/<name>.yaml
-# View results:   cd test/eval && npx -y promptfoo view
+# Run all evals:  cd tests/agents && npx -y promptfoo eval
+# Run one eval:   cd tests/agents && npx -y promptfoo eval -c evals/<name>.yaml
+# View results:   cd tests/agents && npx -y promptfoo view
 #
-# Before first run: cd test/eval && npm install
+# Before first run: cd tests/agents && npm install
 
 description: "Agent evaluation suite"
 

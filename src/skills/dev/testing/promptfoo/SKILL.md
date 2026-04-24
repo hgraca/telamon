@@ -20,7 +20,7 @@ description: "Agent evaluation with promptfoo: running evals, interpreting resul
 Before first eval run in a project:
 
 ```bash
-cd test/eval && npm install
+cd tests/agents && npm install
 ```
 
 This installs `@opencode-ai/sdk` locally. Only needed once per project.
@@ -29,13 +29,13 @@ This installs `@opencode-ai/sdk` locally. Only needed once per project.
 
 ```bash
 # Run all evals
-cd test/eval && npx -y promptfoo eval
+cd tests/agents && npx -y promptfoo eval
 
 # Run a specific eval
-cd test/eval && npx -y promptfoo eval -c evals/request-classification.yaml
+cd tests/agents && npx -y promptfoo eval -c evals/request-classification.yaml
 
 # View results in web UI
-cd test/eval && npx -y promptfoo view
+cd tests/agents && npx -y promptfoo view
 ```
 
 ## Environment
@@ -48,7 +48,7 @@ export TELAMON_ROOT=/path/to/telamon
 
 ## Eval Structure
 
-Each eval is a standalone YAML file in `test/eval/evals/`:
+Each eval is a standalone YAML file in `tests/agents/evals/`:
 
 ```yaml
 description: "What this eval tests"
@@ -93,10 +93,10 @@ tests:
 
 ## Adding a New Eval
 
-1. Create `test/eval/evals/<name>.yaml`
-2. Create fixture directory `test/eval/fixtures/<name>/` if needed
+1. Create `tests/agents/evals/<name>.yaml`
+2. Create fixture directory `tests/agents/fixtures/<name>/` if needed
 3. Define provider config, prompts, test cases, and assertions
-4. Run: `cd test/eval && npx -y promptfoo eval -c evals/<name>.yaml`
+4. Run: `cd tests/agents && npx -y promptfoo eval -c evals/<name>.yaml`
 5. Iterate on assertions until they meaningfully test the behavior
 
 ## Existing Evals
@@ -112,4 +112,4 @@ tests:
 - This establishes the "nested skill" pattern — a sub-skill under `dev/testing/`
 - Each eval starts an ephemeral opencode server — no session state leakage
 - Evals cost real LLM tokens. Use `cost` assertions to cap spending
-- `.promptfoo/` cache in `test/eval/` stores results (gitignored)
+- `.promptfoo/` cache in `tests/agents/` stores results (gitignored)
