@@ -49,9 +49,16 @@ const child = spawn('node', [mcpScript, '--project', projectDir], {
   stdio: ['pipe', 'pipe', 'pipe'],
 });
 
-let stdout = '';
+let stdoutBuf = '';
 let requestId = 1;
 let initialized = false;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatDuration(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  return m > 0 ? `${m}m ${s % 60}s` : `${s}s`;
+}
 
 function send(obj) {
   child.stdin.write(JSON.stringify(obj) + '\n');
@@ -70,42 +77,84 @@ function sendInitialize() {
   });
 }
 
-function sendIndexCodebase() {
-  send({
-    jsonrpc: '2.0',
-    id: requestId++,
-    method: 'tools/call',
-    params: { name: 'index_codebase', arguments: {} },
-  });
+// ── Phase state ───────────────────────────────────────────────────────────────
+let estimateCallId = null;
+let indexCallId = null;
+let indexStartTime = null;
+let elapsedTimer = null;
+
+function startElapsedTimer() {
+  indexStartTime = Date.now();
+  elapsedTimer = setInterval(() => {
+    const elapsed = Date.now() - indexStartTime;
+    const elapsedStr = formatDuration(elapsed);
+    process.stderr.write(`  \u2192  Embedding chunks via Ollama...   ${elapsedStr}\n`);
+  }, 30000);
 }
 
-// Progress dots every 5 seconds so the user knows it's alive
-const progressTimer = setInterval(() => {
-  process.stderr.write('.');
-}, 5000);
+function stopElapsedTimer() {
+  if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+}
 
+// ── MCP message handler ───────────────────────────────────────────────────────
 child.stdout.on('data', (chunk) => {
-  stdout += chunk.toString();
-  const lines = stdout.split('\n');
-  stdout = lines.pop();
+  stdoutBuf += chunk.toString();
+  const lines = stdoutBuf.split('\n');
+  stdoutBuf = lines.pop();
   for (const line of lines) {
     if (!line.trim()) continue;
     let msg;
     try { msg = JSON.parse(line); } catch { continue; }
 
+    // initialize response → send notifications/initialized + estimate call
     if (!initialized && msg.result && msg.result.protocolVersion !== undefined) {
       initialized = true;
       send({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} });
-      sendIndexCodebase();
-    } else if (msg.result && Array.isArray(msg.result.content)) {
-      clearInterval(progressTimer);
-      process.stderr.write('\n');
+      estimateCallId = requestId;
+      send({
+        jsonrpc: '2.0',
+        id: requestId++,
+        method: 'tools/call',
+        params: { name: 'index_codebase', arguments: { estimateOnly: true } },
+      });
+      continue;
+    }
+
+    // estimate response → print info line, start actual index
+    if (msg.id === estimateCallId && msg.result && Array.isArray(msg.result.content)) {
+      const text = msg.result.content.map(c => c.text || '').join('');
+      const filesMatch = text.match(/Files to index:\s+(\d[\d,]*)/i);
+      const chunksMatch = text.match(/Estimated chunks:\s+~?(\d[\d,]*)/i);
+      const filesNum = filesMatch ? parseInt(filesMatch[1].replace(/,/g, ''), 10) : '?';
+      const estimatedChunks = chunksMatch ? parseInt(chunksMatch[1].replace(/,/g, ''), 10) : 0;
+      const dateStr = new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+      const chunksDisplay = estimatedChunks > 0 ? estimatedChunks.toLocaleString('en-GB') : '?';
+      process.stderr.write(
+        `  \u2139  ${dateStr} \u2014 Indexing ${filesNum} files (~${chunksDisplay} chunks estimated)\n`
+      );
+      startElapsedTimer();
+      indexCallId = requestId;
+      send({
+        jsonrpc: '2.0',
+        id: requestId++,
+        method: 'tools/call',
+        params: { name: 'index_codebase', arguments: {} },
+      });
+      continue;
+    }
+
+    // index response → stop timer, emit result
+    if (msg.id === indexCallId && msg.result && Array.isArray(msg.result.content)) {
+      stopElapsedTimer();
       const text = msg.result.content.map(c => c.text || '').join('');
       process.stdout.write(text + '\n');
       child.stdin.end();
-    } else if (msg.error) {
-      clearInterval(progressTimer);
-      process.stderr.write('\n');
+      continue;
+    }
+
+    // error on any call
+    if (msg.error) {
+      stopElapsedTimer();
       process.stderr.write('MCP error: ' + JSON.stringify(msg.error) + '\n');
       child.stdin.end();
       process.exitCode = 1;
@@ -116,7 +165,7 @@ child.stdout.on('data', (chunk) => {
 child.stderr.on('data', () => {}); // suppress MCP server noise
 
 child.on('close', (code) => {
-  clearInterval(progressTimer);
+  stopElapsedTimer();
   if (code !== 0 && process.exitCode !== 1) {
     process.stderr.write('MCP server exited with code ' + code + '\n');
     process.exitCode = 1;
