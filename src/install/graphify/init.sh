@@ -68,8 +68,34 @@ fi
 if [[ -f "graphify-out/graph.json" ]]; then
   skip "Graph already built"
 else
-  step "Building initial knowledge graph..."
-  output=$(graphify update . 2>&1) || warn "graphify build failed — continuing without graph: ${output}"
+  DATE_STR=$(date '+%-d %b %Y, %H:%M')
+  info "${DATE_STR} — Building initial knowledge graph..."
+  TMPOUT=$(mktemp)
+  START_SECS=${SECONDS}
+  graphify update . 2>&1 | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
+  ELAPSED=$(( SECONDS - START_SECS ))
+
+  if [[ ${GRAPH_EXIT} -ne 0 ]]; then
+    warn "graphify build failed — continuing without graph"
+  else
+    NODES=$(grep -oP '\d+(?= nodes)'       "${TMPOUT}" | tail -1 || echo "?")
+    EDGES=$(grep -oP '\d+(?= edges)'       "${TMPOUT}" | tail -1 || echo "?")
+    COMMUNITIES=$(grep -oP '\d+(?= communities)' "${TMPOUT}" | tail -1 || echo "?")
+    DURATION=$(_fmt_duration ${ELAPSED})
+
+    echo -e ""
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}┌─ Knowledge Graph Summary ─────────────────────────────┐${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Nodes            : ${TEXT_BOLD}${NODES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Edges            : ${TEXT_BOLD}${EDGES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Communities      : ${TEXT_BOLD}${COMMUNITIES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}⏱${TEXT_CLEAR}  Duration         : ${DURATION}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}Available tools:${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  query_graph · get_node · get_neighbors${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  get_community · god_nodes · shortest_path${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}└───────────────────────────────────────────────────────┘${TEXT_CLEAR}"
+  fi
+  rm -f "${TMPOUT}"
 fi
 
 # ── Schedule periodic graph updates ──────────────────────────────────────────

@@ -32,6 +32,29 @@ for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
   [[ -f "${storage_dir}.project-path" ]] || continue
   proj="$(cat "${storage_dir}.project-path")"
   [[ -d "${proj}" ]] || { warn "Project directory not found: ${proj} — skipping graph build"; continue; }
-  step "Building missing graph for ${proj}..."
-  (cd "${proj}" && graphify update . 2>&1) || warn "graphify build failed for ${proj} — continuing"
+  PROJ_NAME=$(basename "${proj}")
+  DATE_STR=$(date '+%-d %b %Y, %H:%M')
+  info "${DATE_STR} — Building missing graph for ${PROJ_NAME}..."
+  TMPOUT=$(mktemp)
+  START_SECS=${SECONDS}
+  (cd "${proj}" && graphify update . 2>&1) | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
+  ELAPSED=$(( SECONDS - START_SECS ))
+
+  if [[ ${GRAPH_EXIT} -ne 0 ]]; then
+    warn "graphify build failed for ${PROJ_NAME} — continuing"
+  else
+    NODES=$(grep -oP '\d+(?= nodes)'       "${TMPOUT}" | tail -1 || echo "?")
+    EDGES=$(grep -oP '\d+(?= edges)'       "${TMPOUT}" | tail -1 || echo "?")
+    COMMUNITIES=$(grep -oP '\d+(?= communities)' "${TMPOUT}" | tail -1 || echo "?")
+    DURATION=$(_fmt_duration ${ELAPSED})
+
+    echo -e ""
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}┌─ Knowledge Graph Summary (${PROJ_NAME}) ────────────────┐${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Nodes            : ${TEXT_BOLD}${NODES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Edges            : ${TEXT_BOLD}${EDGES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Communities      : ${TEXT_BOLD}${COMMUNITIES}${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}⏱${TEXT_CLEAR}  Duration         : ${DURATION}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}└───────────────────────────────────────────────────────┘${TEXT_CLEAR}"
+  fi
+  rm -f "${TMPOUT}"
 done
