@@ -184,4 +184,4 @@ test: ## Run the full test suite (make up + init a dummy project + assert wiring
 	mkdir -p tmp/test-proj
 	$(MAKE) init PROJ=./tmp/test-proj
 	@echo -e "\n\033[1m\033[34m━━━ Step 3/3: Asserting wiring... ━━━\033[0m"
-	bash test/test-init.sh ./tmp/test-proj test-proj
+	bash tests/bin/init.test.sh ./tmp/test-proj test-proj
