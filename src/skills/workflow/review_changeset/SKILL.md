@@ -139,6 +139,13 @@ When a changeset includes Kubernetes YAML manifests (any file with `apiVersion` 
 - When a resource uses a Custom Resource `apiVersion` (not core `v1`, `apps/v1`, `batch/v1`, `networking.k8s.io/v1`, etc.), verify it has `argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true` if the CRD is installed by another Application in the same changeset. Missing this annotation causes ArgoCD dry-run failures on first sync — flag as WARNING.
 - When a `kustomization.yaml` exists in the same directory as a new resource file, verify the new file is listed in `resources:`. An unlisted resource in a Kustomize-managed directory will not be synced — flag as BLOCKER.
 
+### 17. PSR-3 Exception Logging
+
+When a `catch` block logs via a PSR-3 logger method (`->warning()`, `->error()`, `->critical()`, `->alert()`, `->emergency()`):
+- Verify the context array includes `'exception' => $catchVariable`. The PSR-3 spec reserves the `'exception'` key so log handlers can extract the full stack trace — without it, only the message string is captured.
+- Missing the exception object in a `->warning()` or `->error()` call inside a catch block is a WARNING.
+- A catch block that logs `$e->getMessage()` but omits `'exception' => $e` is the most common pattern to flag.
+
 ## Review Report
 
 Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
@@ -171,6 +178,7 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Hardcoded Configuration** — No hardcoded URLs, hostnames, or environment-dependent values in application/domain handlers?
 > - **Magic Values** — Domain-meaningful literals extracted to class constants?
 > - **Kubernetes Manifest Consistency** — Same-kind resources have consistent ArgoCD annotations? Custom CRD resources have `SkipDryRunOnMissingResource`? New files listed in `kustomization.yaml`?
+> - **PSR-3 Exception Logging** — Catch blocks that log include `'exception' => $e` in context for stack traces?
 > - **Code Style** — Symbols imported? No FQCNs inline? Explicit guards? Sealed/final convention?
 > - **Role Compliance** — All code changes made by the Developer?
 > - **Documentation** — Manual config steps documented? Obsolete steps removed?
