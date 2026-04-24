@@ -97,7 +97,7 @@ done
 # ── User submodules ───────────────────────────────────────────────────────────
 header "User submodules"
 
-_raw_submodules="$(grep -s '^TELAMON_SUBMODULES=' "${TELAMON_ROOT}/.env" | head -1 | cut -d= -f2- | tr -d "\"'")"
+_raw_submodules="$(grep -s '^TELAMON_SUBMODULES=' "${TELAMON_ROOT}/.env" | head -1 | cut -d= -f2- | tr -d "\"'" || true)"
 
 if [[ -z "${_raw_submodules}" ]]; then
   skip "no user submodules configured"
