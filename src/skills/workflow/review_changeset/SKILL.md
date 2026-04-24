@@ -64,6 +64,14 @@ For every added or modified test method:
 - Fixture files (`*.csv`, `*.json`, `*.xml`, snapshot files) that are updated in the changeset but are no longer loaded by any test are dead fixtures — flag as WARNING and require deletion or re-use.
 - Verify test classes don't import traits already provided by the base TestCase (e.g. `RefreshDatabase` when base uses `LazilyRefreshDatabase`). Redundant traits can cause subtle behavior changes.
 
+**Extension dependency guards** — When a test uses functions from optional PHP extensions (`pcntl_*`, `posix_*`, `rdkafka_*`, `imagick_*`, etc.):
+- Verify that `extension_loaded()` checks cover **all** required extensions, not just the primary one. A test using both `pcntl_signal()` and `posix_kill()` must guard both `pcntl` and `posix` — flag a missing guard as WARNING.
+- Check for functions from secondary extensions that are easy to miss (e.g. `posix_kill`/`posix_getpid` alongside `pcntl_signal`).
+
+**Global state restoration** — When a test modifies global PHP process state (`pcntl_async_signals()`, `pcntl_signal()`, `ini_set()`, `putenv()`, `date_default_timezone_set()`, `error_reporting()`, or similar):
+- Verify the test captures the previous value before modifying it and restores it in a `finally` block.
+- A bare restore at the end of the method body (not wrapped in `finally`) is a WARNING — if the test fails or throws, the restore is skipped and subsequent tests run with polluted global state.
+
 ### 7. Static Analysis Baseline Hygiene
 
 When `phparkitect.baseline.json`, `phpstan-baseline.neon`, or any other static-analysis baseline file is modified:
@@ -152,7 +160,7 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Dependency Wiring** — Registrations updated for new parameters? Variadic params wired?
 > - **Import Hygiene** — No unused or missing imports?
 > - **Cross-file Rename Consistency** — All references updated across all file types?
-> - **Test Quality** — Descriptive names? Comprehensive coverage? Reusable named test doubles? Assertions match method name claims (ordering, cardinality, conditions)? No coverage regression (assertions not removed or narrowed without updating the test name)? No orphaned fixture files?
+> - **Test Quality** — Descriptive names? Comprehensive coverage? Reusable named test doubles? Assertions match method name claims (ordering, cardinality, conditions)? No coverage regression (assertions not removed or narrowed without updating the test name)? No orphaned fixture files? Extension guards cover all required extensions (not just the primary)? Global state modifications restored in `finally` blocks?
 > - **Static Analysis Baseline Hygiene** — No new entries added to any baseline file?
 > - **Decorator & Wrapper Integrity** — All parameters forwarded through decorators? De-facto convention params forwarded?
 > - **State-Machine Reset Placement** — Resets on the correct branch? Every path that should seed the accumulator does so?
