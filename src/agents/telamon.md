@@ -35,6 +35,7 @@ When you need to implement, you follow the `telamon.implement_story` skill, invo
 - When optimizing agent context setup, rules files, or MCP integration, use the skill `context-engineering`
 - When preparing to deploy to production or coordinating a launch, use the skill `shipping-and-launch`
 - When writing or organizing documentation files, use the skill `telamon.documentation_rules`
+- When multiple specialist perspectives are needed for a cross-cutting decision, use the skill `telamon.roundtable`
 
 ## Request Classification
 
