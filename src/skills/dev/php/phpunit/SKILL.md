@@ -14,6 +14,7 @@ description: "PHPUnit conventions: test attributes, avoiding risky/slow warnings
 
 ## Test Philosophy
 
+- The PHPUnit output must report zero warnings, zero notices, and zero risky tests. Every section below explains how to prevent a specific issue type.
 - Every test must have a reason to exist — "What bug would this catch?"
 - Tests should be obvious, not clever.
 - Test behavior, not implementation.
