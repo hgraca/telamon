@@ -143,6 +143,43 @@ $logger->method('info')->willReturn(null);
 
 Use `createMock()` only when you actually call `->expects()`.
 
+Do not use `#[AllowMockObjectsWithoutExpectations]` — it suppresses the notice instead of fixing the root cause.
+
+### Shared test doubles in `setUp()`
+
+When `setUp()` creates a test double shared across multiple test methods, use `createStub()` by default. Tests that need expectations create a local mock and re-initialize the SUT:
+
+```php
+private SomeInterface $dependency;
+private SystemUnderTest $sut;
+
+protected function setUp(): void
+{
+    parent::setUp();
+    $this->initSut($this->createStub(SomeInterface::class));
+}
+
+private function initSut(SomeInterface $dependency): void
+{
+    $this->dependency = $dependency;
+    $this->sut = new SystemUnderTest($dependency);
+}
+
+// Test needing expectations — local mock overrides the stub:
+#[Test]
+public function it_calls_the_dependency_exactly_once(): void
+{
+    $mock = $this->createMock(SomeInterface::class);
+    $this->initSut($mock);
+
+    $mock->expects(self::once())->method('execute');
+
+    $this->sut->run();
+}
+```
+
+Type the shared property as the interface (`SomeInterface`), not as `SomeInterface&MockObject` — the property holds a stub by default.
+
 ## E2E Testing for Framework-Agnostic Libraries
 
 When a library is designed to work across multiple frameworks (e.g., Laravel and Symfony), e2e tests must exercise the full stack without coupling to any one framework.
