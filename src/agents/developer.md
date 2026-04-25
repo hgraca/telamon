@@ -47,6 +47,7 @@ Before starting, confirm:
 - When optimizing performance or fixing performance issues, use the skill `performance-optimization`
 - When running make targets or build commands, use the skill `telamon.makefile`
 - When following project-specific test conventions, commands, or directory layout, use the skill `telamon.testing`
+- When writing or reviewing PHPUnit tests (attributes, risky/slow warnings, handler cleanup, e2e patterns), use the skill `telamon.phpunit`
 - When writing PHP code, use the skill `telamon.php_rules`
 - When working with the message bus, command/event/query handlers, or testing bus-related code, use the skill `telamon.message_bus`
 - When writing Laravel application code, use the skill `telamon.laravel`

@@ -37,6 +37,7 @@ You are the reviewer. You review changes against the architect's plan and projec
 - When reviewing code with performance implications, use the skill `performance-optimization`
 - When reviewing code quality across multiple dimensions, use the skill `code-review-and-quality`
 - When reviewing PHP code, use the skill `telamon.php_rules`
+- When reviewing PHPUnit tests (attributes, risky/slow warnings, handler cleanup, e2e patterns), use the skill `telamon.phpunit`
 - When a pattern or bug is discovered during review, use the skill `telamon.remember_lessons_learned`
 
 ## Activation
