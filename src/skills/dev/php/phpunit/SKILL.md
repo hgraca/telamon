@@ -150,7 +150,9 @@ Do not use `#[AllowMockObjectsWithoutExpectations]` — it suppresses the notice
 When `setUp()` creates a test double shared across multiple test methods, use `createStub()` by default. Tests that need expectations create a local mock and re-initialize the SUT:
 
 ```php
-private SomeInterface $dependency;
+use PHPUnit\Framework\MockObject\Stub;
+
+private SomeInterface&Stub $dependency;
 private SystemUnderTest $sut;
 
 protected function setUp(): void
@@ -159,7 +161,7 @@ protected function setUp(): void
     $this->initSut($this->createStub(SomeInterface::class));
 }
 
-private function initSut(SomeInterface $dependency): void
+private function initSut(SomeInterface&Stub $dependency): void
 {
     $this->dependency = $dependency;
     $this->sut = new SystemUnderTest($dependency);
@@ -178,7 +180,7 @@ public function it_calls_the_dependency_exactly_once(): void
 }
 ```
 
-Type the shared property as the interface (`SomeInterface`), not as `SomeInterface&MockObject` — the property holds a stub by default.
+Type the shared property as `SomeInterface&Stub`, not as `SomeInterface&MockObject`. This tells PHPStan the property has both the interface methods and the `->method()` / `->willReturn()` stub methods. The `initSut()` parameter must also use `&Stub` — `MockObject` extends `Stub`, so passing a mock to a `&Stub` parameter works.
 
 ## E2E Testing for Framework-Agnostic Libraries
 
