@@ -61,6 +61,13 @@ cd path/to/your-project && opencode
 
 ---
 
+## Contributors
+
+<!-- CONTRIBUTORS-START -->
+<!-- CONTRIBUTORS-END -->
+
+---
+
 ## Acknowledgements
 
 - [Ogham MCP](https://ogham-mcp.dev)
