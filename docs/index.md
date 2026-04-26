@@ -165,10 +165,6 @@ title: Telamon
         <p>Curated knowledge vault with semantic search. Goals, decisions, patterns in human-readable notes.</p>
       </div>
       <div class="feature-card">
-        <h3>Cass</h3>
-        <p>Full-text search over past agent session transcripts. Context from every conversation.</p>
-      </div>
-      <div class="feature-card">
         <h3>RTK + Caveman</h3>
         <p>Automatic output compression and ultra-terse communication mode. Saves up to 75% of tokens.</p>
       </div>

@@ -302,3 +302,26 @@ architecture-rules, explicit-architecture, rest-conventions, create-adr, create-
 
 ### General engineering ([addyosmani/agent-skills](https://github.com/addyosmani/agent-skills))
 api-and-interface-design, browser-testing-with-devtools, ci-cd-and-automation, code-review-and-quality, code-simplification, context-engineering, debugging-and-error-recovery, deprecation-and-migration, documentation-and-adrs, frontend-ui-engineering, git-workflow-and-versioning, idea-refine, incremental-implementation, performance-optimization, planning-and-task-breakdown, security-and-hardening, shipping-and-launch, source-driven-development, spec-driven-development, test-driven-development, using-agent-skills
+
+---
+
+## Retired experiments
+
+Tools that were evaluated and ultimately removed. Documented here so future contributors understand what was tried and why it didn't work out.
+
+### Cass — Conversation History Search
+
+[cass](https://github.com/toowired/cass)
+
+Cass indexed past agent session transcripts and provided full-text search over them, enabling agents to recall context from previous conversations — *"did we discuss X last week?"*
+
+It worked by scanning opencode session files, building a search index, and exposing query results via an MCP server.
+
+**What we tried:**
+
+- **Git hook indexing** — Running `cass index` as a post-commit or pre-push hook so the index stayed current automatically. Indexing was too slow; hooks that block for minutes are unusable.
+- **Scheduled indexing (every 30 minutes)** — A background timer ran `cass index` on a recurring schedule. The indexing process was resource-intensive enough that it would frequently bog down the machine, competing with the IDE, the agent, Docker services, and Ollama for CPU and memory.
+
+**Why it was retired:**
+
+The core problem was indexing cost. Session transcripts grow quickly, and Cass's indexing was neither fast enough for synchronous triggers nor lightweight enough for frequent background runs. On a typical development machine already running Postgres, Ollama, Docker, and an LLM-backed agent, adding another heavy periodic process caused noticeable slowdowns. The value of searching past sessions did not justify the performance impact.

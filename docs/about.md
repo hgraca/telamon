@@ -45,7 +45,6 @@ Telamon takes a different path:
 | **Persistent memory** | Ogham MCP, Postgres + pgvector, Ollama |
 | **Codebase understanding** | Graphify (knowledge graph), Codebase Index (semantic search) |
 | **Knowledge vault** | Obsidian MCP, QMD (semantic vault search) |
-| **Session recall** | Cass (conversation search) |
 | **Token efficiency** | RTK (output compression), Caveman (terse mode) |
 | **Multi-agent** | 2 primary agents (Telamon orchestrator + Companion pair programmer), 10 sub-agents, slash commands, 60+ structured skills |
 | **MCP integrations** | GitHub, Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app |

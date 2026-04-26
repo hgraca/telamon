@@ -11,8 +11,8 @@ All tools run locally. No data leaves your machine.
 
 ## Quick Start
 
-| Requirement | Notes |
-|---|---|
+| Requirement                                 | Notes                                  |
+|---------------------------------------------|----------------------------------------|
 | **Linux** (Ubuntu/Debian/Mint) or **macOS** | Apple Silicon and Intel both supported |
 
 ```bash
@@ -33,31 +33,30 @@ cd path/to/your-project && opencode
 
 ## What it does
 
-| Capability | How |
-|---|---|
-| **Persistent agent memory** | Ogham MCP + Postgres + pgvector + Ollama |
-| **Codebase understanding** | Graphify (knowledge graph) + Codebase Index (semantic search) |
-| **Curated knowledge vault** | Obsidian MCP + QMD (semantic vault search) |
-| **Session recall** | Cass (conversation history search) |
-| **Automatic session capture** | OpenCode plugin — promotes learnings before compaction |
-| **Token efficiency** | RTK (output compression) + Caveman (terse communication mode) |
-| **Multi-agent system** | 2 agents: Telamon (autonomous orchestrator + 10 sub-agents) and Companion (pair programmer) |
-| **MCP integrations** | GitHub, Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app |
-| **Optional observability** | Langfuse for token tracking (opt-in) |
-| **Optional temporal graph** | Graphiti + Neo4j for architectural evolution (opt-in) |
+| Capability                    | How                                                                                         |
+|-------------------------------|---------------------------------------------------------------------------------------------|
+| **Multi-agent system**        | 2 agents: Telamon (autonomous orchestrator + 10 sub-agents) and Companion (pair programmer) |
+| **Persistent agent memory**   | Ogham MCP + Postgres + pgvector + Ollama                                                    |
+| **Curated knowledge vault**   | Obsidian MCP + QMD (semantic vault search)                                                  |
+| **Automatic session capture** | OpenCode plugin — promotes learnings before compaction                                      |
+| **Codebase understanding**    | Graphify (knowledge graph) + Codebase Index (semantic search)                               |
+| **Token efficiency**          | RTK (output compression) + Caveman (terse communication mode)                               |
+| **MCP integrations**          | GitHub, Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app                      |
+| **Optional observability**    | Langfuse for token tracking (opt-in)                                                        |
+| **Optional temporal graph**   | Graphiti + Neo4j for architectural evolution (opt-in)                                       |
 
 ---
 
 ## Documentation
 
-| Document | Contents |
-|---|---|
-| [Developer Workflow](docs/developer-workflow.md) | Day-to-day usage: install, init, session lifecycle, wrap-up |
-| [Tools](docs/tools.md) | Every tool — what it does, how it works, priority guide |
-| [Configuration](docs/configuration.md) | Environment variables, Docker services, secrets, background jobs |
-| [System Architecture](docs/system-architecture.md) | System flow diagram, what each tool provides at each stage |
-| [Commands](docs/make-targets.md) | `telamon` CLI commands and `make` targets |
-| [Repository Layout](docs/repository-layout.md) | Full directory structure explained |
+| Document                                           | Contents                                                         |
+|----------------------------------------------------|------------------------------------------------------------------|
+| [Developer Workflow](docs/developer-workflow.md)   | Day-to-day usage: install, init, session lifecycle, wrap-up      |
+| [Tools](docs/tools.md)                             | Every tool — what it does, how it works, priority guide          |
+| [Configuration](docs/configuration.md)             | Environment variables, Docker services, secrets, background jobs |
+| [System Architecture](docs/system-architecture.md) | System flow diagram, what each tool provides at each stage       |
+| [Commands](docs/make-targets.md)                   | `telamon` CLI commands and `make` targets                        |
+| [Repository Layout](docs/repository-layout.md)     | Full directory structure explained                               |
 
 ---
 

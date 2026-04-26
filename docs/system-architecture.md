@@ -78,7 +78,6 @@ Telamon runs entirely on the developer's machine. An MCP layer connects the codi
 | **Reading many files** | Repomix | Packs directory into compressed context (~70% token reduction) |
 | **Finding code** | ast-grep | Structural search: find code by AST pattern |
 | **Finding vault notes** | QMD | Semantic vault search: *"did we ever deal with X?"* |
-| **Recovering past context** | Cass | Searches previous agent session transcripts |
 | **Looking up docs** | Context7 | Queries library/framework documentation |
 | **Browser debugging** | Chrome DevTools | Inspects DOM, console, network, performance |
 | **Browser testing** | Playwright | Automates browser interactions and assertions |
