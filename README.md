@@ -49,14 +49,21 @@ cd path/to/your-project && opencode
 
 ## Documentation
 
-| Document                                           | Contents                                                         |
-|----------------------------------------------------|------------------------------------------------------------------|
-| [Developer Workflow](docs/developer-workflow.md)   | Day-to-day usage: install, init, session lifecycle, wrap-up      |
-| [Tools](docs/tools.md)                             | Every tool — what it does, how it works, priority guide          |
-| [Configuration](docs/configuration.md)             | Environment variables, Docker services, secrets, background jobs |
-| [System Architecture](docs/system-architecture.md) | System flow diagram, what each tool provides at each stage       |
-| [Commands](docs/make-targets.md)                   | `telamon` CLI commands and `make` targets                        |
-| [Repository Layout](docs/repository-layout.md)     | Full directory structure explained                               |
+- [Developer Workflow](docs/developer-workflow.md) — Day-to-day usage: install, init, session lifecycle, wrap-up
+- [Tools](docs/tools/) — Every tool, how it works, priority guide
+  - [Ogham](docs/tools/ogham.md), [Session Capture](docs/tools/session-capture.md), [Diff Context](docs/tools/diff-context.md) — Memory & session
+  - [Graphify](docs/tools/graphify.md), [Codebase Index](docs/tools/codebase-index.md), [Repomix](docs/tools/repomix.md) — Codebase understanding
+  - [Obsidian MCP](docs/tools/obsidian-mcp.md), [QMD](docs/tools/qmd.md) — Knowledge vault
+  - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality
+  - [Langfuse](docs/tools/langfuse.md), [Graphiti](docs/tools/graphiti.md) — Optional services
+  - [Plugins](docs/tools/plugins.md) — OpenCode plugins
+  - [Retired experiments](docs/tools/cass.md) — Tools that were evaluated and removed
+- [Agents](docs/agents.md) — Primary agents, sub-agents, and roles
+- [Commands](docs/commands.md) — Slash commands available in opencode
+- [Skills](docs/skills.md) — Structured instruction sets for agents
+- [Configuration](docs/configuration.md) — Environment variables and optional service activation
+- [CLI](docs/cli.md) — `telamon` CLI commands and `make` targets
+- [Architecture](docs/architecture.md) — System flow, infrastructure, and repository layout
 
 ---
 

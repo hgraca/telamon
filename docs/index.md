@@ -31,7 +31,7 @@ title: Telamon
   <div class="container">
     <div class="section-header">
       <h2>Why Telamon?</h2>
-      <p>Your coding agent forgets everything between sessions. Telamon fixes that.</p>
+      <p>Your coding agent forgets everything between sessions.<br>Telamon fixes that.</p>
     </div>
     <div class="feature-grid">
       <div class="feature-card">

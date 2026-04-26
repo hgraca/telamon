@@ -29,7 +29,7 @@ That's it. The agent handles memory, context, and knowledge capture automaticall
 
 ---
 
-## The five steps in detail
+## The six steps
 
 ### 1. Install Telamon (one-time)
 
@@ -37,7 +37,7 @@ That's it. The agent handles memory, context, and knowledge capture automaticall
 curl -fsSL https://raw.githubusercontent.com/hgraca/telamon/main/install.sh | bash
 ```
 
-After install, the `telamon` command is available globally. See [Commands](make-targets.md) for the full list.
+After install, the `telamon` command is available globally. See [Commands](cli.md) for the full list.
 
 > The installer is **idempotent** — safe to re-run at any time. Already-installed tools are skipped.
 
@@ -67,11 +67,34 @@ telamon doctor    # comprehensive health check
 
 Open your project in opencode and work normally. The agent uses Telamon's tools automatically — you don't need to do anything special.
 
+Before every compaction, the agent saves session learnings to memory incrementally.
+
 ### 5. Wrap up
 
 When you're done, say *"wrap up"*. The agent saves session learnings and archives completed work.
 
-> This also runs automatically before every context compaction, so nothing is lost even if you forget.
+> This also runs automatically before every context compaction, so not much is lost even if you forget.
+
+### 6. Recover memories (optional)
+
+If you started using Telamon before the session-capture plugin existed, or if you want to backfill knowledge from your full session history, run:
+
+```bash
+telamon recover-memories          # incremental — current project
+telamon recover-memories --full   # full reset — reprocess all sessions from scratch
+telamon recover-memories --all    # incremental — all initialized projects
+```
+
+This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to both Ogham and the `brain/` markdown files — the same destinations the session-capture plugin uses live.
+
+**When to use it:**
+- First time setting up Telamon on a project that already has session history
+- After a `--full` reset of the memory vault
+- Periodically, if you suspect the session-capture plugin missed context (e.g. after crashes or forced exits)
+
+The command is **incremental by default** — it tracks which sessions have been processed and only analyzes new ones. Use `--dry-run` to preview without making changes.
+
+See [Commands → recover-memories](cli.md#recover-memories) for all flags, options, and typical runtime.
 
 ---
 
@@ -132,12 +155,12 @@ The agent uses Telamon tools transparently:
 
 The agent saves to **both** Ogham (fast semantic recall) and Obsidian `brain/` (human-readable, curated):
 
-| Event | Ogham | Obsidian |
-|---|---|---|
-| Non-trivial bug fixed | Stored as a bug memory | Appended to `brain/gotchas.md` |
-| Architectural decision | Stored as a decision memory | Appended to `brain/key_decisions.md` |
-| Pattern established | Stored as a pattern memory | Appended to `brain/patterns.md` |
-| Session ends | Stored as a session summary | Work notes archived from `active/` to `archive/` |
+| Event                  | Ogham                       | Obsidian                                         |
+|------------------------|-----------------------------|--------------------------------------------------|
+| Non-trivial bug fixed  | Stored as a bug memory      | Appended to `brain/gotchas.md`                   |
+| Architectural decision | Stored as a decision memory | Appended to `brain/key_decisions.md`             |
+| Pattern established    | Stored as a pattern memory  | Appended to `brain/patterns.md`                  |
+| Session ends           | Stored as a session summary | Work notes archived from `active/` to `archive/` |
 
 The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
 
@@ -158,4 +181,4 @@ This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`),
 
 **Recommended first run:** use `--full` to get a clean, deduplicated baseline. Subsequent runs are incremental — only sessions not yet processed are analyzed.
 
-See [Commands → recover-memories](make-targets.md#recover-memories) for all flags and options.
+See [Commands → recover-memories](cli.md#recover-memories) for all flags and options.

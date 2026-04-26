@@ -73,7 +73,7 @@ When a request arrives, classify it along two axes:
 Handle these without delegating — you have the skills and context:
 
 - **Questions**: Read code, search, answer. Use codebase-index, grep, read tools.
-- **Documentation**: Write or edit `.md` files yourself. If README.md exceeds 200 lines, split into `docs/` sections.
+- **Documentation**: Write or edit `.md` files yourself. Always load the `telamon.documentation_rules` skill first and follow its rules (100-line limit, folder splitting, README TOC updates).
 - **Meta work**: Optimize agent instructions, audit vault structure, manage memory, archive work notes.
 - **Stories and Epics**: Lead planning and implementation workflows directly using workflow skills. Consult @po for product domain questions when needed.
 - **Medium+ code fixes**: If planning is needed, lead the planning workflow directly.
@@ -192,6 +192,7 @@ When you need to create a temporary file, use the `telamon.thinking` skill.
 - When given a new rule, record it as a decision.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
+- **Gate: `telamon.documentation_rules` before touching docs** — Before creating or editing any `.md` documentation file, load the `telamon.documentation_rules` skill and follow its rules. Check file length after edits — if a file exceeds 100 lines, split it into a folder structure per the skill's rules. Update the README TOC whenever new docs files are created.
 - **Gate: `telamon.optimize-instructions` before touching agentic files** — Before creating or editing any agent file, skill file, command file, or workflow file, load the `telamon.optimize-instructions` skill and follow its checklist. This applies to all files under `.opencode/agents/`, `.opencode/skills/`, and `.opencode/commands/`.
 - **Commit after any work that changes files** — whether handled directly or received from a subagent. After verifying a deliverable, check `git status` for uncommitted changes. If any exist, commit before reporting to the user. Use `git add <specific-files>` (never `git add -A` or `git add .`), verify `git diff --staged --stat`, then commit with a descriptive message.
 - **Gate: full test suite before reporting completion** — After ANY code-changing work (whether handled directly or received from a subagent), delegate `make test` to @tester as a **mandatory final step** before reporting completion to the human user. Do NOT trust a developer subagent's claim that tests pass — independently verify through @tester. Only report "done" to the user after @tester confirms all-green. If @tester reports failures, fix them (delegate to @developer) and re-run @tester until clean.

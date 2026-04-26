@@ -6,7 +6,7 @@ description: What Telamon is, why it exists, and where it's going.
 
 ## What is Telamon?
 
-Telamon is an open-source **local infrastructure kit** for agentic software development.
+Telamon is an open-source **harness** (local infrastructure kit) for agentic software development.
 It installs, wires up, and manages a suite of AI-augmentation tools so that your coding
 agent has persistent memory, codebase understanding, and structured workflows — out of
 the box.
@@ -28,13 +28,13 @@ The agent ecosystem provides great models but poor infrastructure for **continui
 
 ## The approach
 
-Telamon takes a different path:
+Telamon principles:
 
-- **Local-first** — every tool runs on your machine. No cloud dependencies, no data leaving your network.
+- **Local-first** — every tool runs on your machine. No cloud dependencies, no data leaving your network (except for the LLM, ofc).
 - **Install once, use everywhere** — one `curl` command installs the entire stack. Wire up any project in seconds.
 - **Memory as infrastructure** — agent memory isn't a feature request, it's a layer of the stack. Decisions, patterns, bugs, and session history persist across restarts.
 - **Structured multi-agent workflows** — two primary agents: **Telamon**, an autonomous orchestrator that delegates to 10 specialized sub-agents, and **Companion**, a pair programmer that works alongside you. Not prompt chains — structured delegation with constrained permissions.
-- **Token-aware** — automatic compression keeps context within model limits without losing signal.
+- **Token-aware** — automatic compression keeps context within model limits without losing signal (except for GitHub LLMs, as they bill per request).
 
 ---
 
