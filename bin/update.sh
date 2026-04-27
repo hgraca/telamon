@@ -123,17 +123,17 @@ PYEOF
     skip "no user modules configured"
   else
     while IFS=$'\t' read -r _name _url; do
-      _dest="${TELAMON_ROOT}/vendor/${_name}"
+      _dest="${TELAMON_ROOT}/$(_derive_vendor_path "${_url}")"
       if [[ -d "${_dest}/.git" ]]; then
-        step "Pulling vendor/${_name} ..."
+        step "Pulling ${_name} ..."
         git -C "${_dest}" pull --rebase \
-          && log "Updated: vendor/${_name}" \
-          || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git pull failed for vendor/${_name}"; FAILED=$((FAILED + 1)); }
+          && log "Updated: ${_name}" \
+          || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git pull failed for ${_name}"; FAILED=$((FAILED + 1)); }
       else
-        step "Cloning ${_url} → vendor/${_name} ..."
+        step "Cloning ${_name} (${_url}) ..."
         mkdir -p "$(dirname "${_dest}")"
         git clone --depth 1 "${_url}" "${_dest}" \
-          && log "Cloned: vendor/${_name}" \
+          && log "Cloned: ${_name}" \
           || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git clone failed for ${_url}"; FAILED=$((FAILED + 1)); }
       fi
     done <<< "${_user_module_lines}"

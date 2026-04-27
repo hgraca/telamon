@@ -67,23 +67,25 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 Modules are external git repositories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/` and creates symlinks into every initialized project — the same pattern used for Telamon's own files.
 
 ```bash
-telamon module add https://github.com/org/repo.git              # auto-detect paths
-telamon module add https://github.com/org/repo.git --skills=.   # custom paths
-telamon module remove org/repo                                   # unregister + remove
-telamon module list                                              # show all modules
-telamon module sync                                              # re-wire to all projects
+telamon module add https://github.com/org/repo.git                # name defaults to 'repo'
+telamon module add https://github.com/org/repo.git --name=custom  # custom name
+telamon module add https://github.com/org/repo.git --skills=.     # custom paths
+telamon module remove repo                                         # unregister + remove
+telamon module list                                                # show all modules
+telamon module sync                                                # re-wire to all projects
 ```
 
 | Flag          | Description                                |
 |---------------|--------------------------------------------|
+| `--name=`     | Module name (default: repo name from URL)  |
 | `--commands=` | Path to commands directory within the repo |
 | `--agents=`   | Path to agents directory within the repo   |
 | `--skills=`   | Path to skills directory within the repo   |
 | `--plugins=`  | Path to plugins directory within the repo  |
 
-When path flags are omitted, Telamon checks for `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist.
+When path flags are omitted, Telamon checks for `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist. The module name is used for symlinks in each project's `.opencode/` directory.
 
-Module configuration is stored in `.telamon.jsonc` (under the `"modules"` key). The `addyosmani/agent-skills` module is built-in and cannot be removed.
+Module configuration is stored in `.telamon.jsonc` (under the `"modules"` key). The `addyosmani` module is built-in and cannot be removed.
 
 ---
 

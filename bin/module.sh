@@ -4,8 +4,8 @@
 # Manage external module repos — clone, wire symlinks into projects.
 #
 # Usage:
-#   telamon module add <url> [--commands=<path>] [--agents=<path>] [--skills=<path>] [--plugins=<path>]
-#   telamon module remove <name>   # name is org/repo
+#   telamon module add <url> [--name=<name>] [--commands=<path>] [--agents=<path>] [--skills=<path>] [--plugins=<path>]
+#   telamon module remove <name>
 #   telamon module list
 #   telamon module sync            # re-wire all modules to all projects
 # =============================================================================
@@ -45,21 +45,14 @@ _derive_path() {
   echo "vendor/${org_repo}"
 }
 
-# _url_to_name <url>
-# Extracts org/repo from a URL (without .git suffix).
-_url_to_name() {
+# _url_to_default_name <url>
+# Extracts repo name from a URL (without .git suffix) as the default module name.
+# https://github.com/org/repo.git → repo
+# git@github.com:org/repo.git    → repo
+_url_to_default_name() {
   local url="${1%/}"
   url="${url%.git}"
-
-  if [[ "${url}" == git@* ]]; then
-    echo "${url##*:}"
-  else
-    local path_part="${url#*://}"
-    path_part="${path_part#*/}"
-    local repo; repo="$(basename "${path_part}")"
-    local org;  org="$(basename "$(dirname "${path_part}")")"
-    echo "${org}/${repo}"
-  fi
+  basename "${url}"
 }
 
 # _ensure_modules_file
@@ -73,17 +66,18 @@ _ensure_modules_file() {
       cat > "${MODULES_FILE}" <<'JSONC'
 {
   "modules": {
-    "addyosmani/agent-skills": {
+    "addyosmani": {
       "url": "https://github.com/addyosmani/agent-skills.git",
       "paths": {
-        "skills": "."
+        "agents": "agents",
+        "skills": "skills"
       },
       "builtin": true
     }
   }
 }
 JSONC
-      log "Created .telamon.jsonc with built-in addyosmani/agent-skills"
+      log "Created .telamon.jsonc with built-in addyosmani module"
     fi
   fi
 
@@ -99,9 +93,9 @@ with open(path) as f:
 
 if 'modules' not in data:
     data['modules'] = {
-        "addyosmani/agent-skills": {
+        "addyosmani": {
             "url": "https://github.com/addyosmani/agent-skills.git",
-            "paths": {"skills": "."},
+            "paths": {"agents": "agents", "skills": "skills"},
             "builtin": True
         }
     }
@@ -129,9 +123,11 @@ with open(target_path) as f:
     data = json.loads(strip(f.read()))
 
 modules = data.get('modules', {})
-for name, entry in legacy.items():
-    if name not in modules:
-        modules[name] = entry
+for old_key, entry in legacy.items():
+    # Legacy keys are org/repo — use repo name or existing "name" field
+    new_name = entry.pop('name', None) or old_key.split('/')[-1]
+    if new_name not in modules:
+        modules[new_name] = entry
 
 data['modules'] = modules
 with open(target_path, 'w') as f:
@@ -154,9 +150,9 @@ PYEOF
         _murl="${_murl// /}"
         [[ -z "${_murl}" ]] && continue
         local _mname
-        _mname="$(_url_to_name "${_murl}")"
+        _mname="$(_url_to_default_name "${_murl}")"
         # Skip if it's the built-in
-        [[ "${_mname}" == "addyosmani/agent-skills" ]] && continue
+        [[ "${_mname}" == "addyosmani" || "${_mname}" == "agent-skills" ]] && continue
         # Add to .telamon.jsonc modules section
         python3 - "${MODULES_FILE}" "${_mname}" "${_murl}" <<'PYEOF'
 import json, sys, re
@@ -243,14 +239,12 @@ PYEOF
 
 # _wire_module_to_project <name> <vendor_dir> <paths_json> <project_dir>
 # Creates symlinks for one module in one project.
+# Symlink name = module name (the JSONC key).
 _wire_module_to_project() {
   local name="$1"
   local vendor_dir="$2"
   local paths_json="$3"
   local project_dir="$4"
-
-  # Derive symlink name: org/repo → org-repo
-  local link_name="${name//\//-}"
 
   # For each type, check if the path exists in vendor and create symlink
   for type in skills plugins agents commands; do
@@ -269,17 +263,17 @@ print(paths.get(sys.argv[2], ''))
     [[ -d "${src_dir}" ]] || continue
 
     local target_dir="${project_dir}/.opencode/${type}"
-    local link_path="${target_dir}/${link_name}"
+    local link_path="${target_dir}/${name}"
 
     mkdir -p "${target_dir}"
 
     if [[ -L "${link_path}" ]]; then
-      skip ".opencode/${type}/${link_name} symlink (already exists)"
+      skip ".opencode/${type}/${name} symlink (already exists)"
     elif [[ -e "${link_path}" ]]; then
-      warn ".opencode/${type}/${link_name} exists but is not a symlink — skipping"
+      warn ".opencode/${type}/${name} exists but is not a symlink — skipping"
     else
       ln -s "${src_dir}" "${link_path}"
-      log "Symlinked .opencode/${type}/${link_name} → ${src_dir}"
+      log "Symlinked .opencode/${type}/${name} → ${src_dir}"
     fi
   done
 }
@@ -289,13 +283,12 @@ print(paths.get(sys.argv[2], ''))
 _remove_module_wiring() {
   local name="$1"
   local project_dir="$2"
-  local link_name="${name//\//-}"
 
   for type in skills plugins agents commands; do
-    local link_path="${project_dir}/.opencode/${type}/${link_name}"
+    local link_path="${project_dir}/.opencode/${type}/${name}"
     if [[ -L "${link_path}" ]]; then
       rm "${link_path}"
-      log "Removed .opencode/${type}/${link_name}"
+      log "Removed .opencode/${type}/${name}"
     fi
   done
 }
@@ -325,10 +318,11 @@ cmd_add() {
   fi
   shift
 
-  # Parse optional path overrides
-  local opt_commands="" opt_agents="" opt_skills="" opt_plugins=""
+  # Parse optional flags
+  local opt_name="" opt_commands="" opt_agents="" opt_skills="" opt_plugins=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --name=*)     opt_name="${1#*=}";     shift ;;
       --commands=*) opt_commands="${1#*=}"; shift ;;
       --agents=*)   opt_agents="${1#*=}";   shift ;;
       --skills=*)   opt_skills="${1#*=}";   shift ;;
@@ -339,8 +333,8 @@ cmd_add() {
 
   _ensure_modules_file
 
-  local name
-  name="$(_url_to_name "${url}")"
+  # Module name: --name flag > default (repo name from URL)
+  local name="${opt_name:-$(_url_to_default_name "${url}")}"
 
   header "Module add: ${name}"
 
@@ -440,7 +434,7 @@ PYEOF
 cmd_remove() {
   local name="${1:-}"
   if [[ -z "${name}" ]]; then
-    echo "Error: 'telamon module remove' requires a module name (org/repo)" >&2
+    echo "Error: 'telamon module remove' requires a module name" >&2
     echo >&2
     _usage >&2
     exit 1
@@ -494,13 +488,16 @@ PYEOF
     log "Unregistered: ${name}"
   fi
 
-  # Remove vendor directory
-  local dest="${TELAMON_ROOT}/vendor/${name}"
-  if [[ -d "${dest}" ]]; then
+  # Remove vendor directory (derive org/repo from URL)
+  local dest=""
+  if [[ -n "${existing_url}" ]]; then
+    dest="${TELAMON_ROOT}/$(_derive_path "${existing_url}")"
+  fi
+  if [[ -n "${dest}" && -d "${dest}" ]]; then
     step "Removing directory ${dest} ..."
     rm -rf "${dest}"
     log "Directory removed"
-  else
+  elif [[ -n "${dest}" ]]; then
     skip "directory not found: ${dest}"
   fi
 }
@@ -514,7 +511,7 @@ cmd_list() {
   modules_json="$(_read_modules_jsonc)"
 
   python3 - "${modules_json}" "${TELAMON_ROOT}" <<'PYEOF'
-import json, sys, os
+import json, sys, os, re
 
 modules = json.loads(sys.argv[1])
 root    = sys.argv[2]
@@ -524,15 +521,25 @@ RED    = '\033[0;31m'
 DIM    = '\033[2m'
 CLEAR  = '\033[0m'
 
+def url_to_vendor(url):
+    url = url.rstrip('/').removesuffix('.git')
+    if url.startswith('git@'):
+        org_repo = url.split(':',1)[1]
+    else:
+        parts = url.split('://',1)[1].split('/',2)
+        org_repo = '/'.join(parts[1:]) if len(parts) > 2 else parts[-1]
+    return f'vendor/{org_repo}'
+
 for name, entry in modules.items():
     url      = entry.get('url', '')
     builtin  = entry.get('builtin', False)
-    dest     = os.path.join(root, 'vendor', name)
+    vendor   = url_to_vendor(url) if url else '?'
+    dest     = os.path.join(root, vendor)
     cloned   = os.path.isdir(os.path.join(dest, '.git'))
     tag      = ' [builtin]' if builtin else ''
     status   = f'{GREEN}✔{CLEAR}' if cloned else f'{RED}✖{CLEAR}'
     note     = '' if cloned else ' — not cloned'
-    print(f'  {status}  vendor/{name}{tag}  {DIM}({url}){note}{CLEAR}')
+    print(f'  {status}  {name}{tag}  {DIM}({vendor}){note}{CLEAR}')
 PYEOF
 }
 
@@ -561,16 +568,15 @@ cmd_sync() {
 import json, sys
 modules = json.loads(sys.argv[1])
 for name, entry in modules.items():
+    url = entry.get('url', '')
     paths = entry.get('paths', {'commands': './commands', 'agents': './agents', 'skills': './skills', 'plugins': './plugins'})
-    print(name + '\t' + json.dumps(paths))
+    print(name + '\t' + url + '\t' + json.dumps(paths))
 " "${modules_json}")"
 
-  while IFS=$'\t' read -r _name _paths_json; do
-    local _dest="${TELAMON_ROOT}/vendor/${_name}"
+  while IFS=$'\t' read -r _name _url _paths_json; do
+    local _dest="${TELAMON_ROOT}/$(_derive_path "${_url}")"
     if [[ ! -d "${_dest}/.git" ]]; then
       # Try to clone it
-      local _url
-      _url="$(_get_module_field "${_name}" "url")"
       if [[ -n "${_url}" ]]; then
         step "Cloning ${_name} ..."
         mkdir -p "$(dirname "${_dest}")"
@@ -596,9 +602,19 @@ _usage() {
 Usage: telamon module <subcommand> [args]
 
 Subcommands:
-  add <url> [--commands=<path>] [--agents=<path>] [--skills=<path>] [--plugins=<path>]
-               Clone a git repo into vendor/ and register in .telamon.jsonc
-  remove <name>  Remove a module (name is org/repo); cannot remove built-in modules
+  add <url> [options]  Clone a git repo into vendor/ and register in .telamon.jsonc
+
+    Options:
+      --name=<name>       Module name (default: repo name from URL)
+      --commands=<path>   Path to commands directory within the repo
+      --agents=<path>     Path to agents directory within the repo
+      --skills=<path>     Path to skills directory within the repo
+      --plugins=<path>    Path to plugins directory within the repo
+
+    When path flags are omitted, auto-detects ./commands, ./agents,
+    ./skills, and ./plugins in the cloned repo.
+
+  remove <name>  Remove a module by name; cannot remove built-in modules
   list           Show all registered modules with clone status
   sync           Re-wire all modules into all initialized projects
 EOF
