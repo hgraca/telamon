@@ -175,4 +175,4 @@ services:
     volumes:
       # Set DISCORD_WORKSPACES_DIR in .env to your development directory (e.g. /home/yourname/Development)
       - ${DISCORD_WORKSPACES_DIR}:/workspaces:ro
-      - ${HOME}/.config/opencode/opencode.json:/app/opencode.json:ro
+      - ${HOME}/.config/opencode/opencode.jsonc:/app/opencode.jsonc:ro
