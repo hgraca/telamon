@@ -309,9 +309,9 @@ _discover_projects() {
 # ── Subcommands ───────────────────────────────────────────────────────────────
 
 cmd_add() {
-  local url="${1:-}"
-  if [[ -z "${url}" ]]; then
-    echo "Error: 'telamon module add' requires a URL" >&2
+  local url_or_path="${1:-}"
+  if [[ -z "${url_or_path}" ]]; then
+    echo "Error: 'telamon module add' requires a URL or local path" >&2
     echo >&2
     _usage >&2
     exit 1
@@ -333,36 +333,59 @@ cmd_add() {
 
   _ensure_modules_file
 
-  # Module name: --name flag > default (repo name from URL)
-  local name="${opt_name:-$(_url_to_default_name "${url}")}"
-
-  header "Module add: ${name}"
-
-  # Check for duplicate
-  local existing_url
-  existing_url="$(_get_module_field "${name}" "url")"
-  if [[ -n "${existing_url}" ]]; then
-    skip "already registered: ${name}"
-    return 0
+  # ── Detect local path vs git URL ─────────────────────────────────────────────
+  local is_local=false
+  local local_abs_path=""
+  if [[ -d "${url_or_path}" ]]; then
+    is_local=true
+    local_abs_path="$(realpath "${url_or_path}")"
   fi
 
-  local dest="${TELAMON_ROOT}/$(_derive_path "${url}")"
+  if [[ "${is_local}" == true ]]; then
+    # ── Local module ─────────────────────────────────────────────────────────
 
-  # Clone if not already present
-  if [[ -d "${dest}/.git" ]]; then
-    skip "directory already cloned: ${dest}"
-  else
-    step "Cloning ${url} → ${dest} ..."
-    mkdir -p "$(dirname "${dest}")"
-    git clone --depth 1 "${url}" "${dest}" \
-      && log "Cloned successfully" \
-      || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git clone failed"; exit 1; }
-  fi
+    # Derive vendor path: prefer git remote URL, fall back to local/<basename>
+    local vendor_rel=""
+    local remote_url=""
+    remote_url="$(git -C "${local_abs_path}" remote get-url origin 2>/dev/null || true)"
+    if [[ -n "${remote_url}" ]]; then
+      vendor_rel="$(_derive_path "${remote_url}")"
+    else
+      vendor_rel="vendor/local/$(basename "${local_abs_path}")"
+    fi
 
-  # Determine which paths actually exist in the cloned repo
-  step "Detecting available paths ..."
-  local paths_json
-  paths_json="$(python3 - "${dest}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" <<'PYEOF'
+    # Module name: --name flag > basename of path
+    local name="${opt_name:-$(basename "${local_abs_path}")}"
+
+    header "Module add (local): ${name}"
+
+    # Check for duplicate (either local_path or url)
+    local existing_local existing_url_dup
+    existing_local="$(_get_module_field "${name}" "local_path")"
+    existing_url_dup="$(_get_module_field "${name}" "url")"
+    if [[ -n "${existing_local}" || -n "${existing_url_dup}" ]]; then
+      skip "already registered: ${name}"
+      return 0
+    fi
+
+    local dest="${TELAMON_ROOT}/${vendor_rel}"
+
+    # Create symlink in vendor/ (not a clone)
+    if [[ -L "${dest}" ]]; then
+      skip "vendor symlink already exists: ${dest}"
+    elif [[ -e "${dest}" ]]; then
+      warn "${dest} exists but is not a symlink — skipping vendor link creation"
+    else
+      step "Creating vendor symlink: ${dest} → ${local_abs_path} ..."
+      mkdir -p "$(dirname "${dest}")"
+      ln -s "${local_abs_path}" "${dest}"
+      log "Symlink created"
+    fi
+
+    # Detect available paths in the local directory
+    step "Detecting available paths ..."
+    local paths_json
+    paths_json="$(python3 - "${local_abs_path}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" <<'PYEOF'
 import json, sys, os
 
 dest        = sys.argv[1]
@@ -388,16 +411,118 @@ print(json.dumps(paths))
 PYEOF
 )"
 
-  if [[ "${paths_json}" == "{}" ]]; then
-    warn "No standard paths found in ${dest} — registering with default paths anyway"
-    paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins"}'
-  else
-    log "Found paths: ${paths_json}"
-  fi
+    if [[ "${paths_json}" == "{}" ]]; then
+      warn "No standard paths found in ${local_abs_path} — registering with default paths anyway"
+      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins"}'
+    else
+      log "Found paths: ${paths_json}"
+    fi
 
-  # Register in .telamon.jsonc modules section
-  step "Registering in .telamon.jsonc ..."
-  python3 - "${MODULES_FILE}" "${name}" "${url}" "${paths_json}" <<'PYEOF'
+    # Register in .telamon.jsonc with local_path (no url field)
+    step "Registering in .telamon.jsonc ..."
+    python3 - "${MODULES_FILE}" "${name}" "${local_abs_path}" "${paths_json}" <<'PYEOF'
+import json, sys, re
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+path       = sys.argv[1]
+name       = sys.argv[2]
+local_path = sys.argv[3]
+paths      = json.loads(sys.argv[4])
+
+with open(path) as f:
+    data = json.loads(strip(f.read()))
+
+modules = data.get('modules', {})
+modules[name] = {"local_path": local_path, "paths": paths}
+data['modules'] = modules
+
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+PYEOF
+    log "Registered: ${name}"
+
+    # Wire into all known projects
+    step "Wiring into projects ..."
+    local wired=0
+    while IFS= read -r _proj; do
+      _wire_module_to_project "${name}" "${local_abs_path}" "${paths_json}" "${_proj}"
+      wired=$((wired + 1))
+    done < <(_discover_projects)
+
+    [[ "${wired}" -eq 0 ]] && info "No initialized projects found — run 'telamon init <path>' to wire later"
+
+  else
+    # ── Remote (git URL) module ───────────────────────────────────────────────
+    local url="${url_or_path}"
+
+    # Module name: --name flag > default (repo name from URL)
+    local name="${opt_name:-$(_url_to_default_name "${url}")}"
+
+    header "Module add: ${name}"
+
+    # Check for duplicate (either url or local_path)
+    local existing_url existing_local_dup
+    existing_url="$(_get_module_field "${name}" "url")"
+    existing_local_dup="$(_get_module_field "${name}" "local_path")"
+    if [[ -n "${existing_url}" || -n "${existing_local_dup}" ]]; then
+      skip "already registered: ${name}"
+      return 0
+    fi
+
+    local dest="${TELAMON_ROOT}/$(_derive_path "${url}")"
+
+    # Clone if not already present
+    if [[ -d "${dest}/.git" ]]; then
+      skip "directory already cloned: ${dest}"
+    else
+      step "Cloning ${url} → ${dest} ..."
+      mkdir -p "$(dirname "${dest}")"
+      git clone --depth 1 "${url}" "${dest}" \
+        && log "Cloned successfully" \
+        || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git clone failed"; exit 1; }
+    fi
+
+    # Determine which paths actually exist in the cloned repo
+    step "Detecting available paths ..."
+    local paths_json
+    paths_json="$(python3 - "${dest}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" <<'PYEOF'
+import json, sys, os
+
+dest        = sys.argv[1]
+opt_cmds    = sys.argv[2]
+opt_agents  = sys.argv[3]
+opt_skills  = sys.argv[4]
+opt_plugins = sys.argv[5]
+
+defaults = {
+    "commands": opt_cmds    or "./commands",
+    "agents":   opt_agents  or "./agents",
+    "skills":   opt_skills  or "./skills",
+    "plugins":  opt_plugins or "./plugins",
+}
+
+paths = {}
+for key, rel in defaults.items():
+    abs_path = os.path.normpath(os.path.join(dest, rel))
+    if os.path.isdir(abs_path):
+        paths[key] = rel
+
+print(json.dumps(paths))
+PYEOF
+)"
+
+    if [[ "${paths_json}" == "{}" ]]; then
+      warn "No standard paths found in ${dest} — registering with default paths anyway"
+      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins"}'
+    else
+      log "Found paths: ${paths_json}"
+    fi
+
+    # Register in .telamon.jsonc modules section
+    step "Registering in .telamon.jsonc ..."
+    python3 - "${MODULES_FILE}" "${name}" "${url}" "${paths_json}" <<'PYEOF'
 import json, sys, re
 
 def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
@@ -418,17 +543,18 @@ with open(path, 'w') as f:
     json.dump(data, f, indent=2)
     f.write('\n')
 PYEOF
-  log "Registered: ${name}"
+    log "Registered: ${name}"
 
-  # Wire into all known projects
-  step "Wiring into projects ..."
-  local wired=0
-  while IFS= read -r _proj; do
-    _wire_module_to_project "${name}" "${dest}" "${paths_json}" "${_proj}"
-    wired=$((wired + 1))
-  done < <(_discover_projects)
+    # Wire into all known projects
+    step "Wiring into projects ..."
+    local wired=0
+    while IFS= read -r _proj; do
+      _wire_module_to_project "${name}" "${dest}" "${paths_json}" "${_proj}"
+      wired=$((wired + 1))
+    done < <(_discover_projects)
 
-  [[ "${wired}" -eq 0 ]] && info "No initialized projects found — run 'telamon init <path>' to wire later"
+    [[ "${wired}" -eq 0 ]] && info "No initialized projects found — run 'telamon init <path>' to wire later"
+  fi
 }
 
 cmd_remove() {
@@ -452,10 +578,11 @@ cmd_remove() {
     exit 1
   fi
 
-  # Check if registered
-  local existing_url
+  # Check if registered (url or local_path)
+  local existing_url existing_local_path
   existing_url="$(_get_module_field "${name}" "url")"
-  if [[ -z "${existing_url}" ]]; then
+  existing_local_path="$(_get_module_field "${name}" "local_path")"
+  if [[ -z "${existing_url}" && -z "${existing_local_path}" ]]; then
     warn "Module not found in .telamon.jsonc: ${name}"
   else
     # Remove wiring from all projects first
@@ -488,17 +615,33 @@ PYEOF
     log "Unregistered: ${name}"
   fi
 
-  # Remove vendor directory (derive org/repo from URL)
+  # Remove vendor entry: symlink for local modules, directory for remote modules
   local dest=""
-  if [[ -n "${existing_url}" ]]; then
+  if [[ -n "${existing_local_path}" ]]; then
+    # Derive vendor symlink path (same logic as cmd_add)
+    local _remote_url
+    _remote_url="$(git -C "${existing_local_path}" remote get-url origin 2>/dev/null || true)"
+    if [[ -n "${_remote_url}" ]]; then
+      dest="${TELAMON_ROOT}/$(_derive_path "${_remote_url}")"
+    else
+      dest="${TELAMON_ROOT}/vendor/local/$(basename "${existing_local_path}")"
+    fi
+    if [[ -L "${dest}" ]]; then
+      step "Removing vendor symlink ${dest} ..."
+      rm "${dest}"
+      log "Symlink removed (local directory preserved)"
+    elif [[ -n "${dest}" ]]; then
+      skip "vendor symlink not found: ${dest}"
+    fi
+  elif [[ -n "${existing_url}" ]]; then
     dest="${TELAMON_ROOT}/$(_derive_path "${existing_url}")"
-  fi
-  if [[ -n "${dest}" && -d "${dest}" ]]; then
-    step "Removing directory ${dest} ..."
-    rm -rf "${dest}"
-    log "Directory removed"
-  elif [[ -n "${dest}" ]]; then
-    skip "directory not found: ${dest}"
+    if [[ -n "${dest}" && -d "${dest}" ]]; then
+      step "Removing directory ${dest} ..."
+      rm -rf "${dest}"
+      log "Directory removed"
+    elif [[ -n "${dest}" ]]; then
+      skip "directory not found: ${dest}"
+    fi
   fi
 }
 
@@ -531,15 +674,23 @@ def url_to_vendor(url):
     return f'vendor/{org_repo}'
 
 for name, entry in modules.items():
-    url      = entry.get('url', '')
-    builtin  = entry.get('builtin', False)
-    vendor   = url_to_vendor(url) if url else '?'
-    dest     = os.path.join(root, vendor)
-    cloned   = os.path.isdir(os.path.join(dest, '.git'))
-    tag      = ' [builtin]' if builtin else ''
-    status   = f'{GREEN}✔{CLEAR}' if cloned else f'{RED}✖{CLEAR}'
-    note     = '' if cloned else ' — not cloned'
-    print(f'  {status}  {name}{tag}  {DIM}({vendor}){note}{CLEAR}')
+    url        = entry.get('url', '')
+    local_path = entry.get('local_path', '')
+    builtin    = entry.get('builtin', False)
+
+    if local_path:
+        tag    = ' [local]'
+        status = f'{GREEN}✔{CLEAR}' if os.path.isdir(local_path) else f'{RED}✖{CLEAR}'
+        note   = '' if os.path.isdir(local_path) else ' — path not found'
+        print(f'  {status}  {name}{tag}  {DIM}({local_path}){note}{CLEAR}')
+    else:
+        vendor = url_to_vendor(url) if url else '?'
+        dest   = os.path.join(root, vendor)
+        cloned = os.path.isdir(os.path.join(dest, '.git'))
+        tag    = ' [builtin]' if builtin else ''
+        status = f'{GREEN}✔{CLEAR}' if cloned else f'{RED}✖{CLEAR}'
+        note   = '' if cloned else ' — not cloned'
+        print(f'  {status}  {name}{tag}  {DIM}({vendor}){note}{CLEAR}')
 PYEOF
 }
 
@@ -568,30 +719,54 @@ cmd_sync() {
 import json, sys
 modules = json.loads(sys.argv[1])
 for name, entry in modules.items():
-    url = entry.get('url', '')
+    url        = entry.get('url', '')
+    local_path = entry.get('local_path', '')
     paths = entry.get('paths', {'commands': './commands', 'agents': './agents', 'skills': './skills', 'plugins': './plugins'})
-    print(name + '\t' + url + '\t' + json.dumps(paths))
+    print(name + '\t' + url + '\t' + local_path + '\t' + json.dumps(paths))
 " "${modules_json}")"
 
-  while IFS=$'\t' read -r _name _url _paths_json; do
-    local _dest="${TELAMON_ROOT}/$(_derive_path "${_url}")"
-    if [[ ! -d "${_dest}/.git" ]]; then
-      # Try to clone it
-      if [[ -n "${_url}" ]]; then
-        step "Cloning ${_name} ..."
-        mkdir -p "$(dirname "${_dest}")"
-        git clone --depth 1 "${_url}" "${_dest}" \
-          && log "Cloned: ${_name}" \
-          || { warn "git clone failed for ${_name}"; continue; }
+  while IFS=$'\t' read -r _name _url _local_path _paths_json; do
+    if [[ -n "${_local_path}" ]]; then
+      # Local module: resolve vendor symlink (create if missing), then wire
+      local _remote_url
+      _remote_url="$(git -C "${_local_path}" remote get-url origin 2>/dev/null || true)"
+      if [[ -n "${_remote_url}" ]]; then
+        _dest="${TELAMON_ROOT}/$(_derive_path "${_remote_url}")"
       else
-        warn "Module ${_name} not cloned and no URL found — skipping"
+        _dest="${TELAMON_ROOT}/vendor/local/$(basename "${_local_path}")"
+      fi
+      if [[ ! -e "${_dest}" ]]; then
+        step "Creating vendor symlink for ${_name} ..."
+        mkdir -p "$(dirname "${_dest}")"
+        ln -s "${_local_path}" "${_dest}"
+        log "Symlink created: ${_dest} → ${_local_path}"
+      elif [[ ! -L "${_dest}" ]]; then
+        warn "Vendor path ${_dest} exists but is not a symlink — skipping"
         continue
       fi
-    fi
+      for _proj in "${projects[@]+"${projects[@]}"}"; do
+        _wire_module_to_project "${_name}" "${_local_path}" "${_paths_json}" "${_proj}"
+      done
+    else
+      local _dest="${TELAMON_ROOT}/$(_derive_path "${_url}")"
+      if [[ ! -d "${_dest}/.git" ]]; then
+        # Try to clone it
+        if [[ -n "${_url}" ]]; then
+          step "Cloning ${_name} ..."
+          mkdir -p "$(dirname "${_dest}")"
+          git clone --depth 1 "${_url}" "${_dest}" \
+            && log "Cloned: ${_name}" \
+            || { warn "git clone failed for ${_name}"; continue; }
+        else
+          warn "Module ${_name} not cloned and no URL found — skipping"
+          continue
+        fi
+      fi
 
-    for _proj in "${projects[@]+"${projects[@]}"}"; do
-      _wire_module_to_project "${_name}" "${_dest}" "${_paths_json}" "${_proj}"
-    done
+      for _proj in "${projects[@]+"${projects[@]}"}"; do
+        _wire_module_to_project "${_name}" "${_dest}" "${_paths_json}" "${_proj}"
+      done
+    fi
   done <<< "${_module_lines}"
 
   log "Sync complete (${#projects[@]} project(s))"
@@ -602,20 +777,24 @@ _usage() {
 Usage: telamon module <subcommand> [args]
 
 Subcommands:
-  add <url> [options]  Clone a git repo into vendor/ and register in .telamon.jsonc
+  add <url-or-path> [options]  Register a module from a git URL or local directory path
+
+    When <url-or-path> is an existing directory, it is treated as a local module:
+    a symlink is created in vendor/ pointing to the directory (no cloning).
+    Otherwise it is treated as a git URL and cloned into vendor/.
 
     Options:
-      --name=<name>       Module name (default: repo name from URL)
-      --commands=<path>   Path to commands directory within the repo
-      --agents=<path>     Path to agents directory within the repo
-      --skills=<path>     Path to skills directory within the repo
-      --plugins=<path>    Path to plugins directory within the repo
+      --name=<name>       Module name (default: repo name from URL, or basename of path)
+      --commands=<path>   Path to commands directory within the repo/directory
+      --agents=<path>     Path to agents directory within the repo/directory
+      --skills=<path>     Path to skills directory within the repo/directory
+      --plugins=<path>    Path to plugins directory within the repo/directory
 
     When path flags are omitted, auto-detects ./commands, ./agents,
-    ./skills, and ./plugins in the cloned repo.
+    ./skills, and ./plugins in the repo or local directory.
 
   remove <name>  Remove a module by name; cannot remove built-in modules
-  list           Show all registered modules with clone status
+  list           Show all registered modules with clone/link status
   sync           Re-wire all modules into all initialized projects
 EOF
 }

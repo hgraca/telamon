@@ -9,24 +9,24 @@ nav_section: docs
 
 After installing, the `telamon` command is available system-wide from any directory.
 
-| Command                           | Description                                                |
-|-----------------------------------|------------------------------------------------------------|
-| `telamon up`                      | Install host tools + start Docker services                 |
-| `telamon down`                    | Stop Docker services                                       |
-| `telamon restart`                 | Stop then start                                            |
-| `telamon status`                  | Quick installation status                                  |
-| `telamon doctor`                  | Comprehensive health check (connectivity, config, secrets) |
-| `telamon update`                  | Upgrade all Telamon-managed tools                          |
-| `telamon init [path]`             | Initialise a project (default: current directory)          |
-| `telamon reset [path]`            | Remove project wiring, keep storage data                   |
-| `telamon purge [path]`            | Remove project wiring **and** storage data                 |
-| `telamon recover-memories [path]` | Extract memories from past session transcripts             |
-| `telamon module add <url>`        | Clone a module repo and wire it into all projects          |
-| `telamon module remove <name>`    | Remove a registered module by name                         |
-| `telamon module list`             | Show all registered modules with clone status              |
-| `telamon module sync`             | Re-wire all modules into all initialized projects          |
-| `telamon uninstall`               | Completely remove Telamon (destructive)                    |
-| `telamon help`                    | Show usage help                                            |
+| Command                            | Description                                                |
+|------------------------------------|------------------------------------------------------------|
+| `telamon up`                       | Install host tools + start Docker services                 |
+| `telamon down`                     | Stop Docker services                                       |
+| `telamon restart`                  | Stop then start                                            |
+| `telamon status`                   | Quick installation status                                  |
+| `telamon doctor`                   | Comprehensive health check (connectivity, config, secrets) |
+| `telamon update`                   | Upgrade all Telamon-managed tools                          |
+| `telamon init [path]`              | Initialise a project (default: current directory)          |
+| `telamon reset [path]`             | Remove project wiring, keep storage data                   |
+| `telamon purge [path]`             | Remove project wiring **and** storage data                 |
+| `telamon recover-memories [path]`  | Extract memories from past session transcripts             |
+| `telamon module add <url-or-path>` | Register a module from a git URL or local path             |
+| `telamon module remove <name>`     | Remove a registered module by name                         |
+| `telamon module list`              | Show all registered modules with clone status              |
+| `telamon module sync`              | Re-wire all modules into all initialized projects          |
+| `telamon uninstall`                | Completely remove Telamon (destructive)                    |
+| `telamon help`                     | Show usage help                                            |
 
 `init`, `reset`, `purge`, and `recover-memories` accept an optional path. If omitted, they use the current directory. Relative paths are resolved correctly:
 
@@ -64,7 +64,7 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 
 ### module
 
-Modules are external git repositories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/<org>/<repo>/` and creates symlinks into every initialized project's `.opencode/` directory — the same nested-set pattern used for Telamon's own files.
+Modules are external git repositories or local directories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/<org>/<repo>/` (for git URLs) or creates a symlink in `vendor/` pointing to the local directory, then wires symlinks into every initialized project's `.opencode/` directory — the same nested-set pattern used for Telamon's own files.
 
 Each module gets its own namespace inside `.opencode/`:
 
@@ -81,28 +81,28 @@ Each module gets its own namespace inside `.opencode/`:
 ```
 
 ```bash
-telamon module add <url> [options]   # clone + register + wire
-telamon module remove <name>         # unregister + unwire + delete
-telamon module list                  # show all modules
-telamon module sync                  # re-wire all modules to all projects
+telamon module add <url-or-path> [options]   # clone/link + register + wire
+telamon module remove <name>                 # unregister + unwire + delete/unlink
+telamon module list                          # show all modules
+telamon module sync                          # re-wire all modules to all projects
 ```
 
 #### Options for `module add`
 
-| Flag          | Description                                                |
-|---------------|------------------------------------------------------------|
-| `--name=`     | Module name used for the symlink (default: repo name)      |
-| `--commands=` | Relative path to commands directory within the cloned repo |
-| `--agents=`   | Relative path to agents directory within the cloned repo   |
-| `--skills=`   | Relative path to skills directory within the cloned repo   |
-| `--plugins=`  | Relative path to plugins directory within the cloned repo  |
+| Flag          | Description                                                            |
+|---------------|------------------------------------------------------------------------|
+| `--name=`     | Module name used for the symlink (default: repo name or path basename) |
+| `--commands=` | Relative path to commands directory within the repo/directory          |
+| `--agents=`   | Relative path to agents directory within the repo/directory            |
+| `--skills=`   | Relative path to skills directory within the repo/directory            |
+| `--plugins=`  | Relative path to plugins directory within the repo/directory           |
 
-When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist.
+When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo or local directory and wires any that exist.
 
 #### Examples
 
 ```bash
-# Add a module — name defaults to 'agent-skills'
+# Add a remote module — name defaults to 'agent-skills'
 telamon module add https://github.com/addyosmani/agent-skills.git
 
 # Add with a custom name — symlinks will be .opencode/skills/addy, etc.
@@ -110,6 +110,15 @@ telamon module add https://github.com/addyosmani/agent-skills.git --name=addy
 
 # Add with custom paths — skills live at the repo root
 telamon module add https://github.com/org/repo.git --skills=. --agents=./my-agents
+
+# Add a local directory (absolute path)
+telamon module add /home/user/my-skills
+
+# Add a local directory (relative path — resolved to absolute automatically)
+telamon module add ./my-skills
+
+# Add a local directory with a custom name
+telamon module add /home/user/my-skills --name=custom
 
 # Remove by name
 telamon module remove agent-skills
@@ -124,12 +133,16 @@ Module configuration is stored in `.telamon.jsonc` under the `"modules"` key. Th
       "url": "https://github.com/addyosmani/agent-skills.git",
       "paths": { "agents": "agents", "skills": "skills" },
       "builtin": true
+    },
+    "my-skills": {
+      "local_path": "/home/user/my-skills",
+      "paths": { "skills": "./skills" }
     }
   }
 }
 ```
 
-The `addyosmani` module is built-in and cannot be removed.
+Remote modules use a `"url"` field; local modules use a `"local_path"` field. A module entry will never have both. The `addyosmani` module is built-in and cannot be removed.
 
 ---
 

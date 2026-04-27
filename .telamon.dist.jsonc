@@ -5,11 +5,13 @@
 
   // ── External modules ─────────────────────────────────────────────────────────
   // Each key is the module name — used for symlinks and 'telamon module remove'.
-  // 'telamon module add <url>' appends here automatically.
+  // 'telamon module add <url-or-path>' appends here automatically.
   //
-  // Available fields per module:
-  //   "url"       (required)  Git repository URL (HTTPS or SSH)
-  //   "paths"     (optional)  Map of asset type → relative path within the repo
+  // Available fields per module (use "url" OR "local_path", never both):
+  //   "url"        (for remote modules)  Git repository URL (HTTPS or SSH)
+  //   "local_path" (for local modules)   Absolute path to a local directory;
+  //                a symlink is created in vendor/ pointing to this path
+  //   "paths"     (optional)  Map of asset type → relative path within the repo/directory
   //               Types: "commands", "agents", "skills", "plugins"
   //               When omitted, auto-detects ./commands, ./agents, ./skills, ./plugins
   //   "builtin"   (optional)  true for built-in modules that cannot be removed

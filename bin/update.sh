@@ -101,7 +101,7 @@ _telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
 if [[ ! -f "${_telamon_cfg}" ]]; then
   skip "no .telamon.jsonc found"
 else
-  # Read module URLs (excluding built-ins) from .telamon.jsonc
+  # Read module URLs (excluding built-ins and local-path modules) from .telamon.jsonc
   _user_module_lines="$(python3 - "${_telamon_cfg}" <<'PYEOF'
 import json, re, sys
 
@@ -113,6 +113,8 @@ with open(sys.argv[1]) as f:
 for name, entry in data.get('modules', {}).items():
     if entry.get('builtin', False):
         continue
+    if entry.get('local_path', ''):
+        continue  # local modules are live directories — no git pull needed
     url = entry.get('url', '')
     if url:
         print(f'{name}\t{url}')

@@ -193,25 +193,40 @@ with open(sys.argv[1]) as f:
     data = json.loads(strip(f.read()))
 
 for name, entry in data.get('modules', {}).items():
-    url = entry.get('url', '')
-    paths = entry.get('paths', {})
-    if url and paths:
-        print(f'{name}\t{url_to_vendor(url)}\t{json.dumps(paths)}')
+    local_path = entry.get('local_path', '')
+    url        = entry.get('url', '')
+    paths      = entry.get('paths', {})
+    if local_path and paths:
+        # local module: vendor path is the local_path itself (wiring uses it directly)
+        print(f'{name}\t\t{local_path}\t{json.dumps(paths)}')
+    elif url and paths:
+        print(f'{name}\t{url_to_vendor(url)}\t\t{json.dumps(paths)}')
 PYEOF
 )"
 
   if [[ -n "${_module_lines}" ]]; then
     header "External modules"
-    while IFS=$'\t' read -r _mname _mvendor _mpaths; do
-      _mdest="${TELAMON_ROOT}/${_mvendor}"
-      if [[ ! -d "${_mdest}/.git" ]]; then
-        skip "${_mname}: not cloned — run 'telamon module sync' to clone"
-        continue
+    while IFS=$'\t' read -r _mname _mvendor _mlocal _mpaths; do
+      if [[ -n "${_mlocal}" ]]; then
+        # Local module: wire directly from local_path
+        if [[ ! -d "${_mlocal}" ]]; then
+          skip "${_mname}: local path not found (${_mlocal}) — skipping"
+          continue
+        fi
+        _msrc="${_mlocal}"
+      else
+        _mdest="${TELAMON_ROOT}/${_mvendor}"
+        # Accept either a cloned .git dir or a symlink pointing to a directory
+        if [[ ! -d "${_mdest}" ]] && [[ ! -L "${_mdest}" ]]; then
+          skip "${_mname}: not cloned — run 'telamon module sync' to clone"
+          continue
+        fi
+        _msrc="${_mdest}"
       fi
       for _type in skills plugins agents commands; do
         _rel="$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get(sys.argv[2],''))" "${_mpaths}" "${_type}")"
         [[ -z "${_rel}" ]] && continue
-        _src="$(cd "${_mdest}" && cd "${_rel}" 2>/dev/null && pwd)" || continue
+        _src="$(cd "${_msrc}" && cd "${_rel}" 2>/dev/null && pwd)" || continue
         [[ -d "${_src}" ]] || continue
         _link="${PROJ}/.opencode/${_type}/${_mname}"
         mkdir -p "${PROJ}/.opencode/${_type}"
