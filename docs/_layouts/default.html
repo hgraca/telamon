@@ -6,6 +6,9 @@
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{{ page.description | default: site.description | strip_html | truncatewords: 50 }}">
   {% seo %}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/imgs/telamon-icon-32.png' | relative_url }}">
+  <link rel="icon" type="image/png" sizes="128x128" href="{{ '/assets/imgs/telamon-icon-128.png' | relative_url }}">
+  <link rel="apple-touch-icon" href="{{ '/assets/imgs/telamon-icon-128.png' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

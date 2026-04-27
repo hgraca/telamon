@@ -42,10 +42,19 @@ fi
 # ── Desktop / App entry ───────────────────────────────────────────────────────
 OS="$(os.get_os)"
 
+ICON_SRC="${TELAMON_ROOT}/imgs/telamon-icon-128.png"
+
 if [[ "${OS}" == "linux" ]]; then
   # ── Linux: .desktop file ──────────────────────────────────────────────────
   DESKTOP_DIR="${HOME}/.local/share/applications"
   DESKTOP_FILE="${DESKTOP_DIR}/telamon.desktop"
+  ICON_DIR="${HOME}/.local/share/icons/hicolor/128x128/apps"
+  ICON_DEST="${ICON_DIR}/telamon.png"
+
+  mkdir -p "${ICON_DIR}"
+  if [[ -f "${ICON_SRC}" ]]; then
+    cp -f "${ICON_SRC}" "${ICON_DEST}"
+  fi
 
   DESKTOP_CONTENT="[Desktop Entry]
 Type=Application
@@ -53,7 +62,7 @@ Name=Telamon
 Comment=Harness for Agentic Software Development
 Exec=telamon up
 Terminal=true
-Icon=utilities-terminal
+Icon=telamon
 Categories=Development;
 StartupNotify=false"
 
@@ -78,13 +87,19 @@ elif [[ "${OS}" == "macos" ]]; then
   # ── macOS: .app bundle ────────────────────────────────────────────────────
   APP_DIR="${HOME}/Applications/Telamon.app"
   MACOS_DIR="${APP_DIR}/Contents/MacOS"
+  RESOURCES_DIR="${APP_DIR}/Contents/Resources"
   LAUNCHER="${MACOS_DIR}/Telamon"
   PLIST="${APP_DIR}/Contents/Info.plist"
 
   if [[ -d "${APP_DIR}" ]]; then
     skip "Telamon.app (${APP_DIR})"
   else
-    mkdir -p "${MACOS_DIR}"
+    mkdir -p "${MACOS_DIR}" "${RESOURCES_DIR}"
+
+    # Copy icon for macOS app bundle
+    if [[ -f "${ICON_SRC}" ]]; then
+      cp -f "${ICON_SRC}" "${RESOURCES_DIR}/telamon-icon.png"
+    fi
 
     cat > "${LAUNCHER}" <<'LAUNCHER_EOF'
 #!/bin/bash
@@ -111,6 +126,8 @@ LAUNCHER_EOF
   <string>1.0</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
+  <key>CFBundleIconFile</key>
+  <string>telamon-icon.png</string>
 </dict>
 </plist>
 PLIST_EOF

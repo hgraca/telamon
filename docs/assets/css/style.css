@@ -86,10 +86,13 @@ img { max-width: 100%; height: auto; }
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--accent);
-  color: var(--bg);
-  font-weight: 700;
-  font-size: .9rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.logo-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 6px;
 }
 
@@ -569,7 +572,6 @@ img { max-width: 100%; height: auto; }
 .footer-brand .logo-icon {
   width: 28px;
   height: 28px;
-  font-size: .8rem;
 }
 .footer-brand .logo-text {
   font-weight: 600;
