@@ -182,7 +182,7 @@ if [[ -t 0 ]]; then
     fi
   else
     echo "  To find your Discord user ID:"
-    echo "  1. In Discord, go to Settings → Advanced → enable Developer Mode."
+    echo "  1. In Discord, go to Settings → Developer Mode → enable it."
     echo "  2. Right-click your username and select 'Copy User ID'."
     echo "  Multiple IDs can be separated by commas."
     echo
