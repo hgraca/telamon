@@ -1,0 +1,130 @@
+description: "Verify developer agent loads correct skills for different task types"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "../fixtures/developer-skill-routing"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/developer.md"
+      tools: [read, grep, glob, skill, write, edit]
+      permission:
+        read: "allow"
+        write: "allow"
+        bash: "deny"
+
+prompts:
+  - "{{task}}"
+
+tests:
+  - description: "PHP implementation → loads telamon.php_rules"
+    vars:
+      task: |
+        Task: Implement the CreateUser command handler in src/Application/User/CreateUserHandler.php.
+        Context files: src/Application/User/CreateUserHandler.php, PLAN.md (task 1)
+        Deliverable: A working PHP command handler class with typed properties and constructor promotion.
+        Constraints: Follow project PHP coding conventions. The plan status is FINAL.
+        Acceptance criteria: Handler accepts CreateUser command, validates input, persists user.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.php_rules"
+      - type: llm-rubric
+        value: "The developer's PHP code should demonstrate strict typing (declare strict_types=1), constructor promotion, and explicit type declarations — patterns consistent with loading the PHP coding rules skill"
+      - type: cost
+        threshold: 1.50
+
+  - description: "REST endpoint → loads telamon.rest_conventions"
+    vars:
+      task: |
+        Task: Create a REST API endpoint for listing users at GET /api/v1/users.
+        Context files: src/Infrastructure/Http/UserController.php, PLAN.md (task 2)
+        Deliverable: A controller action returning paginated users with standard REST response envelope.
+        Constraints: Follow project REST API conventions. The plan status is FINAL.
+        Acceptance criteria: Returns paginated user list with data/meta envelope, proper HTTP status codes.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.rest_conventions"
+      - type: llm-rubric
+        value: "The developer's implementation should follow REST conventions — proper HTTP methods, response envelopes with data/meta structure, pagination, and correct status codes"
+      - type: cost
+        threshold: 1.50
+
+  - description: "Use case creation → loads telamon.create-use-case"
+    vars:
+      task: |
+        Task: Create a new use case for processing payments with Command and CommandHandler.
+        Context files: src/Application/Payment/, PLAN.md (task 3)
+        Deliverable: ProcessPayment command, ProcessPaymentHandler, and integration tests.
+        Constraints: Follow CQRS patterns with the project's message bus. The plan status is FINAL.
+        Acceptance criteria: Command/CommandHandler pair, handler dispatches via message bus, tests cover happy path.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.create-use-case"
+      - type: llm-rubric
+        value: "The developer should produce a CQRS Command/CommandHandler pair following the create-use-case skill pattern — a Command value object and a CommandHandler that processes it"
+      - type: cost
+        threshold: 1.50
+
+  - description: "PHPUnit tests → loads telamon.phpunit"
+    vars:
+      task: |
+        Task: Write PHPUnit integration tests for the UserRepository class.
+        Context files: src/Infrastructure/Persistence/UserRepository.php, tests/, PLAN.md (task 4)
+        Deliverable: Integration tests covering all public methods of UserRepository.
+        Constraints: Follow project PHPUnit conventions. The plan status is FINAL.
+        Acceptance criteria: Tests use #[Test] attribute, cover findById/save/findAll/delete, no risky test warnings.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.phpunit"
+      - type: llm-rubric
+        value: "The developer's tests should use PHPUnit conventions — #[Test] attributes (not @test annotations), proper test method naming, and patterns consistent with loading the PHPUnit skill"
+      - type: cost
+        threshold: 1.50
+
+  - description: "Message bus handler → loads telamon.message_bus"
+    vars:
+      task: |
+        Task: Implement an event handler for UserRegistered that sends a welcome email via the message bus.
+        Context files: src/Application/Notification/SendWelcomeEmailHandler.php, PLAN.md (task 5)
+        Deliverable: Event handler class wired to the project's message bus.
+        Constraints: Use the project's message bus integration patterns. The plan status is FINAL.
+        Acceptance criteria: Handler dispatched via message bus when UserRegistered event fires, sends welcome email.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.message_bus"
+      - type: llm-rubric
+        value: "The developer's implementation should follow message bus patterns — an event handler class that receives events via dispatch/handle mechanism, consistent with the message bus skill"
+      - type: cost
+        threshold: 1.50
+
+  - description: "Multi-file change → loads incremental-implementation"
+    vars:
+      task: |
+        Task: Implement a notification feature spanning multiple files — domain entity, application handler, and infrastructure adapter.
+        Context files: src/Application/Notification/, PLAN.md (task 6)
+        Deliverable: Notification entity, NotifyUser handler, EmailNotificationAdapter — at least 3 files.
+        Constraints: Implement incrementally, one file at a time. The plan status is FINAL.
+        Acceptance criteria: Each layer has its own file, changes are incremental and verified step by step.
+    assert:
+      - type: trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "incremental-implementation"
+      - type: llm-rubric
+        value: "The developer should demonstrate incremental implementation — creating files one at a time, verifying each step before proceeding to the next, consistent with the incremental-implementation skill"
+      - type: cost
+        threshold: 1.50

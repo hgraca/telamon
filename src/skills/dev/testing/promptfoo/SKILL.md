@@ -7,13 +7,13 @@ description: "Agent evaluation with promptfoo: running evals, interpreting resul
 
 ## When to Apply
 
-| Trigger | Action |
-|---------|--------|
+| Trigger                                             | Action                                      |
+|-----------------------------------------------------|---------------------------------------------|
 | After changing agent instructions (src/agents/*.md) | Run affected evals to check for regressions |
-| After adding or modifying skills (src/skills/) | Run evals that exercise the changed skill |
-| Before merging agent behavior changes | Run full eval suite |
-| After adding a new agent role | Create a new eval config for it |
-| Debugging unexpected agent routing | Run request-classification eval |
+| After adding or modifying skills (src/skills/)      | Run evals that exercise the changed skill   |
+| Before merging agent behavior changes               | Run full eval suite                         |
+| After adding a new agent role                       | Create a new eval config for it             |
+| Debugging unexpected agent routing                  | Run request-classification eval             |
 
 ## Prerequisites
 
@@ -82,14 +82,14 @@ tests:
 
 ## Assertion Types
 
-| Type | Use for |
-|------|---------|
-| `javascript` | Check output contains expected strings (use OR for flexibility) |
-| `llm-rubric` | Semantic quality evaluation (LLM judges the output) |
-| `contains-json` | Verify structured output contains expected JSON |
-| `cost` | Token cost threshold |
-| `latency` | Response time threshold |
-| `trajectory:contains` | Verify specific tool calls were made |
+| Type                  | Use for                                                         |
+|-----------------------|-----------------------------------------------------------------|
+| `javascript`          | Check output contains expected strings (use OR for flexibility) |
+| `llm-rubric`          | Semantic quality evaluation (LLM judges the output)             |
+| `contains-json`       | Verify structured output contains expected JSON                 |
+| `cost`                | Token cost threshold                                            |
+| `latency`             | Response time threshold                                         |
+| `trajectory:contains` | Verify specific tool calls were made                            |
 
 ## Adding a New Eval
 
@@ -101,11 +101,12 @@ tests:
 
 ## Existing Evals
 
-| Eval | Tests |
-|------|-------|
-| `request-classification` | Agent routes requests to correct specialist |
-| `plan-structure` | Planning output has required structure |
-| `code-review-quality` | Reviewer catches seeded bugs |
+| Eval                      | Tests                                       |
+|---------------------------|---------------------------------------------|
+| `request-classification`  | Agent routes requests to correct specialist |
+| `plan-structure`          | Planning output has required structure      |
+| `code-review-quality`     | Reviewer catches seeded bugs                |
+| `developer-skill-routing` | Developer loads correct skill per task type |
 
 ## Notes
 
