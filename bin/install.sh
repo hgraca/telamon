@@ -137,7 +137,7 @@ collect_inputs() {
 
   # ── 2. Read .ai/telamon/telamon.jsonc (higher priority than saved state) ───────────────
   local ini_project=""
-  ini_project="$(_read_ini_value "${PWD}/.ai/telamon/telamon.jsonc" "project_name" 2>/dev/null || true)"
+  ini_project="$(config.read_ini "${PWD}/.ai/telamon/telamon.jsonc" "project_name" 2>/dev/null || true)"
 
   # ── 3. Read .env for POSTGRES_PASSWORD (higher priority than saved state) ──
   local env_pg_pass=""
