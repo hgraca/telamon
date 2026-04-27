@@ -96,6 +96,10 @@ title: Telamon
       </li>
       <li>
         <span class="check">&#x2713;</span>
+        <span><strong>Extensible with modules</strong> &mdash; add third-party commands, agents, skills, and plugins from any git repo. One command wires them into every project.</span>
+      </li>
+      <li>
+        <span class="check">&#x2713;</span>
         <span><strong>Optional observability</strong> &mdash; opt-in Langfuse for token tracking and Graphiti + Neo4j for temporal knowledge graphs.</span>
       </li>
     </ul>
