@@ -99,60 +99,48 @@ discord_bridge.is_configured() {
 }
 
 # ── Check / prompt for DISCORD_BOT_TOKEN ─────────────────────────────────────
-if [[ -t 0 ]]; then
-  _existing_token="$(grep -E "^[[:space:]]*DISCORD_BOT_TOKEN[[:space:]]*=" "${ENV_FILE}" 2>/dev/null \
-    | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-
+if discord_bridge.is_configured "DISCORD_BOT_TOKEN"; then
+  skip "DISCORD_BOT_TOKEN (already set)"
+  secrets.write "discord-bot-token" \
+    "$(grep -E "^[[:space:]]*DISCORD_BOT_TOKEN[[:space:]]*=" "${ENV_FILE}" \
+      | head -1 | cut -d= -f2- | tr -d "\"' ")"
+elif [[ -t 0 ]]; then
   echo
   echo -e "  ${TEXT_BOLD}Discord Bot Setup${TEXT_CLEAR}"
   echo
+  echo "  You need a Discord Application and Bot to use the Discord bridge."
+  echo "  Follow these steps:"
+  echo
+  echo "  1. Sign up at https://discord.com (or log in if you already have an account)."
+  echo "  2. Create a private server: click '+' in the left sidebar → 'Create My Own'"
+  echo "     → 'For me and my friends' → give it a name."
+  echo "  3. In your server, go to Settings (gear icon) → enable 'Developer Mode' under 'Advanced'."
+  echo "  4. Go to https://discord.com/developers/applications"
+  echo "  5. Click 'New Application' and give it a name."
+  echo "  6. Go to 'Bot' in the left sidebar."
+  echo "  7. Under 'Privileged Gateway Intents', enable MESSAGE CONTENT INTENT."
+  echo "     (Required for the bridge to read message content.)"
+  echo "  8. Click 'Reset Token' and copy the bot token."
+  echo "  9. Go to 'OAuth2' → 'URL Generator' in the left sidebar."
+  echo " 10. Under 'Scopes', select: bot"
+  echo " 11. Under 'Bot Permissions', select:"
+  echo "       - Send Messages"
+  echo "       - Read Message History"
+  echo "       - Create Public Threads"
+  echo "       - Send Messages in Threads"
+  echo "       - Manage Threads"
+  echo "       - Read Messages/View Channels"
+  echo " 12. Copy the generated URL and open it in your browser to invite the bot"
+  echo "     to your private Discord server."
+  echo " 13. Go to 'Installation' in the left sidebar and set 'Install Link' to 'None'."
+  echo "     This prevents anyone else from installing the bot."
+  echo
 
-  if discord_bridge.is_configured "DISCORD_BOT_TOKEN"; then
-    _masked_token="****${_existing_token: -4}"
-    echo "  Current DISCORD_BOT_TOKEN: ${_masked_token}"
-    echo "  Press Enter to keep the existing token, or paste a new one to overwrite."
-    echo
-    ask "DISCORD_BOT_TOKEN:"
+  bot_token=""
+  while [[ -z "${bot_token}" ]]; do
+    ask "DISCORD_BOT_TOKEN (paste your bot token):"
     read -r bot_token
-    if [[ -z "${bot_token}" ]]; then
-      bot_token="${_existing_token}"
-      log "DISCORD_BOT_TOKEN unchanged — syncing to secrets."
-    fi
-  else
-    echo "  You need a Discord Application and Bot to use the Discord bridge."
-    echo "  Follow these steps:"
-    echo
-    echo "  1. Sign up at https://discord.com (or log in if you already have an account)."
-    echo "  2. Create a private server: click '+' in the left sidebar → 'Create My Own'"
-    echo "     → 'For me and my friends' → give it a name."
-    echo "  3. In your server, go to Settings (gear icon) → enable 'Developer Mode' under 'Advanced'."
-    echo "  4. Go to https://discord.com/developers/applications"
-    echo "  5. Click 'New Application' and give it a name."
-    echo "  6. Go to 'Bot' in the left sidebar."
-    echo "  7. Under 'Privileged Gateway Intents', enable MESSAGE CONTENT INTENT."
-    echo "     (Required for the bridge to read message content.)"
-    echo "  8. Click 'Reset Token' and copy the bot token."
-    echo "  9. Go to 'OAuth2' → 'URL Generator' in the left sidebar."
-    echo " 10. Under 'Scopes', select: bot"
-    echo " 11. Under 'Bot Permissions', select:"
-    echo "       - Send Messages"
-    echo "       - Read Message History"
-    echo "       - Create Public Threads"
-    echo "       - Send Messages in Threads"
-    echo "       - Manage Threads"
-    echo "       - Read Messages/View Channels"
-    echo " 12. Copy the generated URL and open it in your browser to invite the bot"
-    echo "     to your private Discord server."
-    echo " 13. Go to 'Installation' in the left sidebar and set 'Install Link' to 'None'."
-    echo "     This prevents anyone else from installing the bot."
-    echo
-
-    bot_token=""
-    while [[ -z "${bot_token}" ]]; do
-      ask "DISCORD_BOT_TOKEN (paste your bot token):"
-      read -r bot_token
-    done
-  fi
+  done
 
   discord_bridge.write_env_var "DISCORD_BOT_TOKEN" "discord-bot-token" "${bot_token}"
 else
@@ -168,35 +156,24 @@ else
 fi
 
 # ── Check / prompt for DISCORD_ALLOWED_USER_IDS ──────────────────────────────
-if [[ -t 0 ]]; then
-  _existing_ids="$(grep -E "^[[:space:]]*DISCORD_ALLOWED_USER_IDS[[:space:]]*=" "${ENV_FILE}" 2>/dev/null \
-    | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-
+if discord_bridge.is_configured "DISCORD_ALLOWED_USER_IDS"; then
+  skip "DISCORD_ALLOWED_USER_IDS (already set)"
+  secrets.write "discord-allowed-user-ids" \
+    "$(grep -E "^[[:space:]]*DISCORD_ALLOWED_USER_IDS[[:space:]]*=" "${ENV_FILE}" \
+      | head -1 | cut -d= -f2- | tr -d "\"' ")"
+elif [[ -t 0 ]]; then
+  echo
+  echo "  To find your Discord user ID:"
+  echo "  1. In Discord, go to Settings → Developer Mode → enable it."
+  echo "  2. Right-click your username and select 'Copy User ID'."
+  echo "  Multiple IDs can be separated by commas."
   echo
 
-  if discord_bridge.is_configured "DISCORD_ALLOWED_USER_IDS"; then
-    echo "  Current DISCORD_ALLOWED_USER_IDS: ${_existing_ids}"
-    echo "  Press Enter to keep the existing IDs, or type new ones to overwrite."
-    echo
-    ask "DISCORD_ALLOWED_USER_IDS:"
+  allowed_ids=""
+  while [[ -z "${allowed_ids}" ]]; do
+    ask "DISCORD_ALLOWED_USER_IDS (comma-separated Discord user IDs):"
     read -r allowed_ids
-    if [[ -z "${allowed_ids}" ]]; then
-      allowed_ids="${_existing_ids}"
-      log "DISCORD_ALLOWED_USER_IDS unchanged — syncing to secrets."
-    fi
-  else
-    echo "  To find your Discord user ID:"
-    echo "  1. In Discord, go to Settings → Developer Mode → enable it."
-    echo "  2. Right-click your username and select 'Copy User ID'."
-    echo "  Multiple IDs can be separated by commas."
-    echo
-
-    allowed_ids=""
-    while [[ -z "${allowed_ids}" ]]; do
-      ask "DISCORD_ALLOWED_USER_IDS (comma-separated Discord user IDs):"
-      read -r allowed_ids
-    done
-  fi
+  done
 
   discord_bridge.write_env_var "DISCORD_ALLOWED_USER_IDS" "discord-allowed-user-ids" "${allowed_ids}"
 else
