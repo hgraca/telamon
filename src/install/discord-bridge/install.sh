@@ -19,10 +19,47 @@ export INSTALL_PATH SECRETS_DIR
 
 header "Discord Bridge (opencode-chat-bridge)"
 
-# ── Guard: skip if not enabled ────────────────────────────────────────────────
-env.is_enabled DISCORD_BRIDGE_ENABLED || { skip "Discord Bridge (disabled)"; exit 0; }
+# ── Guard: skip if explicitly disabled; prompt when unset ─────────────────────
+if env.is_disabled DISCORD_BRIDGE_ENABLED; then
+  skip "Discord Bridge (disabled)"
+  exit 0
+fi
 
 ENV_FILE="${TELAMON_ROOT:?TELAMON_ROOT must be set}/.env"
+
+# When DISCORD_BRIDGE_ENABLED is empty, ask the user whether to enable it.
+if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
+  if [[ -t 0 ]]; then
+    echo
+    ask "Enable Discord integration? (y/N):"
+    read -r _discord_answer
+    if [[ "${_discord_answer}" =~ ^[Yy]$ ]]; then
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        sed -i '' "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=true|" "${ENV_FILE}"
+      else
+        sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=true|" "${ENV_FILE}"
+      fi
+      log "DISCORD_BRIDGE_ENABLED=true written to .env"
+    else
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        sed -i '' "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
+      else
+        sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
+      fi
+      skip "Discord Bridge (user chose not to enable)"
+      exit 0
+    fi
+  else
+    # Non-interactive: default to disabled
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      sed -i '' "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
+    else
+      sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
+    fi
+    skip "Discord Bridge (non-interactive, defaulting to disabled)"
+    exit 0
+  fi
+fi
 
 # ── discord_bridge.write_env_var ──────────────────────────────────────────────
 # Writes a value into .env (replacing placeholder) and storage/secrets/.

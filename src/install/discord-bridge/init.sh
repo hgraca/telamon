@@ -19,8 +19,16 @@ export INSTALL_PATH
 
 header "Discord Bridge — per-project init"
 
-# ── Guard: skip if not enabled ────────────────────────────────────────────────
-env.is_enabled DISCORD_BRIDGE_ENABLED || { skip "Discord Bridge (disabled)"; exit 0; }
+# ── Guard: skip if explicitly disabled; prompt when unset ─────────────────────
+if env.is_disabled DISCORD_BRIDGE_ENABLED; then
+  skip "Discord Bridge (disabled)"
+  exit 0
+fi
+
+if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
+  skip "Discord Bridge (DISCORD_BRIDGE_ENABLED not set — run global install first)"
+  exit 0
+fi
 
 PROJ="${PROJ:?PROJ must be set}"
 PROJECT_NAME="${PROJECT_NAME:?PROJECT_NAME must be set}"
