@@ -94,6 +94,12 @@ Handle these without delegating — you have the skills and context:
 | Product domain question | @po          | Requirements clarification, business context, domain semantics                 |
 | Backlog grooming        | @po          | Create or refine backlog from a brief — tasks, acceptance criteria, priorities |
 
+**Small tasks — delegate immediately**: When work is classified as **small** (any type that routes to a specialist), 
+delegate to the specialist **without investigating or planning first**. 
+Pass the user's request and any obvious context (file paths mentioned, recent conversation context) directly. 
+Let the specialist do its own investigation as part of the work. Do NOT read files, search code, 
+or draft a plan before delegating small tasks.
+
 ### Delegation prompt
 
 When delegating, follow the `telamon.agent-communication` skill Delegation Format:
