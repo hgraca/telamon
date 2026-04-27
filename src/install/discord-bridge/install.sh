@@ -188,6 +188,38 @@ else
   fi
 fi
 
+# ── Check / prompt for DISCORD_WORKSPACES_DIR ────────────────────────────────
+if discord_bridge.is_configured "DISCORD_WORKSPACES_DIR"; then
+  skip "DISCORD_WORKSPACES_DIR (already set)"
+elif [[ -t 0 ]]; then
+  echo
+  echo "  The Discord bridge needs access to your project directories so it can run"
+  echo "  OpenCode sessions. Set this to the root folder that contains your projects."
+  echo "  e.g. /home/username/Development"
+  echo
+
+  workspaces_dir=""
+  while [[ -z "${workspaces_dir}" ]]; do
+    ask "DISCORD_WORKSPACES_DIR (path to your projects root):"
+    read -r workspaces_dir
+  done
+
+  if [[ -f "${ENV_FILE}" ]]; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      sed -i '' "s|^DISCORD_WORKSPACES_DIR=.*|DISCORD_WORKSPACES_DIR=${workspaces_dir}|" "${ENV_FILE}"
+    else
+      sed -i "s|^DISCORD_WORKSPACES_DIR=.*|DISCORD_WORKSPACES_DIR=${workspaces_dir}|" "${ENV_FILE}"
+    fi
+    grep -q '^DISCORD_WORKSPACES_DIR=' "${ENV_FILE}" || echo "DISCORD_WORKSPACES_DIR=${workspaces_dir}" >> "${ENV_FILE}"
+    log "DISCORD_WORKSPACES_DIR written to .env"
+  else
+    warn ".env not found — cannot write DISCORD_WORKSPACES_DIR. Add manually: DISCORD_WORKSPACES_DIR=${workspaces_dir}"
+  fi
+else
+  warn "DISCORD_WORKSPACES_DIR not set and stdin is not a TTY."
+  warn "Set DISCORD_WORKSPACES_DIR in .env manually before starting the Discord bridge."
+fi
+
 # ── Print usage instructions ──────────────────────────────────────────────────
 echo
 echo -e "  ${TEXT_BOLD}Discord Bridge is enabled.${TEXT_CLEAR}"

@@ -169,9 +169,10 @@ services:
     profiles: [discord-bridge]
     environment:
       - CONNECTOR=discord
-      - DISCORD_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - DISCORD_ALLOWED_USERS=${DISCORD_ALLOWED_USER_IDS}
       - OPENCODE_PROJECT_DIR=/workspaces
     volumes:
-      - /home/user/Development:/workspaces:ro
-      - ~/.config/opencode/opencode.json:/app/opencode.json:ro
+      # Set DISCORD_WORKSPACES_DIR in .env to your development directory (e.g. /home/yourname/Development)
+      - ${DISCORD_WORKSPACES_DIR}:/workspaces:ro
+      - ${HOME}/.config/opencode/opencode.json:/app/opencode.json:ro
