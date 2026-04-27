@@ -31,9 +31,9 @@ ENV_FILE="${TELAMON_ROOT:?TELAMON_ROOT must be set}/.env"
 if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
   if [[ -t 0 ]]; then
     echo
-    ask "Enable Discord integration? (y/N):"
+    ask "Enable Discord integration? (Y/n):"
     read -r _discord_answer
-    if [[ "${_discord_answer}" =~ ^[Yy]$ ]]; then
+    if [[ ! "${_discord_answer}" =~ ^[Nn]$ ]]; then
       if [[ "$(uname -s)" == "Darwin" ]]; then
         sed -i '' "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=true|" "${ENV_FILE}"
       else
