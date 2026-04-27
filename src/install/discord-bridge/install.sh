@@ -85,7 +85,7 @@ discord_bridge.write_env_var() {
     warn ".env not found — cannot write ${env_key}. Add manually: ${env_key}=${value}"
   fi
 
-  secrets.write "${secret_name}" "${value}"
+  secrets.write --force "${secret_name}" "${value}"
 }
 
 # ── discord_bridge.is_configured ─────────────────────────────────────────────

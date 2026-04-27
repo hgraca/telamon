@@ -117,7 +117,11 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
-	docker compose $(COMPOSE_PROFILES) up -d --no-recreate
+	docker compose \
+		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
+		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
+		$$(grep -s '^DISCORD_BRIDGE_ENABLED=true' .env > /dev/null && echo '--profile discord-bridge') \
+		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
 	echo -e "\n\033[1m\033[34m━━━ Starting Obsidian... ━━━\033[0m"
