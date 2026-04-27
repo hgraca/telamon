@@ -169,6 +169,7 @@ Timers are idempotent — re-running `telamon init` does not create duplicates.
 |------------|--------------------------------------------------------------------------|
 | `bin/`     | Entry-point scripts (install, init, doctor, status, update, telamon CLI) |
 | `src/`     | All source: agents, commands, plugins, skills, installer modules         |
+| `vendor/`  | External module repos cloned by `telamon module add` — git-ignored       |
 | `storage/` | Runtime data — git-ignored                                               |
 | `docs/`    | Documentation (this site)                                                |
 | `test/`    | Test suite and agent evaluations                                         |

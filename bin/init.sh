@@ -15,6 +15,9 @@
 #   graphify      — graphify-out symlink + MCP wrapper + scheduled updates
 #   qmd           — vault collections + initial semantic index
 #   promptfoo     — agent eval scaffold (only with --with-tests)
+#
+# After per-app init, wires external modules from .telamon.jsonc into
+# .opencode/{skills,agents,plugins,commands}/<module-name>.
 # =============================================================================
 
 set -euo pipefail
@@ -170,6 +173,60 @@ for _app in "${INIT_APPS[@]}"; do
   fi
   (cd "${PROJ}" && timed_run "${_app}" bash "${_script}")
 done
+
+# ── Wire external modules ─────────────────────────────────────────────────────
+_telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
+if [[ -f "${_telamon_cfg}" ]]; then
+  _module_lines="$(python3 - "${_telamon_cfg}" <<'PYEOF'
+import json, re, sys, os
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+def url_to_vendor(url):
+    url = url.rstrip('/').removesuffix('.git')
+    if url.startswith('git@'):
+        return 'vendor/' + url.split(':',1)[1]
+    parts = url.split('://',1)[1].split('/',2)
+    return 'vendor/' + ('/'.join(parts[1:]) if len(parts) > 2 else parts[-1])
+
+with open(sys.argv[1]) as f:
+    data = json.loads(strip(f.read()))
+
+for name, entry in data.get('modules', {}).items():
+    url = entry.get('url', '')
+    paths = entry.get('paths', {})
+    if url and paths:
+        print(f'{name}\t{url_to_vendor(url)}\t{json.dumps(paths)}')
+PYEOF
+)"
+
+  if [[ -n "${_module_lines}" ]]; then
+    header "External modules"
+    while IFS=$'\t' read -r _mname _mvendor _mpaths; do
+      _mdest="${TELAMON_ROOT}/${_mvendor}"
+      if [[ ! -d "${_mdest}/.git" ]]; then
+        skip "${_mname}: not cloned — run 'telamon module sync' to clone"
+        continue
+      fi
+      for _type in skills plugins agents commands; do
+        _rel="$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get(sys.argv[2],''))" "${_mpaths}" "${_type}")"
+        [[ -z "${_rel}" ]] && continue
+        _src="$(cd "${_mdest}" && cd "${_rel}" 2>/dev/null && pwd)" || continue
+        [[ -d "${_src}" ]] || continue
+        _link="${PROJ}/.opencode/${_type}/${_mname}"
+        mkdir -p "${PROJ}/.opencode/${_type}"
+        if [[ -L "${_link}" ]]; then
+          skip ".opencode/${_type}/${_mname} (already exists)"
+        elif [[ -e "${_link}" ]]; then
+          warn ".opencode/${_type}/${_mname} exists but is not a symlink — skipping"
+        else
+          ln -s "${_src}" "${_link}"
+          log "Symlinked .opencode/${_type}/${_mname} → ${_src}"
+        fi
+      done
+    done <<< "${_module_lines}"
+  fi
+fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then

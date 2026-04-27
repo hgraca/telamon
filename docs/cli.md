@@ -22,7 +22,7 @@ After installing, the `telamon` command is available system-wide from any direct
 | `telamon purge [path]`            | Remove project wiring **and** storage data                 |
 | `telamon recover-memories [path]` | Extract memories from past session transcripts             |
 | `telamon module add <url>`        | Clone a module repo and wire it into all projects          |
-| `telamon module remove <name>`    | Remove a registered module (`name` is org/repo)            |
+| `telamon module remove <name>`    | Remove a registered module by name                         |
 | `telamon module list`             | Show all registered modules with clone status              |
 | `telamon module sync`             | Re-wire all modules into all initialized projects          |
 | `telamon uninstall`               | Completely remove Telamon (destructive)                    |
@@ -64,28 +64,72 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 
 ### module
 
-Modules are external git repositories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/` and creates symlinks into every initialized project — the same pattern used for Telamon's own files.
+Modules are external git repositories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/<org>/<repo>/` and creates symlinks into every initialized project's `.opencode/` directory — the same nested-set pattern used for Telamon's own files.
 
-```bash
-telamon module add https://github.com/org/repo.git                # name defaults to 'repo'
-telamon module add https://github.com/org/repo.git --name=custom  # custom name
-telamon module add https://github.com/org/repo.git --skills=.     # custom paths
-telamon module remove repo                                         # unregister + remove
-telamon module list                                                # show all modules
-telamon module sync                                                # re-wire to all projects
+Each module gets its own namespace inside `.opencode/`:
+
+```text
+<project>/
+  .opencode/
+    skills/
+      telamon/       → <telamon-root>/src/skills      (built-in)
+      addyosmani/    → vendor/addyosmani/agent-skills/skills
+      my-module/     → vendor/acme/my-module/skills
+    agents/
+      telamon/       → <telamon-root>/src/agents
+      addyosmani/    → vendor/addyosmani/agent-skills/agents
 ```
 
-| Flag          | Description                                |
-|---------------|--------------------------------------------|
-| `--name=`     | Module name (default: repo name from URL)  |
-| `--commands=` | Path to commands directory within the repo |
-| `--agents=`   | Path to agents directory within the repo   |
-| `--skills=`   | Path to skills directory within the repo   |
-| `--plugins=`  | Path to plugins directory within the repo  |
+```bash
+telamon module add <url> [options]   # clone + register + wire
+telamon module remove <name>         # unregister + unwire + delete
+telamon module list                  # show all modules
+telamon module sync                  # re-wire all modules to all projects
+```
 
-When path flags are omitted, Telamon checks for `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist. The module name is used for symlinks in each project's `.opencode/` directory.
+#### Options for `module add`
 
-Module configuration is stored in `.telamon.jsonc` (under the `"modules"` key). The `addyosmani` module is built-in and cannot be removed.
+| Flag          | Description                                                |
+|---------------|------------------------------------------------------------|
+| `--name=`     | Module name used for the symlink (default: repo name)      |
+| `--commands=` | Relative path to commands directory within the cloned repo |
+| `--agents=`   | Relative path to agents directory within the cloned repo   |
+| `--skills=`   | Relative path to skills directory within the cloned repo   |
+| `--plugins=`  | Relative path to plugins directory within the cloned repo  |
+
+When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist.
+
+#### Examples
+
+```bash
+# Add a module — name defaults to 'agent-skills'
+telamon module add https://github.com/addyosmani/agent-skills.git
+
+# Add with a custom name — symlinks will be .opencode/skills/addy, etc.
+telamon module add https://github.com/addyosmani/agent-skills.git --name=addy
+
+# Add with custom paths — skills live at the repo root
+telamon module add https://github.com/org/repo.git --skills=. --agents=./my-agents
+
+# Remove by name
+telamon module remove agent-skills
+```
+
+Module configuration is stored in `.telamon.jsonc` under the `"modules"` key. The module name is the JSONC key:
+
+```jsonc
+{
+  "modules": {
+    "addyosmani": {
+      "url": "https://github.com/addyosmani/agent-skills.git",
+      "paths": { "agents": "agents", "skills": "skills" },
+      "builtin": true
+    }
+  }
+}
+```
+
+The `addyosmani` module is built-in and cannot be removed.
 
 ---
 

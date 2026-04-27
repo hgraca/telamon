@@ -125,7 +125,8 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
   - `telamon init --ogham-db=telamon path/to/project` — use local Postgres managed by Telamon (default)
   - `telamon init --ogham-db=postgresql://user:pass@host:5432/db path/to/project` — use an external PostgreSQL database
   - If the flag is omitted and the project is already initialised, the existing `ogham_db` value from `telamon.jsonc` is used. For a fresh project on an interactive terminal, you are prompted to choose.
-- Symlinks agent skills into `<project>/.opencode/skills/telamon`
+- Symlinks Telamon's own assets into `<project>/.opencode/{skills,agents,plugins,commands}/telamon`
+- Symlinks each registered module into `<project>/.opencode/{skills,agents,...}/<module-name>` (see [module command](cli.md#module))
 - Writes `<project>/.ai/telamon/telamon.jsonc` with the project name
 - Installs the Graphify git hook and OpenCode plugin
 - Installs the session-capture OpenCode plugin (auto-captures before compaction)
