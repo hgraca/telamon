@@ -20,15 +20,16 @@ OBSIDIAN_API_KEY=your-obsidian-api-key
 
 ## Per-project settings
 
-Each initialized project has a config file at `.ai/telamon/telamon.ini` (created by `telamon init`).
+Each initialized project has a config file at `.ai/telamon/telamon.jsonc` (created by `telamon init`).
 Edit this file to override defaults for a specific project.
 
-```ini
-[telamon]
-project_name = my-app
-medium_model =
-rtk_enabled = false
-caveman_enabled = false
+```jsonc
+{
+  "project_name": "my-app",
+  "medium_model": "",
+  "rtk_enabled": false,
+  "caveman_enabled": false
+}
 ```
 
 | Key               | Default                          | Description                                                                                                                                                                                              |

@@ -1,59 +1,85 @@
 #!/usr/bin/env bash
-# Shared helpers for reading and writing telamon.ini config files.
+# Shared helpers for reading and writing telamon.jsonc config files.
+#
+# Format: JSONC (JSON with // comments). Keys are flat top-level strings.
 
 # config.read_ini <file> <key>
 #
-# Reads a value from a simple INI file (key = value format).
+# Reads a top-level string value from a JSONC config file.
 # Returns 1 if the file does not exist or the key is not found / empty.
 #
 # Usage:
-#   value="$(config.read_ini /path/to/telamon.ini medium_model)"
+#   value="$(config.read_ini /path/to/telamon.jsonc medium_model)"
 config.read_ini() {
   local file="$1" key="$2"
   [[ -f "${file}" ]] || return 1
   local val
-  val="$(grep -E "^[[:space:]]*${key}[[:space:]]*=" "${file}" | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//')"
+  val="$(python3 - "${file}" "${key}" <<'PYEOF'
+import json, re, sys
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+with open(sys.argv[1]) as f:
+    data = json.loads(strip(f.read()))
+
+val = data.get(sys.argv[2], '')
+if isinstance(val, bool):
+    print('true' if val else 'false')
+elif isinstance(val, dict) or isinstance(val, list):
+    print(json.dumps(val))
+elif val is None:
+    pass
+else:
+    print(val)
+PYEOF
+)" || return 1
   [[ -n "${val}" ]] || return 1
   echo "${val}"
 }
 
 # config.write_ini <file> <key> <value>
 #
-# Sets or updates a key in an INI file.
-# - If the key already exists, its line is replaced in-place.
-# - If the key does not exist, it is appended before any trailing blank lines
-#   (i.e. within the [telamon] section body).
+# Sets or updates a top-level key in a JSONC config file.
+# Preserves comments and formatting as much as possible.
 #
 # Usage:
-#   config.write_ini /path/to/telamon.ini medium_model "github-copilot/claude-sonnet-4"
+#   config.write_ini /path/to/telamon.jsonc medium_model "github-copilot/claude-sonnet-4"
 config.write_ini() {
   local file="$1" key="$2" value="$3"
 
-  if grep -qE "^[[:space:]]*${key}[[:space:]]*=" "${file}" 2>/dev/null; then
-    # Key exists — replace the line in-place (portable sed -i)
-    sed -i "s|^[[:space:]]*${key}[[:space:]]*=.*|${key} = ${value}|" "${file}"
-  else
-    # Key absent — append before trailing blank lines at end of file
-    # Strip trailing blank lines, append the new key, then restore a final newline
-    local tmp
-    tmp="$(mktemp)"
-    # Remove trailing blank lines, add new key, add final newline
-    awk 'NF{last=NR; content[NR]=$0} !NF{blank[NR]=1} END{
-      for(i=1;i<=NR;i++){
-        if(i in content) print content[i]
-        else if(i<=last) print ""
-      }
-      print "'"${key} = ${value}"'"
-      print ""
-    }' "${file}" > "${tmp}"
-    mv "${tmp}" "${file}"
-  fi
+  python3 - "${file}" "${key}" "${value}" <<'PYEOF'
+import json, re, sys
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+path  = sys.argv[1]
+key   = sys.argv[2]
+value = sys.argv[3]
+
+with open(path) as f:
+    raw = f.read()
+
+data = json.loads(strip(raw))
+
+# Coerce string booleans
+if value.lower() == 'true':
+    data[key] = True
+elif value.lower() == 'false':
+    data[key] = False
+else:
+    data[key] = value
+
+# Rewrite the file preserving indentation style
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+PYEOF
 }
 
 # config.resolve_medium_model <project_dir>
 #
 # Lazy resolution of the medium_model setting:
-#   1. If medium_model is already set in telamon.ini, echo it and return 0.
+#   1. If medium_model is already set in telamon.jsonc, echo it and return 0.
 #   2. Otherwise, read model + small_model from opencode.jsonc, build a
 #      suggestion list, interactively prompt the user, persist the choice,
 #      and echo the chosen model.
@@ -64,7 +90,7 @@ config.write_ini() {
 #   medium="$(config.resolve_medium_model /path/to/project)"
 config.resolve_medium_model() {
   local project_dir="$1"
-  local ini_file="${project_dir}/.ai/telamon/telamon.ini"
+  local ini_file="${project_dir}/.ai/telamon/telamon.jsonc"
   local project_name
   project_name="$(basename "${project_dir}")"
 
@@ -182,6 +208,6 @@ PYEOF
 
   # ── 8. Persist and return ─────────────────────────────────────────────────────
   config.write_ini "${ini_file}" "medium_model" "${chosen}"
-  log "medium_model = ${chosen} written to telamon.ini" >&2
+  log "medium_model = ${chosen} written to telamon.jsonc" >&2
   echo "${chosen}"
 }

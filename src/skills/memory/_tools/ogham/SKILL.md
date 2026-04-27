@@ -20,7 +20,7 @@ Persistent vector memory for decisions, patterns, bugs, lessons, and checkpoints
 Resolve the profile name once per session and use it on every ogham call.
 
 **Resolution order** (first match wins):
-1. Read `.ai/telamon/telamon.ini` — if `project_name` key exists, use its value.
+1. Read `.ai/telamon/telamon.jsonc` — if `project_name` key exists, use its value.
 2. Otherwise, use the lowercase basename of the project root directory (e.g., `/home/user/dev/k8s-gete` → `k8s-gete`).
 
 Cache the resolved profile for the rest of the session.

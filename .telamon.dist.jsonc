@@ -1,0 +1,26 @@
+{
+  // ── Telamon global configuration ─────────────────────────────────────────────
+  // Copied to .telamon.jsonc on first 'make up' (runtime, git-ignored).
+  // Edit .telamon.jsonc for local overrides; edit this file for shared defaults.
+
+  // ── External modules ─────────────────────────────────────────────────────────
+  // Each key is the module name — used for symlinks and 'telamon module remove'.
+  // 'telamon module add <url>' appends here automatically.
+  //
+  // Available fields per module:
+  //   "url"       (required)  Git repository URL (HTTPS or SSH)
+  //   "paths"     (optional)  Map of asset type → relative path within the repo
+  //               Types: "commands", "agents", "skills", "plugins"
+  //               When omitted, auto-detects ./commands, ./agents, ./skills, ./plugins
+  //   "builtin"   (optional)  true for built-in modules that cannot be removed
+  "modules": {
+    "addyosmani": {
+      "url": "https://github.com/addyosmani/agent-skills.git",
+      "paths": {
+        "agents": "agents",
+        "skills": "skills"
+      },
+      "builtin": true
+    }
+  }
+}

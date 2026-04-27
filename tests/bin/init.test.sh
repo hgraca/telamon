@@ -167,14 +167,24 @@ echo
 echo -e "${BOLD}Telamon init assertions — project: ${PROJECT_NAME}${RESET}"
 echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 
-# ── Read memory_owner from telamon.ini ───────────────────────────────────────
-TELAMON_INI="${PROJ}/.ai/telamon/telamon.ini"
+# ── Read memory_owner from telamon.jsonc ──────────────────────────────────────
+TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 MEMORY_OWNER="telamon"
 OGHAM_DB="telamon"
-if [[ -f "${TELAMON_INI}" ]]; then
-  _mo_val="$(grep -E "^[[:space:]]*memory_owner[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)"
+if [[ -f "${TELAMON_CFG}" ]]; then
+  _mo_val="$(python3 -c "
+import json, re, sys
+with open(sys.argv[1]) as f:
+    d = json.loads(re.sub(r'(?m)(?<!:)//.*\$', '', f.read()))
+print(d.get('memory_owner', ''))
+" "${TELAMON_CFG}" 2>/dev/null || true)"
   [[ -n "${_mo_val}" ]] && MEMORY_OWNER="${_mo_val}"
-  _ogham_val="$(grep -E "^[[:space:]]*ogham_db[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null | head -1 | sed 's/^[^=]*=[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)"
+  _ogham_val="$(python3 -c "
+import json, re, sys
+with open(sys.argv[1]) as f:
+    d = json.loads(re.sub(r'(?m)(?<!:)//.*\$', '', f.read()))
+print(d.get('ogham_db', ''))
+" "${TELAMON_CFG}" 2>/dev/null || true)"
   [[ -n "${_ogham_val}" ]] && OGHAM_DB="${_ogham_val}"
 fi
 
@@ -252,21 +262,21 @@ assert_dir  "${PROJ}/.opencode/skills" ".opencode/skills/ directory"
 assert_symlink "${PROJ}/.opencode/skills/telamon" "src/skills" \
   ".opencode/skills/telamon → <telamon-root>/src/skills"
 
-# ── 3. .ai/telamon/telamon.ini ───────────────────────────────────────────────────────
-_section "3. .ai/telamon/telamon.ini"
-assert_file "${PROJ}/.ai/telamon/telamon.ini" ".ai/telamon/telamon.ini"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "project_name = ${PROJECT_NAME}" \
-  ".ai/telamon/telamon.ini contains correct project_name"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "\[telamon\]" \
-  ".ai/telamon/telamon.ini has [telamon] section"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "rtk_enabled = false" \
-  ".ai/telamon/telamon.ini has rtk_enabled = false"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "caveman_enabled = false" \
-  ".ai/telamon/telamon.ini has caveman_enabled = false"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "memory_owner = " \
-  ".ai/telamon/telamon.ini has memory_owner key"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.ini" "ogham_db = " \
-  ".ai/telamon/telamon.ini has ogham_db key"
+# ── 3. .ai/telamon/telamon.jsonc ──────────────────────────────────────────────────────
+_section "3. .ai/telamon/telamon.jsonc"
+assert_file "${PROJ}/.ai/telamon/telamon.jsonc" ".ai/telamon/telamon.jsonc"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"project_name\"" \
+  ".ai/telamon/telamon.jsonc contains project_name key"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"${PROJECT_NAME}\"" \
+  ".ai/telamon/telamon.jsonc contains correct project_name value"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"rtk_enabled\": false" \
+  ".ai/telamon/telamon.jsonc has rtk_enabled: false"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"caveman_enabled\": false" \
+  ".ai/telamon/telamon.jsonc has caveman_enabled: false"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"memory_owner\"" \
+  ".ai/telamon/telamon.jsonc has memory_owner key"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"ogham_db\"" \
+  ".ai/telamon/telamon.jsonc has ogham_db key"
 
 # ── 5. .ai/telamon/secrets directory ─────────────────────────────────────────
 _section "5. .ai/telamon/secrets"

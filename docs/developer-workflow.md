@@ -110,7 +110,7 @@ The curl script clones the repository to `~/.telamon` and runs `make up`, which:
 4. Installs remaining tools (opencode, Ogham, Graphify, RTK, codebase-index, Obsidian MCP) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
 
-If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads it silently (no prompts). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
+If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer reads it silently (no prompts). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
 
 ### What project init does
 
@@ -120,13 +120,13 @@ If `.ai/telamon/telamon.ini` exists with `project_name` set, the installer reads
 - Control vault ownership with the `--memory-owner` flag:
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory
-  - If the flag is omitted and the project is already initialised, the existing `memory_owner` value from `telamon.ini` is used. For a fresh project on an interactive terminal, you are prompted to choose.
+  - If the flag is omitted and the project is already initialised, the existing `memory_owner` value from `telamon.jsonc` is used. For a fresh project on an interactive terminal, you are prompted to choose.
 - Control the Ogham database with the `--ogham-db` flag:
   - `telamon init --ogham-db=telamon path/to/project` — use local Postgres managed by Telamon (default)
   - `telamon init --ogham-db=postgresql://user:pass@host:5432/db path/to/project` — use an external PostgreSQL database
-  - If the flag is omitted and the project is already initialised, the existing `ogham_db` value from `telamon.ini` is used. For a fresh project on an interactive terminal, you are prompted to choose.
+  - If the flag is omitted and the project is already initialised, the existing `ogham_db` value from `telamon.jsonc` is used. For a fresh project on an interactive terminal, you are prompted to choose.
 - Symlinks agent skills into `<project>/.opencode/skills/telamon`
-- Writes `<project>/.ai/telamon/telamon.ini` with the project name
+- Writes `<project>/.ai/telamon/telamon.jsonc` with the project name
 - Installs the Graphify git hook and OpenCode plugin
 - Installs the session-capture OpenCode plugin (auto-captures before compaction)
 - Registers QMD vault collections and builds the initial semantic index

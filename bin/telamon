@@ -34,9 +34,11 @@ Commands:
   purge [path]           Remove project wiring and data (default: current dir)
   recover-memories [path] Recover memories from past sessions (default: current dir)
                           Flags: --all, --full, --dry-run, --batch-size N
-  submodule add <url>    Clone a git repo into vendor/ and register in .env
-  submodule remove <url> Remove a registered submodule
-  submodule list         Show all registered submodules
+  module add <url>       Clone a git repo into vendor/ and register in storage/modules.jsonc
+  module remove <name>   Remove a registered module (name is org/repo)
+  module list            Show all registered modules
+  module sync            Re-wire all modules into all initialized projects
+  submodule              Deprecated alias for 'module' — use 'telamon module' instead
   uninstall              Completely remove Telamon
   help                   Show this help
 EOF
@@ -51,7 +53,13 @@ case "${CMD}" in
   status)    make -C "${TELAMON_ROOT}" status ;;
   update)    make -C "${TELAMON_ROOT}" update ;;
   doctor)    make -C "${TELAMON_ROOT}" doctor ;;
-  submodule) shift; bash "${TELAMON_ROOT}/bin/submodule.sh" "$@" ;;
+  module)    shift; bash "${TELAMON_ROOT}/bin/module.sh" "$@" ;;
+  submodule)
+    echo -e "\033[33m⚠  'telamon submodule' is deprecated — use 'telamon module' instead\033[0m" >&2
+    shift
+    bash "${TELAMON_ROOT}/bin/module.sh" "$@"
+    ;;
+
   uninstall) make -C "${TELAMON_ROOT}" uninstall ;;
   init|reset|purge)
     PROJ="${2:-.}"
@@ -85,9 +93,9 @@ case "${CMD}" in
     _run_recover() {
       local project_dir="$1"
 
-      # Verify project has telamon.ini
-      if [[ ! -f "${project_dir}/.ai/telamon/telamon.ini" ]]; then
-        warn "${project_dir}: no telamon.ini — skipping (run 'telamon init' first)"
+      # Verify project has telamon.jsonc
+      if [[ ! -f "${project_dir}/.ai/telamon/telamon.jsonc" ]]; then
+        warn "${project_dir}: no telamon.jsonc — skipping (run 'telamon init' first)"
         return 1
       fi
 
@@ -114,8 +122,8 @@ case "${CMD}" in
         [[ -f "${_ppath_file}" ]] || continue
         _dir="$(cat "${_ppath_file}")"
         [[ -d "${_dir}" ]] || continue
-        [[ -f "${_dir}/.ai/telamon/telamon.ini" ]] || continue
-        _name="$(config.read_ini "${_dir}/.ai/telamon/telamon.ini" "project_name")" || _name="$(basename "${_dir}")"
+        [[ -f "${_dir}/.ai/telamon/telamon.jsonc" ]] || continue
+        _name="$(config.read_ini "${_dir}/.ai/telamon/telamon.jsonc" "project_name")" || _name="$(basename "${_dir}")"
         PROJECTS+=("${_dir}|${_name}")
       done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 

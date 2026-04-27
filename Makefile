@@ -110,6 +110,7 @@ help:  ## Show this help
 
 up: ## Start Telamon: install host tools, then bring docker compose services up
 	@test -f .env || cp .env.dist .env
+	@test -f .telamon.jsonc || cp .telamon.dist.jsonc .telamon.jsonc
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"

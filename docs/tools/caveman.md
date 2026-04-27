@@ -12,6 +12,6 @@ Ultra-compressed communication mode — ~75% token reduction while keeping full 
 - Activate: *"caveman mode"*, *"less tokens"*, or `/caveman`
 - Intensity levels: `lite`, `full` (default), `ultra`
 - Deactivate: *"stop caveman"* or *"normal mode"*
-- Auto-activates when `caveman_enabled = true` in `.ai/telamon/telamon.ini`
+- Auto-activates when `caveman_enabled = true` in `.ai/telamon/telamon.jsonc`
 
 **Priority:** Tier 2

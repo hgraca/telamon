@@ -21,6 +21,10 @@ After installing, the `telamon` command is available system-wide from any direct
 | `telamon reset [path]`            | Remove project wiring, keep storage data                   |
 | `telamon purge [path]`            | Remove project wiring **and** storage data                 |
 | `telamon recover-memories [path]` | Extract memories from past session transcripts             |
+| `telamon module add <url>`        | Clone a module repo and wire it into all projects          |
+| `telamon module remove <name>`    | Remove a registered module (`name` is org/repo)            |
+| `telamon module list`             | Show all registered modules with clone status              |
+| `telamon module sync`             | Re-wire all modules into all initialized projects          |
 | `telamon uninstall`               | Completely remove Telamon (destructive)                    |
 | `telamon help`                    | Show usage help                                            |
 
@@ -54,9 +58,32 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 
 **Incremental by default.** The command tracks which sessions have been processed in a `.recover-memories-<project>.json` file under `thinking/`. On subsequent runs, only new sessions are processed. Use `--full` to start from scratch.
 
-**Model selection.** The command uses the `medium_model` setting from `telamon.ini`. On first run, it prompts interactively with suggestions derived from the project's `model` and `small_model` in `opencode.jsonc`. See [Configuration](configuration.md#per-project-settings).
+**Model selection.** The command uses the `medium_model` setting from `telamon.jsonc`. On first run, it prompts interactively with suggestions derived from the project's `model` and `small_model` in `opencode.jsonc`. See [Configuration](configuration.md#per-project-settings).
 
 **Typical runtime.** For a project with 200 sessions at batch-size 5: ~40 LLM calls, ~7–10 minutes.
+
+### module
+
+Modules are external git repositories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/` and creates symlinks into every initialized project — the same pattern used for Telamon's own files.
+
+```bash
+telamon module add https://github.com/org/repo.git              # auto-detect paths
+telamon module add https://github.com/org/repo.git --skills=.   # custom paths
+telamon module remove org/repo                                   # unregister + remove
+telamon module list                                              # show all modules
+telamon module sync                                              # re-wire to all projects
+```
+
+| Flag          | Description                                |
+|---------------|--------------------------------------------|
+| `--commands=` | Path to commands directory within the repo |
+| `--agents=`   | Path to agents directory within the repo   |
+| `--skills=`   | Path to skills directory within the repo   |
+| `--plugins=`  | Path to plugins directory within the repo  |
+
+When path flags are omitted, Telamon checks for `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist.
+
+Module configuration is stored in `storage/modules.jsonc`. The `addyosmani/agent-skills` module is built-in and cannot be removed.
 
 ---
 

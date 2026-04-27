@@ -3,6 +3,7 @@ __pycache__/
 storage/*
 # storage/opencode.jsonc is generated per-machine by the installer — MUST NOT be tracked
 .env
+.telamon.jsonc
 
 ###> ai ###
 .ai

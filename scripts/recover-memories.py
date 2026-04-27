@@ -76,16 +76,23 @@ def warn(msg: str) -> None:
 # INI helpers
 # ---------------------------------------------------------------------------
 
-def read_ini(ini_path: Path, key: str) -> str | None:
-    """Read a value from a simple INI file."""
-    if not ini_path.is_file():
+def read_ini(cfg_path: Path, key: str) -> str | None:
+    """Read a top-level value from a JSONC config file."""
+    if not cfg_path.is_file():
         return None
-    for line in ini_path.read_text().splitlines():
-        m = re.match(rf"^\s*{re.escape(key)}\s*=\s*(.*?)\s*$", line)
-        if m:
-            val = m.group(1).strip()
-            return val if val else None
-    return None
+    raw = cfg_path.read_text()
+    # Strip // line comments (not inside strings — good enough for simple configs)
+    stripped = re.sub(r'(?m)(?<!:)//.*$', '', raw)
+    try:
+        data = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    val = data.get(key)
+    if val is None or val == '':
+        return None
+    if isinstance(val, bool):
+        return 'true' if val else 'false'
+    return str(val)
 
 
 # ---------------------------------------------------------------------------
@@ -684,7 +691,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--project", required=True, metavar="PATH",
-        help="Absolute path to the project directory (must have .ai/telamon/telamon.ini)",
+        help="Absolute path to the project directory (must have .ai/telamon/telamon.jsonc)",
     )
     parser.add_argument(
         "--model", required=True, metavar="MODEL",
@@ -713,7 +720,7 @@ def main() -> None:
     args = parse_args()
 
     project_dir = Path(args.project).resolve()
-    ini_path = project_dir / ".ai" / "telamon" / "telamon.ini"
+    ini_path = project_dir / ".ai" / "telamon" / "telamon.jsonc"
 
     if not ini_path.is_file():
         log(f"ERROR: {ini_path} not found — is this a telamon project?")

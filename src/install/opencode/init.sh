@@ -6,7 +6,7 @@
 #   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/plugins
 #   3. Symlink .opencode/agents/telamon → <telamon-root>/src/agents
 #   4. Symlink .opencode/commands/telamon → <telamon-root>/src/commands
-#   5. Write   .ai/telamon/telamon.ini with the project name
+#   5. Write   .ai/telamon/telamon.jsonc with the project name
 #   6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
 #   7. Symlink .ai/telamon/scripts → <telamon-root>/scripts
 #   8. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
@@ -76,31 +76,83 @@ else
   log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/commands"
 fi
 
-# ── 5. Write .ai/telamon/telamon.ini ─────────────────────────────────────────────────
-TELAMON_INI="${PROJ}/.ai/telamon/telamon.ini"
-if [[ -f "${TELAMON_INI}" ]]; then
-  skip ".ai/telamon/telamon.ini (already exists)"
-  # Ensure new keys are present (migration for older ini files)
-  if ! grep -q "^[[:space:]]*memory_owner[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null; then
-    printf '\nmemory_owner = %s\n' "${MEMORY_OWNER:-telamon}" >> "${TELAMON_INI}"
-    log "Added missing memory_owner to .ai/telamon/telamon.ini"
-  fi
-  if ! grep -q "^[[:space:]]*ogham_db[[:space:]]*=" "${TELAMON_INI}" 2>/dev/null; then
-    printf 'ogham_db = %s\n' "${OGHAM_DB:-telamon}" >> "${TELAMON_INI}"
-    log "Added missing ogham_db to .ai/telamon/telamon.ini"
-  fi
+# ── 5. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
+TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
+
+# Migrate old INI format if present
+if [[ -f "${PROJ}/.ai/telamon/telamon.ini" && ! -f "${TELAMON_CFG}" ]]; then
+  step "Migrating telamon.ini → telamon.jsonc ..."
+  python3 - "${PROJ}/.ai/telamon/telamon.ini" "${TELAMON_CFG}" <<'PYEOF'
+import re, json, sys
+
+ini_path = sys.argv[1]
+out_path = sys.argv[2]
+data = {}
+with open(ini_path) as f:
+    for line in f:
+        line = line.strip()
+        if not line or line.startswith('[') or line.startswith('#') or line.startswith(';'):
+            continue
+        if '=' in line:
+            k, v = line.split('=', 1)
+            k = k.strip()
+            v = v.strip()
+            if v.lower() == 'true':
+                data[k] = True
+            elif v.lower() == 'false':
+                data[k] = False
+            else:
+                data[k] = v
+
+with open(out_path, 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+PYEOF
+  rm "${PROJ}/.ai/telamon/telamon.ini"
+  log "Migrated telamon.ini → telamon.jsonc"
+fi
+
+if [[ -f "${TELAMON_CFG}" ]]; then
+  skip ".ai/telamon/telamon.jsonc (already exists)"
+  # Ensure new keys are present (migration for older configs)
+  python3 - "${TELAMON_CFG}" "${MEMORY_OWNER:-telamon}" "${OGHAM_DB:-telamon}" <<'PYEOF'
+import json, re, sys
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+path = sys.argv[1]
+memory_owner = sys.argv[2]
+ogham_db = sys.argv[3]
+changed = False
+
+with open(path) as f:
+    data = json.loads(strip(f.read()))
+
+if 'memory_owner' not in data:
+    data['memory_owner'] = memory_owner
+    changed = True
+if 'ogham_db' not in data:
+    data['ogham_db'] = ogham_db
+    changed = True
+
+if changed:
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+        f.write('\n')
+PYEOF
 else
   mkdir -p "${PROJ}/.ai/telamon"
-  cat > "${TELAMON_INI}" <<INI
-[telamon]
-project_name = ${PROJECT_NAME}
-rtk_enabled = false
-caveman_enabled = false
-medium_model =
-memory_owner = ${MEMORY_OWNER:-telamon}
-ogham_db = ${OGHAM_DB:-telamon}
-INI
-  log "Written .ai/telamon/telamon.ini"
+  cat > "${TELAMON_CFG}" <<JSONEOF
+{
+  "project_name": "${PROJECT_NAME}",
+  "rtk_enabled": false,
+  "caveman_enabled": false,
+  "medium_model": "",
+  "memory_owner": "${MEMORY_OWNER:-telamon}",
+  "ogham_db": "${OGHAM_DB:-telamon}"
+}
+JSONEOF
+  log "Written .ai/telamon/telamon.jsonc"
 fi
 
 # ── 6. Create .ai/telamon/secrets/ real directory with individual symlinks ────

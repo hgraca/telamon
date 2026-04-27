@@ -22,14 +22,16 @@ import { RtkOpenCodePlugin } from "./rtk.ts"
 // rtk.ts is kept in src/plugins/ as an import dependency.
 
 export const RtkDedupePlugin: Plugin = async (ctx) => {
-  // Read telamon.ini and check rtk_enabled flag.
+  // Read telamon.jsonc and check rtk_enabled flag.
   // Defaults to disabled if file is missing or key is absent.
   let rtkEnabled = false
   try {
-    const iniPath = join(process.cwd(), ".ai/telamon/telamon.ini")
-    const iniContent = readFileSync(iniPath, "utf8")
-    const match = iniContent.match(/^\s*rtk_enabled\s*=\s*(\S+)/m)
-    if (match && match[1].toLowerCase() === "true") {
+    const cfgPath = join(process.cwd(), ".ai/telamon/telamon.jsonc")
+    const raw = readFileSync(cfgPath, "utf8")
+    // Strip JSONC comments (// line comments)
+    const stripped = raw.replace(/(?<![:"'])\/\/.*$/gm, "")
+    const cfg = JSON.parse(stripped)
+    if (cfg.rtk_enabled === true) {
       rtkEnabled = true
     }
   } catch {

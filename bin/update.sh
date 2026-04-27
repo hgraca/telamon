@@ -126,13 +126,7 @@ fi
 header "Project config sync"
 
 # Defaults MUST match src/install/opencode/init.sh template (step 5)
-_INI_DEFAULTS=(
-  "rtk_enabled=false"
-  "caveman_enabled=false"
-  "medium_model="
-  "memory_owner=telamon"
-  "ogham_db=telamon"
-)
+_CFG_DEFAULTS='{"rtk_enabled":false,"caveman_enabled":false,"medium_model":"","memory_owner":"telamon","ogham_db":"telamon"}'
 
 while IFS= read -r _ppath_file; do
   [[ -f "${_ppath_file}" ]] || continue
@@ -144,24 +138,69 @@ while IFS= read -r _ppath_file; do
     continue
   fi
 
-  _ini_file="${_project_dir}/.ai/telamon/telamon.ini"
-  if [[ ! -f "${_ini_file}" ]]; then
-    skip "${_project_name}: no telamon.ini found"
+  _cfg_file="${_project_dir}/.ai/telamon/telamon.jsonc"
+
+  # Migrate old INI format if present
+  if [[ -f "${_project_dir}/.ai/telamon/telamon.ini" && ! -f "${_cfg_file}" ]]; then
+    step "${_project_name}: migrating telamon.ini → telamon.jsonc ..."
+    python3 - "${_project_dir}/.ai/telamon/telamon.ini" "${_cfg_file}" <<'PYEOF'
+import json, sys
+ini_path = sys.argv[1]
+out_path = sys.argv[2]
+data = {}
+with open(ini_path) as f:
+    for line in f:
+        line = line.strip()
+        if not line or line.startswith('[') or line.startswith('#') or line.startswith(';'):
+            continue
+        if '=' in line:
+            k, v = line.split('=', 1)
+            k = k.strip()
+            v = v.strip()
+            if v.lower() == 'true': data[k] = True
+            elif v.lower() == 'false': data[k] = False
+            else: data[k] = v
+with open(out_path, 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+PYEOF
+    rm "${_project_dir}/.ai/telamon/telamon.ini"
+    log "${_project_name}: migrated telamon.ini → telamon.jsonc"
+  fi
+
+  if [[ ! -f "${_cfg_file}" ]]; then
+    skip "${_project_name}: no telamon.jsonc found"
     continue
   fi
 
-  _added=()
-  for _pair in "${_INI_DEFAULTS[@]}"; do
-    _key="${_pair%%=*}"
-    _default="${_pair#*=}"
-    if ! grep -qE "^[[:space:]]*${_key}[[:space:]]*=" "${_ini_file}"; then
-      echo "${_key} = ${_default}" >> "${_ini_file}"
-      _added+=("${_key}")
-    fi
-  done
+  # Ensure all default keys are present
+  _result="$(python3 - "${_cfg_file}" "${_CFG_DEFAULTS}" <<'PYEOF'
+import json, re, sys
 
-  if [[ "${#_added[@]}" -gt 0 ]]; then
-    log "${_project_name}: added $(IFS=', '; echo "${_added[*]}")"
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+path = sys.argv[1]
+defaults = json.loads(sys.argv[2])
+
+with open(path) as f:
+    data = json.loads(strip(f.read()))
+
+added = []
+for k, v in defaults.items():
+    if k not in data:
+        data[k] = v
+        added.append(k)
+
+if added:
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+        f.write('\n')
+    print(', '.join(added))
+PYEOF
+)"
+
+  if [[ -n "${_result}" ]]; then
+    log "${_project_name}: added ${_result}"
   else
     info "${_project_name}: up to date"
   fi

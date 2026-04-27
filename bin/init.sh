@@ -8,7 +8,7 @@
 #
 # What it does (delegated to per-app init scripts):
 #   obsidian      — vault scaffold + .ai/telamon/memory symlink
-#   opencode      — skills symlink, plugins symlink, telamon.ini, secrets
+#   opencode      — skills symlink, plugins symlink, telamon.jsonc, secrets
 #                   symlink, opencode.jsonc symlink/merge, AGENTS.md
 #   codebase-index — writes .opencode/codebase-index.json
 #   repomix       — writes repomix.config.json
@@ -64,7 +64,7 @@ PROJ="$(cd "${PROJ}" && pwd)"
 PROJECT_NAME="$(basename "${PROJ}")"
 
 # ── Resolve MEMORY_OWNER ──────────────────────────────────────────────────────
-# Priority: CLI flag > existing telamon.ini > interactive prompt > default (telamon)
+# Priority: CLI flag > existing telamon.jsonc > interactive prompt > default (telamon)
 MEMORY_OWNER=""
 
 if [[ -n "${MEMORY_OWNER_FLAG}" ]]; then
@@ -75,8 +75,8 @@ if [[ -n "${MEMORY_OWNER_FLAG}" ]]; then
   fi
   MEMORY_OWNER="${MEMORY_OWNER_FLAG}"
 else
-  # Check existing telamon.ini (re-init scenario)
-  _ini_file="${PROJ}/.ai/telamon/telamon.ini"
+  # Check existing telamon.jsonc (re-init scenario)
+  _ini_file="${PROJ}/.ai/telamon/telamon.jsonc"
   if [[ -f "${_ini_file}" ]]; then
     _existing="$(config.read_ini "${_ini_file}" "memory_owner" 2>/dev/null || true)"
     if [[ -n "${_existing}" ]]; then
@@ -107,7 +107,7 @@ fi
 export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
 
 # ── Resolve OGHAM_DB ──────────────────────────────────────────────────────────
-# Priority: CLI flag > existing telamon.ini > interactive prompt > default (telamon)
+# Priority: CLI flag > existing telamon.jsonc > interactive prompt > default (telamon)
 OGHAM_DB=""
 OGHAM_DB_URL=""
 
@@ -120,8 +120,8 @@ if [[ -n "${OGHAM_DB_FLAG}" ]]; then
     OGHAM_DB_URL="${OGHAM_DB_FLAG}"
   fi
 else
-  # Check existing telamon.ini (re-init scenario)
-  _ini_file="${PROJ}/.ai/telamon/telamon.ini"
+  # Check existing telamon.jsonc (re-init scenario)
+  _ini_file="${PROJ}/.ai/telamon/telamon.jsonc"
   if [[ -f "${_ini_file}" ]]; then
     _existing_ogham="$(config.read_ini "${_ini_file}" "ogham_db" 2>/dev/null || true)"
     if [[ -n "${_existing_ogham}" ]]; then

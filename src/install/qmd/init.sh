@@ -45,10 +45,10 @@ if ! command -v qmd &>/dev/null; then
   return 0 2>/dev/null || exit 0
 fi
 
-# ── Resolve project name from telamon.ini or directory basename ──────────────────
+# ── Resolve project name from telamon.jsonc or directory basename ──────────────────
 # When called from bin/init.sh we are cd'd into the project root, which has
-# .ai/telamon/telamon.ini written in step 3.  Fall back to the directory basename.
-TELAMON_INI="${PWD}/.ai/telamon/telamon.ini"
+# .ai/telamon/telamon.jsonc written in step 3.  Fall back to the directory basename.
+TELAMON_INI="${PWD}/.ai/telamon/telamon.jsonc"
 if [[ -f "${TELAMON_INI}" ]]; then
   PROJECT_NAME="$(grep -E '^project_name\s*=' "${TELAMON_INI}" | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')"
 else

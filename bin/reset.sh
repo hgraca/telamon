@@ -16,7 +16,7 @@
 #   - .ai/telamon/memory              symlink
 #   - .ai/telamon/secrets             symlink
 #   - .ai/telamon/scripts             symlink
-#   - .ai/telamon/telamon.ini         file
+#   - .ai/telamon/telamon.jsonc         file
 #   - opencode.jsonc                  symlink (warns if merged file)
 #   - AGENTS.md                       symlink
 #   - graphify-out                    symlink
@@ -97,9 +97,9 @@ remove_symlink "${PROJ}/.opencode/graphify-serve.sh" ".opencode/graphify-serve.s
 # ── 2. .ai/telamon symlinks and files ─────────────────────────────────────────
 step "Removing .ai/telamon wiring..."
 
-# Read memory_owner before removing telamon.ini
+# Read memory_owner before removing telamon.jsonc
 _MEMORY_OWNER="telamon"
-_INI_FILE="${PROJ}/.ai/telamon/telamon.ini"
+_INI_FILE="${PROJ}/.ai/telamon/telamon.jsonc"
 if [[ -f "${_INI_FILE}" ]]; then
   _val="$(config.read_ini "${_INI_FILE}" "memory_owner" 2>/dev/null || true)"
   [[ -n "${_val}" ]] && _MEMORY_OWNER="${_val}"
@@ -130,7 +130,7 @@ else
   skip ".ai/telamon/secrets (not found)"
 fi
 
-remove_file    "${PROJ}/.ai/telamon/telamon.ini" ".ai/telamon/telamon.ini"
+remove_file    "${PROJ}/.ai/telamon/telamon.jsonc" ".ai/telamon/telamon.jsonc"
 
 # ── 3. opencode.jsonc ─────────────────────────────────────────────────────────
 step "Removing opencode.jsonc..."
