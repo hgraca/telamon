@@ -39,6 +39,7 @@ if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
       else
         sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=true|" "${ENV_FILE}"
       fi
+      grep -q '^DISCORD_BRIDGE_ENABLED=' "${ENV_FILE}" || echo 'DISCORD_BRIDGE_ENABLED=true' >> "${ENV_FILE}"
       log "DISCORD_BRIDGE_ENABLED=true written to .env"
     else
       if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -46,6 +47,7 @@ if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
       else
         sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
       fi
+      grep -q '^DISCORD_BRIDGE_ENABLED=' "${ENV_FILE}" || echo 'DISCORD_BRIDGE_ENABLED=false' >> "${ENV_FILE}"
       skip "Discord Bridge (user chose not to enable)"
       exit 0
     fi
@@ -56,6 +58,7 @@ if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
     else
       sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_BRIDGE_ENABLED=false|" "${ENV_FILE}"
     fi
+    grep -q '^DISCORD_BRIDGE_ENABLED=' "${ENV_FILE}" || echo 'DISCORD_BRIDGE_ENABLED=false' >> "${ENV_FILE}"
     skip "Discord Bridge (non-interactive, defaulting to disabled)"
     exit 0
   fi
@@ -76,6 +79,7 @@ discord_bridge.write_env_var() {
     else
       sed -i "s|^${env_key}=.*|${env_key}=${value}|" "${ENV_FILE}"
     fi
+    grep -q "^${env_key}=" "${ENV_FILE}" || echo "${env_key}=${value}" >> "${ENV_FILE}"
     log "${env_key} written to .env"
   else
     warn ".env not found — cannot write ${env_key}. Add manually: ${env_key}=${value}"
