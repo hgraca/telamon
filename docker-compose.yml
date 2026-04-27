@@ -160,3 +160,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+
+  # ── Optional: Discord Bridge (profile: discord-bridge) ─────────────────────
+  opencode-bridge:
+    image: lbecchi/opencode-chat-bridge
+    container_name: opencode-bridge
+    restart: unless-stopped
+    profiles: [discord-bridge]
+    environment:
+      - CONNECTOR=discord
+      - DISCORD_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_ALLOWED_USERS=${DISCORD_ALLOWED_USER_IDS}
+      - OPENCODE_PROJECT_DIR=/workspaces
+    volumes:
+      - /home/user/Development:/workspaces:ro
+      - ~/.config/opencode/opencode.json:/app/opencode.json:ro

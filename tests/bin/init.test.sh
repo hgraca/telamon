@@ -388,6 +388,12 @@ assert_symlink "${PROJ}/AGENTS.md" "storage/AGENTS.shared.md" \
 assert_file "${TELAMON_ROOT}/storage/AGENTS.shared.md" \
   "storage/AGENTS.shared.md (storage copy)"
 
+# ── 9. Discord bridge config ──────────────────────────────────────────────────
+_section "9. Discord bridge config"
+# discord_enabled should be present in telamon.jsonc (either true or false)
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"discord_enabled\"" \
+  ".ai/telamon/telamon.jsonc has discord_enabled key"
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo
 echo -e "${BOLD}────────────────────────────────────────────${RESET}"

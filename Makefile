@@ -56,6 +56,9 @@ endif
 ifneq ($(shell grep -s '^GRAPHITI_ENABLED=true' .env),)
   COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile graphiti
 endif
+ifneq ($(shell grep -s '^DISCORD_BRIDGE_ENABLED=true' .env),)
+  COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile discord-bridge
+endif
 
 .docker-wrap-%:
 ifeq ($(IS_DOCKER),1)
