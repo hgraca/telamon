@@ -97,6 +97,7 @@ config.resolve_medium_model() {
   # ── 1. Return early if already configured ────────────────────────────────────
   local existing
   if existing="$(config.read_ini "${ini_file}" "medium_model")" && [[ -n "${existing}" ]]; then
+    info "Medium model from telamon.jsonc: ${existing}" >&2
     echo "${existing}"
     return 0
   fi

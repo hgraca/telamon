@@ -84,6 +84,7 @@ else
     _existing="$(config.read_ini "${_ini_file}" "memory_owner" 2>/dev/null || true)"
     if [[ -n "${_existing}" ]]; then
       MEMORY_OWNER="${_existing}"
+      info "Memory owner from telamon.jsonc: ${MEMORY_OWNER}"
     fi
   fi
 
@@ -129,6 +130,7 @@ else
     _existing_ogham="$(config.read_ini "${_ini_file}" "ogham_db" 2>/dev/null || true)"
     if [[ -n "${_existing_ogham}" ]]; then
       OGHAM_DB="${_existing_ogham}"
+      info "Ogham database from telamon.jsonc: ${OGHAM_DB}"
     fi
   fi
 
