@@ -34,7 +34,7 @@ Commands:
   purge [path]           Remove project wiring and data (default: current dir)
   recover-memories [path] Recover memories from past sessions (default: current dir)
                           Flags: --all, --full, --dry-run, --batch-size N
-  module add <url>       Clone a git repo into vendor/ and register in storage/modules.jsonc
+  module add <url>       Clone a git repo into vendor/ and register in .telamon.jsonc
   module remove <name>   Remove a registered module (name is org/repo)
   module list            Show all registered modules
   module sync            Re-wire all modules into all initialized projects

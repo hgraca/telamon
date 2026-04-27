@@ -83,7 +83,7 @@ telamon module sync                                              # re-wire to al
 
 When path flags are omitted, Telamon checks for `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo and wires any that exist.
 
-Module configuration is stored in `storage/modules.jsonc`. The `addyosmani/agent-skills` module is built-in and cannot be removed.
+Module configuration is stored in `.telamon.jsonc` (under the `"modules"` key). The `addyosmani/agent-skills` module is built-in and cannot be removed.
 
 ---
 

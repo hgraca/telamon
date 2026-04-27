@@ -94,32 +94,50 @@ for _url in "${BUILTIN_REPOS[@]}"; do
   fi
 done
 
-# ── User submodules ───────────────────────────────────────────────────────────
-header "User submodules"
+# ── User modules ──────────────────────────────────────────────────────────────
+header "User modules"
 
-_raw_submodules="$(grep -s '^TELAMON_SUBMODULES=' "${TELAMON_ROOT}/.env" | head -1 | cut -d= -f2- | tr -d "\"'" || true)"
-
-if [[ -z "${_raw_submodules}" ]]; then
-  skip "no user submodules configured"
+_telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
+if [[ ! -f "${_telamon_cfg}" ]]; then
+  skip "no .telamon.jsonc found"
 else
-  IFS=',' read -ra _user_repos <<< "${_raw_submodules}"
-  for _url in "${_user_repos[@]}"; do
-    _url="${_url// /}"
-    [[ -z "${_url}" ]] && continue
-    _dest="${TELAMON_ROOT}/$(_derive_vendor_path "${_url}")"
-    if [[ -d "${_dest}/.git" ]]; then
-      step "Pulling ${_dest} ..."
-      git -C "${_dest}" pull --rebase \
-        && log "Updated: ${_dest}" \
-        || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git pull failed for ${_dest}"; FAILED=$((FAILED + 1)); }
-    else
-      step "Cloning ${_url} → ${_dest} ..."
-      mkdir -p "$(dirname "${_dest}")"
-      git clone --depth 1 "${_url}" "${_dest}" \
-        && log "Cloned: ${_dest}" \
-        || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git clone failed for ${_url}"; FAILED=$((FAILED + 1)); }
-    fi
-  done
+  # Read module URLs (excluding built-ins) from .telamon.jsonc
+  _user_module_lines="$(python3 - "${_telamon_cfg}" <<'PYEOF'
+import json, re, sys
+
+def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+
+with open(sys.argv[1]) as f:
+    data = json.loads(strip(f.read()))
+
+for name, entry in data.get('modules', {}).items():
+    if entry.get('builtin', False):
+        continue
+    url = entry.get('url', '')
+    if url:
+        print(f'{name}\t{url}')
+PYEOF
+)"
+
+  if [[ -z "${_user_module_lines}" ]]; then
+    skip "no user modules configured"
+  else
+    while IFS=$'\t' read -r _name _url; do
+      _dest="${TELAMON_ROOT}/vendor/${_name}"
+      if [[ -d "${_dest}/.git" ]]; then
+        step "Pulling vendor/${_name} ..."
+        git -C "${_dest}" pull --rebase \
+          && log "Updated: vendor/${_name}" \
+          || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git pull failed for vendor/${_name}"; FAILED=$((FAILED + 1)); }
+      else
+        step "Cloning ${_url} → vendor/${_name} ..."
+        mkdir -p "$(dirname "${_dest}")"
+        git clone --depth 1 "${_url}" "${_dest}" \
+          && log "Cloned: vendor/${_name}" \
+          || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  git clone failed for ${_url}"; FAILED=$((FAILED + 1)); }
+      fi
+    done <<< "${_user_module_lines}"
+  fi
 fi
 
 # ── Project config sync ───────────────────────────────────────────────────────
