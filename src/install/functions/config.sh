@@ -186,7 +186,7 @@ PYEOF
   # ── 7. Read user choice ───────────────────────────────────────────────────────
   local chosen=""
   while [[ -z "${chosen}" ]]; do
-    ask "Your choice [1-${#options[@]}/c]:" >&2
+    ask "Your choice [1]:" >&2
     local reply
     read -r reply </dev/tty
     reply="${reply,,}"  # lowercase

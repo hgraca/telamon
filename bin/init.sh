@@ -95,7 +95,7 @@ else
       echo "  1) telamon — files in Telamon storage, symlink in project (default)"
       echo "  2) project — files in project, symlink in Telamon storage"
       echo
-      printf "? Your choice [1-2]: "
+      printf "? Your choice [1]: "
       read -r _choice
       case "${_choice}" in
         2) MEMORY_OWNER="project" ;;
@@ -140,7 +140,7 @@ else
       echo "  1) telamon — local Postgres managed by Telamon (default)"
       echo "  2) external — provide a PostgreSQL connection URL"
       echo
-      printf "? Your choice [1-2]: "
+      printf "? Your choice [1]: "
       read -r _ogham_choice
       case "${_ogham_choice}" in
         2)
