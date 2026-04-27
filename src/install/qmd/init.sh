@@ -50,7 +50,7 @@ fi
 # .ai/telamon/telamon.jsonc written in step 3.  Fall back to the directory basename.
 TELAMON_INI="${PWD}/.ai/telamon/telamon.jsonc"
 if [[ -f "${TELAMON_INI}" ]]; then
-  PROJECT_NAME="$(grep -E '^project_name\s*=' "${TELAMON_INI}" | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')"
+  PROJECT_NAME="$(config.read_ini "${TELAMON_INI}" "project_name" 2>/dev/null || true)"
 else
   PROJECT_NAME="$(basename "${PWD}")"
 fi

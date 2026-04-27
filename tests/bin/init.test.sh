@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROJ="${1:-}"
 PROJECT_NAME="${2:-}"
 
@@ -376,8 +376,8 @@ fi
 _section "7. .opencode/codebase-index.json"
 INDEX_JSON="${PROJ}/.opencode/codebase-index.json"
 assert_file "${INDEX_JSON}" ".opencode/codebase-index.json"
-assert_json_key "${INDEX_JSON}" "embeddingProvider" "ollama" \
-  "codebase-index.json: embeddingProvider == ollama"
+assert_json_key "${INDEX_JSON}" "embeddingProvider" "custom" \
+  "codebase-index.json: embeddingProvider == custom"
 assert_json_key "${INDEX_JSON}" "indexing.autoIndex" "True" \
   "codebase-index.json: indexing.autoIndex == true"
 
