@@ -139,3 +139,46 @@ with open(config_file, "w") as f:
 print(f"  \033[32m✔\033[0m  {server_name}.environment.{env_key} set in opencode config")
 PYEOF
 }
+
+# opencode.set_permission <key> <json-value>
+#
+# Sets a single key inside the "permission" block of opencode.jsonc.
+# The value may be a plain JSON string (e.g. '"deny"') or a JSON object.
+# If the "permission" key does not exist it is created.
+# No-op if the config file does not exist.
+#
+# Arguments:
+#   $1 — permission key (e.g. "external_directory")
+#   $2 — JSON value string (must be valid JSON, e.g. '"deny"' or '{"*":"deny"}')
+#
+# Example:
+#   opencode.set_permission "external_directory" '{"*": "deny", "/path/to/storage/obsidian/*": "allow"}'
+opencode.set_permission() {
+  local perm_key="$1"
+  local perm_json="$2"
+  local config_file="${OPENCODE_CONFIG_FILE}"
+
+  if [[ ! -f "${config_file}" ]]; then
+    warn "opencode config not found — skipping permission set for '${perm_key}'"
+    return 0
+  fi
+
+  python3 - "${INSTALL_PATH}/functions/strip_jsonc.py" "${config_file}" "${perm_key}" "${perm_json}" <<'PYEOF'
+import json, sys
+
+exec(open(sys.argv[1]).read())
+
+config_file, perm_key, perm_json = sys.argv[2], sys.argv[3], sys.argv[4]
+
+with open(config_file) as f:
+    config = json.loads(strip_jsonc_comments(f.read()))
+
+config.setdefault("permission", {})[perm_key] = json.loads(perm_json)
+
+with open(config_file, "w") as f:
+    json.dump(config, f, indent=2)
+    f.write("\n")
+
+print(f"  \033[32m✔\033[0m  permission.{perm_key} set in opencode config")
+PYEOF
+}

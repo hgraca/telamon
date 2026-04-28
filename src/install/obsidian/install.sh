@@ -184,3 +184,14 @@ JSON
 )"
 
 log "Obsidian MCP registered in opencode.jsonc"
+
+# ── Allow agent access to Obsidian storage ────────────────────────────────────
+opencode.set_permission "external_directory" "$(cat <<JSON
+{
+  "*": "deny",
+  "${TELAMON_ROOT}/storage/obsidian/*": "allow"
+}
+JSON
+)"
+
+log "external_directory permission set for ${TELAMON_ROOT}/storage/obsidian/*"
