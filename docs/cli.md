@@ -64,7 +64,7 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 
 ### module
 
-Modules are external git repositories or local directories that provide commands, agents, skills, and/or plugins. When you add a module, Telamon clones it into `vendor/<org>/<repo>/` (for git URLs) or creates a symlink in `vendor/` pointing to the local directory, then wires symlinks into every initialized project's `.opencode/` directory — the same nested-set pattern used for Telamon's own files.
+Modules are external git repositories or local directories that provide commands, agents, skills, scripts, and/or plugins. When you add a module, Telamon clones it into `vendor/<org>/<repo>/` (for git URLs) or creates a symlink in `vendor/` pointing to the local directory, then wires symlinks into every initialized project's `.opencode/` directory — the same nested-set pattern used for Telamon's own files.
 
 Each module gets its own namespace inside `.opencode/`:
 
@@ -96,8 +96,9 @@ telamon module sync                          # re-wire all modules to all projec
 | `--agents=`   | Relative path to agents directory within the repo/directory            |
 | `--skills=`   | Relative path to skills directory within the repo/directory            |
 | `--plugins=`  | Relative path to plugins directory within the repo/directory           |
+| `--scripts=`  | Relative path to scripts directory within the repo/directory           |
 
-When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, and `./plugins` in the cloned repo or local directory and wires any that exist.
+When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, `./scripts`, and `./plugins` in the cloned repo or local directory and wires any that exist.
 
 #### Examples
 

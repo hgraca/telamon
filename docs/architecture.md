@@ -51,6 +51,7 @@ flowchart TB
             p_gf["graphify"]
             p_rd["rtk-dedupe"]
             p_dc["diff-context"]
+            p_sr["script-runner"]
         end
 
         subgraph agents["Agent Roles (src/agents/)"]

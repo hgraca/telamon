@@ -4,7 +4,7 @@
 # Manage external module repos — clone, wire symlinks into projects.
 #
 # Usage:
-#   telamon module add <url> [--name=<name>] [--commands=<path>] [--agents=<path>] [--skills=<path>] [--plugins=<path>]
+#   telamon module add <url> [--name=<name>] [--commands=<path>] [--agents=<path>] [--skills=<path>] [--plugins=<path>] [--scripts=<path>]
 #   telamon module remove <name>
 #   telamon module list
 #   telamon module sync            # re-wire all modules to all projects
@@ -174,7 +174,8 @@ if name not in modules:
             "commands": "./commands",
             "agents":   "./agents",
             "skills":   "./skills",
-            "plugins":  "./plugins"
+            "plugins":  "./plugins",
+            "scripts":  "./scripts"
         }
     }
 data['modules'] = modules
@@ -247,7 +248,7 @@ _wire_module_to_project() {
   local project_dir="$4"
 
   # For each type, check if the path exists in vendor and create symlink
-  for type in skills plugins agents commands; do
+  for type in skills plugins agents commands scripts; do
     local rel_path
     rel_path="$(python3 -c "
 import json, sys
@@ -284,7 +285,7 @@ _remove_module_wiring() {
   local name="$1"
   local project_dir="$2"
 
-  for type in skills plugins agents commands; do
+  for type in skills plugins agents commands scripts; do
     local link_path="${project_dir}/.opencode/${type}/${name}"
     if [[ -L "${link_path}" ]]; then
       rm "${link_path}"
@@ -319,7 +320,7 @@ cmd_add() {
   shift
 
   # Parse optional flags
-  local opt_name="" opt_commands="" opt_agents="" opt_skills="" opt_plugins=""
+  local opt_name="" opt_commands="" opt_agents="" opt_skills="" opt_plugins="" opt_scripts=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --name=*)     opt_name="${1#*=}";     shift ;;
@@ -327,6 +328,7 @@ cmd_add() {
       --agents=*)   opt_agents="${1#*=}";   shift ;;
       --skills=*)   opt_skills="${1#*=}";   shift ;;
       --plugins=*)  opt_plugins="${1#*=}";  shift ;;
+      --scripts=*)  opt_scripts="${1#*=}";  shift ;;
       *) echo "Error: unknown option '$1'" >&2; exit 1 ;;
     esac
   done
@@ -385,7 +387,7 @@ cmd_add() {
     # Detect available paths in the local directory
     step "Detecting available paths ..."
     local paths_json
-    paths_json="$(python3 - "${local_abs_path}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" <<'PYEOF'
+    paths_json="$(python3 - "${local_abs_path}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" "${opt_scripts}" <<'PYEOF'
 import json, sys, os
 
 dest        = sys.argv[1]
@@ -393,12 +395,14 @@ opt_cmds    = sys.argv[2]
 opt_agents  = sys.argv[3]
 opt_skills  = sys.argv[4]
 opt_plugins = sys.argv[5]
+opt_scripts = sys.argv[6]
 
 defaults = {
     "commands": opt_cmds    or "./commands",
     "agents":   opt_agents  or "./agents",
     "skills":   opt_skills  or "./skills",
     "plugins":  opt_plugins or "./plugins",
+    "scripts":  opt_scripts or "./scripts",
 }
 
 paths = {}
@@ -413,7 +417,7 @@ PYEOF
 
     if [[ "${paths_json}" == "{}" ]]; then
       warn "No standard paths found in ${local_abs_path} — registering with default paths anyway"
-      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins"}'
+      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins","scripts":"./scripts"}'
     else
       log "Found paths: ${paths_json}"
     fi
@@ -487,7 +491,7 @@ PYEOF
     # Determine which paths actually exist in the cloned repo
     step "Detecting available paths ..."
     local paths_json
-    paths_json="$(python3 - "${dest}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" <<'PYEOF'
+    paths_json="$(python3 - "${dest}" "${opt_commands}" "${opt_agents}" "${opt_skills}" "${opt_plugins}" "${opt_scripts}" <<'PYEOF'
 import json, sys, os
 
 dest        = sys.argv[1]
@@ -495,12 +499,14 @@ opt_cmds    = sys.argv[2]
 opt_agents  = sys.argv[3]
 opt_skills  = sys.argv[4]
 opt_plugins = sys.argv[5]
+opt_scripts = sys.argv[6]
 
 defaults = {
     "commands": opt_cmds    or "./commands",
     "agents":   opt_agents  or "./agents",
     "skills":   opt_skills  or "./skills",
     "plugins":  opt_plugins or "./plugins",
+    "scripts":  opt_scripts or "./scripts",
 }
 
 paths = {}
@@ -515,7 +521,7 @@ PYEOF
 
     if [[ "${paths_json}" == "{}" ]]; then
       warn "No standard paths found in ${dest} — registering with default paths anyway"
-      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins"}'
+      paths_json='{"commands":"./commands","agents":"./agents","skills":"./skills","plugins":"./plugins","scripts":"./scripts"}'
     else
       log "Found paths: ${paths_json}"
     fi
@@ -789,9 +795,10 @@ Subcommands:
       --agents=<path>     Path to agents directory within the repo/directory
       --skills=<path>     Path to skills directory within the repo/directory
       --plugins=<path>    Path to plugins directory within the repo/directory
+      --scripts=<path>    Path to scripts directory within the repo/directory
 
     When path flags are omitted, auto-detects ./commands, ./agents,
-    ./skills, and ./plugins in the repo or local directory.
+    ./skills, ./scripts, and ./plugins in the repo or local directory.
 
   remove <name>  Remove a module by name; cannot remove built-in modules
   list           Show all registered modules with clone/link status

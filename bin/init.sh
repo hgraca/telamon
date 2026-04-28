@@ -17,7 +17,7 @@
 #   promptfoo     — agent eval scaffold (only with --with-tests)
 #
 # After per-app init, wires external modules from .telamon.jsonc into
-# .opencode/{skills,agents,plugins,commands}/<module-name>.
+# .opencode/{skills,agents,plugins,commands,scripts}/<module-name>.
 # =============================================================================
 
 set -euo pipefail
@@ -225,7 +225,7 @@ PYEOF
         fi
         _msrc="${_mdest}"
       fi
-      for _type in skills plugins agents commands; do
+      for _type in skills plugins agents commands scripts; do
         _rel="$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get(sys.argv[2],''))" "${_mpaths}" "${_type}")"
         [[ -z "${_rel}" ]] && continue
         _src="$(cd "${_msrc}" && cd "${_rel}" 2>/dev/null && pwd)" || continue

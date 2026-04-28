@@ -6,12 +6,13 @@
 #   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/plugins
 #   3. Symlink .opencode/agents/telamon → <telamon-root>/src/agents
 #   4. Symlink .opencode/commands/telamon → <telamon-root>/src/commands
-#   5. Write   .ai/telamon/telamon.jsonc with the project name
-#   6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
-#   7. Symlink .ai/telamon/scripts → <telamon-root>/scripts
-#   8. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
+#   5. Symlink .opencode/scripts/telamon → <telamon-root>/scripts
+#   6. Write   .ai/telamon/telamon.jsonc with the project name
+#   7. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
+#   8. Symlink .ai/telamon/scripts → <telamon-root>/scripts
+#   9. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
 #      (or merge Telamon settings into an existing project config)
-#   9. AGENTS.md — copy dist to storage, symlink from project root
+#  10. AGENTS.md — copy dist to storage, symlink from project root
 #
 # Expected environment (exported by bin/init.sh):
 #   PROJ          — absolute path to the project root
@@ -76,7 +77,18 @@ else
   log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/commands"
 fi
 
-# ── 5. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
+# ── 5. Symlink .opencode/scripts/telamon → <telamon-root>/scripts ────────────────────
+SCRIPTS_OC_DIR="${PROJ}/.opencode/scripts"
+mkdir -p "${SCRIPTS_OC_DIR}"
+SCRIPTS_OC_LINK="${SCRIPTS_OC_DIR}/telamon"
+if [[ -L "${SCRIPTS_OC_LINK}" ]]; then
+  skip ".opencode/scripts/telamon symlink (already exists)"
+else
+  ln -s "${TELAMON_ROOT}/scripts" "${SCRIPTS_OC_LINK}"
+  log "Symlinked .opencode/scripts/telamon → ${TELAMON_ROOT}/scripts"
+fi
+
+# ── 6. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
 TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 
 # Migrate old INI format if present

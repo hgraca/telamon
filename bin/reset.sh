@@ -12,6 +12,7 @@
 #   - .opencode/plugins/telamon       symlink
 #   - .opencode/agents/telamon        symlink
 #   - .opencode/commands/telamon      symlink
+#   - .opencode/scripts/telamon       symlink
 #   - .opencode/graphify-serve.sh     symlink
 #   - .ai/telamon/memory              symlink
 #   - .ai/telamon/secrets             symlink
@@ -92,6 +93,7 @@ remove_symlink "${PROJ}/.opencode/skills/telamon"   ".opencode/skills/telamon"
 remove_symlink "${PROJ}/.opencode/plugins/telamon"  ".opencode/plugins/telamon"
 remove_symlink "${PROJ}/.opencode/agents/telamon"   ".opencode/agents/telamon"
 remove_symlink "${PROJ}/.opencode/commands/telamon" ".opencode/commands/telamon"
+remove_symlink "${PROJ}/.opencode/scripts/telamon"  ".opencode/scripts/telamon"
 remove_symlink "${PROJ}/.opencode/graphify-serve.sh" ".opencode/graphify-serve.sh"
 
 # ── 2. .ai/telamon symlinks and files ─────────────────────────────────────────
@@ -177,6 +179,7 @@ remove_if_empty "${PROJ}/.opencode/skills"
 remove_if_empty "${PROJ}/.opencode/plugins"
 remove_if_empty "${PROJ}/.opencode/agents"
 remove_if_empty "${PROJ}/.opencode/commands"
+remove_if_empty "${PROJ}/.opencode/scripts"
 remove_if_empty "${PROJ}/.opencode"
 remove_if_empty "${PROJ}/.ai/telamon"
 remove_if_empty "${PROJ}/.ai"
