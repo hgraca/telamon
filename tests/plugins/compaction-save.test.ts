@@ -31,7 +31,7 @@ const _existsMap: Map<string, boolean> = new Map()
 /** Controls what readFileSync returns for a given path. */
 const _readMap: Map<string, string> = new Map()
 
-mock.module("node:fs", () => ({
+mock.module("fs", () => ({
   writeFileSync: (path: string, content: string) => {
     _writeCalls.push([path, content])
   },
@@ -106,8 +106,7 @@ function registerWorkItem(name: string, readmeContent: string) {
 
 /** Register a work item subdirectory WITHOUT a README.md. */
 function registerWorkItemNoReadme(name: string) {
-  const itemDir = `${ACTIVE_DIR}/${name}`
-  const readmePath = `${itemDir}/README.md`
+  const readmePath = `${ACTIVE_DIR}/${name}/README.md`
 
   _existsMap.set(ACTIVE_DIR, true)
 
@@ -171,6 +170,7 @@ describe("CompactionSavePlugin", () => {
       await hook(input, output)
 
       expect(output.context.length).toBeGreaterThan(0)
+      expect(output.context.join("\n")).toContain("Alpha Task")
     })
 
     test("output.context entry mentions the active work item name", async () => {
@@ -391,6 +391,7 @@ describe("CompactionSavePlugin", () => {
 
       const content = call![1]
       expect(content.toLowerCase()).toContain("compaction")
+      expect(content).toContain("Alpha Task")
     })
 
     test("compacted_at timestamp is recent (within 5 seconds of now)", async () => {
