@@ -262,6 +262,12 @@ assert_dir  "${PROJ}/.opencode/skills" ".opencode/skills/ directory"
 assert_symlink "${PROJ}/.opencode/skills/telamon" "src/skills" \
   ".opencode/skills/telamon → <telamon-root>/src/skills"
 
+# ── 2b. .opencode/scripts/telamon symlink ────────────────────────────────────────────
+_section "2b. .opencode/scripts/telamon symlink"
+assert_dir  "${PROJ}/.opencode/scripts" ".opencode/scripts/ directory"
+assert_symlink "${PROJ}/.opencode/scripts/telamon" "/scripts" \
+  ".opencode/scripts/telamon → <telamon-root>/scripts"
+
 # ── 3. .ai/telamon/telamon.jsonc ──────────────────────────────────────────────────────
 _section "3. .ai/telamon/telamon.jsonc"
 assert_file "${PROJ}/.ai/telamon/telamon.jsonc" ".ai/telamon/telamon.jsonc"
