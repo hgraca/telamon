@@ -13,6 +13,7 @@ description: "Git commit conventions: gitignored paths, ticket ID prefixes, conv
 
 ## Rules
 
+- **Run `make test` before every commit** — delegate `make test` to @tester and confirm all tests pass BEFORE staging and committing. Never commit code that has not been validated by the full test suite. If tests fail, fix the issue first; do not commit broken code.
 - **Commit after every completed task** — any work that changes files must be committed before reporting results to the user. Never leave file changes uncommitted after finishing a task.
 - Files or folders under a path ignored by git must NEVER be committed, unless explicitly done or requested by the human stakeholder
 - When a ticket ID is provided together with the task, use it as the commit title prefix, ie `POS-666: ...`
