@@ -25,14 +25,15 @@
 set -euo pipefail
 
 # ── Resolve paths ─────────────────────────────────────────────────────────────
-# bin/ lives one level above src/install/
+# bin/ lives one level above src/tools/
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${TELAMON_ROOT}/src/install"
-export INSTALL_PATH
+TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
+export TOOLS_PATH FUNCTIONS_PATH
 
 # ── Load shared functions ─────────────────────────────────────────────────────
 # shellcheck disable=SC1091
-. "${INSTALL_PATH}/functions/autoload.sh"
+. "${FUNCTIONS_PATH}/autoload.sh"
 
 # ── Resolve Telamon root and storage paths ───────────────────────────────────────
 STATE_DIR="${TELAMON_ROOT}/storage/state"
@@ -245,17 +246,17 @@ PRE_DOCKER_APPS=(homebrew docker discord)
 # Phase 2: tools that require the containers to already be running (ogham needs
 #           Postgres; nomic-embed-text model must be in Ollama). Called by
 #           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli shell langfuse graphiti diff-context)
+POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli langfuse graphiti diff-context)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
-    timed_run "${_app}" bash "${INSTALL_PATH}/${_app}/install.sh"
+    timed_run "${_app}" bash "${TOOLS_PATH}/${_app}/install.sh"
   done
 }
 
 post_docker() {
   for _app in "${POST_DOCKER_APPS[@]}"; do
-    timed_run "${_app}" bash "${INSTALL_PATH}/${_app}/install.sh"
+    timed_run "${_app}" bash "${TOOLS_PATH}/${_app}/install.sh"
   done
 }
 

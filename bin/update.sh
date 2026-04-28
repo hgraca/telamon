@@ -11,11 +11,12 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${TELAMON_ROOT}/src/install"
-export INSTALL_PATH TELAMON_ROOT
+TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
+export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
-. "${INSTALL_PATH}/functions/autoload.sh"
+. "${FUNCTIONS_PATH}/autoload.sh"
 
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
@@ -145,7 +146,7 @@ fi
 # ── Project config sync ───────────────────────────────────────────────────────
 header "Project config sync"
 
-# Defaults MUST match src/install/opencode/init.sh template (step 5)
+# Defaults MUST match src/tools/opencode/init.sh template (step 5)
 _CFG_DEFAULTS='{"rtk_enabled":false,"caveman_enabled":false,"medium_model":"","memory_owner":"telamon","ogham_db":"telamon","discord_enabled":false,"discord_forum_channel":"","discord_forum_channel_id":""}'
 
 while IFS= read -r _ppath_file; do
@@ -316,14 +317,14 @@ with open(sys.argv[1], 'w') as f:
 done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 
 # ── Per-app updates ────────────────────────────────────────────────────────────
-# Each src/install/<app>/update.sh exits:
+# Each src/tools/<app>/update.sh exits:
 #   0 — success
 #   1 — failure
 #   2 — tool not installed (skip)
 UPDATE_APPS=(homebrew docker opencode ogham graphify codebase-index caveman rtk nodejs qmd repomix promptfoo discord)
 
 for _app in "${UPDATE_APPS[@]}"; do
-  _script="${INSTALL_PATH}/${_app}/update.sh"
+  _script="${TOOLS_PATH}/${_app}/update.sh"
   if [[ ! -f "${_script}" ]]; then
     warn "No update.sh for ${_app} — skipping"
     continue
@@ -347,8 +348,8 @@ if command -v cass &>/dev/null; then
   read -r _cass_confirm
   if [[ ! "${_cass_confirm}" =~ ^[Nn] ]]; then
     step "Removing cass-index scheduled jobs..."
-    if [[ -f "${INSTALL_PATH}/cass/schedule.sh" ]]; then
-      bash "${INSTALL_PATH}/cass/schedule.sh" --remove 2>/dev/null || true
+    if [[ -f "${TOOLS_PATH}/cass/schedule.sh" ]]; then
+      bash "${TOOLS_PATH}/cass/schedule.sh" --remove 2>/dev/null || true
     fi
     _cass_os="$(uname -s)"
     if [[ "${_cass_os}" == "Linux" ]]; then

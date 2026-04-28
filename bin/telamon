@@ -70,8 +70,9 @@ case "${CMD}" in
     shift  # consume command name
 
     # Source functions library for config helpers
-    INSTALL_PATH="${TELAMON_ROOT}/src/install"
-    . "${INSTALL_PATH}/functions/autoload.sh"
+     TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+     FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
+     . "${FUNCTIONS_PATH}/autoload.sh"
 
     # Parse arguments
     ALL_MODE=false

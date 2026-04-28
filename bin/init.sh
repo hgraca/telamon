@@ -23,10 +23,11 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${TELAMON_ROOT}/src/install"
+TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 
 # shellcheck disable=SC1091
-. "${INSTALL_PATH}/functions/autoload.sh"
+. "${FUNCTIONS_PATH}/autoload.sh"
 
 # ── Flag parsing ──────────────────────────────────────────────────────────────
 MEMORY_OWNER_FLAG=""
@@ -108,7 +109,7 @@ else
   fi
 fi
 
-export TELAMON_ROOT INSTALL_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
+export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
 
 # ── Resolve OGHAM_DB ──────────────────────────────────────────────────────────
 # Priority: CLI flag > existing telamon.jsonc > interactive prompt > default (telamon)
@@ -168,7 +169,7 @@ header "Telamon init — ${PROJECT_NAME}"
 INIT_APPS=(obsidian opencode codebase-index repomix promptfoo graphify qmd session-capture discord)
 
 for _app in "${INIT_APPS[@]}"; do
-  _script="${INSTALL_PATH}/${_app}/init.sh"
+  _script="${TOOLS_PATH}/${_app}/init.sh"
   if [[ ! -f "${_script}" ]]; then
     warn "No init.sh for ${_app} — skipping"
     continue

@@ -11,11 +11,12 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${TELAMON_ROOT}/src/install"
-export INSTALL_PATH TELAMON_ROOT
+TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
+export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
-. "${INSTALL_PATH}/functions/autoload.sh"
+. "${FUNCTIONS_PATH}/autoload.sh"
 
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 

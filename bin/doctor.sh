@@ -12,11 +12,12 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_PATH="${TELAMON_ROOT}/src/install"
-export INSTALL_PATH TELAMON_ROOT
+TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
+export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
-. "${INSTALL_PATH}/functions/autoload.sh"
+. "${FUNCTIONS_PATH}/autoload.sh"
 
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
@@ -556,7 +557,7 @@ if [[ -f "${STORAGE_CONFIG}" ]]; then
   # Check key MCP servers are registered (use proper JSONC tokenizer — not regex)
   _check_mcp() {
     local name="$1"
-    if python3 - "${TELAMON_ROOT}/src/install/functions/strip_jsonc.py" "${STORAGE_CONFIG}" "${name}" <<'PYEOF' 2>/dev/null
+    if python3 - "${TELAMON_ROOT}/src/functions/strip_jsonc.py" "${STORAGE_CONFIG}" "${name}" <<'PYEOF' 2>/dev/null
 import sys, json
 
 exec(open(sys.argv[1]).read())
