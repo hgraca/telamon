@@ -125,13 +125,8 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	@if pgrep -x obsidian >/dev/null 2>&1; then \
 		echo "  ✓ Obsidian already running"; \
 	elif command -v obsidian >/dev/null 2>&1; then \
-		if command -v xvfb-run >/dev/null 2>&1; then \
-			nohup xvfb-run obsidian --disable-gpu --no-sandbox >/dev/null 2>&1 & \
-			echo "  ✓ Obsidian launched (headless)"; \
-		else \
-			nohup obsidian >/dev/null 2>&1 & \
-			echo "  ✓ Obsidian launched"; \
-		fi; \
+		nohup obsidian >/dev/null 2>&1 & \
+		echo "  ✓ Obsidian launched"; \
 	elif [ "$$(uname -s)" = "Darwin" ] && [ -d "/Applications/Obsidian.app" ]; then \
 		open -a Obsidian; \
 		echo "  ✓ Obsidian launched"; \
@@ -163,6 +158,11 @@ down: ## Shut down Telamon services
 			kill "$$_pid" 2>/dev/null && echo "  ✓ remote-opencode stopped (PID $$_pid)"; \
 		fi; \
 		rm -f storage/remote-opencode.pid; \
+	fi
+	@if pgrep -x obsidian >/dev/null 2>&1; then \
+		pkill -x obsidian 2>/dev/null && echo "  ✓ Obsidian stopped"; \
+	else \
+		echo "  – Obsidian (not running)"; \
 	fi
 	docker compose $(COMPOSE_PROFILES) down --remove-orphans
 
