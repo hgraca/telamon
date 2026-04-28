@@ -77,4 +77,15 @@ opencode.upsert_mcp "qmd" \
   '{"type":"local","command":["qmd","mcp"],"enabled":true,"environment":{"XDG_CACHE_HOME":"{file:.ai/telamon/secrets/qmd-cache-home}","QMD_LLAMA_GPU":"false"}}'
 log "QMD MCP registered"
 
+# ── Pre-download models in background (~2 GB) ────────────────────────────────
+# Running a dummy query triggers all 3 model downloads (query expansion,
+# embedding, reranker). The process runs in the background so it does not
+# block the rest of the install.
+step "Pre-downloading QMD models in background (~2 GB)..."
+(
+  XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=false \
+    qmd query "test" >/dev/null 2>&1
+) &
+log "QMD model download started in background (PID $!)"
+
 info "Run 'make init PROJ=<path>' to register QMD collections for a project (initial embed can take a few minutes)."
