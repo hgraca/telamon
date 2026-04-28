@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/install/discord-bridge/init.sh
-# Per-project initialization for the Discord bridge.
+# src/install/discord/init.sh
+# Discord Bot — per-project init.
 #
-# Configures discord_enabled, discord_forum_channel, and
-# discord_forum_channel_id in .ai/telamon/telamon.jsonc.
+# Configures discord_enabled in .ai/telamon/telamon.jsonc.
+# Projects are registered in Discord via slash commands (/setpath, /use).
 #
 # Expected env: PROJ, PROJECT_NAME, TELAMON_ROOT, INSTALL_PATH.
 # =============================================================================
@@ -17,16 +17,16 @@ export INSTALL_PATH
 # shellcheck disable=SC1091
 . "${INSTALL_PATH}/functions/autoload.sh"
 
-header "Discord Bridge — per-project init"
+header "Discord Bot — per-project init"
 
 # ── Guard: skip if explicitly disabled; prompt when unset ─────────────────────
-if env.is_disabled DISCORD_BRIDGE_ENABLED; then
-  skip "Discord Bridge (disabled)"
+if env.is_disabled DISCORD_ENABLED; then
+  skip "Discord Bot (disabled)"
   exit 0
 fi
 
-if ! env.is_enabled DISCORD_BRIDGE_ENABLED; then
-  skip "Discord Bridge (DISCORD_BRIDGE_ENABLED not set — run global install first)"
+if ! env.is_enabled DISCORD_ENABLED; then
+  skip "Discord Bot (DISCORD_ENABLED not set — run global install first)"
   exit 0
 fi
 
@@ -49,28 +49,16 @@ if [[ -t 0 ]]; then
   read -r answer
 
   if [[ "${answer}" =~ ^[Yy]$ ]]; then
-    # Prompt for forum channel name
-    echo
-    ask "Forum Channel name (default: ${PROJECT_NAME}):"
-    read -r channel_name
-    channel_name="${channel_name:-${PROJECT_NAME}}"
-
-    echo
-    echo "  Create a Forum Channel named '${channel_name}' in your Discord server."
-    echo "  Then right-click the channel → 'Copy Channel ID' (requires Developer Mode)."
-    echo
-
-    channel_id=""
-    while [[ -z "${channel_id}" ]]; do
-      ask "Forum Channel ID:"
-      read -r channel_id
-    done
-
     step "Writing Discord config to telamon.jsonc..."
     config.write_ini "${JSONC_FILE}" "discord_enabled" "true"
-    config.write_ini "${JSONC_FILE}" "discord_forum_channel" "${channel_name}"
-    config.write_ini "${JSONC_FILE}" "discord_forum_channel_id" "${channel_id}"
-    log "discord_enabled=true, discord_forum_channel=${channel_name}, discord_forum_channel_id=${channel_id}"
+    log "discord_enabled=true"
+
+    echo
+    echo "  Register this project in Discord:"
+    echo "    /setpath alias:${PROJECT_NAME} path:${PROJ}"
+    echo "  Then bind a channel:"
+    echo "    /use alias:${PROJECT_NAME}"
+    echo
   else
     step "Writing Discord config to telamon.jsonc..."
     config.write_ini "${JSONC_FILE}" "discord_enabled" "false"

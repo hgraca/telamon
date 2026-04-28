@@ -165,7 +165,7 @@ export OGHAM_DB OGHAM_DB_URL
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(obsidian opencode codebase-index repomix promptfoo graphify qmd session-capture discord-bridge)
+INIT_APPS=(obsidian opencode codebase-index repomix promptfoo graphify qmd session-capture discord)
 
 for _app in "${INIT_APPS[@]}"; do
   _script="${INSTALL_PATH}/${_app}/init.sh"

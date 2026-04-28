@@ -320,7 +320,7 @@ done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/nu
 #   0 — success
 #   1 — failure
 #   2 — tool not installed (skip)
-UPDATE_APPS=(homebrew docker opencode ogham graphify codebase-index caveman rtk nodejs qmd repomix promptfoo discord-bridge)
+UPDATE_APPS=(homebrew docker opencode ogham graphify codebase-index caveman rtk nodejs qmd repomix promptfoo discord)
 
 for _app in "${UPDATE_APPS[@]}"; do
   _script="${INSTALL_PATH}/${_app}/update.sh"
