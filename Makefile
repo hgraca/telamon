@@ -121,6 +121,7 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
+	@bash src/install/obsidian/sync-obsidian-key.sh
 	echo -e "\n\033[1m\033[34m━━━ Starting Obsidian... ━━━\033[0m"
 	@if pgrep -x obsidian >/dev/null 2>&1; then \
 		echo "  ✓ Obsidian already running"; \
