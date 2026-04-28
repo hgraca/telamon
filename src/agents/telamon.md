@@ -82,7 +82,7 @@ Handle these without delegating — you have the skills and context:
 
 | Work type               | Delegate to  | When                                                                           |
 |-------------------------|--------------|--------------------------------------------------------------------------------|
-| Code fix (small)        | @developer   | Clear scope, no planning needed                                                |
+| Code fix (small)        | implement_story | Clear scope, no planning needed — follow `telamon.implement_story` skill    |
 | Testing                 | @tester      | Write, fix, or audit tests                                                     |
 | Review                  | @reviewer    | Review code changeset or PR                                                    |
 | PR review comments      | @developer   | Address existing review feedback                                               |
@@ -94,11 +94,11 @@ Handle these without delegating — you have the skills and context:
 | Product domain question | @po          | Requirements clarification, business context, domain semantics                 |
 | Backlog grooming        | @po          | Create or refine backlog from a brief — tasks, acceptance criteria, priorities |
 
-**Small tasks — delegate immediately**: When work is classified as **small** (any type that routes to a specialist), 
-delegate to the specialist **without investigating or planning first**. 
-Pass the user's request and any obvious context (file paths mentioned, recent conversation context) directly. 
-Let the specialist do its own investigation as part of the work. Do NOT read files, search code, 
-or draft a plan before delegating small tasks.
+**Small code tasks — use implement_story**: When work is classified as **small** and routes to the developer
+(code fixes, PR review comments), follow the `telamon.implement_story` skill directly instead of delegating 
+to @developer alone. This ensures every code change passes through the Tester → Developer → Reviewer cycle.
+Pass the user's request and any obvious context (file paths mentioned, recent conversation context) directly.
+Do NOT read files, search code, or draft a plan before starting the implement_story workflow.
 
 ### Delegation prompt
 
