@@ -72,6 +72,11 @@ For every added or modified test method:
 - Verify the test captures the previous value before modifying it and restores it in a `finally` block.
 - A bare restore at the end of the method body (not wrapped in `finally`) is a WARNING — if the test fails or throws, the restore is skipped and subsequent tests run with polluted global state.
 
+**tearDown lifecycle safety** — When a `tearDown()` or `tearDownAfterClass()` method performs multiple cleanup steps (e.g. calls an external teardown, restores handler stacks, calls `parent::tearDown()`):
+- Verify the steps are wrapped in nested `try/finally` blocks so every cleanup step runs even if an earlier one throws.
+- `parent::tearDown()` must be in the innermost `finally` to guarantee PHPUnit's own cleanup always executes.
+- A `tearDown()` that calls an external method (framework factory, application kernel, etc.) before other cleanup without `try/finally` is a WARNING — if the external call throws, remaining cleanup is skipped and corrupted state cascades into subsequent tests.
+
 ### 7. Static Analysis Baseline Hygiene
 
 When `phparkitect.baseline.json`, `phpstan-baseline.neon`, or any other static-analysis baseline file is modified:
@@ -167,7 +172,7 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Dependency Wiring** — Registrations updated for new parameters? Variadic params wired?
 > - **Import Hygiene** — No unused or missing imports?
 > - **Cross-file Rename Consistency** — All references updated across all file types?
-> - **Test Quality** — Descriptive names? Comprehensive coverage? Reusable named test doubles? Assertions match method name claims (ordering, cardinality, conditions)? No coverage regression (assertions not removed or narrowed without updating the test name)? No orphaned fixture files? Extension guards cover all required extensions (not just the primary)? Global state modifications restored in `finally` blocks?
+> - **Test Quality** — Descriptive names? Comprehensive coverage? Reusable named test doubles? Assertions match method name claims (ordering, cardinality, conditions)? No coverage regression (assertions not removed or narrowed without updating the test name)? No orphaned fixture files? Extension guards cover all required extensions (not just the primary)? Global state modifications restored in `finally` blocks? tearDown() methods with multiple cleanup steps wrapped in nested try/finally?
 > - **Static Analysis Baseline Hygiene** — No new entries added to any baseline file?
 > - **Decorator & Wrapper Integrity** — All parameters forwarded through decorators? De-facto convention params forwarded?
 > - **State-Machine Reset Placement** — Resets on the correct branch? Every path that should seed the accumulator does so?
