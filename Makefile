@@ -124,8 +124,17 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	@bash src/install/obsidian/sync-obsidian-key.sh
 	echo -e "\n\033[1m\033[34m━━━ Starting Obsidian... ━━━\033[0m"
 	@_vault="$$(pwd)/storage/obsidian"; \
-	if pgrep -x obsidian >/dev/null 2>&1; then \
-		echo "  ✓ Obsidian already running"; \
+	_key_file="$$(pwd)/storage/secrets/obsidian-api-key"; \
+	_running=false; \
+	if [ -f "$$_key_file" ]; then \
+		_key=$$(cat "$$_key_file"); \
+		if [ -n "$$_key" ] && curl -sk --connect-timeout 2 --max-time 3 -o /dev/null -w "%{http_code}" \
+			-H "Authorization: Bearer $$_key" "https://127.0.0.1:27124/" 2>/dev/null | grep -q "200"; then \
+			_running=true; \
+		fi; \
+	fi; \
+	if $$_running; then \
+		echo "  ✓ Obsidian already running (vault: storage/obsidian)"; \
 	elif command -v obsidian >/dev/null 2>&1; then \
 		nohup xdg-open "obsidian://open?path=$${_vault}" >/dev/null 2>&1 & \
 		echo "  ✓ Obsidian launched (vault: storage/obsidian)"; \
