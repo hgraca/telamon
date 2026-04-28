@@ -11,11 +11,13 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 ## Memory & session
 
-| Tool                               | Description                                             | Priority |
-|------------------------------------|---------------------------------------------------------|----------|
-| [Ogham MCP](ogham)                 | Stores and recalls decisions, bugs, patterns by meaning | Tier 1   |
-| [Session Capture](session-capture) | Auto-promotes learnings to memory before compaction     | Built-in |
-| [Diff Context](diff-context)       | Injects git change summary at session start             | Built-in |
+| Tool                                       | Description                                              | Priority |
+|--------------------------------------------|----------------------------------------------------------|----------|
+| [Ogham MCP](ogham)                         | Stores and recalls decisions, bugs, patterns by meaning  | Tier 1   |
+| [Session Capture](session-capture)         | Auto-promotes learnings to memory before compaction      | Built-in |
+| [Diff Context](diff-context)               | Injects git change summary at session start              | Built-in |
+| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user | Built-in |
+| [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items         | Built-in |
 
 ## Codebase understanding
 
@@ -62,14 +64,16 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 Plugins are OpenCode extensions that run automatically. They fire on specific events (session start, agent turn, bash call) to inject context or capture knowledge.
 
-| Plugin                             | What it does                                                | Source                                                                                             |
-|------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| [Session Capture](session-capture) | Promotes learnings to memory after each turn and on wrap-up | [`session-capture.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/session-capture.js) |
-| [Diff Context](diff-context)       | Injects git change summary on first bash call               | [`diff-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/diff-context.js)       |
-| [Graphify](graphify)               | Injects god nodes and communities at session start          | [`graphify.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/graphify.js)               |
-| [RTK](rtk)                         | Compresses bash output before it reaches the LLM            | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk.ts)                         |
-| RTK Dedupe                         | Deduplicates repeated output chunks from RTK                | [`rtk-dedupe.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk-dedupe.ts)           |
-| [Script Runner](script-runner)     | Runs shell scripts and passes output to the LLM             | [`script-runner.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/script-runner.js)     |
+| Plugin                                     | What it does                                                                           | Source                                                                                                     |
+|--------------------------------------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| [Session Capture](session-capture)         | Promotes learnings to memory after each turn and on wrap-up                            | [`session-capture.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/session-capture.js)         |
+| [Diff Context](diff-context)               | Injects git change summary on first bash call                                          | [`diff-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/diff-context.js)               |
+| [Graphify](graphify)                       | Injects god nodes and communities at session start                                     | [`graphify.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/graphify.js)                       |
+| [RTK](rtk)                                 | Compresses bash output before it reaches the LLM                                       | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk.ts)                                 |
+| RTK Dedupe                                 | Deduplicates repeated output chunks from RTK                                           | [`rtk-dedupe.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk-dedupe.ts)                   |
+| [Script Runner](script-runner)             | Runs shell scripts and passes output to the LLM                                        | [`script-runner.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/script-runner.js)             |
+| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user to continue/archive/start new | [`active-work-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/active-work-context.js) |
+| [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items                                       | [`compaction-save.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/compaction-save.js)         |
 
 Plugin source code lives in [`src/plugins/`](https://github.com/hgraca/telamon/tree/main/src/plugins).
 

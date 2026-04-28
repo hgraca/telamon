@@ -52,6 +52,8 @@ flowchart TB
             p_rd["rtk-dedupe"]
             p_dc["diff-context"]
             p_sr["script-runner"]
+            p_aw["active-work-context"]
+            p_cs["compaction-save"]
         end
 
         subgraph agents["Agent Roles (src/agents/)"]
@@ -79,6 +81,7 @@ flowchart TB
 | **Session start**             | QMD                 | Semantic vault search — surfaces related context before diving in |
 | **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections        |
 | **Session start**             | Diff-context plugin | Injects git change summary since last session                     |
+| **Session start**             | Active-work-context | Injects active work items, prompts user to continue/archive       |
 | **Understanding code**        | Graphify MCP        | Structural map: layers, god nodes, module relationships           |
 | **Finding code**              | Codebase Index      | Semantic search: *"where is the auth logic?"*                     |
 | **Reading many files**        | Repomix             | Packs directory into compressed context (~70% token reduction)    |
@@ -93,6 +96,7 @@ flowchart TB
 | **After significant work**    | Ogham + Obsidian    | Stores new decisions, patterns, bug fixes                         |
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review    |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)                  |
+| **On compaction**             | Compaction Save     | Writes compaction timestamp to each active work item              |
 | **End of session**            | Ogham + Obsidian    | Saves session summary; archives completed work notes              |
 | **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions                 |
 | **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata          |
@@ -207,6 +211,10 @@ src/
     rtk-dedupe.ts            # deduplicates RTK output
     session-capture.js       # auto-captures learnings before compaction
     diff-context.js          # injects git change summary on first bash call
+    active-work-context.js   # injects active work items at session start
+    compaction-save.js       # saves compaction timestamps to active work items
+    lib/
+      readme-utils.js        # shared utilities for README.md parsing
   docker/
     initdb/                  # Postgres init scripts (run on first container start)
   skills/

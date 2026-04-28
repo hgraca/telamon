@@ -51,7 +51,7 @@ cd path/to/your-project && opencode
 
 - [Developer Workflow](docs/developer-workflow.md) — Day-to-day usage: install, init, session lifecycle, wrap-up
 - [Tools](docs/tools/) — Every tool, how it works, priority guide
-  - [Ogham](docs/tools/ogham.md), [Session Capture](docs/tools/session-capture.md), [Diff Context](docs/tools/diff-context.md) — Memory & session
+  - [Ogham](docs/tools/ogham.md), [Session Capture](docs/tools/session-capture.md), [Diff Context](docs/tools/diff-context.md), [Active Work Context](docs/tools/active-work-context.md), [Compaction Save](docs/tools/compaction-save.md) — Memory & session
   - [Graphify](docs/tools/graphify.md), [Codebase Index](docs/tools/codebase-index.md), [Repomix](docs/tools/repomix.md) — Codebase understanding
   - [Obsidian MCP](docs/tools/obsidian-mcp.md), [QMD](docs/tools/qmd.md) — Knowledge vault
   - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality
