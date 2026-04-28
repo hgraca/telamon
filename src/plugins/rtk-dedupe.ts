@@ -11,7 +11,8 @@ import { RtkOpenCodePlugin } from "./rtk.ts"
 // Dedup logic:
 //   - recentCommands tracks the last MAX_TRACKED unique commands with their
 //     attempt count, using Map insertion order for FIFO eviction.
-//   - 1st attempt: delegate to RTK for rewriting.
+//   - 1st attempt: delegate to RTK for rewriting. If RTK result is empty or
+//     whitespace-only, immediately fallback to bare command execution.
 //   - 2nd attempt (same command): run bare, bypassing RTK.
 //   - 3rd+ attempt: replace with echo warning, stopping the retry loop.
 //
@@ -56,6 +57,11 @@ export const RtkDedupePlugin: Plugin = async (ctx) => {
   const MAX_TRACKED = 20
   const MAX_ATTEMPTS = 2
 
+  // Track commands that were RTK-wrapped in first attempt, storing the
+  // original command for potential fallback if RTK result is empty.
+  // Key: rewritten command, Value: original command
+  const rtkWrappedCommands = new Map<string, string>()
+
   return {
     "tool.execute.before": async (input, output) => {
       const tool = String((input as Record<string, unknown>)?.tool ?? "").toLowerCase()
@@ -89,12 +95,62 @@ export const RtkDedupePlugin: Plugin = async (ctx) => {
       }
 
       if (count === 0) {
-        // First attempt — delegate to RTK for rewriting
+        // First attempt — store original command, then delegate to RTK for rewriting
+        const originalCommand = command
         if (rtkBefore) {
           await rtkBefore(input, output)
+          // Track the rewritten command for potential fallback in after hook
+          const rewrittenCommand = (args as Record<string, unknown>).command
+          if (typeof rewrittenCommand === "string" && rewrittenCommand !== originalCommand) {
+            rtkWrappedCommands.set(rewrittenCommand, originalCommand)
+          }
         }
       }
       // count === 1 → second attempt, run bare (skip RTK rewrite)
+    },
+
+    "tool.execute.after": async (input, output) => {
+      const tool = String((input as Record<string, unknown>)?.tool ?? "").toLowerCase()
+      if (tool !== "bash" && tool !== "shell") return
+
+      const args = (input as Record<string, unknown>)?.args
+      if (!args || typeof args !== "object") return
+
+      const command = (args as Record<string, unknown>).command
+      if (typeof command !== "string" || !command) return
+
+      // Check if this was a RTK-wrapped command
+      const originalCommand = rtkWrappedCommands.get(command)
+      if (!originalCommand) return
+
+      // Check if result is empty or whitespace-only
+      const result = (output as Record<string, unknown>)?.result
+      const stdout = String((result as Record<string, unknown>)?.stdout ?? "")
+      const isEmptyOrWhitespace = !stdout || stdout.trim() === ""
+
+      if (isEmptyOrWhitespace) {
+        // RTK result was empty — execute the original bare command as fallback
+        try {
+          const $ = ctx.$
+          const fallbackResult = await $`${originalCommand}`.quiet().nothrow()
+
+          // Replace the result with the fallback execution.
+          // Uses Object.assign to avoid a Bun compilation bug where consecutive
+          // cast-expression assignments get merged into chained calls.
+          if (result && typeof result === "object") {
+            Object.assign(result as Record<string, unknown>, {
+              stdout: fallbackResult.stdout,
+              stderr: fallbackResult.stderr,
+              exitCode: fallbackResult.exitCode,
+            })
+          }
+        } catch {
+          // Fallback execution failed — keep original empty result
+        }
+      }
+
+      // Clean up tracking
+      rtkWrappedCommands.delete(command)
     },
   }
 }
