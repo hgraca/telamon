@@ -74,7 +74,7 @@ fi
 # .ai/telamon/secrets → <telamon-root>/storage/secrets makes the secret visible there.
 step "Registering QMD MCP in storage/opencode.jsonc ..."
 opencode.upsert_mcp "qmd" \
-  '{"type":"local","command":["qmd","mcp"],"enabled":true,"environment":{"XDG_CACHE_HOME":"{file:.ai/telamon/secrets/qmd-cache-home}"}}'
+  '{"type":"local","command":["qmd","mcp"],"enabled":true,"environment":{"XDG_CACHE_HOME":"{file:.ai/telamon/secrets/qmd-cache-home}","QMD_LLAMA_GPU":"false"}}'
 log "QMD MCP registered"
 
 info "Run 'make init PROJ=<path>' to register QMD collections for a project (initial embed can take a few minutes)."
