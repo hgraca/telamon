@@ -1,49 +1,14 @@
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
+import { extractTitle } from "./lib/readme-utils.js";
 
 const MAX_DESCRIPTION_CHARS = 200;
 
 /**
- * Extracts the title from a README.md with optional YAML frontmatter.
- * Returns the first non-empty line after the closing `---` of the frontmatter,
- * with any leading heading markers stripped.
- */
-function extractTitle(content) {
-  const lines = content.split("\n");
-  let inFrontmatter = false;
-  let frontmatterClosed = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    if (i === 0 && line === "---") {
-      inFrontmatter = true;
-      continue;
-    }
-
-    if (inFrontmatter && line === "---") {
-      inFrontmatter = false;
-      frontmatterClosed = true;
-      continue;
-    }
-
-    if (frontmatterClosed && line !== "") {
-      return line.replace(/^#+\s*/, "");
-    }
-  }
-
-  // No frontmatter — return first non-empty line
-  for (const line of lines) {
-    if (line.trim() !== "") return line.trim().replace(/^#+\s*/, "");
-  }
-
-  return "Unknown Task";
-}
-
-/**
  * Extracts a short description from lines after the title in a README.md.
- * Skips frontmatter, skips the title line, collects subsequent non-empty lines,
- * and truncates to MAX_DESCRIPTION_CHARS.
+ * Skips frontmatter, skips the title line, collects the first paragraph
+ * (stops at the first empty line after collecting at least one line, or at
+ * the next heading), and truncates to MAX_DESCRIPTION_CHARS.
  */
 function extractDescription(content) {
   const lines = content.split("\n");
@@ -85,7 +50,16 @@ function extractDescription(content) {
       continue;
     }
 
-    if (titleFound && line !== "") {
+    if (titleFound) {
+      // Stop at next heading
+      if (line.startsWith("#")) break;
+
+      // Stop at paragraph break (empty line after collecting at least one line)
+      if (line === "") {
+        if (descLines.length > 0) break;
+        continue;
+      }
+
       descLines.push(line);
     }
   }

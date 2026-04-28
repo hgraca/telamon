@@ -32,8 +32,14 @@ const _existsMap: Map<string, boolean> = new Map()
 /** Controls what readFileSync returns for a given path. */
 const _readMap: Map<string, string> = new Map()
 
+/** Set to true to make readdirSync throw for the active dir. */
+let _readdirThrows = false
+
 mock.module("fs", () => ({
   readdirSync: (path: string, options?: { withFileTypes?: boolean }) => {
+    if (_readdirThrows && path === ACTIVE_DIR) {
+      throw new Error("EACCES: permission denied")
+    }
     const entries = _readdirMap.get(path) ?? []
     if (options?.withFileTypes) {
       // Return dirent-like objects with isDirectory()
@@ -126,6 +132,7 @@ beforeEach(() => {
   _readdirMap.clear()
   _existsMap.clear()
   _readMap.clear()
+  _readdirThrows = false
 })
 
 // ---------------------------------------------------------------------------
@@ -384,7 +391,8 @@ describe("ActiveWorkContextPlugin", () => {
       const plugin = await ActiveWorkContextPlugin(makeCtx())
       const hook = plugin["tool.execute.before"]!
 
-      await hook(...Object.values(makeHookArgs("first-command")) as [unknown, unknown])
+      const { input: firstInput, output: firstOutput } = makeHookArgs("first-command")
+      await hook(firstInput, firstOutput)
 
       const second = makeHookArgs("second-command")
       await hook(second.input, second.output)
@@ -561,6 +569,79 @@ describe("ActiveWorkContextPlugin", () => {
     test("returns an object with the tool.execute.before hook", async () => {
       const plugin = await ActiveWorkContextPlugin(makeCtx())
       expect(plugin["tool.execute.before"]).toBeTypeOf("function")
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // 11. README without YAML frontmatter
+  // -------------------------------------------------------------------------
+  describe("README without YAML frontmatter", () => {
+    test("extracts title correctly from a README with no frontmatter", async () => {
+      const readme = `## Bare Title\n\nSome description line.`
+      registerWorkItem("task-bare", readme)
+
+      const plugin = await ActiveWorkContextPlugin(makeCtx())
+      const hook = plugin["tool.execute.before"]!
+      const { input, output } = makeHookArgs()
+
+      await hook(input, output)
+
+      // Title should be extracted without the ## prefix
+      expect(output.args.command).toContain("Bare Title")
+      expect(output.args.command).not.toContain("## Bare Title")
+    })
+
+    test("extracts description from lines after the title in a no-frontmatter README", async () => {
+      const readme = `## Bare Title\n\nSome description line.`
+      registerWorkItem("task-bare", readme)
+
+      const plugin = await ActiveWorkContextPlugin(makeCtx())
+      const hook = plugin["tool.execute.before"]!
+      const { input, output } = makeHookArgs()
+
+      await hook(input, output)
+
+      expect(output.args.command).toContain("Some description line")
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // 12. readdirSync error recovery
+  // -------------------------------------------------------------------------
+  describe("readdirSync error recovery", () => {
+    test("does not modify the command when readdirSync throws", async () => {
+      _existsMap.set(ACTIVE_DIR, true)
+      _readdirThrows = true
+
+      const plugin = await ActiveWorkContextPlugin(makeCtx())
+      const hook = plugin["tool.execute.before"]!
+      const { input, output } = makeHookArgs("original-command")
+
+      await hook(input, output)
+
+      expect(output.args.command).toBe("original-command")
+    })
+
+    test("sets injected=true after readdirSync throws (no retry on next bash call)", async () => {
+      _existsMap.set(ACTIVE_DIR, true)
+      _readdirThrows = true
+
+      const plugin = await ActiveWorkContextPlugin(makeCtx())
+      const hook = plugin["tool.execute.before"]!
+
+      // First bash call — readdirSync throws
+      const first = makeHookArgs("first-command")
+      await hook(first.input, first.output)
+      expect(first.output.args.command).toBe("first-command")
+
+      // Now disable the throw and register items — injected should already be true
+      _readdirThrows = false
+      registerWorkItem("task-alpha", makeReadme("Alpha Task"))
+
+      // Second bash call — must NOT inject (injected=true already)
+      const second = makeHookArgs("second-command")
+      await hook(second.input, second.output)
+      expect(second.output.args.command).toBe("second-command")
     })
   })
 })

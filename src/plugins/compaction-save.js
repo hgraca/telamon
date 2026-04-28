@@ -1,41 +1,6 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-
-/**
- * Extracts the task title from a README.md with YAML frontmatter.
- * Returns the first non-empty line after the closing `---` of the frontmatter.
- */
-function extractTitle(content) {
-  const lines = content.split("\n");
-  let inFrontmatter = false;
-  let frontmatterClosed = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    if (i === 0 && line === "---") {
-      inFrontmatter = true;
-      continue;
-    }
-
-    if (inFrontmatter && line === "---") {
-      inFrontmatter = false;
-      frontmatterClosed = true;
-      continue;
-    }
-
-    if (frontmatterClosed && line !== "") {
-      return line.replace(/^#+\s*/, "");
-    }
-  }
-
-  // No frontmatter — return first non-empty line
-  for (const line of lines) {
-    if (line.trim() !== "") return line.trim();
-  }
-
-  return "Unknown Task";
-}
+import { extractTitle } from "./lib/readme-utils.js";
 
 export const CompactionSavePlugin = async ({ directory }) => {
   return {
@@ -46,7 +11,13 @@ export const CompactionSavePlugin = async ({ directory }) => {
         return;
       }
 
-      const entries = readdirSync(activeDir, { withFileTypes: true });
+      let entries;
+      try {
+        entries = readdirSync(activeDir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+
       const subdirs = entries.filter((e) => e.isDirectory());
 
       for (const subdir of subdirs) {
