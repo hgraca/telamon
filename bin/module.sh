@@ -727,7 +727,7 @@ modules = json.loads(sys.argv[1])
 for name, entry in modules.items():
     url        = entry.get('url', '')
     local_path = entry.get('local_path', '')
-    paths = entry.get('paths', {'commands': './commands', 'agents': './agents', 'skills': './skills', 'plugins': './plugins'})
+    paths = entry.get('paths', {'commands': './commands', 'agents': './agents', 'skills': './skills', 'plugins': './plugins', 'scripts': './scripts'})
     print(name + '\t' + url + '\t' + local_path + '\t' + json.dumps(paths))
 " "${modules_json}")"
 
