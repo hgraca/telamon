@@ -91,7 +91,9 @@ load_saved_inputs() {
   if [[ -f "${TELAMON_ROOT}/.env" ]]; then
     export LANGFUSE_ENABLED="$(grep -s '^LANGFUSE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
     export GRAPHITI_ENABLED="$(grep -s '^GRAPHITI_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-    export DISCORD_ENABLED="$(grep -s '^DISCORD_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
+    _disc="$(grep -s '^DISCORD_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
+    [[ -z "${_disc}" ]] && _disc="$(grep -s '^DISCORD_BRIDGE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
+    export DISCORD_ENABLED="${_disc}"
   fi
 }
 

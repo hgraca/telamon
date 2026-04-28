@@ -26,6 +26,41 @@ fi
 
 ENV_FILE="${TELAMON_ROOT:?TELAMON_ROOT must be set}/.env"
 
+# ── Migrate from old DISCORD_BRIDGE_ENABLED ─────────────────────────────────
+_old_val="$(grep -s '^DISCORD_BRIDGE_ENABLED=' "${ENV_FILE}" 2>/dev/null | cut -d= -f2- || true)"
+if [[ -n "${_old_val}" ]]; then
+  _new_val="$(grep -s '^DISCORD_ENABLED=' "${ENV_FILE}" 2>/dev/null | cut -d= -f2- || true)"
+  if [[ -z "${_new_val}" ]]; then
+    # Migrate old value to new variable
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      sed -i '' "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_ENABLED=${_old_val}|" "${ENV_FILE}"
+    else
+      sed -i "s|^DISCORD_BRIDGE_ENABLED=.*|DISCORD_ENABLED=${_old_val}|" "${ENV_FILE}"
+    fi
+    grep -q '^DISCORD_ENABLED=' "${ENV_FILE}" || echo "DISCORD_ENABLED=${_old_val}" >> "${ENV_FILE}"
+    log "Migrated DISCORD_BRIDGE_ENABLED=${_old_val} → DISCORD_ENABLED=${_old_val}"
+    export DISCORD_ENABLED="${_old_val}"
+  fi
+  # Remove old variables no longer needed by remote-opencode
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' '/^DISCORD_BRIDGE_ENABLED=/d' "${ENV_FILE}"
+    sed -i '' '/^DISCORD_BOT_TOKEN=/d' "${ENV_FILE}"
+    sed -i '' '/^DISCORD_ALLOWED_USER_IDS=/d' "${ENV_FILE}"
+    sed -i '' '/^DISCORD_WORKSPACES_DIR=/d' "${ENV_FILE}"
+  else
+    sed -i '/^DISCORD_BRIDGE_ENABLED=/d' "${ENV_FILE}"
+    sed -i '/^DISCORD_BOT_TOKEN=/d' "${ENV_FILE}"
+    sed -i '/^DISCORD_ALLOWED_USER_IDS=/d' "${ENV_FILE}"
+    sed -i '/^DISCORD_WORKSPACES_DIR=/d' "${ENV_FILE}"
+  fi
+  # Also remove the comment line about workspaces if present
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' '/^# Path to your development directory.*bridge container/d' "${ENV_FILE}"
+  else
+    sed -i '/^# Path to your development directory.*bridge container/d' "${ENV_FILE}"
+  fi
+fi
+
 # When DISCORD_ENABLED is empty, ask the user whether to enable it.
 if ! env.is_enabled DISCORD_ENABLED; then
   if [[ -t 0 ]]; then
