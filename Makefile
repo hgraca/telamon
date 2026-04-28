@@ -123,14 +123,15 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	bash bin/install.sh --post-docker
 	@bash src/install/obsidian/sync-obsidian-key.sh
 	echo -e "\n\033[1m\033[34m━━━ Starting Obsidian... ━━━\033[0m"
-	@if pgrep -x obsidian >/dev/null 2>&1; then \
+	@_vault="$$(pwd)/storage/obsidian"; \
+	if pgrep -x obsidian >/dev/null 2>&1; then \
 		echo "  ✓ Obsidian already running"; \
 	elif command -v obsidian >/dev/null 2>&1; then \
-		nohup obsidian >/dev/null 2>&1 & \
-		echo "  ✓ Obsidian launched"; \
+		nohup xdg-open "obsidian://open?path=$${_vault}" >/dev/null 2>&1 & \
+		echo "  ✓ Obsidian launched (vault: storage/obsidian)"; \
 	elif [ "$$(uname -s)" = "Darwin" ] && [ -d "/Applications/Obsidian.app" ]; then \
-		open -a Obsidian; \
-		echo "  ✓ Obsidian launched"; \
+		open "obsidian://open?path=$${_vault}"; \
+		echo "  ✓ Obsidian launched (vault: storage/obsidian)"; \
 	else \
 		echo "  ⚠ Obsidian not found — install it or run 'make up' after installing"; \
 	fi
