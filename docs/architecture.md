@@ -173,7 +173,7 @@ Timers are idempotent — re-running `telamon init` does not create duplicates.
 | Directory  | Purpose                                                                  |
 |------------|--------------------------------------------------------------------------|
 | `bin/`     | Entry-point scripts (install, init, doctor, status, update, telamon CLI) |
-| `src/`     | All source: agents, commands, plugins, skills, installer modules         |
+| `src/`     | All source: agents, commands, plugins, skills, tools, shared functions   |
 | `vendor/`  | External module repos cloned by `telamon module add` — git-ignored       |
 | `storage/` | Runtime data — git-ignored                                               |
 | `docs/`    | Documentation (this site)                                                |
@@ -222,8 +222,13 @@ src/
     dev/                     # development convention skills
     workflow/                # workflow orchestration skills
     addyosmani/              # general engineering skills (from addyosmani/agent-skills)
-  install/
-    functions/               # shared bash library (colors, stdout, state, os, opencode, secrets)
+  functions/                 # shared bash library (colors, stdout, state, os, opencode, secrets, shell profile)
+    autoload.sh              # auto-sources all functions in the directory
+    colors.sh                # terminal color definitions
+    install.sh               # shell profile PATH + env setup (merged from shell/)
+    write-env.sh             # writes exports to shell RC file (merged from shell/)
+    strip_jsonc.py           # JSON-with-comments parser
+  tools/
     homebrew/                # Homebrew installer
     docker/                  # Docker installer
     python/                  # Python (uv) installer
@@ -243,7 +248,6 @@ src/
     session-capture/         # session-capture opencode plugin + init
     diff-context/            # diff-context opencode plugin registration
     cli/                     # telamon CLI + desktop menu entry installer
-    shell/                   # shell profile PATH additions
 
 test/
   test-init.sh               # assertions for make init wiring
