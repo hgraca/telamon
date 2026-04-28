@@ -117,6 +117,7 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
+	@grep -s '^DISCORD_BRIDGE_ENABLED=true' .env > /dev/null && mkdir -p storage/discord-opencode-bridge/data storage/discord-opencode-bridge/sessions || true
 	docker compose \
 		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
 		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \

@@ -176,9 +176,5 @@ services:
       # Set DISCORD_WORKSPACES_DIR in .env to your development directory (e.g. /home/yourname/Development)
       - ${DISCORD_WORKSPACES_DIR}:/workspaces:ro
       - ${HOME}/.config/opencode/opencode.jsonc:/app/opencode.jsonc:ro
-      - opencode-bridge-data:/root/.local/share/opencode
-      - opencode-bridge-sessions:/data/sessions
-
-volumes:
-  opencode-bridge-data:
-  opencode-bridge-sessions:
+      - ./storage/discord-opencode-bridge/data:/root/.local/share/opencode
+      - ./storage/discord-opencode-bridge/sessions:/data/sessions
