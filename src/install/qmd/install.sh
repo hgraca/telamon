@@ -80,12 +80,19 @@ log "QMD MCP registered"
 # ── Pre-download models in background (~2 GB) ────────────────────────────────
 # Running a dummy query triggers all 3 model downloads (query expansion,
 # embedding, reranker). The process runs in the background so it does not
-# block the rest of the install.
-step "Pre-downloading QMD models in background (~2 GB)..."
-(
-  XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=false \
-    qmd query "test" >/dev/null 2>&1
-) &
-log "QMD model download started in background (PID $!)"
+# block the rest of the install. Skip if all models are already present.
+QMD_MODEL_DIR="${TELAMON_ROOT}/storage/qmd/models"
+if [[ -f "${QMD_MODEL_DIR}/hf_ggml-org_embeddinggemma-300M-Q8_0.gguf" ]] \
+  && [[ -f "${QMD_MODEL_DIR}/hf_ggml-org_qwen3-reranker-0.6b-q8_0.gguf" ]] \
+  && [[ -f "${QMD_MODEL_DIR}/hf_tobil_qmd-query-expansion-1.7B-q4_k_m.gguf" ]]; then
+  skip "QMD models (all 3 already downloaded)"
+else
+  step "Pre-downloading QMD models in background (~2 GB)..."
+  (
+    XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=false \
+      qmd query "test" >/dev/null 2>&1
+  ) &
+  log "QMD model download started in background (PID $!)"
+fi
 
 info "Run 'make init PROJ=<path>' to register QMD collections for a project (initial embed can take a few minutes)."
