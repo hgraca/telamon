@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -228,8 +229,14 @@ def process_brain_file(
     ogham_bin: str,
     profile: str,
     dry_run: bool,
+    start_offset: int = 0,
 ) -> int:
-    """Parse and store entries from one brain file. Returns count stored."""
+    """Parse and store entries from one brain file. Returns count stored.
+
+    Args:
+        start_offset: Skip this many entries before storing. Use to resume
+                      after a partial run (0-indexed, so 64 skips the first 64).
+    """
     path = brain_dir / filename
     if not path.is_file():
         warn(f"{filename} not found at {path} — skipping")
@@ -244,8 +251,13 @@ def process_brain_file(
 
     total = len(entries)
     stored = 0
+    skipped = 0
 
     for i, (title, tags, content) in enumerate(entries, start=1):
+        if i <= start_offset:
+            skipped += 1
+            continue
+
         if dry_run:
             print(f"  [dry-run] Would store: {content[:120]}", file=sys.stderr)
             stored += 1
@@ -253,12 +265,14 @@ def process_brain_file(
             ok = store_in_ogham(ogham_bin, profile, tags, content)
             if ok:
                 stored += 1
-            log(f"[recover-brain] Stored {stored}/{total} entries from {filename}")
+            log(f"[recover-brain] Stored {stored}/{total - skipped} entries from {filename} (entry {i}/{total})")
 
+    if skipped:
+        log(f"Skipped first {skipped} entries (already recovered)")
     if dry_run:
-        log(f"[dry-run] Would store {total} entries from {filename}")
+        log(f"[dry-run] Would store {total - skipped} entries from {filename}")
     else:
-        log(f"Stored {stored}/{total} entries from {filename}")
+        log(f"Stored {stored}/{total - skipped} entries from {filename}")
 
     return stored
 
@@ -271,6 +285,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Re-populate Ogham from curated brain markdown files (no LLM required).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=textwrap.dedent("""\
+            Resume example (continue from entry 65 of patterns.md):
+              %(prog)s --project . --start-file patterns.md --start-offset 64
+        """),
     )
     parser.add_argument(
         '--project', required=True, metavar='PATH',
@@ -283,6 +301,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '--dry-run', action='store_true',
         help='Parse and show what would be stored without storing',
+    )
+    parser.add_argument(
+        '--start-file', metavar='FILENAME',
+        help='Resume from this file (skip earlier files). Must match a brain filename: '
+             + ', '.join(BRAIN_FILES.keys()),
+    )
+    parser.add_argument(
+        '--start-offset', type=int, default=0, metavar='N',
+        help='Skip the first N entries of --start-file (use when resuming a partial run)',
     )
     return parser.parse_args()
 
@@ -312,7 +339,28 @@ def main() -> None:
 
     totals: dict[str, int] = {}
 
+    # Determine which files to process (handle --start-file)
+    start_file = args.start_file
+    start_offset = args.start_offset
+    skip_remaining_files = bool(start_file)
+
+    if start_file and start_file not in BRAIN_FILES:
+        log(f"ERROR: --start-file '{start_file}' not in known files: {list(BRAIN_FILES.keys())}")
+        sys.exit(1)
+
     for filename, (label, parser_fn) in BRAIN_FILES.items():
+        # Skip files before --start-file
+        if skip_remaining_files:
+            if filename == start_file:
+                skip_remaining_files = False
+                offset = start_offset
+            else:
+                log(f"Skipping {filename} (before --start-file)")
+                totals[filename] = 0
+                continue
+        else:
+            offset = 0
+
         count = process_brain_file(
             brain_dir=brain_dir,
             filename=filename,
@@ -320,6 +368,7 @@ def main() -> None:
             ogham_bin=ogham_bin,
             profile=profile,
             dry_run=args.dry_run,
+            start_offset=offset,
         )
         totals[filename] = count
 
