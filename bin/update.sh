@@ -391,10 +391,12 @@ fi
 # The vault was previously stored under storage/obsidian/. Rename silently.
 _OLD_VAULT_DIR="${TELAMON_ROOT}/storage/obsidian"
 _NEW_VAULT_DIR="${TELAMON_ROOT}/storage/projects-memory"
+_VAULT_MIGRATED=0
 if [[ -d "${_OLD_VAULT_DIR}" && ! -d "${_NEW_VAULT_DIR}" ]]; then
   step "Migrating vault directory: storage/obsidian/ → storage/projects-memory/ ..."
   mv "${_OLD_VAULT_DIR}" "${_NEW_VAULT_DIR}"
   log "Vault directory renamed"
+  _VAULT_MIGRATED=1
 elif [[ -d "${_OLD_VAULT_DIR}" && -d "${_NEW_VAULT_DIR}" ]]; then
   # Both exist — merge projects from old into new
   step "Merging remaining projects from storage/obsidian/ into storage/projects-memory/ ..."
@@ -408,6 +410,12 @@ elif [[ -d "${_OLD_VAULT_DIR}" && -d "${_NEW_VAULT_DIR}" ]]; then
   done
   # Remove old directory if empty
   rmdir "${_OLD_VAULT_DIR}" 2>/dev/null && log "Removed empty storage/obsidian/" || true
+  _VAULT_MIGRATED=1
+fi
+
+# Fix broken symlinks in external projects after the directory rename
+if [[ "${_VAULT_MIGRATED}" -eq 1 ]]; then
+  bash "${TELAMON_ROOT}/bin/fix-memory-links.sh"
 fi
 
 # ── Obsidian migration ─────────────────────────────────────────────────────────
