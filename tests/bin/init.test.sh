@@ -267,10 +267,10 @@ assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"project_name\"" \
   ".ai/telamon/telamon.jsonc contains project_name key"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"${PROJECT_NAME}\"" \
   ".ai/telamon/telamon.jsonc contains correct project_name value"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"rtk_enabled\": false" \
-  ".ai/telamon/telamon.jsonc has rtk_enabled: false"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"caveman_enabled\": false" \
-  ".ai/telamon/telamon.jsonc has caveman_enabled: false"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"rtk_enabled\": true" \
+  ".ai/telamon/telamon.jsonc has rtk_enabled: true"
+assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"caveman_enabled\": true" \
+  ".ai/telamon/telamon.jsonc has caveman_enabled: true"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"memory_owner\"" \
   ".ai/telamon/telamon.jsonc has memory_owner key"
 

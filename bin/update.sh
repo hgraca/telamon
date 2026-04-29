@@ -149,7 +149,7 @@ fi
 header "Project config sync"
 
 # Defaults MUST match src/tools/opencode/init.sh template (step 5)
-_CFG_DEFAULTS='{"rtk_enabled":false,"caveman_enabled":false,"medium_model":"","memory_owner":"telamon","discord_enabled":false,"discord_forum_channel":"","discord_forum_channel_id":""}'
+_CFG_DEFAULTS='{"rtk_enabled":true,"caveman_enabled":true,"medium_model":"","memory_owner":"telamon","discord_enabled":false,"discord_forum_channel":"","discord_forum_channel_id":""}'
 
 while IFS= read -r _ppath_file; do
   [[ -f "${_ppath_file}" ]] || continue

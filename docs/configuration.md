@@ -20,8 +20,8 @@ Edit this file to override defaults for a specific project.
 {
   "project_name": "my-app",
   "medium_model": "",
-  "rtk_enabled": false,
-  "caveman_enabled": false
+  "rtk_enabled": true,
+  "caveman_enabled": true
 }
 ```
 
@@ -29,11 +29,11 @@ Edit this file to override defaults for a specific project.
 |-------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `project_name`    | Directory basename               | Display name used in memory vaults and logs                                                                                                                                                              |
 | `medium_model`    | *(empty — prompts on first use)* | LLM model for batch operations like `recover-memories`. On first use, the CLI prompts with suggestions from the project's `model`/`small_model` in `opencode.jsonc` (e.g. Opus+Haiku → suggests Sonnet). |
-| `rtk_enabled`     | `false` (IO transformation)      | Enable [RTK](tools/rtk) output compression. Set to `true` to run bash commands through RTK rewriting for token savings.                                                                                  |
-| `caveman_enabled` | `false` (IO transformation)      | Enable [Caveman](tools/caveman) terse communication mode. Set to `true` for compressed responses that save tokens.                                                                                       |
+| `rtk_enabled`     | `true`                           | Enable [RTK](tools/rtk) output compression. Runs bash commands through RTK rewriting for token savings. Set to `false` to disable.                                                                       |
+| `caveman_enabled` | `true`                           | Enable [Caveman](tools/caveman) terse communication mode. Compressed responses that save tokens. Set to `false` to disable.                                                                              |
 
-Both features are **disabled by default** because they perform IO transformations, which carry risks, specially RTK.
-Set to `true` in projects where token savings matter (e.g. when using metered API providers).
+Both features are **enabled by default** because they significantly reduce token usage.
+Set to `false` in projects where you prefer verbose output or if RTK causes issues with specific command output.
 
 Changes take effect on the next opencode session — no restart required for RTK (read at plugin init) or Caveman (read at bootstrap).
 

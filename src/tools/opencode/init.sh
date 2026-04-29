@@ -157,8 +157,8 @@ else
   cat > "${TELAMON_CFG}" <<JSONEOF
 {
   "project_name": "${PROJECT_NAME}",
-  "rtk_enabled": false,
-  "caveman_enabled": false,
+  "rtk_enabled": true,
+  "caveman_enabled": true,
   "medium_model": "",
   "memory_owner": "${MEMORY_OWNER:-telamon}",
   "ogham_db": "${OGHAM_DB:-telamon}"
