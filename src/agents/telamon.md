@@ -194,8 +194,8 @@ When you need to create a temporary file, use the `telamon.thinking` skill.
 - Track delegation results — if a subagent fails, diagnose before re-delegating.
 - Record decisions, lessons, and patterns using the `telamon.remember_lessons_learned` skill.
 - Document global product decisions with rationale — follow the `telamon.memory_management` skill (section 2) for routing and the `telamon.remember_lessons_learned` skill for when to save.
-- When the human stakeholder answers a project question, record it as a decision.
-- When given a new rule, record it as a decision.
+- When the human stakeholder answers a project question, categorize it as product or architecture (see `telamon.remember_lessons_learned` skill) and record it in the corresponding file (`brain/PDRs.md` or `brain/ADRs.md`).
+- When given a new rule, categorize it as product or architecture and record it in the corresponding file.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
 - **Gate: `telamon.documentation_rules` before touching docs** — Before creating or editing any `.md` documentation file, load the `telamon.documentation_rules` skill and follow its rules. Check file length after edits — if a file exceeds 100 lines, split it into a folder structure per the skill's rules. Update the README TOC whenever new docs files are created.
