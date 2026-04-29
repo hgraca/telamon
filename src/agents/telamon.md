@@ -30,6 +30,7 @@ When you need to implement, you follow the `telamon.implement_story` skill, invo
 - When addressing retrospective findings to improve workflows, use the skill `telamon.address_retro`
 - When a stakeholder's idea is vague and needs sharpening before planning, use the skill `idea-refine`
 - When requirements are unclear, ambiguous, or incomplete and need a specification before planning, use the skill `spec-driven-development`
+- When requirements need deeper exploration, assumptions need stress-testing, or a decision needs elicitation, use the skill `telamon.elicitation`
 - When creating or refining the backlog from a spec or brief, use the skill `planning-and-task-breakdown`
 - When creating, reviewing, or optimizing agent instruction files, use the skill `telamon.optimize-instructions`
 - When optimizing agent context setup, rules files, or MCP integration, use the skill `context-engineering`

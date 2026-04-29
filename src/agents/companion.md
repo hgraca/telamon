@@ -128,6 +128,7 @@ Load these skills for project context — they inform your suggestions, not your
 - When running make targets or build commands, use the skill `telamon.makefile`
 - When debugging or investigating errors, use the skill `debugging-and-error-recovery`
 - When grounding decisions in official documentation, use the skill `source-driven-development`
+- When requirements feel thin or a decision needs deeper exploration, use the skill `telamon.elicitation`
 - When starting a session, use the skill `telamon.recall_memories`
 - When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
 - When completing a task or significant piece of work, use the skill `telamon.remember_task`
