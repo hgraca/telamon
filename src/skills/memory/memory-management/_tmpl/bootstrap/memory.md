@@ -12,6 +12,7 @@ Load the `telamon.recall_memories` skill — switches memory profile, recalls pa
 | When...                                                       | Load skill                         |
 |---------------------------------------------------------------|------------------------------------|
 | You make a decision, fix a non-trivial bug, or spot a pattern | `telamon.remember_lessons_learned` |
+| You hit a trap, constraint, or recurring bug                  | `telamon.remember_gotcha`          |
 | You need a scratch file, draft, or WIP note                   | `telamon.thinking`                 |
 
 ### After completing a task:

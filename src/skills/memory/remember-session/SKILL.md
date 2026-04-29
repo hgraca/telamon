@@ -31,7 +31,10 @@ Also check:
 
 ## 2. Route to brain notes
 
-Append new entries to the appropriate brain/ file. Follow the routing table in the `telamon.memory_management` skill (section 2). Use the M-XXX-NNN entry format from the `telamon.memory_management` skill (section 6) for `brain/memories.md`.
+Append new entries to the appropriate brain/ file per the routing table in the `telamon.memory_management` skill (section 2):
+- **Traps, constraints, or recurring bugs** → use the `telamon.remember_gotcha` skill (writes to `brain/gotchas.md`)
+- **Lessons for memories.md** → use the M-XXX-NNN entry format from the `telamon.memory_management` skill (section 6)
+- **Decisions, patterns** → append directly to the appropriate brain/ file
 
 ## 3. Promote or discard thinking notes
 

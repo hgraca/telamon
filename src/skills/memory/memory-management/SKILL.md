@@ -25,8 +25,8 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
     patterns.md              <- established codebase patterns
     gotchas.md               <- known traps and constraints
   work/
-    active/                  <- in-progress work notes (1-3 files max)
-    archive/YYYY/            <- completed work notes by year
+    active/                  <- in-progress work notes (3 issues max)
+    archive/YYYY/MM/DD       <- completed work notes by year/month/day
     incidents/               <- incident docs
   reference/                 <- architecture maps, flow docs, codebase knowledge
   thinking/                  <- scratchpad for drafts (promote or delete)
@@ -34,21 +34,21 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ## 2. Routing Table
 
-| Content | Destination |
-|---|---|
-| Agent bootstrap instructions (always-on) | `bootstrap/` |
-| Architectural or product decision + rationale | `brain/key_decisions.md` |
-| Human stakeholder answer to a project question | `brain/key_decisions.md` |
-| New rule from stakeholder | `brain/key_decisions.md` |
-| Established codebase pattern | `brain/patterns.md` |
-| Trap, constraint, or recurring bug | `brain/gotchas.md` |
-| Categorized lesson learned | `brain/memories.md` (M-XXX-NNN format, see section 6) |
-| In-progress work note | `work/active/` |
-| Completed work note | `work/archive/YYYY/` |
-| Incident doc | `work/incidents/YYYY-MM-DD-<slug>.md` |
-| Architecture map or flow doc | `reference/` |
-| Draft or reasoning scratchpad | `thinking/` (promote or delete, see section 7) |
-| Partial-progress checkpoint | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md` |
+| Content                                        | Destination                                           |
+|------------------------------------------------|-------------------------------------------------------|
+| Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
+| Architectural or product decision + rationale  | `brain/key_decisions.md`                              |
+| Human stakeholder answer to a project question | `brain/key_decisions.md`                              |
+| New rule from stakeholder                      | `brain/key_decisions.md`                              |
+| Established codebase pattern                   | `brain/patterns.md`                                   |
+| Trap, constraint, or recurring bug             | `brain/gotchas.md`                                    |
+| Categorized lesson learned                     | `brain/memories.md` (M-XXX-NNN format, see section 6) |
+| In-progress work note                          | `work/active/`                                        |
+| Completed work note                            | `work/archive/YYYY/`                                  |
+| Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                 |
+| Architecture map or flow doc                   | `reference/`                                          |
+| Draft or reasoning scratchpad                  | `thinking/` (promote or delete, see section 7)        |
+| Partial-progress checkpoint                    | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`      |
 
 **Routing rules:**
 - Append -- never replace existing content
@@ -78,12 +78,12 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ## 5. Brain Note Quality Criteria
 
-| File | Good entry has |
-|---|---|
-| `key_decisions.md` | Decision + rationale (not just the decision) |
-| `patterns.md` | Actionable, specific pattern with when to apply |
-| `gotchas.md` | Reproducible problem + fix or workaround |
-| `memories.md` | M-XXX-NNN format per section 6 |
+| File               | Good entry has                                  |
+|--------------------|-------------------------------------------------|
+| `key_decisions.md` | Decision + rationale (not just the decision)    |
+| `patterns.md`      | Actionable, specific pattern with when to apply |
+| `gotchas.md`       | Reproducible problem + fix or workaround        |
+| `memories.md`      | M-XXX-NNN format per section 6                  |
 
 ## 6. Memory Entry Format (memories.md)
 
@@ -100,13 +100,13 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ### Categories
 
-| Category | Prefix | Example |
-|---|---|---|
-| Architecture Decisions | `M-ARCH` | Layer boundaries, dependency rules |
-| Testing Patterns | `M-TEST` | Test structure, tooling, strategies |
-| Domain Knowledge | `M-DOMAIN` | Business rules, domain semantics |
-| Anti-Patterns | `M-ANTI` | Approaches that failed -- what to do instead |
-| Workflow Lessons | `M-FLOW` | Agent delegation, communication, tooling |
+| Category               | Prefix     | Example                                      |
+|------------------------|------------|----------------------------------------------|
+| Architecture Decisions | `M-ARCH`   | Layer boundaries, dependency rules           |
+| Testing Patterns       | `M-TEST`   | Test structure, tooling, strategies          |
+| Domain Knowledge       | `M-DOMAIN` | Business rules, domain semantics             |
+| Anti-Patterns          | `M-ANTI`   | Approaches that failed -- what to do instead |
+| Workflow Lessons       | `M-FLOW`   | Agent delegation, communication, tooling     |
 
 Number sequentially within each category. Check existing entries first.
 
@@ -146,8 +146,8 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 ## 9. Memory Tiers (reference)
 
-| Tier | Store | Content | Writer |
-|---|---|---|---|
-| Working | AGENTS.md + session context | Active goals, current task state | Human + agent at session start |
-| Episodic | Ogham | Past actions, bugs, patterns, sessions | Agent during/after sessions |
-| Long-term | brain/ notes | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |
+| Tier      | Store                       | Content                                                      | Writer                               |
+|-----------|-----------------------------|--------------------------------------------------------------|--------------------------------------|
+| Working   | AGENTS.md + session context | Active goals, current task state                             | Human + agent at session start       |
+| Episodic  | Ogham                       | Past actions, bugs, patterns, sessions                       | Agent during/after sessions          |
+| Long-term | brain/ notes                | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |

@@ -19,11 +19,12 @@ Ask yourself:
 - Was a decision made (or clarified) during this work?
 - Did the human stakeholder provide new context?
 
-## 2. Update memories.md
+## 2. Route to the correct brain file
 
-Append new lessons to `.ai/telamon/memory/brain/memories.md`. One entry per lesson — do not bundle multiple takeaways.
+- **Traps, constraints, or recurring bugs** → use the `telamon.remember_gotcha` skill (writes to `brain/gotchas.md`)
+- **All other lessons** → append to `.ai/telamon/memory/brain/memories.md` using the M-XXX-NNN entry format from the `telamon.memory_management` skill (section 6)
 
-Use the M-XXX-NNN entry format, categories, and quality rules from the `telamon.memory_management` skill (section 6).
+One entry per lesson — do not bundle multiple takeaways.
 
 ## 3. Store in Ogham
 
