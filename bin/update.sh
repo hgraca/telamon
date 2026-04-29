@@ -387,6 +387,98 @@ if command -v cass &>/dev/null; then
   fi
 fi
 
+# ── Vault directory migration: storage/obsidian/ → storage/projects-memory/ ───
+# The vault was previously stored under storage/obsidian/. Rename silently.
+_OLD_VAULT_DIR="${TELAMON_ROOT}/storage/obsidian"
+_NEW_VAULT_DIR="${TELAMON_ROOT}/storage/projects-memory"
+if [[ -d "${_OLD_VAULT_DIR}" && ! -d "${_NEW_VAULT_DIR}" ]]; then
+  step "Migrating vault directory: storage/obsidian/ → storage/projects-memory/ ..."
+  mv "${_OLD_VAULT_DIR}" "${_NEW_VAULT_DIR}"
+  log "Vault directory renamed"
+elif [[ -d "${_OLD_VAULT_DIR}" && -d "${_NEW_VAULT_DIR}" ]]; then
+  # Both exist — merge projects from old into new
+  step "Merging remaining projects from storage/obsidian/ into storage/projects-memory/ ..."
+  for _proj_dir in "${_OLD_VAULT_DIR}"/*/; do
+    [[ -d "${_proj_dir}" ]] || continue
+    _pname="$(basename "${_proj_dir}")"
+    if [[ ! -e "${_NEW_VAULT_DIR}/${_pname}" ]]; then
+      mv "${_proj_dir}" "${_NEW_VAULT_DIR}/${_pname}"
+      log "Moved ${_pname}"
+    fi
+  done
+  # Remove old directory if empty
+  rmdir "${_OLD_VAULT_DIR}" 2>/dev/null && log "Removed empty storage/obsidian/" || true
+fi
+
+# ── Obsidian migration ─────────────────────────────────────────────────────────
+# Obsidian MCP was removed from Telamon. The knowledge vault is now managed
+# directly as plain markdown files with QMD for semantic search.
+# If Obsidian is still installed, offer to clean up.
+_obsidian_installed=0
+if command -v obsidian &>/dev/null; then
+  _obsidian_installed=1
+elif [[ "$(uname -s)" == "Darwin" ]] && [[ -d "/Applications/Obsidian.app" ]]; then
+  _obsidian_installed=1
+fi
+
+if [[ "${_obsidian_installed}" -eq 1 ]]; then
+  echo
+  header "Obsidian (no longer used)"
+  warn "Obsidian is installed but Telamon no longer uses it."
+  info "The knowledge vault is now managed as plain markdown files."
+  info "QMD provides semantic search; the agent reads/writes notes directly."
+  echo
+  ask "Uninstall Obsidian from this system? (y/N):"
+  read -r _obs_confirm
+  if [[ "${_obs_confirm}" =~ ^[Yy] ]]; then
+    _obs_os="$(uname -s)"
+    if [[ "${_obs_os}" == "Darwin" ]]; then
+      step "Uninstalling Obsidian via Homebrew cask..."
+      if command -v brew &>/dev/null && brew list --cask obsidian &>/dev/null 2>&1; then
+        brew uninstall --cask obsidian 2>/dev/null || true
+        log "Obsidian cask uninstalled"
+      elif [[ -d "/Applications/Obsidian.app" ]]; then
+        rm -rf "/Applications/Obsidian.app"
+        log "Obsidian.app removed from /Applications"
+      else
+        skip "Obsidian not found via brew cask or /Applications"
+      fi
+    else
+      step "Uninstalling Obsidian..."
+      if command -v dpkg &>/dev/null && dpkg -l obsidian &>/dev/null 2>&1; then
+        sudo dpkg --remove obsidian 2>/dev/null || sudo apt-get remove -y obsidian 2>/dev/null || true
+        log "Obsidian .deb package removed"
+      elif command -v flatpak &>/dev/null && flatpak list --app | grep -qi obsidian; then
+        flatpak uninstall -y md.obsidian.Obsidian 2>/dev/null || true
+        log "Obsidian flatpak removed"
+      elif [[ -f "$HOME/.local/bin/obsidian" ]]; then
+        rm -f "$HOME/.local/bin/obsidian"
+        log "Obsidian binary removed from ~/.local/bin"
+      else
+        warn "Could not determine how Obsidian was installed — remove it manually"
+      fi
+    fi
+
+    # Remove Docker MCP image if present
+    if docker image inspect oleksandrkucherenko/obsidian-mcp:latest &>/dev/null 2>&1; then
+      step "Removing Obsidian MCP Docker image..."
+      docker rmi oleksandrkucherenko/obsidian-mcp:latest 2>/dev/null || true
+      log "Obsidian MCP Docker image removed"
+    fi
+
+    # Remove stale secret file
+    _obs_secret="${TELAMON_ROOT}/storage/secrets/obsidian-api-key"
+    if [[ -f "${_obs_secret}" ]]; then
+      rm -f "${_obs_secret}"
+      log "Removed storage/secrets/obsidian-api-key"
+    fi
+
+    log "Obsidian cleanup complete"
+  else
+    info "Keeping Obsidian installed — it is no longer used by Telamon but won't interfere."
+  fi
+fi
+
 # ── Summary ────────────────────────────────────────────────────────────────────
 echo
 echo -e "${TEXT_BOLD}${TEXT_GREEN}══════════════════════════════════════════${TEXT_CLEAR}"
