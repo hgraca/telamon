@@ -5,7 +5,7 @@ description: "Canonical rules for the .ai/telamon/memory/ vault: folder structur
 
 # Memory Management — Vault Structure & Rules
 
-Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory skills reference this skill for structure, routing, and quality rules. For Obsidian MCP tool usage (search, read, write, link), load the `telamon.obsidian` skill.
+Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory skills reference this skill for structure, routing, and quality rules.
 
 ## When to Apply
 
@@ -64,7 +64,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   - `brain/gotchas.md` -- read before touching known problem areas
   - `brain/memories.md` -- search via QMD when you need past lessons; do NOT read at session start
 - All other files: search before read; max 3 non-brain notes per task; discard results with relevance score < 0.6
-- For search and read tool usage, load the `telamon.obsidian` skill
 
 ## 4. Writing Constraints
 
@@ -72,7 +71,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 - Never write: secrets, API keys, passwords
 - Never write: files in the vault root (only subfolders)
 - Never write: agent instructions outside `bootstrap/` expecting auto-load
-- For note creation and update tool usage, load the `telamon.obsidian` skill
 
 ## 5. Brain Note Quality Criteria
 

@@ -80,7 +80,7 @@ title: Telamon
       </li>
       <li>
         <span class="check">&#x2713;</span>
-        <span><strong>100% local</strong> &mdash; Postgres, Ollama, Obsidian, Docker. No cloud dependencies, no data exfiltration.</span>
+        <span><strong>100% local</strong> &mdash; Ollama, Docker. No cloud dependencies, no data exfiltration.</span>
       </li>
       <li>
         <span class="check">&#x2713;</span>
@@ -117,7 +117,7 @@ title: Telamon
         <span class="step-number">1</span>
         <div>
           <h3>Install</h3>
-          <p>One command installs everything &mdash; Docker, Node.js, Python, opencode, Obsidian, all memory tools, and the global <code>telamon</code> CLI.</p>
+          <p>One command installs everything &mdash; Docker, Node.js, Python, opencode, all memory tools, and the global <code>telamon</code> CLI.</p>
           <code>curl -fsSL https://raw.githubusercontent.com/hgraca/telamon/main/install.sh | bash</code>
         </div>
       </div>
@@ -161,8 +161,8 @@ title: Telamon
         <p>Semantic code search &mdash; find functions, classes, and patterns by describing what they do.</p>
       </div>
       <div class="feature-card">
-        <h3>Obsidian + QMD</h3>
-        <p>Curated knowledge vault with semantic search. Goals, decisions, patterns in human-readable notes.</p>
+        <h3>QMD Knowledge Vault</h3>
+        <p>Curated knowledge vault with semantic search. Goals, decisions, patterns in human-readable markdown notes.</p>
       </div>
       <div class="feature-card">
         <h3>RTK + Caveman</h3>

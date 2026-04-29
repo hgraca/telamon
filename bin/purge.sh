@@ -7,7 +7,7 @@
 #   bin/purge.sh <path/to/project>
 #
 # What it removes (in addition to reset):
-#   - storage/obsidian/<proj>/   (vault directory tree)
+#   - storage/projects-memory/<proj>/   (vault directory tree)
 #   - storage/graphify/<proj>/   (graph data)
 #   - QMD collections: <proj>-brain, <proj>-work, <proj>-project-rules,
 #                      <proj>-reference, <proj>-thinking
@@ -56,23 +56,23 @@ bash "${TELAMON_ROOT}/bin/reset.sh" "${PROJ}"
 # ── Step 2: remove vault data ─────────────────────────────────────────────────
 header "Removing storage data — ${PROJECT_NAME}"
 
-OBSIDIAN_DIR="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
+VAULT_DIR="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
 if [[ "${_MEMORY_OWNER}" == "project" ]]; then
-  step "Removing storage symlink: storage/obsidian/${PROJECT_NAME} ..."
-  if [[ -L "${OBSIDIAN_DIR}" ]]; then
-    rm "${OBSIDIAN_DIR}"
-    log "Removed symlink: storage/obsidian/${PROJECT_NAME}"
+  step "Removing storage symlink: storage/projects-memory/${PROJECT_NAME} ..."
+  if [[ -L "${VAULT_DIR}" ]]; then
+    rm "${VAULT_DIR}"
+    log "Removed symlink: storage/projects-memory/${PROJECT_NAME}"
     warn "Project-owned vault at ${PROJ}/.ai/telamon/memory/ left intact"
   else
-    skip "storage/obsidian/${PROJECT_NAME} symlink (not found)"
+    skip "storage/projects-memory/${PROJECT_NAME} symlink (not found)"
   fi
 else
-  step "Removing vault: storage/obsidian/${PROJECT_NAME}/ ..."
-  if [[ -d "${OBSIDIAN_DIR}" ]]; then
-    rm -rf "${OBSIDIAN_DIR}"
-    log "Removed vault: storage/obsidian/${PROJECT_NAME}/"
+  step "Removing vault: storage/projects-memory/${PROJECT_NAME}/ ..."
+  if [[ -d "${VAULT_DIR}" ]]; then
+    rm -rf "${VAULT_DIR}"
+    log "Removed vault: storage/projects-memory/${PROJECT_NAME}/"
   else
-    skip "storage/obsidian/${PROJECT_NAME}/ (not found)"
+    skip "storage/projects-memory/${PROJECT_NAME}/ (not found)"
   fi
 fi
 

@@ -107,7 +107,7 @@ The curl script clones the repository to `~/.telamon` and runs `make up`, which:
 1. Copies `.env.dist` → `.env` (if not present)
 2. Installs prerequisite host tools (Homebrew, Docker) — pre-docker phase
 3. Starts Docker services (Ollama)
-4. Installs remaining tools (opencode, Graphify, RTK, codebase-index, Obsidian MCP) — post-docker phase
+4. Installs remaining tools (opencode, Graphify, RTK, codebase-index) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
 
 If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer reads it silently (no prompts).
@@ -116,7 +116,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 
 `telamon init` wires up a project with all Telamon tools:
 
-- Creates the Obsidian vault with `bootstrap/`, `brain/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/obsidian/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/obsidian/<project-name>`.
+- Creates the memory vault with `bootstrap/`, `brain/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/projects-memory/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/projects-memory/<project-name>`.
 - Control vault ownership with the `--memory-owner` flag:
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory
@@ -149,9 +149,9 @@ The agent uses Telamon tools transparently:
 
 ### How knowledge is saved
 
-The agent saves to Obsidian `brain/` notes (human-readable, curated):
+The agent saves to `brain/` notes (human-readable, curated):
 
-| Event                  | Obsidian                                         |
+| Event                  | Action                                           |
 |------------------------|--------------------------------------------------|
 | Non-trivial bug fixed  | Appended to `brain/gotchas.md`                   |
 | Architectural decision | Appended to `brain/key_decisions.md`             |

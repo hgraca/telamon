@@ -52,7 +52,7 @@ else
   skip "Docker daemon (already running)"
 fi
 
-# On Linux, ensure host.docker.internal resolves (needed for Obsidian MCP)
+# On Linux, ensure host.docker.internal resolves (needed for MCP containers)
 if [[ "${OS}" == "linux" ]]; then
   if ! grep -q "host.docker.internal" /etc/hosts 2>/dev/null; then
     step "Adding host.docker.internal to /etc/hosts..."

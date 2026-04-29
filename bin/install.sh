@@ -15,7 +15,6 @@
 #   Repomix                    — pack directories into compressed LLM context
 #   promptfoo                  — agent evaluation framework (via npx)
 #   RTK                        — token compression proxy
-#   Obsidian MCP (Docker)      — knowledge vault bridge
 #
 # Usage:
 #   bin/install.sh [--pre-docker|--post-docker]
@@ -212,7 +211,7 @@ PRE_DOCKER_APPS=(homebrew docker discord)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli langfuse graphiti diff-context)
+POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd cli langfuse graphiti diff-context)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
@@ -234,7 +233,7 @@ main() {
   echo "  ║   Telamon — Harness for Agentic Software Development ║"
   echo "  ║   macOS · Linux Mint · Ubuntu · Debian               ║"
   echo "  ║   Graphify · codebase-index                          ║"
-  echo "  ║   Obsidian MCP · Ollama · Postgres · RTK             ║"
+  echo "  ║   Ollama · RTK · QMD · Caveman                      ║"
   echo "  ╚══════════════════════════════════════════════════════╝"
   echo -e "${TEXT_CLEAR}"
 

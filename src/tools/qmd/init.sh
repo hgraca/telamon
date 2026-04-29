@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Register QMD collections for the current project's Obsidian vault and run
+# Register QMD collections for the current project's memory vault and run
 # the initial embedding pass.
 #
-# The vault lives at <telamon-root>/storage/obsidian/<project-name>/ and is
+# The vault lives at <telamon-root>/storage/projects-memory/<project-name>/ and is
 # symlinked into the project at <project>/.ai/telamon/memory/.
 # The bootstrap/ subfolder is intentionally excluded from QMD — it is loaded
 # via AGENTS.md and does not benefit from semantic search.
@@ -60,7 +60,7 @@ if [[ -z "${PROJECT_NAME}" ]]; then
   return 0 2>/dev/null || exit 0
 fi
 
-VAULT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
+VAULT="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
 
 if [[ ! -d "${VAULT}" ]]; then
   warn "Vault not found at ${VAULT} — run 'make init PROJ=<path>' first"

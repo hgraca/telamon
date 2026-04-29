@@ -37,4 +37,4 @@ When you need information, use the right tool for the question type:
 | Vault semantic search ("did we ever...")           | Use the `telamon.qmd` skill                                                          |
 | Architecture, relationships, god nodes             | Use the `telamon.graphify` skill                                                     |
 | Code by meaning ("find auth logic")                | codebase-index (ask naturally)                                                       |
-| Specs, ADRs, requirements                          | Obsidian vault search (follow `telamon.memory_management` skill for retrieval rules) |
+| Specs, ADRs, requirements                          | QMD search (follow `telamon.memory_management` skill for retrieval rules)            |

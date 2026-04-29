@@ -195,14 +195,6 @@ else
   echo -e "  ${TEXT_DIM}(npm not found — skipping cache check)${TEXT_CLEAR}"
 fi
 
-# Obsidian Local REST API
-if curl -sfk --max-time 3 https://127.0.0.1:27124/ &>/dev/null 2>&1; then
-  _ok "Obsidian Local REST API: reachable"
-else
-  _no "Obsidian Local REST API: not reachable on port 27124"
-  _mcp_issues=$((_mcp_issues + 1))
-fi
-
 # GitHub MCP authentication
 _gh_pat_file="${TELAMON_ROOT}/storage/secrets/gh_pat"
 if [[ -f "${_gh_pat_file}" ]]; then

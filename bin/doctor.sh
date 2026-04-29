@@ -177,7 +177,7 @@ if command -v qmd &>/dev/null; then
   fi
 
   # Check QMD collections exist
-  for collection_dir in "${TELAMON_ROOT}/storage/obsidian"/*/brain; do
+  for collection_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/brain; do
     if [[ -d "${collection_dir}" ]]; then
       collection_name="$(basename "$(dirname "${collection_dir}")")-brain"
       doc_count=$(find "${collection_dir}" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
@@ -188,64 +188,7 @@ else
   _fail "QMD binary not found — run: make up"
 fi
 
-# ── 5. Obsidian MCP ────────────────────────────────────────────────────────────
-header "Obsidian MCP"
-
-# Check if Obsidian REST API is reachable
-OBSIDIAN_API_KEY_VAL=""
-if [[ -f "${TELAMON_ROOT}/.env" ]]; then
-  OBSIDIAN_API_KEY_VAL="$(grep -E "^OBSIDIAN_API_KEY=" "${TELAMON_ROOT}/.env" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-fi
-
-if [[ -z "${OBSIDIAN_API_KEY_VAL}" || "${OBSIDIAN_API_KEY_VAL}" == "REPLACE_WITH"* ]]; then
-  _fail "Obsidian API key not configured in .env"
-  _info "  To set up the Obsidian Local REST API plugin:"
-  _info "  1. Launch Obsidian and open (or create) a vault."
-  _info "  2. Open Settings (gear icon, bottom-left)."
-  _info "  3. Go to Community plugins → turn off Safe mode if prompted."
-  _info "  4. Click Browse → search for 'Local REST API' → Install → Enable."
-  _info "  5. Still in Settings, click 'Local REST API' (left sidebar)."
-  _info "  6. Copy the API Key shown on that page."
-  _info "  7. Run: make up  (or edit .env and set OBSIDIAN_API_KEY=<your-key>)"
-else
-  # Try HTTPS request to Obsidian Local REST API (self-signed cert → -k)
-  if curl -sfk --max-time 5 --connect-timeout 3 \
-    -H "Authorization: Bearer ${OBSIDIAN_API_KEY_VAL}" \
-    "https://127.0.0.1:27124/" >/dev/null 2>&1; then
-    _pass "Obsidian Local REST API: reachable and authenticated"
-  else
-    _fail "Obsidian Local REST API: not reachable on port 27124"
-    _info "  Ensure Obsidian is running with the Local REST API plugin enabled."
-    _info "  In Obsidian: Settings → Community plugins → enable 'Local REST API'."
-    _info "  If the plugin is missing, install it from the community plugin browser."
-  fi
-fi
-
-# Check secret file consistency
-OBSIDIAN_SECRET_FILE="${TELAMON_ROOT}/storage/secrets/obsidian-api-key"
-if [[ -f "${OBSIDIAN_SECRET_FILE}" ]]; then
-  secret_val="$(tr -d "\"' " < "${OBSIDIAN_SECRET_FILE}" || true)"
-  if [[ -z "${secret_val}" || "${secret_val}" == "REPLACE_WITH"* ]]; then
-    if [[ -n "${OBSIDIAN_API_KEY_VAL}" && "${OBSIDIAN_API_KEY_VAL}" != "REPLACE_WITH"* ]]; then
-      _warn "Secret file storage/secrets/obsidian-api-key is stale — run: make up  to sync"
-    else
-      _warn "Secret file storage/secrets/obsidian-api-key contains placeholder value"
-    fi
-  else
-    _pass "Secret file storage/secrets/obsidian-api-key present and populated"
-  fi
-else
-  _warn "Secret file storage/secrets/obsidian-api-key not found — run: make up  to create it"
-fi
-
-# Check Obsidian MCP Docker image
-if docker image inspect oleksandrkucherenko/obsidian-mcp:latest &>/dev/null; then
-  _pass "Obsidian MCP Docker image present"
-else
-  _warn "Obsidian MCP Docker image not found — run: make up  to pull it"
-fi
-
-# ── 6. Codebase Index ──────────────────────────────────────────────────────────
+# ── 4. Codebase Index ──────────────────────────────────────────────────────────
 header "Codebase Index"
 
 CODEBASE_INDEX_CONFIG="${TELAMON_ROOT}/.opencode/codebase-index.json"
@@ -530,7 +473,6 @@ PYEOF
   }
 
   _check_mcp "codebase-index"
-  _check_mcp "obsidian"
   _check_mcp "websearch"
   _check_mcp "context7"
   _check_mcp "ast-grep"
@@ -585,13 +527,6 @@ header ".env configuration"
 ENV_FILE="${TELAMON_ROOT}/.env"
 if [[ -f "${ENV_FILE}" ]]; then
   _pass ".env file present"
-
-  obsidian_key="$(grep -E "^OBSIDIAN_API_KEY=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d '"'"'"' ' || true)"
-  if [[ -n "${obsidian_key}" && "${obsidian_key}" != "REPLACE_WITH"* ]]; then
-    _pass "OBSIDIAN_API_KEY is set"
-  else
-    _warn "OBSIDIAN_API_KEY not set — run: make up  (installer will guide you through Obsidian Local REST API setup)"
-  fi
 
   # Optional service secrets (only checked when service is enabled)
   if env.is_enabled LANGFUSE_ENABLED; then

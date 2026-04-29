@@ -1,6 +1,6 @@
 // session-capture plugin
 // Triggers the session-capture skill after the agent goes idle (session.idle),
-// so learnings are promoted to the Obsidian vault automatically
+// so learnings are promoted to brain/ notes automatically
 // after each completed work block — not just at compaction time.
 //
 // Throttle: only fires when at least MIN_CAPTURE_INTERVAL_MS have elapsed

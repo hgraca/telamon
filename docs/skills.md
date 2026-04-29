@@ -59,7 +59,6 @@ Skills are structured instruction sets loaded automatically based on context. Sk
 | [remember-session](https://github.com/hgraca/telamon/blob/main/src/skills/memory/remember-session/SKILL.md)                 | Capture everything when a session ends                |
 | [memory-management](https://github.com/hgraca/telamon/blob/main/src/skills/memory/memory-management/SKILL.md)               | Vault folder structure, routing, writing constraints  |
 | [thinking](https://github.com/hgraca/telamon/blob/main/src/skills/memory/thinking/SKILL.md)                                 | Scratch files, drafts, WIP content management         |
-| [obsidian](https://github.com/hgraca/telamon/blob/main/src/skills/memory/_tools/obsidian/SKILL.md)                          | Obsidian MCP: searching, reading, writing vault notes |
 | [qmd](https://github.com/hgraca/telamon/blob/main/src/skills/memory/_tools/qmd/SKILL.md)                                    | QMD: search markdown knowledge bases                  |
 | [graphify](https://github.com/hgraca/telamon/blob/main/src/skills/memory/_tools/graphify/SKILL.md)                          | Graphify: build, query, maintain knowledge graph      |
 | [repomix](https://github.com/hgraca/telamon/blob/main/src/skills/memory/_tools/repomix/SKILL.md)                            | Repomix: pack directories for LLM consumption         |

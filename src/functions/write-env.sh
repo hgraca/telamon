@@ -2,11 +2,7 @@
 # Add the AI memory stack entries to the user's shell RC file.
 # Idempotent: refreshes values in place if the block already exists.
 #
-# Reads OBSIDIAN_API_KEY from .env if not already set in the environment.
-# Writes shell export for OBSIDIAN_API_KEY; skips silently if it is still
-# unset or a placeholder.
-#
-# Also writes a qmd() wrapper function that sets XDG_CACHE_HOME so that
+# Writes a qmd() wrapper function that sets XDG_CACHE_HOME so that
 # interactive `qmd` commands use Telamon's centralised storage/qmd/ directory
 # instead of the system-wide ~/.cache/qmd/.  The path is hardcoded at install
 # time because XDG_CACHE_HOME must be absolute.
@@ -17,14 +13,7 @@ TOOLS_PATH="${TOOLS_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
 
-# ── Resolve OBSIDIAN_API_KEY from .env if not injected by caller ──────────────
 TELAMON_ROOT="$(cd "${TOOLS_PATH}/../.." && pwd)"
-ENV_FILE="${TELAMON_ROOT}/.env"
-if [[ -z "${OBSIDIAN_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
-  _key="$(grep -E "^[[:space:]]*OBSIDIAN_API_KEY[[:space:]]*=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' ")"
-  [[ -n "${_key}" && "${_key}" != "REPLACE_WITH"* ]] && OBSIDIAN_API_KEY="${_key}" || OBSIDIAN_API_KEY=""
-fi
-OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY:-}"
 
 header "Shell Environment"
 
@@ -39,15 +28,16 @@ fi
 MARKER="# ai-memory-stack"
 
 if grep -q "${MARKER}" "${SHELL_RC}" 2>/dev/null; then
-  # Refresh values in place
-  python3 - "${SHELL_RC}" "${OBSIDIAN_API_KEY}" <<'PYEOF'
+  # Refresh values in place — remove legacy exports if present
+  python3 - "${SHELL_RC}" <<'PYEOF'
 import re, sys
-path, key = sys.argv[1], sys.argv[2]
+path = sys.argv[1]
 with open(path) as f:
     content = f.read()
-content = re.sub(r'export OBSIDIAN_API_KEY=.*', f'export OBSIDIAN_API_KEY="{key}"', content)
 # Remove legacy OGHAM_PROFILE export if present
 content = re.sub(r'\nexport OGHAM_PROFILE=.*', '', content)
+# Remove legacy OBSIDIAN_API_KEY export if present
+content = re.sub(r'\nexport OBSIDIAN_API_KEY=.*', '', content)
 with open(path, 'w') as f:
     f.write(content)
 PYEOF
@@ -66,7 +56,6 @@ else
 ${MARKER}
 export PATH="\$HOME/.local/bin:\$HOME/.cargo/bin:\$PATH"
 ${BREW_PATH_LINE}
-export OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY}"
 SH
   log "Shell env added to ${SHELL_RC}"
 fi

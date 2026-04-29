@@ -213,17 +213,17 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
     "_tmpl/bootstrap/mcp.md" \
     "bootstrap/mcp.md → _tmpl source"
 
-  # storage/obsidian/<proj> must be a symlink pointing to the project vault
-  assert_symlink "${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}" \
+  # storage/projects-memory/<proj> must be a symlink pointing to the project vault
+  assert_symlink "${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}" \
     ".ai/telamon/memory" \
-    "storage/obsidian/${PROJECT_NAME} → .ai/telamon/memory"
-else
-  _section "1. Vault scaffold (storage/obsidian/${PROJECT_NAME}/ — telamon mode)"
-  VAULT_ROOT="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
+    "storage/projects-memory/${PROJECT_NAME} → .ai/telamon/memory"
+
+  _section "1. Vault scaffold (storage/projects-memory/${PROJECT_NAME}/ — telamon mode)"
+  VAULT_ROOT="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
   BRAIN_DIR="${VAULT_ROOT}/brain"
 
   # Dirs must be real directories (not symlinks)
-  assert_dir "${VAULT_ROOT}"                     "storage/obsidian/${PROJECT_NAME}/"
+  assert_dir "${VAULT_ROOT}"                     "storage/projects-memory/${PROJECT_NAME}/"
   assert_dir "${BRAIN_DIR}"                      "brain/"
   assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
   assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
@@ -307,13 +307,13 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
   else
     _fail ".ai/telamon/memory — expected a real directory in project mode"
   fi
-  assert_symlink "${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}" \
+  assert_symlink "${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}" \
     ".ai/telamon/memory" \
-    "storage/obsidian/${PROJECT_NAME} → .ai/telamon/memory (already checked in section 1)"
+    "storage/projects-memory/${PROJECT_NAME} → .ai/telamon/memory (already checked in section 1)"
 else
   assert_symlink "${PROJ}/.ai/telamon/memory" \
-    "storage/obsidian/${PROJECT_NAME}" \
-    ".ai/telamon/memory → <telamon-root>/storage/obsidian/${PROJECT_NAME}"
+    "storage/projects-memory/${PROJECT_NAME}" \
+    ".ai/telamon/memory → <telamon-root>/storage/projects-memory/${PROJECT_NAME}"
 fi
 
 # ── 6. opencode config ────────────────────────────────────────────────────────

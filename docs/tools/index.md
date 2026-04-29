@@ -30,8 +30,7 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 | Tool                         | Description                                          | Priority |
 |------------------------------|------------------------------------------------------|----------|
-| [Obsidian MCP](obsidian-mcp) | Read/write bridge to a human-curated knowledge vault | Tier 3   |
-| [QMD](qmd)                   | Semantic search over the Obsidian vault              | Tier 3   |
+| [QMD](qmd)                   | Semantic search over the knowledge vault             | Tier 3   |
 
 ## Token efficiency (optional)
 

@@ -7,7 +7,6 @@
 #   bin/init.sh [--memory-owner=telamon|project] [--with-tests] <path/to/project>
 #
 # What it does (delegated to per-app init scripts):
-#   obsidian      — vault scaffold + .ai/telamon/memory symlink
 #   opencode      — skills symlink, plugins symlink, telamon.jsonc, secrets
 #                   symlink, opencode.jsonc symlink/merge, AGENTS.md
 #   codebase-index — writes .opencode/codebase-index.json
@@ -110,7 +109,7 @@ export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME MEMORY_OWNER WIT
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(obsidian opencode codebase-index repomix promptfoo graphify qmd session-capture discord)
+INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd session-capture discord)
 
 for _app in "${INIT_APPS[@]}"; do
   _script="${TOOLS_PATH}/${_app}/init.sh"
@@ -194,7 +193,7 @@ fi
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   BRAIN_DIR="${PROJ}/.ai/telamon/memory/brain"
 else
-  BRAIN_DIR="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}/brain"
+  BRAIN_DIR="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}/brain"
 fi
 echo
 log "Project '${PROJECT_NAME}' initialised."

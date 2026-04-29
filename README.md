@@ -26,8 +26,7 @@ telamon init path/to/your-project
 cd path/to/your-project && opencode
 ```
 
-> The installer sets up **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Obsidian, Graphify, RTK, QMD, Codebase Index, Caveman, and the global `telamon` CLI.
-> The only manual step: after Obsidian is installed, the installer pauses and walks you through enabling the *Local REST API* plugin.
+> The installer sets up **everything** — Docker, Node.js, Python, [opencode](https://opencode.ai), Graphify, RTK, QMD, Codebase Index, Caveman, and the global `telamon` CLI.
 
 ---
 
@@ -36,8 +35,8 @@ cd path/to/your-project && opencode
 | Capability                    | How                                                                                         |
 |-------------------------------|---------------------------------------------------------------------------------------------|
 | **Multi-agent system**        | 2 agents: Telamon (autonomous orchestrator + 10 sub-agents) and Companion (pair programmer) |
-| **Persistent agent memory**   | Ollama + Obsidian vault                                                                     |
-| **Curated knowledge vault**   | Obsidian MCP + QMD (semantic vault search)                                                  |
+| **Persistent agent memory**   | Ollama + markdown vault                                                                     |
+| **Curated knowledge vault**   | QMD (semantic vault search) + direct file read/write                                        |
 | **Automatic session capture** | OpenCode plugin — promotes learnings before compaction                                      |
 | **Codebase understanding**    | Graphify (knowledge graph) + Codebase Index (semantic search)                               |
 | **Token efficiency**          | RTK (output compression) + Caveman (terse communication mode)                               |
@@ -53,7 +52,7 @@ cd path/to/your-project && opencode
 - [Tools](docs/tools/) — Every tool, how it works, priority guide
   - [Session Capture](docs/tools/session-capture.md), [Diff Context](docs/tools/diff-context.md), [Active Work Context](docs/tools/active-work-context.md), [Compaction Save](docs/tools/compaction-save.md) — Memory & session
   - [Graphify](docs/tools/graphify.md), [Codebase Index](docs/tools/codebase-index.md), [Repomix](docs/tools/repomix.md) — Codebase understanding
-  - [Obsidian MCP](docs/tools/obsidian-mcp.md), [QMD](docs/tools/qmd.md) — Knowledge vault
+  - [QMD](docs/tools/qmd.md) — Knowledge vault
   - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality
   - [Langfuse](docs/tools/langfuse.md), [Graphiti](docs/tools/graphiti.md) — Optional services
   - [Plugins](docs/tools/plugins.md) — OpenCode plugins
@@ -78,7 +77,6 @@ cd path/to/your-project && opencode
 
 - [Graphify](https://github.com/safishamsi/graphify)
 - [Codebase Index](https://github.com/Helweg/opencode-codebase-index)
-- [Obsidian MCP](https://github.com/oleksandrkucherenko/obsidian-mcp)
 - [QMD](https://github.com/tobi/qmd)
 - [RTK](https://github.com/rtk-ai/rtk)
 - [Caveman](https://github.com/JuliusBrussee/caveman)

@@ -7,12 +7,7 @@ nav_section: docs
 
 ## Global settings
 
-The installer handles **everything** automatically. After install, one value should be already set in `~/.telamon/.env`:
-
-```dotenv
-# from Obsidian → Settings → Community Plugins → Local REST API
-OBSIDIAN_API_KEY=your-obsidian-api-key
-```
+The installer handles **everything** automatically. The `.env` file at `~/.telamon/.env` is used only for optional services (see below).
 
 ---
 

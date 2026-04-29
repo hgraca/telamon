@@ -6,7 +6,7 @@ nav_section: docs
 ---
 
 Telamon runs entirely on the developer's machine. An MCP layer connects the coding agent to local services
-(Ollama, Obsidian) and external integrations (GitHub, browser DevTools).
+(Ollama) and external integrations (GitHub, browser DevTools).
 OpenCode plugins inject context at session start, and host CLI tools handle indexing, search, and compression.
 
 ## System flow
@@ -20,7 +20,6 @@ flowchart TB
 
         subgraph mcp["MCP Layer"]
             cbi["codebase-index"]
-            obs_m["obsidian"]
             gf_m["graphify"]
             qmd_m["qmd"]
             gh_m["github"]
@@ -33,7 +32,6 @@ flowchart TB
         end
 
         mcp --> ol["Ollama :17434"]
-        mcp --> vault["Obsidian vault"]
 
         oc --> cli
 
@@ -73,8 +71,8 @@ flowchart TB
 
 | Stage                         | Tool                | Role                                                              |
 |-------------------------------|---------------------|-------------------------------------------------------------------|
-| **Session start**             | Obsidian `brain/`   | Loads goals, decisions, patterns, and known gotchas               |
-| **Session start**             | QMD                 | Semantic vault search — surfaces related context before diving in |
+| **Session start**             | `brain/` notes      | Loads goals, decisions, patterns, and known gotchas               |
+| **Session start**             | QMD                 | Semantic search — surfaces related context before diving in       |
 | **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections        |
 | **Session start**             | Diff-context plugin | Injects git change summary since last session                     |
 | **Session start**             | Active-work-context | Injects active work items, prompts user to continue/archive       |
@@ -82,18 +80,18 @@ flowchart TB
 | **Finding code**              | Codebase Index      | Semantic search: *"where is the auth logic?"*                     |
 | **Reading many files**        | Repomix             | Packs directory into compressed context (~70% token reduction)    |
 | **Finding code**              | ast-grep            | Structural search: find code by AST pattern                       |
-| **Finding vault notes**       | QMD                 | Semantic vault search: *"did we ever deal with X?"*               |
+| **Finding vault notes**       | QMD                 | Semantic search: *"did we ever deal with X?"*                     |
 | **Looking up docs**           | Context7            | Queries library/framework documentation                           |
 | **Browser debugging**         | Chrome DevTools     | Inspects DOM, console, network, performance                       |
 | **Browser testing**           | Playwright          | Automates browser interactions and assertions                     |
 | **GitHub integration**        | GitHub MCP          | Manages issues, PRs, code search, reviews                         |
 | **Writing code**              | RTK                 | Compresses bash output to save tokens                             |
 | **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                         |
-| **After significant work**    | Obsidian `brain/`   | Stores new decisions, patterns, bug fixes                         |
+| **After significant work**    | `brain/` notes      | Stores new decisions, patterns, bug fixes                         |
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review    |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)                  |
 | **On compaction**             | Compaction Save     | Writes compaction timestamp to each active work item              |
-| **End of session**            | Obsidian `brain/`   | Saves session summary; archives completed work notes              |
+| **End of session**            | `brain/` notes      | Saves session summary; archives completed work notes              |
 | **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions                 |
 | **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata          |
 
@@ -108,7 +106,6 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 
 | File                 | Contents                              |
 |----------------------|---------------------------------------|
-| `obsidian-api-key`   | Obsidian Local REST API key           |
 | `graphify-python`    | Path to graphify's Python interpreter |
 | `telamon-root`       | Path to the Telamon root directory    |
 | `gh_pat`             | GitHub personal access token          |
@@ -122,8 +119,6 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 |-----------------------|------------------------|----------------------------------------|
 | `telamon-ollama`      | `ollama/ollama:latest` | 17434                                  |
 | `telamon-ollama-init` | `ollama/ollama:latest` | — (one-shot, pulls `nomic-embed-text`) |
-
-> **Obsidian MCP** runs on-demand via `docker run` (not persistent) so it doesn't crash when Obsidian isn't running.
 
 #### Langfuse (profile: `langfuse`)
 
@@ -233,7 +228,6 @@ src/
     rtk/                     # RTK binary + opencode plugin wiring
     opencode/                # opencode binary + shared opencode.jsonc template
     codebase-index/          # MCP registration + per-project config
-    obsidian/                # Obsidian binary install + MCP registration
     repomix/                 # Repomix MCP installer, init, update, doctor
     promptfoo/               # promptfoo eval framework installer, init, update
     session-capture/         # session-capture opencode plugin + init
@@ -254,5 +248,5 @@ storage/                     # runtime data — git-ignored except opencode.json
   ollama/                    # Ollama model cache
   graphify/                  # Graphify output cache
   qmd/                       # QMD index and cache
-  obsidian/<project-name>/   # per-project Obsidian vault
+  projects-memory/           # per-project memory vaults
 ```

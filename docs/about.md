@@ -42,9 +42,9 @@ Telamon principles:
 
 | Layer | Tools |
 |---|---|
-| **Persistent memory** | Ollama, Obsidian vault |
+| **Persistent memory** | Ollama, markdown vault |
 | **Codebase understanding** | Graphify (knowledge graph), Codebase Index (semantic search) |
-| **Knowledge vault** | Obsidian MCP, QMD (semantic vault search) |
+| **Knowledge vault** | QMD (semantic vault search), direct file read/write |
 | **Token efficiency** | RTK (output compression), Caveman (terse mode) |
 | **Multi-agent** | 2 primary agents (Telamon orchestrator + Companion pair programmer), 10 sub-agents, slash commands, 60+ structured skills |
 | **MCP integrations** | GitHub, Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app |

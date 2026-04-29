@@ -110,8 +110,8 @@ fi
 
 if [[ "${_MEMORY_OWNER}" == "project" ]]; then
   # Project mode: symlink is on the storage side; project dir is real
-  _STORAGE_LINK="${TELAMON_ROOT}/storage/obsidian/${PROJECT_NAME}"
-  remove_symlink "${_STORAGE_LINK}" "storage/obsidian/${PROJECT_NAME} (telamon-side symlink)"
+  _STORAGE_LINK="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
+  remove_symlink "${_STORAGE_LINK}" "storage/projects-memory/${PROJECT_NAME} (telamon-side symlink)"
   warn ".ai/telamon/memory/ is a project-owned directory — left intact"
 else
   # Telamon mode (default): symlink is on the project side
