@@ -434,6 +434,47 @@ if [[ "${_VAULT_MIGRATED}" -eq 1 ]]; then
   bash "${TELAMON_ROOT}/bin/fix-memory-links.sh"
 fi
 
+# ── Always repair stale .ai/telamon/memory symlinks ───────────────────────────
+# Even if the vault directory was already migrated in a previous run, external
+# projects may still have stale symlinks pointing to storage/obsidian/.
+# Scan all known projects and fix any that still point to the old path.
+_fix_memory_link() {
+  local _link="$1"
+  local _proj_name="$2"
+  [[ -L "${_link}" ]] || return 0
+  local _target
+  _target="$(readlink "${_link}")"
+  if [[ "${_target}" == *"/storage/obsidian/"* ]]; then
+    local _new_target="${_target/storage\/obsidian\//storage\/projects-memory\/}"
+    if [[ -d "${_new_target}" ]]; then
+      rm "${_link}"
+      ln -s "${_new_target}" "${_link}"
+      log "Fixed .ai/telamon/memory symlink (${_proj_name})"
+    fi
+  fi
+}
+
+# Fix Telamon's own memory link
+_fix_memory_link "${TELAMON_ROOT}/.ai/telamon/memory" "telamon"
+
+# Fix all initialized projects discovered via graphify storage
+for _storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
+  [[ -d "${_storage_dir}" ]] || continue
+  [[ -f "${_storage_dir}.project-path" ]] || continue
+  _proj_dir="$(cat "${_storage_dir}.project-path")"
+  [[ -d "${_proj_dir}" ]] || continue
+  _fix_memory_link "${_proj_dir}/.ai/telamon/memory" "$(basename "${_proj_dir}")"
+done
+
+# Also check via codebase-index storage (projects without graphify)
+for _storage_dir in "${TELAMON_ROOT}/storage/codebase-index"/*/; do
+  [[ -d "${_storage_dir}" ]] || continue
+  [[ -f "${_storage_dir}.project-path" ]] || continue
+  _proj_dir="$(cat "${_storage_dir}.project-path")"
+  [[ -d "${_proj_dir}" ]] || continue
+  _fix_memory_link "${_proj_dir}/.ai/telamon/memory" "$(basename "${_proj_dir}")"
+done
+
 # ── Obsidian migration ─────────────────────────────────────────────────────────
 # Obsidian MCP was removed from Telamon. The knowledge vault is now managed
 # directly as plain markdown files with QMD for semantic search.
