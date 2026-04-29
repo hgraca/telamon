@@ -33,7 +33,7 @@ Commands:
   reset [path]           Remove project wiring, keep data (default: current dir)
   purge [path]           Remove project wiring and data (default: current dir)
   recover-memories [path] Recover memories from past sessions (default: current dir)
-                          Flags: --all, --full, --dry-run, --batch-size N
+                           Flags: --all, --full, --dry-run, --batch-size N, --from-brain
   module add <url-or-path>  Register a module from a git URL or local directory
                            Flags: --name=<name>, --commands=, --agents=, --skills=, --plugins=
   module remove <name>   Remove a registered module by name
@@ -76,6 +76,7 @@ case "${CMD}" in
 
     # Parse arguments
     ALL_MODE=false
+    FROM_BRAIN=false
     FULL_FLAG=""
     DRY_RUN_FLAG=""
     EXTRA_ARGS=()
@@ -84,6 +85,7 @@ case "${CMD}" in
     while [[ $# -gt 0 ]]; do
       case "$1" in
         --all)        ALL_MODE=true; shift ;;
+        --from-brain) FROM_BRAIN=true; shift ;;
         --full)       FULL_FLAG="--full"; shift ;;
         --dry-run)    DRY_RUN_FLAG="--dry-run"; shift ;;
         --batch-size) EXTRA_ARGS+=("--batch-size" "$2"); shift 2 ;;
@@ -99,6 +101,14 @@ case "${CMD}" in
       if [[ ! -f "${project_dir}/.ai/telamon/telamon.jsonc" ]]; then
         warn "${project_dir}: no telamon.jsonc — skipping (run 'telamon init' first)"
         return 1
+      fi
+
+      if [[ "${FROM_BRAIN}" == true ]]; then
+        # Brain-to-Ogham recovery (no LLM required)
+        python3 "${TELAMON_ROOT}/scripts/recover-memories-from-brain.py" \
+          --project "${project_dir}" \
+          ${DRY_RUN_FLAG:+"${DRY_RUN_FLAG}"}
+        return
       fi
 
       # Resolve medium_model (lazy prompt if needed)
