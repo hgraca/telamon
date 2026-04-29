@@ -24,8 +24,38 @@ uv tool upgrade graphifyy 2>/dev/null \
 step "Restoring MCP dependency..."
 uv tool install graphifyy --with mcp --force 2>/dev/null || true
 
-# ── Rebuild missing graphs for initialized projects ──────────────────────────
+# ── Fix stale graphify-serve.sh symlinks (src/install → src/tools migration) ──
 TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
+CORRECT_TARGET="${TELAMON_ROOT}/src/tools/graphify/serve-wrapper.sh"
+STALE_PATTERN="src/install/graphify/serve-wrapper.sh"
+
+# Fix Telamon's own .opencode/graphify-serve.sh
+_telamon_link="${TELAMON_ROOT}/.opencode/graphify-serve.sh"
+if [[ -L "${_telamon_link}" ]]; then
+  _target="$(readlink "${_telamon_link}")"
+  if [[ "${_target}" == *"${STALE_PATTERN}"* ]]; then
+    ln -sf "${CORRECT_TARGET}" "${_telamon_link}"
+    log "Fixed stale .opencode/graphify-serve.sh symlink (Telamon)"
+  fi
+fi
+
+# Fix initialized projects
+for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
+  [[ -d "${storage_dir}" ]] || continue
+  [[ -f "${storage_dir}.project-path" ]] || continue
+  proj="$(cat "${storage_dir}.project-path")"
+  [[ -d "${proj}" ]] || continue
+  _proj_link="${proj}/.opencode/graphify-serve.sh"
+  if [[ -L "${_proj_link}" ]]; then
+    _target="$(readlink "${_proj_link}")"
+    if [[ "${_target}" == *"${STALE_PATTERN}"* ]]; then
+      ln -sf "${CORRECT_TARGET}" "${_proj_link}"
+      log "Fixed stale .opencode/graphify-serve.sh symlink ($(basename "${proj}"))"
+    fi
+  fi
+done
+
+# ── Rebuild missing graphs for initialized projects ──────────────────────────
 for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
   [[ -d "${storage_dir}" ]] || continue
   [[ -f "${storage_dir}graph.json" ]] && continue
