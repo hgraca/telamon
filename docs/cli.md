@@ -38,7 +38,7 @@ telamon init ../other-project            # relative path works too
 
 ### recover-memories
 
-Scans the opencode session database for all sessions associated with a project, extracts decisions, patterns, gotchas, and lessons using an LLM, then writes them to both Ogham and the `brain/` markdown files.
+Scans the opencode session database for all sessions associated with a project, extracts decisions, patterns, gotchas, and lessons using an LLM, then writes them to the `brain/` markdown files.
 
 ```bash
 telamon recover-memories                 # incremental — current project
@@ -52,7 +52,7 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 | Flag             | Description                                                                                                                            |
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | `--all`          | Discover all initialized projects and process each. Prompts for confirmation.                                                          |
-| `--full`         | Full reset: export Ogham backup, clear all memories in the profile, reset `brain/` files from templates, then reprocess every session. |
+| `--full`         | Full reset: reset `brain/` files from templates, then reprocess every session. |
 | `--dry-run`      | Show how many sessions would be processed without calling the LLM or writing anything.                                                 |
 | `--batch-size N` | Number of sessions per LLM call (default: 5). Larger batches are more token-efficient but risk truncation on very long sessions.       |
 

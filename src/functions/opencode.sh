@@ -29,7 +29,7 @@ fi
 #   $2 — JSON string for the server block (must be valid JSON)
 #
 # Example:
-#   opencode.upsert_mcp "ogham" '{"type":"local","command":["uvx","ogham-mcp"],"enabled":true}'
+#   opencode.upsert_mcp "graphify" '{"type":"local","command":["graphify","serve"],"enabled":true}'
 opencode.upsert_mcp() {
   local server_name="$1"
   local server_json="$2"

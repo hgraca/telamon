@@ -13,7 +13,6 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 | Tool                                       | Description                                              | Priority |
 |--------------------------------------------|----------------------------------------------------------|----------|
-| [Ogham MCP](ogham)                         | Stores and recalls decisions, bugs, patterns by meaning  | Tier 1   |
 | [Session Capture](session-capture)         | Auto-promotes learnings to memory before compaction      | Built-in |
 | [Diff Context](diff-context)               | Injects git change summary at session start              | Built-in |
 | [Active Work Context](active-work-context) | Injects active work items at session start, prompts user | Built-in |

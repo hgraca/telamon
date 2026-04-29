@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_task
-description: "Record what was learned after completing a task. Review discoveries, update memories.md with structured lessons, store in Ogham. Use after finishing a task, fixing a non-trivial bug, or completing a planning round."
+description: "Record what was learned after completing a task. Review discoveries, update brain/ notes with structured lessons. Use after finishing a task, fixing a non-trivial bug, or completing a planning round."
 ---
 
 # Remember Task
@@ -26,10 +26,6 @@ Ask yourself:
 
 One entry per lesson — do not bundle multiple takeaways.
 
-## 3. Store in Ogham
-
-Use the `telamon.ogham` skill to store the lesson.
-
-## 4. Pruning
+## 3. Pruning
 
 When memories.md exceeds 100 entries, follow the pruning rules in the `telamon.memory_management` skill (section 6).

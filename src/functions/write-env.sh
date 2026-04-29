@@ -3,8 +3,8 @@
 # Idempotent: refreshes values in place if the block already exists.
 #
 # Reads OBSIDIAN_API_KEY from .env if not already set in the environment.
-# Writes shell exports for OBSIDIAN_API_KEY and OGHAM_PROFILE; skips
-# OBSIDIAN_API_KEY silently if it is still unset or a placeholder.
+# Writes shell export for OBSIDIAN_API_KEY; skips silently if it is still
+# unset or a placeholder.
 #
 # Also writes a qmd() wrapper function that sets XDG_CACHE_HOME so that
 # interactive `qmd` commands use Telamon's centralised storage/qmd/ directory
@@ -26,8 +26,6 @@ if [[ -z "${OBSIDIAN_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
 fi
 OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY:-}"
 
-: "${OGHAM_PROFILE:?OGHAM_PROFILE is required}"
-
 header "Shell Environment"
 
 OS=$(os.get_os)
@@ -42,13 +40,14 @@ MARKER="# ai-memory-stack"
 
 if grep -q "${MARKER}" "${SHELL_RC}" 2>/dev/null; then
   # Refresh values in place
-  python3 - "${SHELL_RC}" "${OBSIDIAN_API_KEY}" "${OGHAM_PROFILE}" <<'PYEOF'
+  python3 - "${SHELL_RC}" "${OBSIDIAN_API_KEY}" <<'PYEOF'
 import re, sys
-path, key, profile = sys.argv[1], sys.argv[2], sys.argv[3]
+path, key = sys.argv[1], sys.argv[2]
 with open(path) as f:
     content = f.read()
 content = re.sub(r'export OBSIDIAN_API_KEY=.*', f'export OBSIDIAN_API_KEY="{key}"', content)
-content = re.sub(r'export OGHAM_PROFILE=.*',    f'export OGHAM_PROFILE="{profile}"', content)
+# Remove legacy OGHAM_PROFILE export if present
+content = re.sub(r'\nexport OGHAM_PROFILE=.*', '', content)
 with open(path, 'w') as f:
     f.write(content)
 PYEOF
@@ -68,7 +67,6 @@ ${MARKER}
 export PATH="\$HOME/.local/bin:\$HOME/.cargo/bin:\$PATH"
 ${BREW_PATH_LINE}
 export OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY}"
-export OGHAM_PROFILE="${OGHAM_PROFILE}"
 SH
   log "Shell env added to ${SHELL_RC}"
 fi

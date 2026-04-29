@@ -85,7 +85,7 @@ telamon recover-memories --full   # full reset — reprocess all sessions from s
 telamon recover-memories --all    # incremental — all initialized projects
 ```
 
-This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to both Ogham and the `brain/` markdown files — the same destinations the session-capture plugin uses live.
+This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to the `brain/` markdown files — the same destinations the session-capture plugin uses live.
 
 **When to use it:**
 - First time setting up Telamon on a project that already has session history
@@ -106,11 +106,11 @@ The curl script clones the repository to `~/.telamon` and runs `make up`, which:
 
 1. Copies `.env.dist` → `.env` (if not present)
 2. Installs prerequisite host tools (Homebrew, Docker) — pre-docker phase
-3. Starts Docker services (Postgres, Ollama)
-4. Installs remaining tools (opencode, Ogham, Graphify, RTK, codebase-index, Obsidian MCP) — post-docker phase
+3. Starts Docker services (Ollama)
+4. Installs remaining tools (opencode, Graphify, RTK, codebase-index, Obsidian MCP) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
 
-If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer reads it silently (no prompts). If `.env` already has `POSTGRES_PASSWORD` set, the password prompt is also skipped.
+If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer reads it silently (no prompts).
 
 ### What project init does
 
@@ -121,10 +121,6 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory
   - If the flag is omitted and the project is already initialised, the existing `memory_owner` value from `telamon.jsonc` is used. For a fresh project on an interactive terminal, you are prompted to choose.
-- Control the Ogham database with the `--ogham-db` flag:
-  - `telamon init --ogham-db=telamon path/to/project` — use local Postgres managed by Telamon (default)
-  - `telamon init --ogham-db=postgresql://user:pass@host:5432/db path/to/project` — use an external PostgreSQL database
-  - If the flag is omitted and the project is already initialised, the existing `ogham_db` value from `telamon.jsonc` is used. For a fresh project on an interactive terminal, you are prompted to choose.
 - Symlinks Telamon's own assets into `<project>/.opencode/{skills,agents,plugins,commands}/telamon`
 - Symlinks each registered module into `<project>/.opencode/{skills,agents,...}/<module-name>` (see [module command](cli.md#module))
 - Writes `<project>/.ai/telamon/telamon.jsonc` with the project name
@@ -136,8 +132,8 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 
 Via the `telamon.recall_memories` skill, the agent automatically:
 
-- Activates the project's Ogham memory profile
-- Searches for relevant past context (decisions, patterns, bugs)
+- Reads `brain/` notes for project decisions, patterns, and gotchas
+- Searches QMD for relevant past context
 - Receives Graphify god nodes, communities, and surprising connections (injected by the opencode plugin)
 - Receives a git change summary since the last session (injected by the diff-context plugin)
 - Builds the codebase index if missing
@@ -147,21 +143,20 @@ Via the `telamon.recall_memories` skill, the agent automatically:
 
 The agent uses Telamon tools transparently:
 
-- Searches Ogham before repeating known work
 - Searches the codebase semantically via codebase-index
 - Queries Graphify for architectural context (god nodes, communities, relationships)
 - Reads `brain/` notes to stay aligned with project decisions and patterns
 
 ### How knowledge is saved
 
-The agent saves to **both** Ogham (fast semantic recall) and Obsidian `brain/` (human-readable, curated):
+The agent saves to Obsidian `brain/` notes (human-readable, curated):
 
-| Event                  | Ogham                       | Obsidian                                         |
-|------------------------|-----------------------------|--------------------------------------------------|
-| Non-trivial bug fixed  | Stored as a bug memory      | Appended to `brain/gotchas.md`                   |
-| Architectural decision | Stored as a decision memory | Appended to `brain/key_decisions.md`             |
-| Pattern established    | Stored as a pattern memory  | Appended to `brain/patterns.md`                  |
-| Session ends           | Stored as a session summary | Work notes archived from `active/` to `archive/` |
+| Event                  | Obsidian                                         |
+|------------------------|--------------------------------------------------|
+| Non-trivial bug fixed  | Appended to `brain/gotchas.md`                   |
+| Architectural decision | Appended to `brain/key_decisions.md`             |
+| Pattern established    | Appended to `brain/patterns.md`                  |
+| Session ends           | Work notes archived from `active/` to `archive/` |
 
 The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
 
@@ -178,7 +173,7 @@ telamon recover-memories --dry-run       # preview without making changes
 telamon recover-memories --batch-size 10 # larger batches (default: 5)
 ```
 
-This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to both Ogham and the `brain/` markdown files — the same destinations the session-capture plugin uses.
+This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to the `brain/` markdown files — the same destinations the session-capture plugin uses.
 
 **Recommended first run:** use `--full` to get a clean, deduplicated baseline. Subsequent runs are incremental — only sessions not yet processed are analyzed.
 

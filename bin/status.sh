@@ -32,7 +32,6 @@ else
 fi
 command -v docker &>/dev/null                                              && _ok "Docker"             || _no "Docker"
 docker info &>/dev/null 2>&1                                               && _ok "Docker running"     || _no "Docker not running"
-docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^ogham-postgres$"  && _ok "Postgres container" || _no "Postgres container"
 docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-ollama$"      && _ok "Ollama container"   || _no "Ollama container"
 docker exec telamon-ollama ollama list 2>/dev/null | grep -q "nomic-embed-text" && _ok "nomic-embed-text" || _no "nomic-embed-text"
 
@@ -52,7 +51,6 @@ if env.is_enabled GRAPHITI_ENABLED; then
     && _ok "Graphiti" || _no "Graphiti"
 fi
 command -v uv       &>/dev/null && _ok "uv"       || _no "uv"
-command -v ogham    &>/dev/null && _ok "Ogham"    || _no "Ogham"
 command -v node     &>/dev/null && _ok "Node.js"  || _no "Node.js"
 command -v graphify &>/dev/null && _ok "Graphify" || _no "Graphify"
 command -v rtk      &>/dev/null && _ok "RTK"      || _no "RTK"
@@ -61,35 +59,11 @@ command -v opencode &>/dev/null && _ok "opencode" || _no "opencode"
 [[ -d "${TELAMON_ROOT}/storage/secrets" ]]        && _ok "storage/secrets/"        || _no "storage/secrets/ (run 'make up' to create)"
 [[ -d "${TELAMON_ROOT}/storage/state" ]]          && _ok "storage/state/"          || _no "storage/state/ (run 'make up' to create)"
 [[ -d "${TELAMON_ROOT}/src/skills" ]]             && _ok "Telamon skills (src/skills)" || _no "Telamon skills (src/skills)"
-ogham health &>/dev/null 2>&1                 && _ok "Ogham ↔ Postgres"        || _no "Ogham ↔ Postgres"
 echo
 
 # =============================================================================
 # Runtime report sections
 # =============================================================================
-
-# ── Ogham ─────────────────────────────────────────────────────────────────────
-header "Ogham"
-if command -v ogham &>/dev/null; then
-  _ogham_stats=$(timeout 10 ogham stats 2>/dev/null || true)
-  if [[ -n "${_ogham_stats}" ]]; then
-    _ogham_profile=$(echo "${_ogham_stats}" | grep "^Profile:" | sed 's/Profile: //')
-    _ogham_total=$(echo "${_ogham_stats}"   | grep "^Total memories:" | sed 's/Total memories: //')
-    _ogham_sources=$(echo "${_ogham_stats}" | grep "^Sources:" | sed 's/Sources: //')
-    echo -e "  ${TEXT_BOLD}Profile:${TEXT_CLEAR} ${_ogham_profile} | ${_ogham_total} memories"
-    [[ -n "${_ogham_sources}" ]] && echo -e "  ${TEXT_DIM}Sources: ${_ogham_sources}${TEXT_CLEAR}"
-  else
-    # Fallback: direct DB query
-    _ogham_count=$(docker exec ogham-postgres psql -U ogham -d ogham -tAc "SELECT count(*) FROM memories;" 2>/dev/null || true)
-    if [[ -n "${_ogham_count}" ]]; then
-      echo -e "  ${TEXT_DIM}${_ogham_count} memories (profile unknown)${TEXT_CLEAR}"
-    else
-      echo -e "  ${TEXT_DIM}(ogham not available)${TEXT_CLEAR}"
-    fi
-  fi
-else
-  echo -e "  ${TEXT_DIM}(ogham not available)${TEXT_CLEAR}"
-fi
 
 # ── Graphify ──────────────────────────────────────────────────────────────────
 header "Graphify"

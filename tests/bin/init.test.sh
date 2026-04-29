@@ -170,7 +170,6 @@ echo -e "${BOLD}Project path: ${PROJ}${RESET}"
 # ── Read memory_owner from telamon.jsonc ──────────────────────────────────────
 TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 MEMORY_OWNER="telamon"
-OGHAM_DB="telamon"
 if [[ -f "${TELAMON_CFG}" ]]; then
   _mo_val="$(python3 -c "
 import json, re, sys
@@ -179,13 +178,6 @@ with open(sys.argv[1]) as f:
 print(d.get('memory_owner', ''))
 " "${TELAMON_CFG}" 2>/dev/null || true)"
   [[ -n "${_mo_val}" ]] && MEMORY_OWNER="${_mo_val}"
-  _ogham_val="$(python3 -c "
-import json, re, sys
-with open(sys.argv[1]) as f:
-    d = json.loads(re.sub(r'(?m)(?<!:)//.*\$', '', f.read()))
-print(d.get('ogham_db', ''))
-" "${TELAMON_CFG}" 2>/dev/null || true)"
-  [[ -n "${_ogham_val}" ]] && OGHAM_DB="${_ogham_val}"
 fi
 
 VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/memory-management/_tmpl"
@@ -281,8 +273,6 @@ assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"caveman_enabled\": f
   ".ai/telamon/telamon.jsonc has caveman_enabled: false"
 assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"memory_owner\"" \
   ".ai/telamon/telamon.jsonc has memory_owner key"
-assert_file_contains "${PROJ}/.ai/telamon/telamon.jsonc" "\"ogham_db\"" \
-  ".ai/telamon/telamon.jsonc has ogham_db key"
 
 # ── 5. .ai/telamon/secrets directory ─────────────────────────────────────────
 _section "5. .ai/telamon/secrets"
@@ -301,30 +291,12 @@ for _sf in "${_GLOBAL_SECRETS_DIR}"/*; do
   [[ -f "${_sf}" ]] || continue
   _sn="$(basename "${_sf}")"
   _sl="${SECRETS_DIR}/${_sn}"
-  if [[ "${_sn}" == "ogham-database-url" ]]; then
-    # Handled separately below based on ogham_db mode
-    continue
-  fi
   if [[ -L "${_sl}" ]]; then
     _pass "secret symlink: ${_sn}"
   else
     _fail "secret symlink: ${_sn} — expected a symlink at ${_sl}"
   fi
 done
-
-# ogham-database-url: mode-dependent assertion
-if [[ "${OGHAM_DB}" == "external" ]]; then
-  # External mode: must be a real file (not a symlink)
-  if [[ -f "${SECRETS_DIR}/ogham-database-url" && ! -L "${SECRETS_DIR}/ogham-database-url" ]]; then
-    _pass "ogham-database-url is a real file (external DB mode)"
-  else
-    _fail "ogham-database-url — expected a real file in external mode, got: $(ls -lad "${SECRETS_DIR}/ogham-database-url" 2>/dev/null || echo 'missing')"
-  fi
-else
-  # Telamon mode: must be a symlink to storage/secrets/ogham-database-url
-  assert_symlink "${SECRETS_DIR}/ogham-database-url" "storage/secrets/ogham-database-url" \
-    "ogham-database-url → storage/secrets/ogham-database-url (telamon mode)"
-fi
 
 # ── 5b. memory symlink — mode-dependent ──────────────────────────────────────
 _section "5b. .ai/telamon/memory (${MEMORY_OWNER} mode)"

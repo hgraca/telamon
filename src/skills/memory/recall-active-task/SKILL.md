@@ -37,11 +37,7 @@ Read the following files from the task folder (skip any that do not exist):
 
 Priority order: `compaction.md` first (most recent state), then `backlog.md` (task status), then `summary.md` (overall scope).
 
-### Step 3: Recover Ogham context
-
-Use the `telamon.ogham` skill to search for the task name or slug — retrieve checkpoints, decisions, and lessons from prior sessions on this task.
-
-### Step 4: Determine current position
+### Step 3: Determine current position
 
 From the recovered context, identify:
 
@@ -50,7 +46,7 @@ From the recovered context, identify:
 3. **Blockers** — any BLOCKED signals or unresolved questions noted in `compaction.md`
 4. **Stage** — is this task in planning or implementation?
 
-### Step 5: Report to user
+### Step 4: Report to user
 
 Output a brief status:
 
@@ -60,7 +56,7 @@ Output a brief status:
 > **Next**: `<current task title>`
 > **Blockers**: `<any>` or None
 
-### Step 6: Resume work
+### Step 5: Resume work
 
 - If in **planning** stage: load the `telamon.plan_story` skill and continue from the appropriate step.
 - If in **implementation** stage: load the `telamon.implement_story` skill and continue the task cycle from the current task.

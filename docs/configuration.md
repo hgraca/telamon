@@ -7,11 +7,9 @@ nav_section: docs
 
 ## Global settings
 
-The installer handles **everything** automatically. After install, two values should be already set in `~/.telamon/.env`:
+The installer handles **everything** automatically. After install, one value should be already set in `~/.telamon/.env`:
 
 ```dotenv
-# The Ogham DB password
-POSTGRES_PASSWORD=your-secure-password
 # from Obsidian → Settings → Community Plugins → Local REST API
 OBSIDIAN_API_KEY=your-obsidian-api-key
 ```

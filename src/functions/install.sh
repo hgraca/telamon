@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Writes shell environment entries (PATH, OGHAM_PROFILE, OBSIDIAN_API_KEY)
+# Writes shell environment entries (PATH, OBSIDIAN_API_KEY)
 # and the QMD wrapper function to the user's shell RC file.
 # Thin entry point so bin/install.sh can call this as install.sh like all
 # other app installers.

@@ -10,7 +10,6 @@
 #   Docker                     — container runtime
 #   Ollama + nomic-embed-text  — local embeddings
 #   opencode                   — AI coding agent
-#   Ogham MCP + Postgres       — semantic agent memory
 #   Graphify                   — codebase knowledge graph
 #   opencode-codebase-index    — semantic codebase search (MCP)
 #   Repomix                    — pack directories into compressed LLM context
@@ -80,11 +79,9 @@ load_saved_inputs() {
     source "${STATE_DIR}/setup-inputs" 2>/dev/null || true
   fi
 
-  OGHAM_PROFILE="${SAVED_OGHAM_PROFILE:-${dir_name}}"
   PROJECT_NAME="${SAVED_PROJECT_NAME:-${dir_name}}"
-  POSTGRES_PASSWORD="${SAVED_POSTGRES_PASSWORD:-ogham}"
 
-  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
+  export PROJECT_NAME
 
   # Selectively export optional-service flags for install module guards.
   # Do NOT use `set -a; source .env` — it would export OPENAI_API_KEY and other secrets globally.
@@ -130,60 +127,36 @@ collect_inputs() {
   dir_name="$(basename "$(pwd)")"
 
   # ── 1. Load saved state (lowest priority) ─────────────────────────────────
-  local saved_profile="" saved_pg_pass="" saved_project=""
+  local saved_project=""
   if [[ -f "${STATE_DIR}/setup-inputs" ]]; then
     # shellcheck disable=SC1091
     source "${STATE_DIR}/setup-inputs" 2>/dev/null || true
-    saved_profile="${SAVED_OGHAM_PROFILE:-}"
     saved_project="${SAVED_PROJECT_NAME:-}"
-    saved_pg_pass="${SAVED_POSTGRES_PASSWORD:-}"
   fi
 
   # ── 2. Read .ai/telamon/telamon.jsonc (higher priority than saved state) ───────────────
   local ini_project=""
   ini_project="$(config.read_ini "${PWD}/.ai/telamon/telamon.jsonc" "project_name" 2>/dev/null || true)"
 
-  # ── 3. Read .env for POSTGRES_PASSWORD (higher priority than saved state) ──
-  local env_pg_pass=""
-  env_pg_pass="$(_read_env_value "${PWD}/.env" "POSTGRES_PASSWORD" 2>/dev/null || true)"
-
-  # ── 4. Resolve defaults (ini/env > saved > fallback) ──────────────────────
-  local default_project default_profile default_pg_pass
+  # ── 3. Resolve defaults (ini > saved > fallback) ──────────────────────────
+  local default_project
   default_project="${ini_project:-${saved_project:-${dir_name}}}"
-  default_profile="${ini_project:-${saved_profile:-${dir_name}}}"
-  default_pg_pass="${env_pg_pass:-${saved_pg_pass:-ogham}}"
 
-  # ── 5. Prompt only for values we cannot resolve ────────────────────────────
+  # ── 4. Prompt only for values we cannot resolve ────────────────────────────
   local prompted=0
 
   if [[ -n "${ini_project}" ]]; then
     info "Project name from .ai/telamon/telamon.jsonc: ${ini_project}"
-    OGHAM_PROFILE="${ini_project}"
     PROJECT_NAME="${ini_project}"
   else
     prompted=1
-    ask "Ogham memory profile for this project [${default_profile}]:"
-    read -r PROFILE_INPUT
-    OGHAM_PROFILE="${PROFILE_INPUT:-${default_profile}}"
-
     ask "Project display name [${default_project}]:"
     read -r PROJECT_INPUT
     PROJECT_NAME="${PROJECT_INPUT:-${default_project}}"
   fi
 
-  if [[ -n "${env_pg_pass}" && "${env_pg_pass}" != "REPLACE_WITH"* ]]; then
-    info "Postgres password from .env (already set)"
-    POSTGRES_PASSWORD="${env_pg_pass}"
-  else
-    prompted=1
-    ask "Postgres password [${default_pg_pass}]:"
-    read -r -s PG_PASS_INPUT; echo
-    POSTGRES_PASSWORD="${PG_PASS_INPUT:-${default_pg_pass}}"
-  fi
-
   echo
   echo -e "  ${TEXT_BOLD}OS      :${TEXT_CLEAR} $(os.get_os) ($(os.get_arch))"
-  echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
   echo -e "  ${TEXT_BOLD}Project :${TEXT_CLEAR} ${PROJECT_NAME}"
   echo
 
@@ -196,13 +169,11 @@ collect_inputs() {
 
   mkdir -p "${STATE_DIR}"
   cat > "${STATE_DIR}/setup-inputs" <<ENV
-SAVED_OGHAM_PROFILE="${OGHAM_PROFILE}"
 SAVED_PROJECT_NAME="${PROJECT_NAME}"
-SAVED_POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
 ENV
 
   # Export for child scripts
-  export OGHAM_PROFILE PROJECT_NAME POSTGRES_PASSWORD
+  export PROJECT_NAME
 }
 
 # ── print_summary ──────────────────────────────────────────────────────────────
@@ -214,7 +185,6 @@ print_summary() {
   echo
   echo -e "  ${TEXT_BOLD}OS      :${TEXT_CLEAR} $(os.get_os) ($(os.get_arch))"
   echo -e "  ${TEXT_BOLD}Project :${TEXT_CLEAR} ${PROJECT_NAME}"
-  echo -e "  ${TEXT_BOLD}Profile :${TEXT_CLEAR} ${OGHAM_PROFILE}"
   echo
 
   echo -e "  ${TEXT_BOLD}Project init:${TEXT_CLEAR}"
@@ -223,10 +193,7 @@ print_summary() {
   echo
   echo -e "  ${TEXT_BOLD}Verify:${TEXT_CLEAR}"
     echo "    bin/status.sh"
-    echo "    ogham health"
-  echo "    ogham store \"test: setup complete\""
-
-  echo "    graphify --version"
+    echo "    graphify --version"
   echo
   echo -e "  ${TEXT_BOLD}Re-run in a new project:${TEXT_CLEAR}"
   echo "    cd ~/my-next-project && bash $(realpath "$0")"
@@ -243,10 +210,9 @@ print_summary() {
 #           docker itself). Called by `make up` before booting containers.
 PRE_DOCKER_APPS=(homebrew docker discord)
 
-# Phase 2: tools that require the containers to already be running (ogham needs
-#           Postgres; nomic-embed-text model must be in Ollama). Called by
-#           `make up` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode ogham codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli langfuse graphiti diff-context)
+# Phase 2: tools that require the containers to already be running (nomic-embed-text
+#           model must be in Ollama). Called by `make up` after docker compose up.
+POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo obsidian graphify rtk caveman qmd cli langfuse graphiti diff-context)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
@@ -267,7 +233,7 @@ main() {
   echo "  ╔══════════════════════════════════════════════════════╗"
   echo "  ║   Telamon — Harness for Agentic Software Development ║"
   echo "  ║   macOS · Linux Mint · Ubuntu · Debian               ║"
-  echo "  ║   Ogham · Graphify · codebase-index                  ║"
+  echo "  ║   Graphify · codebase-index                          ║"
   echo "  ║   Obsidian MCP · Ollama · Postgres · RTK             ║"
   echo "  ╚══════════════════════════════════════════════════════╝"
   echo -e "${TEXT_CLEAR}"

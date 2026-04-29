@@ -50,19 +50,6 @@ else
   _fail "Docker not installed — run: make up"
 fi
 
-# Postgres container
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^ogham-postgres$"; then
-  _pass "Postgres container running (ogham-postgres)"
-  # Try a real connection test
-  if docker exec ogham-postgres pg_isready -U ogham -d ogham &>/dev/null 2>&1; then
-    _pass "Postgres accepting connections"
-  else
-    _warn "Postgres container running but not yet accepting connections"
-  fi
-else
-  _fail "Postgres container not running — run: make up (or docker compose up -d)"
-fi
-
 # Ollama container
 if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-ollama$"; then
   _pass "Ollama container running (telamon-ollama)"
@@ -171,42 +158,10 @@ _check_binary "uv (Python tool manager)"  "uv"       "uv --version"
 _check_binary "Node.js"                    "node"     "node --version"
 _check_binary "npm"                        "npm"      "npm --version"
 _check_binary "opencode"                   "opencode" "opencode --version"
-_check_binary "ogham"                      "ogham"    "ogham --version"
 _check_binary "graphify"                   "graphify" "graphify --version"
 _check_binary "rtk"                        "rtk"      "rtk --version"
 
-# ── 3. Ogham health ───────────────────────────────────────────────────────────
-header "Ogham (semantic memory)"
-
-if command -v ogham &>/dev/null; then
-  if ogham health &>/dev/null 2>&1; then
-    _pass "Ogham ↔ Postgres: connected"
-  else
-    _fail "Ogham cannot connect to Postgres — run: make up"
-  fi
-else
-  _fail "ogham not installed — run: make up"
-fi
-
-# Test hybrid_search_memories function exists in Postgres
-if docker exec ogham-postgres psql -U ogham -d ogham -tAc \
-  "SELECT proname FROM pg_proc WHERE proname = 'hybrid_search_memories';" 2>/dev/null | grep -q "hybrid_search"; then
-  _pass "Ogham hybrid_search_memories DB function exists"
-else
-  _fail "Ogham hybrid_search_memories DB function missing — run: ogham migrate or uv tool upgrade ogham-mcp"
-fi
-
-# Test Ogham has memories
-ogham_count=$(docker exec ogham-postgres psql -U ogham -d ogham -tAc \
-  "SELECT count(*) FROM memories;" 2>/dev/null || echo "0")
-ogham_count=$(echo "${ogham_count}" | tr -d '[:space:]')
-if [[ "${ogham_count}" -gt 0 ]] 2>/dev/null; then
-  _pass "Ogham memories: ${ogham_count} stored"
-else
-  _warn "Ogham memories: empty (no memories stored yet)"
-fi
-
-# ── 4. QMD (vault semantic search) ────────────────────────────────────────────
+# ── 3. QMD (vault semantic search) ────────────────────────────────────────────
 header "QMD (vault semantic search)"
 
 if command -v qmd &>/dev/null; then
@@ -574,7 +529,6 @@ PYEOF
     fi
   }
 
-  _check_mcp "ogham"
   _check_mcp "codebase-index"
   _check_mcp "obsidian"
   _check_mcp "websearch"
@@ -596,13 +550,6 @@ header "Secrets"
 SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
 if [[ -d "${SECRETS_DIR}" ]]; then
   _pass "storage/secrets/ directory exists"
-  for secret_name in "ogham-database-url"; do
-    if [[ -f "${SECRETS_DIR}/${secret_name}" && -s "${SECRETS_DIR}/${secret_name}" ]]; then
-      _pass "Secret file: ${secret_name}"
-    else
-      _warn "Secret file missing or empty: ${secret_name} — run: make up"
-    fi
-  done
 else
   _fail "storage/secrets/ not found — run: make up"
 fi
@@ -638,13 +585,6 @@ header ".env configuration"
 ENV_FILE="${TELAMON_ROOT}/.env"
 if [[ -f "${ENV_FILE}" ]]; then
   _pass ".env file present"
-
-  pg_pass="$(grep -E "^POSTGRES_PASSWORD=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d '"'"'"' ' || true)"
-  if [[ -n "${pg_pass}" && "${pg_pass}" != "REPLACE_WITH"* ]]; then
-    _pass "POSTGRES_PASSWORD is set"
-  else
-    _warn "POSTGRES_PASSWORD not set in .env — edit .env before running make up"
-  fi
 
   obsidian_key="$(grep -E "^OBSIDIAN_API_KEY=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d '"'"'"' ' || true)"
   if [[ -n "${obsidian_key}" && "${obsidian_key}" != "REPLACE_WITH"* ]]; then

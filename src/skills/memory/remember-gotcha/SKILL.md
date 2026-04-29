@@ -1,7 +1,6 @@
 ---
 name: telamon.remember_gotcha
-description: "Write a gotcha to brain/gotchas.md and Ogham when a trap, constraint, or recurring bug is discovered. 
-Use immediately when hitting a non-obvious problem that others would stumble on."
+description: "Write a gotcha to brain/gotchas.md when a trap, constraint, or recurring bug is discovered. Use immediately when hitting a non-obvious problem that others would stumble on."
 ---
 
 # Remember Gotcha
@@ -35,13 +34,7 @@ Quality criteria (from `telamon.memory_management` skill, section 5):
 - Specific, not generic ("BSD sed requires empty backup arg" not "sed works differently on macOS")
 - Include the *why* — future agents need to understand the mechanism
 
-### 2. Store in Ogham
-
-Use the `telamon.ogham` skill to store the gotcha:
-- Tag: `type:bug`
-- Include the problem statement and fix in content
-
-### 3. Link check
+### 2. Link check
 
 The entry in `.ai/telamon/memory/brain/gotchas.md` must reference context via `[[wikilink]]` 
 if it relates to a known pattern, decision, or other gotcha. If it stands alone, no link is 

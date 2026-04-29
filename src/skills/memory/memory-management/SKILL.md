@@ -54,7 +54,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 - Append -- never replace existing content
 - One entry per insight
 - Include dates in entries
-- When writing to `brain/key_decisions.md` and Graphiti is enabled (`telamon-graphiti` container running): also create a Graphiti entity via `add_episode`
 
 ## 3. Retrieval Rules
 
@@ -63,7 +62,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   - `brain/key_decisions.md` -- read before architecture work or stakeholder answer lookup
   - `brain/patterns.md` -- read before writing new code
   - `brain/gotchas.md` -- read before touching known problem areas
-  - `brain/memories.md` -- search via Ogham or QMD when you need past lessons; do NOT read at session start
+  - `brain/memories.md` -- search via QMD when you need past lessons; do NOT read at session start
 - All other files: search before read; max 3 non-brain notes per task; discard results with relevance score < 0.6
 - For search and read tool usage, load the `telamon.obsidian` skill
 
@@ -71,7 +70,6 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 - Every note must link to at least one existing note via `[[wikilink]]` -- an orphan note is a bug
 - Never write: secrets, API keys, passwords
-- Never write: content duplicating what is already in Ogham
 - Never write: files in the vault root (only subfolders)
 - Never write: agent instructions outside `bootstrap/` expecting auto-load
 - For note creation and update tool usage, load the `telamon.obsidian` skill
@@ -140,14 +138,12 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 1. Promote session learnings to the appropriate `brain/` note
 2. Archive completed `work/active/` notes -> `work/archive/YYYY/`
-3. Save to Ogham -- capture significant decisions, patterns, and bugs
-4. Verify every new vault note has at least one `[[wikilink]]`
-5. Tell the user what was promoted and saved
+3. Verify every new vault note has at least one `[[wikilink]]`
+4. Tell the user what was promoted and saved
 
 ## 9. Memory Tiers (reference)
 
 | Tier      | Store                       | Content                                                      | Writer                               |
 |-----------|-----------------------------|--------------------------------------------------------------|--------------------------------------|
 | Working   | AGENTS.md + session context | Active goals, current task state                             | Human + agent at session start       |
-| Episodic  | Ogham                       | Past actions, bugs, patterns, sessions                       | Agent during/after sessions          |
 | Long-term | brain/ notes                | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |

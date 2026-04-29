@@ -4,24 +4,6 @@ services:
   # IMPORTANT: restart policy is "no" (manual start via `make up` only).
   # Auto-restart is unsafe with ecryptfs-encrypted home directories — Docker
   # starts before login, bind-mount paths resolve to empty dirs, causing data loss.
-  postgres:
-    image: pgvector/pgvector:pg17
-    container_name: ogham-postgres
-    restart: "no"
-    environment:
-      POSTGRES_DB: ogham
-      POSTGRES_USER: ogham
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "127.0.0.1:17432:5432"
-    volumes:
-      - ./storage/pgdata:/var/lib/postgresql/data
-      - ./src/docker/initdb:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ogham"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
 
   # NOTE: Official Ollama image runs as root. Files in storage/ollama/ are
   # root-owned; `make purge` uses `sudo rm` for cleanup.

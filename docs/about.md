@@ -42,7 +42,7 @@ Telamon principles:
 
 | Layer | Tools |
 |---|---|
-| **Persistent memory** | Ogham MCP, Postgres + pgvector, Ollama |
+| **Persistent memory** | Ollama, Obsidian vault |
 | **Codebase understanding** | Graphify (knowledge graph), Codebase Index (semantic search) |
 | **Knowledge vault** | Obsidian MCP, QMD (semantic vault search) |
 | **Token efficiency** | RTK (output compression), Caveman (terse mode) |

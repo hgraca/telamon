@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_session
-description: "Capture everything worth keeping when a session ends. Check watermark, identify what happened, route to brain/ notes, promote or discard thinking/ drafts, update Ogham, verify vault links. Use when wrapping up, ending a session, or going idle."
+description: "Capture everything worth keeping when a session ends. Check watermark, identify what happened, route to brain/ notes, promote or discard thinking/ drafts, verify vault links. Use when wrapping up, ending a session, or going idle."
 ---
 
 # Remember Session
@@ -40,22 +40,17 @@ Append new entries to the appropriate brain/ file per the routing table in the `
 
 Follow the thinking/ lifecycle rules in the `telamon.memory_management` skill (section 7).
 
-## 4. Update Ogham
-
-Use the `telamon.ogham` skill to store anything important not yet captured (decisions, bugs, patterns).
-
-## 5. Verify vault links
+## 4. Verify vault links
 
 New notes must link to at least one existing note via `[[wikilink]]` (see `telamon.memory_management` skill, section 4).
 
-## 6. Update watermark
+## 5. Update watermark
 
 Write/update `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json` with current timestamp.
 
-## 7. Report (manual wrap-up only)
+## 6. Report (manual wrap-up only)
 
 When triggered by user (not automated idle), present:
 - **Captured**: what was added to brain notes and where
 - **Promoted**: what was promoted from thinking/ to brain/
-- **Saved**: what was sent to Ogham
 - **Remaining**: anything left for next session (with thinking/ note)

@@ -8,7 +8,7 @@ nav_section: docs
 Session Capture — Automatic Memory Promotion
 
 An OpenCode plugin that fires after every completed agent turn and on explicit wrap-up.
-Promotes session learnings to the vault's `brain/` notes and Ogham automatically.
+Promotes session learnings to the vault's `brain/` notes automatically.
 
 - Fires after every agent turn; throttled to at most once per 30 minutes
 - Say *"wrap up"* for a full capture pass at any time

@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_lessons_learned
-description: "Capture knowledge as you work. Save decisions, patterns, bugs, and rules to Ogham and brain/ notes the moment they arise. Use continuously during work — do not defer to end of session."
+description: "Capture knowledge as you work. Save decisions, patterns, bugs, and rules to brain/ notes the moment they arise. Use continuously during work — do not defer to end of session."
 ---
 
 # Remember Lessons Learned
@@ -9,14 +9,13 @@ As you work, capture knowledge the moment it arises. Do not defer to end of sess
 
 ## What to save and where
 
-| What happened                            | Ogham (use `telamon.ogham` skill)                                                         |
-|------------------------------------------|-------------------------------------------------------------------------------------------|
-| Decision made (architectural or product) | Store as decision                                                                         |
-| Human stakeholder answers a question     | Store as decision                                                                         |
-| New rule given by stakeholder            | Store as rule                                                                             |
-| Bug fixed (non-trivial)                  | Store as bug. Also use the `telamon.remember_gotcha` skill to write to `brain/gotchas.md` |
-| Pattern established                      | Store as pattern                                                                          |
-| Graphiti enabled?                        | Also save via Graphiti `add_episode`                                                      |
+| What happened | Action |
+|---|---|
+| Decision made (architectural or product) | Append to `brain/key_decisions.md` |
+| Human stakeholder answers a question | Append to `brain/key_decisions.md` |
+| New rule given by stakeholder | Append to `brain/key_decisions.md` |
+| Bug fixed (non-trivial) | Use the `telamon.remember_gotcha` skill to write to `brain/gotchas.md` |
+| Pattern established | Append to `brain/patterns.md` |
 
 For vault routing (which brain/ file to append to), see the `telamon.memory_management` skill (section 2).
 

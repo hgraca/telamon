@@ -6,7 +6,7 @@ nav_section: docs
 ---
 
 Telamon runs entirely on the developer's machine. An MCP layer connects the coding agent to local services
-(Postgres, Ollama, Obsidian) and external integrations (GitHub, browser DevTools).
+(Ollama, Obsidian) and external integrations (GitHub, browser DevTools).
 OpenCode plugins inject context at session start, and host CLI tools handle indexing, search, and compression.
 
 ## System flow
@@ -19,7 +19,6 @@ flowchart TB
         oc["opencode (agent)"] <-->|"MCP protocol"| mcp
 
         subgraph mcp["MCP Layer"]
-            ogham_m["ogham"]
             cbi["codebase-index"]
             obs_m["obsidian"]
             gf_m["graphify"]
@@ -33,7 +32,6 @@ flowchart TB
             rm_m["repomix"]
         end
 
-        mcp --> pg["Postgres + pgvector"]
         mcp --> ol["Ollama :17434"]
         mcp --> vault["Obsidian vault"]
 
@@ -42,7 +40,6 @@ flowchart TB
         subgraph cli["Host CLI Tools"]
             cli_g["graphify"]
             cli_r["rtk"]
-            cli_o["ogham"]
             cli_q["qmd"]
         end
 
@@ -76,7 +73,6 @@ flowchart TB
 
 | Stage                         | Tool                | Role                                                              |
 |-------------------------------|---------------------|-------------------------------------------------------------------|
-| **Session start**             | Ogham               | Recalls past decisions, bugs, and patterns for this project       |
 | **Session start**             | Obsidian `brain/`   | Loads goals, decisions, patterns, and known gotchas               |
 | **Session start**             | QMD                 | Semantic vault search — surfaces related context before diving in |
 | **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections        |
@@ -93,11 +89,11 @@ flowchart TB
 | **GitHub integration**        | GitHub MCP          | Manages issues, PRs, code search, reviews                         |
 | **Writing code**              | RTK                 | Compresses bash output to save tokens                             |
 | **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                         |
-| **After significant work**    | Ogham + Obsidian    | Stores new decisions, patterns, bug fixes                         |
+| **After significant work**    | Obsidian `brain/`   | Stores new decisions, patterns, bug fixes                         |
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review    |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)                  |
 | **On compaction**             | Compaction Save     | Writes compaction timestamp to each active work item              |
-| **End of session**            | Ogham + Obsidian    | Saves session summary; archives completed work notes              |
+| **End of session**            | Obsidian `brain/`   | Saves session summary; archives completed work notes              |
 | **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions                 |
 | **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata          |
 
@@ -112,7 +108,6 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 
 | File                 | Contents                              |
 |----------------------|---------------------------------------|
-| `ogham-database-url` | Postgres connection string for Ogham  |
 | `obsidian-api-key`   | Obsidian Local REST API key           |
 | `graphify-python`    | Path to graphify's Python interpreter |
 | `telamon-root`       | Path to the Telamon root directory    |
@@ -123,11 +118,10 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 
 #### Core (always running)
 
-| Service               | Image                    | Host port                              |
-|-----------------------|--------------------------|----------------------------------------|
-| `ogham-postgres`      | `pgvector/pgvector:pg17` | 17432                                  |
-| `telamon-ollama`      | `ollama/ollama:latest`   | 17434                                  |
-| `telamon-ollama-init` | `ollama/ollama:latest`   | — (one-shot, pulls `nomic-embed-text`) |
+| Service               | Image                  | Host port                              |
+|-----------------------|------------------------|----------------------------------------|
+| `telamon-ollama`      | `ollama/ollama:latest` | 17434                                  |
+| `telamon-ollama-init` | `ollama/ollama:latest` | — (one-shot, pulls `nomic-embed-text`) |
 
 > **Obsidian MCP** runs on-demand via `docker run` (not persistent) so it doesn't crash when Obsidian isn't running.
 
@@ -215,8 +209,6 @@ src/
     compaction-save.js       # saves compaction timestamps to active work items
     lib/
       readme-utils.js        # shared utilities for README.md parsing
-  docker/
-    initdb/                  # Postgres init scripts (run on first container start)
   skills/
     memory/                  # memory & context management skills
     dev/                     # development convention skills
@@ -233,7 +225,6 @@ src/
     docker/                  # Docker installer
     python/                  # Python (uv) installer
     nodejs/                  # Node.js installer
-    ogham/                   # Ogham binary + config + FlashRank reranking
     graphify/                # Graphify binary + MCP wrapper + scheduled updates + plugin
     graphiti/                # Graphiti + Neo4j setup (optional, profile-gated)
     langfuse/                # Langfuse observability stack (optional, profile-gated)
@@ -260,7 +251,6 @@ storage/                     # runtime data — git-ignored except opencode.json
   opencode.jsonc             # shared opencode config (tracked); projects symlink to this
   secrets/                   # one plain-text file per secret (git-ignored)
   state/                     # installer state (saved inputs, completed steps)
-  pgdata/                    # Postgres data volume
   ollama/                    # Ollama model cache
   graphify/                  # Graphify output cache
   qmd/                       # QMD index and cache

@@ -153,10 +153,6 @@ title: Telamon
     </div>
     <div class="feature-grid">
       <div class="feature-card">
-        <h3>Ogham MCP + Postgres</h3>
-        <p>Semantic vector store for agent memory. Stores decisions, patterns, and bugs as embeddings.</p>
-      </div>
-      <div class="feature-card">
         <h3>Graphify</h3>
         <p>Structural knowledge graph auto-built from your codebase. Updated every 30 minutes.</p>
       </div>

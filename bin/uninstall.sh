@@ -11,11 +11,10 @@
 #   2. docker compose down -v --remove-orphans
 #   3. Remove docker volume data dirs from storage/
 #   4. Remove ALL scheduled jobs (all graphify-update-* timers)
-#   5. Uninstall tools: ogham-mcp, graphifyy, qmd, opencode-ai
-#   6. Remove ~/.ogham/config.env
-#   7. Remove shell RC modifications (the telamon block)
-#   8. Remove ALL storage/ contents
-#   9. Remove Telamon root directory
+#   5. Uninstall tools: graphifyy, qmd, opencode-ai
+#   6. Remove shell RC modifications (the telamon block)
+#   7. Remove ALL storage/ contents
+#   8. Remove Telamon root directory
 # =============================================================================
 
 set -euo pipefail
@@ -92,7 +91,7 @@ fi
 
 # ── 2. Remove docker volume data dirs ─────────────────────────────────────────
 header "Removing Docker volume data"
-DOCKER_DIRS=(pgdata ollama graphify langfuse-pgdata langfuse-clickhouse neo4j-data)
+DOCKER_DIRS=(ollama graphify langfuse-pgdata langfuse-clickhouse neo4j-data)
 for dir in "${DOCKER_DIRS[@]}"; do
   path="${TELAMON_ROOT}/storage/${dir}"
   if [[ -d "${path}" ]]; then
@@ -181,7 +180,6 @@ _uninstall_brew() {
   fi
 }
 
-_uninstall_uv_tool "ogham-mcp"
 _uninstall_uv_tool "graphifyy"
 _uninstall_npm_global "@tobilu/qmd"
 _uninstall_npm_global "opencode-ai"
@@ -198,24 +196,7 @@ else
   warn "brew not found — skipping tap removal"
 fi
 
-# ── 5. Remove ogham config ────────────────────────────────────────────────────
-header "Removing ogham config"
-OGHAM_CONFIG="${HOME}/.ogham/config.env"
-step "Removing ${OGHAM_CONFIG}..."
-if [[ -f "${OGHAM_CONFIG}" ]]; then
-  rm -f "${OGHAM_CONFIG}"
-  log "Removed: ~/.ogham/config.env"
-  REMOVED+=("~/.ogham/config.env")
-  # Remove ~/.ogham/ if now empty
-  if [[ -d "${HOME}/.ogham" ]] && [[ -z "$(ls -A "${HOME}/.ogham" 2>/dev/null)" ]]; then
-    rmdir "${HOME}/.ogham"
-    log "Removed empty dir: ~/.ogham/"
-  fi
-else
-  skip "~/.ogham/config.env (not found)"
-fi
-
-# ── 6. Remove shell RC modifications ─────────────────────────────────────────
+# ── 5. Remove shell RC modifications ─────────────────────────────────────────
 header "Removing shell RC modifications"
 
 # Determine shell RC file (same logic as write-env.sh)

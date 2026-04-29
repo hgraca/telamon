@@ -11,7 +11,6 @@
 #   - storage/graphify/<proj>/   (graph data)
 #   - QMD collections: <proj>-brain, <proj>-work, <proj>-project-rules,
 #                      <proj>-reference, <proj>-thinking
-#   - Ogham memories for profile <proj> (Postgres)
 # =============================================================================
 
 set -euo pipefail
@@ -106,16 +105,6 @@ else
       skip "QMD collection ${name} (not found)"
     fi
   done
-fi
-
-# ── Step 5: remove Ogham memories for project profile ─────────────────────────
-step "Removing Ogham memories for profile: ${PROJECT_NAME}..."
-if docker exec ogham-postgres psql -U ogham -d ogham -c "DELETE FROM memories WHERE profile = '${PROJECT_NAME}'" 2>/dev/null; then
-  log "Removed Ogham memories for profile: ${PROJECT_NAME}"
-else
-  warn "Failed to remove Ogham memories — Postgres may not be running"
-  info "Start services with 'make up' and re-run, or delete manually:"
-  info "  docker exec ogham-postgres psql -U ogham -d ogham -c \"DELETE FROM memories WHERE profile = '${PROJECT_NAME}'\""
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────

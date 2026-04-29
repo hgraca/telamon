@@ -22,4 +22,4 @@ The core problem was indexing cost. Session transcripts grow quickly, and Cass's
 synchronous triggers nor lightweight enough for frequent background runs. On a typical development machine already 
 running Postgres, Ollama, Docker, and an LLM-backed agent, adding another heavy periodic process caused noticeable slowdowns.
 
-**Replacement:** The `recover-memories` functionality in the recall-memories skill now serves the session history search use case, using Ogham's semantic search over memories promoted by session-capture.
+**Replacement:** The `recover-memories` functionality in the recall-memories skill now serves the session history search use case, using semantic search over memories promoted by session-capture.
