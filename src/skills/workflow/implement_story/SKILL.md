@@ -48,6 +48,7 @@ For each task in the backlog:
 1. **Test** — Delegate to @tester:
    - Create a test for each acceptance criterion
    - Create additional automated tests deemed necessary
+   - When tests involve parsing structured text (frontmatter, markdown, YAML, config files), always include edge cases: valid input, missing/absent structure, and malformed structure (e.g., test with frontmatter, without frontmatter, and with malformed frontmatter).
    - For infrastructure tasks (shell scripts, YAML configs, markdown) where unit tests don't apply, create a simple integration test (e.g., `test-init.sh` pattern) that validates the install/init/doctor chain programmatically. If no integration test is feasible, document why in the session report.
    - Save session report to task folder, signal FINISHED with report
 
@@ -55,6 +56,7 @@ For each task in the backlog:
    - Implement the task following the plan
    - Ensure tests pass before considering the task complete
    - **Commit the changeset** before signalling FINISHED — use `git add <specific-files>` (never `git add -A` or `git add .`), verify `git diff --staged --stat`, then commit with a clear message
+   - If the task introduces a new user-facing feature (plugin, tool, command, skill), create a documentation page even if the task description doesn't explicitly require it. Follow existing doc structure in `docs/`.
    - Signal FINISHED
 
 3. **Review** — When Developer is finished, delegate to @reviewer:
@@ -91,6 +93,8 @@ When all tasks are done:
 - Include concrete class signatures, constructor parameters, file paths, and dependency details from the existing codebase.
 - Include only context relevant to the specific task — not the entire project context. Summarize large files. Load one skill per delegation.
 - All code changes — including trivial review fixes — must be delegated to the Developer. The orchestrator must never apply code changes directly.
+- When delegating plugins or JS/TS code, state the project's import conventions explicitly (e.g., "Use bare `fs`/`path` imports, not `node:fs`/`node:path`"). Reference existing plugin files as style examples.
+- When delegating code that loops over filesystem operations (readFileSync, writeFileSync, readdirSync), explicitly require: "Wrap filesystem operations in try/catch — a single failure must not abort the entire loop." Point to reference implementations that demonstrate this pattern.
 
 ## Exception Handling
 
