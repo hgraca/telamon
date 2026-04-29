@@ -1,10 +1,13 @@
 name: telamon
 
 services:
+  # IMPORTANT: restart policy is "no" (manual start via `make up` only).
+  # Auto-restart is unsafe with ecryptfs-encrypted home directories — Docker
+  # starts before login, bind-mount paths resolve to empty dirs, causing data loss.
   postgres:
     image: pgvector/pgvector:pg17
     container_name: ogham-postgres
-    restart: unless-stopped
+    restart: "no"
     environment:
       POSTGRES_DB: ogham
       POSTGRES_USER: ogham
@@ -25,7 +28,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: telamon-ollama
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "127.0.0.1:17434:11434"
     volumes:
@@ -40,7 +43,7 @@ services:
     image: ollama/ollama:latest
     container_name: telamon-ollama-init
     # on-failure: retry model pull if it fails (network timeout, Ollama not ready)
-    restart: on-failure
+    restart: "no"
     depends_on:
       ollama:
         condition: service_healthy
@@ -54,7 +57,7 @@ services:
   langfuse-db:
     image: postgres:16
     container_name: telamon-langfuse-db
-    restart: unless-stopped
+    restart: "no"
     profiles: [langfuse]
     environment:
       POSTGRES_DB: langfuse
@@ -73,7 +76,7 @@ services:
   langfuse-redis:
     image: redis:7-alpine
     container_name: telamon-langfuse-redis
-    restart: unless-stopped
+    restart: "no"
     profiles: [langfuse]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -84,7 +87,7 @@ services:
   langfuse-clickhouse:
     image: clickhouse/clickhouse-server:latest
     container_name: telamon-langfuse-clickhouse
-    restart: unless-stopped
+    restart: "no"
     profiles: [langfuse]
     volumes:
       - ./storage/langfuse-clickhouse:/var/lib/clickhouse
@@ -97,7 +100,7 @@ services:
   langfuse-web:
     image: langfuse/langfuse:latest
     container_name: telamon-langfuse-web
-    restart: unless-stopped
+    restart: "no"
     profiles: [langfuse]
     depends_on:
       langfuse-db:
@@ -125,7 +128,7 @@ services:
   neo4j:
     image: neo4j:5
     container_name: telamon-neo4j
-    restart: unless-stopped
+    restart: "no"
     profiles: [graphiti]
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
@@ -143,7 +146,7 @@ services:
   graphiti:
     image: zepai/graphiti:latest
     container_name: telamon-graphiti
-    restart: unless-stopped
+    restart: "no"
     profiles: [graphiti]
     depends_on:
       neo4j:
