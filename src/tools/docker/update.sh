@@ -17,6 +17,6 @@ if ! command -v docker &>/dev/null || ! docker info &>/dev/null 2>&1; then
 fi
 
 step "Pulling latest Docker images..."
-(cd "${TELAMON_ROOT}" && docker compose pull --quiet 2>/dev/null) \
+(cd "${TELAMON_ROOT}" && docker compose pull) \
   && log "Docker images updated" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  Docker image pull failed"; exit 1; }

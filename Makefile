@@ -114,6 +114,11 @@ install: ## Install all Telamon tools (first-time setup or reinstall)
 	@test -f .telamon.jsonc || cp .telamon.dist.jsonc .telamon.jsonc
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
 	bash bin/install.sh --pre-docker
+	echo -e "\n\033[1m\033[34m━━━ Pulling Docker images... ━━━\033[0m"
+	docker compose \
+		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
+		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
+		pull
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
 	docker compose \
 		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
