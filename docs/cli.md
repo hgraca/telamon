@@ -151,19 +151,20 @@ Remote modules use a `"url"` field; local modules use a `"local_path"` field. A 
 
 The `telamon` CLI is a thin wrapper around `make` targets. When running from the Telamon directory, you can use `make` directly:
 
-| Target                   | Description                                |
-|--------------------------|--------------------------------------------|
-| `make up`                | Install host tools + start Docker services |
-| `make down`              | Stop Docker services                       |
-| `make restart`           | Stop then start                            |
-| `make status`            | Quick installation status                  |
-| `make doctor`            | Comprehensive health check                 |
-| `make update`            | Upgrade all tools                          |
-| `make init PROJ=<path>`  | Initialise a project                       |
-| `make reset PROJ=<path>` | Remove project wiring, keep storage        |
-| `make purge PROJ=<path>` | Remove wiring and storage                  |
-| `make uninstall`         | Completely remove Telamon                  |
-| `make test`              | Run the full test suite                    |
+| Target                   | Description                                        |
+|--------------------------|----------------------------------------------------|
+| `make install`           | Full installation (first-time setup or reinstall)  |
+| `make up`                | Boot services (no installation)                    |
+| `make down`              | Stop Docker services                               |
+| `make restart`           | Stop then start                                    |
+| `make status`            | Quick installation status                          |
+| `make doctor`            | Comprehensive health check                         |
+| `make update`            | Upgrade all tools + install any missing            |
+| `make init PROJ=<path>`  | Initialise a project                               |
+| `make reset PROJ=<path>` | Remove project wiring, keep storage                |
+| `make purge PROJ=<path>` | Remove wiring and storage                          |
+| `make uninstall`         | Completely remove Telamon                          |
+| `make test`              | Run the full test suite                            |
 
 > `make init`, `make reset`, and `make purge` require the `PROJ=` argument. Use the `telamon` CLI for the default-to-cwd convenience.
 
@@ -171,7 +172,7 @@ The `telamon` CLI is a thin wrapper around `make` targets. When running from the
 
 ## CLI installation
 
-The `telamon` CLI is installed automatically as part of `make up`. It creates:
+The `telamon` CLI is installed automatically as part of `make install`. It creates:
 
 - **Symlink**: `~/.local/bin/telamon` → `<telamon-root>/bin/telamon`
 - **Linux menu entry**: `~/.local/share/applications/telamon.desktop`

@@ -17,7 +17,14 @@
 #   RTK                        — token compression proxy
 #
 # Usage:
-#   bin/install.sh [--pre-docker|--post-docker]
+#   bin/install.sh                  # full install (interactive)
+#   bin/install.sh --pre-docker     # phase 1 only: package managers + docker
+#   bin/install.sh --post-docker    # phase 2 only: all tools that need containers
+#
+# Lifecycle:
+#   make install  — runs this script (full install + boots services)
+#   make up       — boots services only (no installation)
+#   make update   — upgrades tools; installs any that are missing
 # =============================================================================
 
 set -euo pipefail
@@ -206,11 +213,11 @@ print_summary() {
 
 # ── Installation phases ────────────────────────────────────────────────────────
 # Phase 1: tools that must exist BEFORE docker compose up (package managers,
-#           docker itself). Called by `make up` before booting containers.
+#           docker itself). Called by `make install` before booting containers.
 PRE_DOCKER_APPS=(homebrew docker discord)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
-#           model must be in Ollama). Called by `make up` after docker compose up.
+#           model must be in Ollama). Called by `make install` after docker compose up.
 POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd cli langfuse graphiti diff-context)
 
 pre_docker() {

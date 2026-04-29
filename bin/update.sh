@@ -2,6 +2,7 @@
 # =============================================================================
 # bin/update.sh
 # Upgrade all Telamon-managed tools to their latest versions.
+# If a tool is not installed (update.sh exits 2), attempts to install it.
 #
 # Usage:
 #   bin/update.sh
@@ -28,6 +29,7 @@ echo -e "${TEXT_CLEAR}"
 
 FAILED=0
 SKIPPED=0
+INSTALLED=0
 
 # ── Telamon repo self-update ───────────────────────────────────────────────────────
 header "Telamon repo"
@@ -320,7 +322,7 @@ done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/nu
 # Each src/tools/<app>/update.sh exits:
 #   0 — success
 #   1 — failure
-#   2 — tool not installed (skip)
+#   2 — tool not installed → fall through to install.sh
 UPDATE_APPS=(homebrew docker opencode graphify codebase-index caveman rtk nodejs qmd repomix promptfoo discord)
 
 for _app in "${UPDATE_APPS[@]}"; do
@@ -333,7 +335,21 @@ for _app in "${UPDATE_APPS[@]}"; do
   _rc=$?
   case "${_rc}" in
     0) : ;;                               # success — nothing to tally
-    2) SKIPPED=$((SKIPPED + 1)) ;;       # not installed
+    2)                                     # not installed — attempt install
+      _install_script="${TOOLS_PATH}/${_app}/install.sh"
+      if [[ -f "${_install_script}" ]]; then
+        step "Installing missing tool: ${_app} ..."
+        timed_run "${_app}" bash "${_install_script}" && true
+        _irc=$?
+        if [[ "${_irc}" -ne 0 ]]; then
+          FAILED=$((FAILED + 1))
+        else
+          INSTALLED=$((INSTALLED + 1))
+        fi
+      else
+        SKIPPED=$((SKIPPED + 1))
+      fi
+      ;;
     *) FAILED=$((FAILED + 1)) ;;         # any other non-zero = failure
   esac
 done
@@ -493,9 +509,10 @@ echo -e "${TEXT_BOLD}${TEXT_GREEN}═══════════════�
 echo -e "${TEXT_BOLD}  Update complete${TEXT_CLEAR}"
 echo -e "${TEXT_BOLD}${TEXT_GREEN}══════════════════════════════════════════${TEXT_CLEAR}"
 echo
-[[ "${SKIPPED}" -gt 0 ]] && echo -e "  ${TEXT_DIM}–  Skipped ${SKIPPED} tool(s) not installed on this machine${TEXT_CLEAR}"
-[[ "${FAILED}"  -gt 0 ]] && echo -e "  ${TEXT_RED}✖  ${FAILED} upgrade(s) failed — see above for details${TEXT_CLEAR}"
-[[ "${FAILED}"  -eq 0 ]] && echo -e "  ${TEXT_GREEN}✔  All installed tools are up to date${TEXT_CLEAR}"
+[[ "${INSTALLED}" -gt 0 ]] && echo -e "  ${TEXT_GREEN}+  Installed ${INSTALLED} missing tool(s)${TEXT_CLEAR}"
+[[ "${SKIPPED}"  -gt 0 ]] && echo -e "  ${TEXT_DIM}–  Skipped ${SKIPPED} tool(s) (no install.sh available)${TEXT_CLEAR}"
+[[ "${FAILED}"   -gt 0 ]] && echo -e "  ${TEXT_RED}✖  ${FAILED} upgrade(s) failed — see above for details${TEXT_CLEAR}"
+[[ "${FAILED}"   -eq 0 ]] && echo -e "  ${TEXT_GREEN}✔  All tools are up to date${TEXT_CLEAR}"
 echo -e "  ${TEXT_DIM}⏱  Total update time: $(_fmt_duration ${SECONDS})${TEXT_CLEAR}"
 echo
 

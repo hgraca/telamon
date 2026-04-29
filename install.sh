@@ -75,15 +75,15 @@ main() {
     log "Cloned ${REPO_URL} (branch: ${TELAMON_BRANCH})"
   fi
 
-  # ── Run make up ─────────────────────────────────────────────────────────────
+  # ── Run make install ─────────────────────────────────────────────────────────
   header "Running setup"
 
-  step "Running make up — this may take a few minutes..."
-  # If make up fails, leave the repo intact so the user can fix and retry.
-  if ! make -C "${TELAMON_DIR}" up; then
+  step "Running make install — this may take a few minutes..."
+  # If make install fails, leave the repo intact so the user can fix and retry.
+  if ! make -C "${TELAMON_DIR}" install; then
     echo -e ""
-    warn "make up failed. The repository is still at ${TELAMON_DIR}."
-    warn "Fix the issue above, then run: make -C \"${TELAMON_DIR}\" up"
+    warn "make install failed. The repository is still at ${TELAMON_DIR}."
+    warn "Fix the issue above, then run: make -C \"${TELAMON_DIR}\" install"
     exit 1
   fi
 

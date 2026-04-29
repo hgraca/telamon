@@ -238,7 +238,7 @@ if [[ "${OPENCODE_LINK}" != "__skip__" ]]; then
   if [[ -n "${EXISTING_FILE}" ]]; then
     # Project already has its own config — merge Telamon settings into it
     if [[ ! -f "${OPENCODE_TARGET}" ]]; then
-      warn "storage/opencode.jsonc not found — run 'make up' first; skipping merge"
+      warn "storage/opencode.jsonc not found — run 'make install' first; skipping merge"
     else
       step "Merging Telamon config into $(basename "${EXISTING_FILE}") ..."
       python3 "${MERGE_SCRIPT}" "${EXISTING_FILE}" "${OPENCODE_TARGET}"
@@ -246,7 +246,7 @@ if [[ "${OPENCODE_LINK}" != "__skip__" ]]; then
   else
     # No config exists — create symlink
     if [[ ! -f "${OPENCODE_TARGET}" ]]; then
-      warn "storage/opencode.jsonc not found — run 'make up' first to create it"
+      warn "storage/opencode.jsonc not found — run 'make install' first to create it"
     else
       ln -s "${OPENCODE_TARGET}" "${PROJ}/opencode.jsonc"
       log "Symlinked opencode.jsonc → ${OPENCODE_TARGET}"

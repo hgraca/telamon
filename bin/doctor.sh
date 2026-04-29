@@ -47,7 +47,7 @@ if command -v docker &>/dev/null; then
     _fail "Docker installed but daemon is not running — run: sudo systemctl start docker"
   fi
 else
-  _fail "Docker not installed — run: make up"
+  _fail "Docker not installed — run: make install"
 fi
 
 # Ollama container
@@ -92,14 +92,14 @@ if env.is_enabled LANGFUSE_ENABLED; then
     if [[ -n "${lf_secret}" && "${lf_secret}" != "REPLACE_WITH"* ]]; then
       _pass "LANGFUSE_SECRET is set"
     else
-      _warn "LANGFUSE_SECRET not set in .env — run: make up"
+      _warn "LANGFUSE_SECRET not set in .env — run: make install"
     fi
 
     lf_salt="$(grep -E "^LANGFUSE_SALT=" "${ENV_FILE_LF}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
     if [[ -n "${lf_salt}" && "${lf_salt}" != "REPLACE_WITH"* ]]; then
       _pass "LANGFUSE_SALT is set"
     else
-      _warn "LANGFUSE_SALT not set in .env — run: make up"
+      _warn "LANGFUSE_SALT not set in .env — run: make install"
     fi
   fi
 fi
@@ -133,7 +133,7 @@ if env.is_enabled GRAPHITI_ENABLED; then
     if [[ -n "${neo4j_pass}" && "${neo4j_pass}" != "REPLACE_WITH"* ]]; then
       _pass "NEO4J_PASSWORD is set"
     else
-      _warn "NEO4J_PASSWORD not set in .env — run: make up"
+      _warn "NEO4J_PASSWORD not set in .env — run: make install"
     fi
   fi
 fi
@@ -150,7 +150,7 @@ _check_binary() {
     fi
     _pass "${name}${ver}"
   else
-    _fail "${name} not found — run: make up"
+    _fail "${name} not found — run: make install"
   fi
 }
 
@@ -185,7 +185,7 @@ if command -v qmd &>/dev/null; then
     fi
   done
 else
-  _fail "QMD binary not found — run: make up"
+  _fail "QMD binary not found — run: make install"
 fi
 
 # ── 4. Codebase Index ──────────────────────────────────────────────────────────
@@ -285,7 +285,7 @@ header "Graphify (knowledge graph)"
 if command -v graphify &>/dev/null; then
   _pass "Graphify binary installed ($(graphify --version 2>/dev/null || echo '?'))"
 else
-  _fail "Graphify binary not found — run: make up"
+  _fail "Graphify binary not found — run: make install"
 fi
 
 # Check graphify Python path stored
@@ -297,7 +297,7 @@ if [[ -f "${TELAMON_ROOT}/storage/secrets/graphify-python" ]]; then
     _warn "Graphify Python interpreter not executable: ${GRAPHIFY_PY}"
   fi
 else
-  _warn "Graphify Python path not stored — run: make up"
+  _warn "Graphify Python path not stored — run: make install"
 fi
 
 # Check graphify-out symlink
@@ -439,7 +439,7 @@ header "opencode config"
 # Check root symlink
 ROOT_CONFIG="${TELAMON_ROOT}/opencode.jsonc"
 if [[ -L "${ROOT_CONFIG}" && ! -e "${ROOT_CONFIG}" ]]; then
-  _warn "opencode.jsonc is a dangling symlink — run: make up"
+  _warn "opencode.jsonc is a dangling symlink — run: make install"
 elif [[ -L "${ROOT_CONFIG}" ]]; then
   _pass "opencode.jsonc symlink"
 elif [[ -f "${ROOT_CONFIG}" ]]; then
@@ -468,7 +468,7 @@ PYEOF
     then
       _pass "MCP server registered: ${name}"
     else
-      _warn "MCP server '${name}' not in storage/opencode.jsonc — run: make up"
+      _warn "MCP server '${name}' not in storage/opencode.jsonc — run: make install"
     fi
   }
 
@@ -483,7 +483,7 @@ PYEOF
     _check_mcp "graphiti"
   fi
 else
-  _fail "storage/opencode.jsonc missing — run: make up"
+  _fail "storage/opencode.jsonc missing — run: make install"
 fi
 
 # ── 10. Secrets ────────────────────────────────────────────────────────────────
@@ -493,7 +493,7 @@ SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
 if [[ -d "${SECRETS_DIR}" ]]; then
   _pass "storage/secrets/ directory exists"
 else
-  _fail "storage/secrets/ not found — run: make up"
+  _fail "storage/secrets/ not found — run: make install"
 fi
 
 # ── 11. Telamon storage layout ─────────────────────────────────────────────────
@@ -503,7 +503,7 @@ for d in "storage" "storage/state"; do
   if [[ -d "${TELAMON_ROOT}/${d}" ]]; then
     _pass "${d}/ exists"
   else
-    _fail "${d}/ missing — run: make up"
+    _fail "${d}/ missing — run: make install"
   fi
 done
 
@@ -534,14 +534,14 @@ if [[ -f "${ENV_FILE}" ]]; then
     if [[ -n "${lf_secret_env}" && "${lf_secret_env}" != "REPLACE_WITH"* ]]; then
       _pass "LANGFUSE_SECRET is set (.env)"
     else
-      _warn "LANGFUSE_SECRET not set in .env — run: make up"
+      _warn "LANGFUSE_SECRET not set in .env — run: make install"
     fi
 
     lf_salt_env="$(grep -E "^LANGFUSE_SALT=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
     if [[ -n "${lf_salt_env}" && "${lf_salt_env}" != "REPLACE_WITH"* ]]; then
       _pass "LANGFUSE_SALT is set (.env)"
     else
-      _warn "LANGFUSE_SALT not set in .env — run: make up"
+      _warn "LANGFUSE_SALT not set in .env — run: make install"
     fi
   fi
 
@@ -550,11 +550,11 @@ if [[ -f "${ENV_FILE}" ]]; then
     if [[ -n "${neo4j_pass_env}" && "${neo4j_pass_env}" != "REPLACE_WITH"* ]]; then
       _pass "NEO4J_PASSWORD is set (.env)"
     else
-      _warn "NEO4J_PASSWORD not set in .env — run: make up"
+      _warn "NEO4J_PASSWORD not set in .env — run: make install"
     fi
   fi
 else
-  _fail ".env not found — run: make up  (it copies .env.dist → .env automatically)"
+  _fail ".env not found — run: make install  (it copies .env.dist → .env automatically)"
 fi
 
 # ── Summary ────────────────────────────────────────────────────────────────────
@@ -566,7 +566,7 @@ elif [[ "${FAIL}" -eq 0 ]]; then
   echo -e "${TEXT_YELLOW}${TEXT_BOLD}  ⚠  ${PASS} passed, ${WARN_COUNT} warning(s). Telamon is mostly healthy.${TEXT_CLEAR}"
 else
   echo -e "${TEXT_RED}${TEXT_BOLD}  ✖  ${FAIL} failure(s), ${WARN_COUNT} warning(s), ${PASS} passed.${TEXT_CLEAR}"
-  echo -e "${TEXT_RED}${TEXT_BOLD}     Run 'make up' to fix failures.${TEXT_CLEAR}"
+  echo -e "${TEXT_RED}${TEXT_BOLD}     Run 'make install' to fix failures.${TEXT_CLEAR}"
 fi
 echo -e "${TEXT_BOLD}────────────────────────────────────────────────${TEXT_CLEAR}"
 echo -e "  ${TEXT_DIM}If any problem persists, start opencode and ask it to help debug the issue.${TEXT_CLEAR}"

@@ -109,7 +109,7 @@ help:  ## Show this help
 		fi \
 	done
 
-up: ## Start Telamon: install host tools, then bring docker compose services up
+install: ## Install all Telamon tools (first-time setup or reinstall)
 	@test -f .env || cp .env.dist .env
 	@test -f .telamon.jsonc || cp .telamon.dist.jsonc .telamon.jsonc
 	echo -e "\n\033[1m\033[34m━━━ Installing prerequisites (homebrew, docker)... ━━━\033[0m"
@@ -121,6 +121,30 @@ up: ## Start Telamon: install host tools, then bring docker compose services up
 		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
+	@echo -e "\n\033[1m\033[34m━━━ Starting Discord Bot... ━━━\033[0m"
+	@if grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1 && command -v remote-opencode >/dev/null 2>&1; then \
+		if [ -f storage/remote-opencode.pid ] && kill -0 "$$(cat storage/remote-opencode.pid)" 2>/dev/null; then \
+			echo "  ✓ remote-opencode already running (PID $$(cat storage/remote-opencode.pid))"; \
+		else \
+			nohup remote-opencode start >storage/remote-opencode.log 2>&1 & \
+			echo "$$!" > storage/remote-opencode.pid; \
+			echo "  ✓ remote-opencode launched (PID $$!)"; \
+		fi; \
+	elif grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1; then \
+		echo "  ⚠ remote-opencode not found — run: npm install -g remote-opencode && remote-opencode setup"; \
+	else \
+		echo "  – Discord Bot (disabled)"; \
+	fi
+	echo -e "\n\033[1m\033[34m━━━ Telamon installed and running. ━━━\033[0m\n"
+	$(MAKE) status
+
+up: ## Boot Telamon services (does not install — use 'make install' for first-time setup)
+	@test -f .env || { echo "Error: .env not found. Run 'make install' first."; exit 1; }
+	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
+	docker compose \
+		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
+		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
+		up -d --no-recreate
 	@echo -e "\n\033[1m\033[34m━━━ Starting Discord Bot... ━━━\033[0m"
 	@if grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1 && command -v remote-opencode >/dev/null 2>&1; then \
 		if [ -f storage/remote-opencode.pid ] && kill -0 "$$(cat storage/remote-opencode.pid)" 2>/dev/null; then \
@@ -185,9 +209,9 @@ init: ## Initialise a project to use Telamon  (usage: make init PROJ=path/to/pro
 	echo -e "\n\033[1m\033[34m━━━ Initialising project: $(PROJ) ━━━\033[0m"
 	bash bin/init.sh "$(PROJ)"
 
-test: ## Run the full test suite (make up + init a dummy project + assert wiring)
-	@echo -e "\n\033[1m\033[34m━━━ Step 1/3: Ensuring Telamon is up... ━━━\033[0m"
-	$(MAKE) up
+test: ## Run the full test suite (install + init a dummy project + assert wiring)
+	@echo -e "\n\033[1m\033[34m━━━ Step 1/3: Ensuring Telamon is installed and running... ━━━\033[0m"
+	$(MAKE) install
 	@echo -e "\n\033[1m\033[34m━━━ Step 2/3: Running make init on a fresh dummy project... ━━━\033[0m"
 	rm -rf tmp/test-proj
 	mkdir -p tmp/test-proj

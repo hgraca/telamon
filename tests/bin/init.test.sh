@@ -329,7 +329,7 @@ done
 if [[ -z "${OPENCODE_CONFIG}" ]]; then
   # Check if storage/opencode.jsonc exists — if not, this is expected pre-make-up
   if [[ ! -f "${TELAMON_ROOT}/storage/opencode.jsonc" ]]; then
-    _warn "opencode.jsonc skipped — storage/opencode.jsonc does not exist yet (run 'make up' first)"
+    _warn "opencode.jsonc skipped — storage/opencode.jsonc does not exist yet (run 'make install' first)"
   else
     _fail "opencode.jsonc or opencode.json — neither found in project root"
   fi

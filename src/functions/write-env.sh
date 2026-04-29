@@ -93,7 +93,7 @@ else
 
 ${QMD_MARKER}
 # Redirect QMD cache to Telamon's centralised storage directory.
-# XDG_CACHE_HOME must be absolute; path is refreshed by 'make up'.
+# XDG_CACHE_HOME must be absolute; path is refreshed by 'make install'.
 qmd() { XDG_CACHE_HOME="${QMD_STORAGE}" command qmd "\$@"; }
 SH
   log "QMD shell wrapper added to ${SHELL_RC}"

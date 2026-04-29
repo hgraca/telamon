@@ -102,13 +102,16 @@ See [Commands → recover-memories](cli.md#recover-memories) for all flags, opti
 
 ### What the installer does
 
-The curl script clones the repository to `~/.telamon` and runs `make up`, which:
+The curl script clones the repository to `~/.telamon` and runs `make install`, which:
 
 1. Copies `.env.dist` → `.env` (if not present)
 2. Installs prerequisite host tools (Homebrew, Docker) — pre-docker phase
 3. Starts Docker services (Ollama)
 4. Installs remaining tools (opencode, Graphify, RTK, codebase-index) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry
+
+After installation, use `make up` to boot services and `make down` to stop them (no re-installation).
+Use `make update` to upgrade all tools and install any that are missing.
 
 If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer reads it silently (no prompts).
 

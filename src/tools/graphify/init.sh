@@ -7,7 +7,7 @@
 # and never scattered across the project tree.
 #
 # The plugin entry (".opencode/plugins/telamon/graphify.js") is already present in
-# storage/opencode.jsonc (added by graphify/install.sh during `make up`).
+# storage/opencode.jsonc (added by graphify/install.sh during `make install`).
 # Projects receive the plugin JS via the .opencode/plugins/telamon symlink created
 # by `make init` — no copying is needed.
 # For projects with their own opencode config it flows in via merge-config.py

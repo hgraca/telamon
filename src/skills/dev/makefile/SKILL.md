@@ -19,9 +19,11 @@ Never bypass the Makefile. Extend it if lifecycle changes are required.
 
 ## Lifecycle commands
 
-- `make up`: Start the development environment
+- `make install`: Full installation (first-time setup or reinstall)
+- `make up`: Boot services (no installation)
 - `make run CMD='...'`: Run a command inside the application container
 - `make down`: Stop the development environment
+- `make update`: Upgrade all tools + install any missing
 
 ## See also
 

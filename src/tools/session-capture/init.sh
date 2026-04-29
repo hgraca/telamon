@@ -2,7 +2,7 @@
 # Session-capture project setup.
 #
 # The plugin entry (".opencode/plugins/telamon/session-capture.js") is already
-# present in storage/opencode.jsonc (added during `make up`). Projects receive
+# present in storage/opencode.jsonc (added during `make install`). Projects receive
 # the plugin JS via the .opencode/plugins/telamon symlink created by `make init`.
 # No per-project copying or configuration is required.
 #
