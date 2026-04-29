@@ -17,13 +17,13 @@ Structured quality evaluation of completed work and post-iteration retrospective
 
 After each task is implemented, reviewed, and committed, the orchestrator evaluates it against this rubric:
 
-| Dimension | Question | Rating |
-|---|---|---|
-| **Plan Adherence** | Does the implementation match what the Architect's plan specified? | FULL / PARTIAL / DEVIATED |
-| **Acceptance Criteria** | Are all acceptance criteria met and tested? | ALL / SOME / NONE |
-| **Test Coverage** | Are happy paths, failure paths, and edge cases covered? | COMPLETE / ADEQUATE / GAPS |
-| **Code Quality** | Does the code follow project conventions and pass static analysis? | CLEAN / MINOR_ISSUES / SIGNIFICANT_ISSUES |
-| **Documentation** | Are new patterns, configs, or APIs documented where needed? | COMPLETE / PARTIAL / MISSING |
+| Dimension               | Question                                                           | Rating                                    |
+|-------------------------|--------------------------------------------------------------------|-------------------------------------------|
+| **Plan Adherence**      | Does the implementation match what the Architect's plan specified? | FULL / PARTIAL / DEVIATED                 |
+| **Acceptance Criteria** | Are all acceptance criteria met and tested?                        | ALL / SOME / NONE                         |
+| **Test Coverage**       | Are happy paths, failure paths, and edge cases covered?            | COMPLETE / ADEQUATE / GAPS                |
+| **Code Quality**        | Does the code follow project conventions and pass static analysis? | CLEAN / MINOR_ISSUES / SIGNIFICANT_ISSUES |
+| **Documentation**       | Are new patterns, configs, or APIs documented where needed?        | COMPLETE / PARTIAL / MISSING              |
 
 ### Quick Rating
 
@@ -47,14 +47,14 @@ Save to `<issue-folder>/RETRO-YYYY-MM-DD.md`.
 >
 > ## Quality Summary
 >
-> | Task | Plan Adherence | Acceptance Criteria | Test Coverage | Code Quality | Documentation |
-> |---|---|---|---|---|---|
-> | Task 1 | FULL | ALL | COMPLETE | CLEAN | COMPLETE |
-> | Task 2 | ... | ... | ... | ... | ... |
+> | Task   | Plan Adherence | Acceptance Criteria | Test Coverage | Code Quality | Documentation |
+> |--------|----------------|---------------------|---------------|--------------|---------------|
+> | Task 1 | FULL           | ALL                 | COMPLETE      | CLEAN        | COMPLETE      |
+> | Task 2 | ...            | ...                 | ...           | ...          | ...           |
 >
 > ## What Went Well
 >
-> - <thing that worked>
+> - <thing-that-worked>
 >
 > ## What Needs Improvement
 >
@@ -85,6 +85,7 @@ The orchestrator should track these signals during implementation (no formal rep
 
 If any signal trends negatively across 3+ tasks, the orchestrator should pause and address the root cause before continuing.
 
-## Follow-Up: Address Retrospective
+## MUST
 
-After producing a retrospective, follow up with the `telamon.address_retro` skill to turn improvement items into concrete workflow changes. Pass the retro file path as input. This can also be triggered manually via `/address-retro <path-to-retro-file>`.
+- After producing a retrospective, immediately invoke the `telamon.address_retro` skill with the retro file path as input. Do not defer to a later session or skip this step.
+- The `address_retro` skill must process all three retro sections: **What Needs Improvement**, **Process Observations**, and **Follow-Up Tasks**. Explicitly acknowledge each section — even if no actionable items exist, state "No actionable items" rather than silently skipping.
