@@ -544,6 +544,53 @@ if [[ "${_obsidian_installed}" -eq 1 ]]; then
   fi
 fi
 
+# ── Brain file migration: key_decisions.md → PDRs.md + ADRs.md ────────────────
+# key_decisions.md was split into PDRs.md (product decisions) and ADRs.md
+# (architecture/technical decisions). Rename existing file to PDRs.md and
+# create ADRs.md if missing.
+for _brain_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/brain; do
+  [[ -d "${_brain_dir}" ]] || continue
+  _project_name="$(basename "$(dirname "${_brain_dir}")")"
+
+  if [[ -f "${_brain_dir}/key_decisions.md" ]]; then
+    mv "${_brain_dir}/key_decisions.md" "${_brain_dir}/PDRs.md"
+    log "${_project_name}: renamed brain/key_decisions.md → brain/PDRs.md"
+    echo
+    info "  ⚠  brain/PDRs.md may contain architecture decisions that belong in brain/ADRs.md."
+    info "     Ask Telamon: \"Split architecture decisions from PDRs.md into ADRs.md\""
+    echo
+  fi
+
+  if [[ ! -f "${_brain_dir}/ADRs.md" ]]; then
+    _today="$(date +%Y-%m-%d)"
+    cat > "${_brain_dir}/ADRs.md" <<EOF
+---
+date: ${_today}
+description: Architecture and technical decisions for ${_project_name}
+tags: [brain, decisions, architecture]
+status: active
+---
+
+# Architecture Decisions — ${_project_name}
+
+<!-- Format: ## Decision title
+Date: YYYY-MM-DD
+Decision: what was decided
+Rationale: why
+Alternatives considered: what else was considered
+-->
+
+## See also
+
+- [[PDRs]]
+- [[memories]]
+- [[patterns]]
+- [[gotchas]]
+EOF
+    log "${_project_name}: created brain/ADRs.md"
+  fi
+done
+
 # ── Summary ────────────────────────────────────────────────────────────────────
 echo
 echo -e "${TEXT_BOLD}${TEXT_GREEN}══════════════════════════════════════════${TEXT_CLEAR}"
