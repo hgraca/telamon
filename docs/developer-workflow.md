@@ -157,7 +157,7 @@ The agent saves to `brain/` notes (human-readable, curated):
 | Event                  | Action                                           |
 |------------------------|--------------------------------------------------|
 | Non-trivial bug fixed  | Appended to `brain/gotchas.md`                   |
-| Architectural decision | Appended to `brain/key_decisions.md`             |
+| Architectural decision | Appended to `brain/ADRs.md`                    |
 | Pattern established    | Appended to `brain/patterns.md`                  |
 | Session ends           | Work notes archived from `active/` to `archive/` |
 

@@ -21,7 +21,8 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
   brain/
     memories.md              <- categorized lessons learned (M-XXX-NNN format)
-    key_decisions.md         <- architectural + product decisions, stakeholder answers
+    PDRs.md                  <- product decisions, stakeholder answers
+    ADRs.md                  <- architecture/technical decisions
     patterns.md              <- established codebase patterns
     gotchas.md               <- known traps and constraints
   work/
@@ -37,9 +38,10 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 | Content                                        | Destination                                           |
 |------------------------------------------------|-------------------------------------------------------|
 | Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
-| Architectural or product decision + rationale  | `brain/key_decisions.md`                              |
-| Human stakeholder answer to a project question | `brain/key_decisions.md`                              |
-| New rule from stakeholder                      | `brain/key_decisions.md`                              |
+| Product decision + rationale                   | `brain/PDRs.md`                                       |
+| Human stakeholder answer to a project question | `brain/PDRs.md`                                       |
+| New rule from stakeholder                      | `brain/PDRs.md`                                       |
+| Architecture or technical decision + rationale | `brain/ADRs.md`                                       |
 | Established codebase pattern                   | `brain/patterns.md`                                   |
 | Trap, constraint, or recurring bug             | `brain/gotchas.md`                                    |
 | Categorized lesson learned                     | `brain/memories.md` (M-XXX-NNN format, see section 6) |
@@ -59,7 +61,8 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 - bootstrap/ loads automatically at session start -- do not re-read
 - brain/ files are small and always relevant -- read directly, no search needed:
-  - `brain/key_decisions.md` -- read before architecture work or stakeholder answer lookup
+  - `brain/PDRs.md` -- read before product/stakeholder answer lookup
+  - `brain/ADRs.md` -- read before architecture work
   - `brain/patterns.md` -- read before writing new code
   - `brain/gotchas.md` -- read before touching known problem areas
   - `brain/memories.md` -- search via QMD when you need past lessons; do NOT read at session start
@@ -76,7 +79,8 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 | File               | Good entry has                                  |
 |--------------------|-------------------------------------------------|
-| `key_decisions.md` | Decision + rationale (not just the decision)    |
+| `PDRs.md`        | Decision + rationale (not just the decision)    |
+| `ADRs.md`        | Decision + rationale (not just the decision)    |
 | `patterns.md`      | Actionable, specific pattern with when to apply |
 | `gotchas.md`       | Reproducible problem + fix or workaround        |
 | `memories.md`      | M-XXX-NNN format per section 6                  |

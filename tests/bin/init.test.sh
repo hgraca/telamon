@@ -199,11 +199,13 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
 
   # Brain files with substituted placeholders must be real files (copied)
   assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
-  assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
+  assert_file "${BRAIN_DIR}/PDRs.md"             "brain/PDRs.md (real file)"
+  assert_file "${BRAIN_DIR}/ADRs.md"             "brain/ADRs.md (real file)"
   assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
   assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
   assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/PDRs.md"         "${PROJECT_NAME}" "PDRs.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/ADRs.md"         "${PROJECT_NAME}" "ADRs.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
   assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \
@@ -233,11 +235,13 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
 
   # Brain files with substituted placeholders must be real files (copied)
   assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
-  assert_file "${BRAIN_DIR}/key_decisions.md"    "brain/key_decisions.md (real file)"
+  assert_file "${BRAIN_DIR}/PDRs.md"             "brain/PDRs.md (real file)"
+  assert_file "${BRAIN_DIR}/ADRs.md"             "brain/ADRs.md (real file)"
   assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
   assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
   assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/key_decisions.md" "${PROJECT_NAME}" "key_decisions.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/PDRs.md"         "${PROJECT_NAME}" "PDRs.md contains project name"
+  assert_file_contains "${BRAIN_DIR}/ADRs.md"         "${PROJECT_NAME}" "ADRs.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
   assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \

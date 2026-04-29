@@ -11,9 +11,10 @@ As you work, capture knowledge the moment it arises. Do not defer to end of sess
 
 | What happened | Action |
 |---|---|
-| Decision made (architectural or product) | Append to `brain/key_decisions.md` |
-| Human stakeholder answers a question | Append to `brain/key_decisions.md` |
-| New rule given by stakeholder | Append to `brain/key_decisions.md` |
+| Decision made (product, requirements, business) | Append to `brain/PDRs.md` |
+| Decision made (architecture, technical) | Append to `brain/ADRs.md` |
+| Human stakeholder answers a question | Append to `brain/PDRs.md` |
+| New rule given by stakeholder | Append to `brain/PDRs.md` |
 | Bug fixed (non-trivial) | Use the `telamon.remember_gotcha` skill to write to `brain/gotchas.md` |
 | Pattern established | Append to `brain/patterns.md` |
 

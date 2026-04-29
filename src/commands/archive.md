@@ -38,7 +38,8 @@ For each reference found, update the link path from `work/active/` to `work/arch
 Scan the archived note for:
 - Gotchas or traps → append to `.ai/telamon/memory/brain/gotchas.md`
 - Reusable patterns → append to `.ai/telamon/memory/brain/patterns.md`
-- Standing decisions → add to `.ai/telamon/memory/brain/key_decisions.md`
+- Standing product decisions → add to `.ai/telamon/memory/brain/PDRs.md`
+- Standing architecture decisions → add to `.ai/telamon/memory/brain/ADRs.md`
 
 ## 6. Report
 

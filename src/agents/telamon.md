@@ -126,7 +126,7 @@ When a subagent returns:
 ### Activation
 
 - **Trigger**: Human stakeholder provides a story, epic, feature request, or business initiative.
-- **Input**: Stakeholder's brief, existing context documents, project's key decisions log (`.ai/telamon/memory/brain/key_decisions.md`).
+- **Input**: Stakeholder's brief, existing context documents, project's product decisions log (`.ai/telamon/memory/brain/PDRs.md`).
 
 ### Responsibilities
 

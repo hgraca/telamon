@@ -9,7 +9,7 @@ Deep structural audit of `.ai/telamon/memory/`. Fix what can be fixed; flag what
 ## 1. Check Folder Structure
 
 Verify the vault matches the expected layout:
-- `brain/` contains exactly: `memories.md`, `key_decisions.md`, `patterns.md`, `gotchas.md`
+- `brain/` contains exactly: `memories.md`, `PDRs.md`, `ADRs.md`, `patterns.md`, `gotchas.md`
 - `work/active/` contains only active work notes
 - `work/archive/` contains only completed work notes
 - `work/incidents/` contains only incident notes
@@ -23,7 +23,8 @@ For each file in `brain/`:
 - Is the content current? Flag stale or contradictory entries.
 - Are entries organised by section with clear headings?
 - `memories.md` — are entries using M-XXX-NNN format with context and scope?
-- `key_decisions.md` — do entries have rationale, not just the decision?
+- `PDRs.md` — do entries have rationale, not just the decision?
+- `ADRs.md` — do entries have rationale, not just the decision?
 - `patterns.md` — are patterns actionable and specific?
 - `gotchas.md` — are gotchas reproducible and with a fix or workaround?
 

@@ -30,6 +30,7 @@ Load the `telamon.recall_memories` skill for the new project.
 ## See also
 
 - [[memories]]
-- [[key_decisions]]
+- [[PDRs]]
+- [[ADRs]]
 - [[patterns]]
 - [[gotchas]]

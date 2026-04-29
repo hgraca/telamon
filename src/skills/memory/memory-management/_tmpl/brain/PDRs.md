@@ -1,11 +1,11 @@
 ---
 date: DATE_PLACEHOLDER
-description: Architectural decisions and rationale for PROJECT_NAME
-tags: [brain, decisions]
+description: Product decisions and rationale for PROJECT_NAME
+tags: [brain, decisions, product]
 status: active
 ---
 
-# Key Decisions — PROJECT_NAME
+# Product Decisions — PROJECT_NAME
 
 <!-- Format: ## Decision title
 Date: YYYY-MM-DD
@@ -16,6 +16,7 @@ Alternatives considered: what else was considered
 
 ## See also
 
+- [[ADRs]]
 - [[memories]]
 - [[patterns]]
 - [[gotchas]]

@@ -42,6 +42,6 @@ required (gotchas.md itself is already linked from bootstrap).
 
 ## Do NOT use this skill for
 
-- Decisions (use `brain/key_decisions.md` directly or `telamon.remember_lessons_learned`)
+- Decisions (use `brain/PDRs.md` or `brain/ADRs.md` directly, or `telamon.remember_lessons_learned`)
 - Patterns (use `brain/patterns.md` directly or `telamon.remember_lessons_learned`)
 - General lessons (use `telamon.remember_task`)

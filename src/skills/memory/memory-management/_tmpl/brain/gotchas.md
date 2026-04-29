@@ -14,5 +14,6 @@ Description of the problem and how to avoid it -->
 ## See also
 
 - [[memories]]
-- [[key_decisions]]
+- [[PDRs]]
+- [[ADRs]]
 - [[patterns]]

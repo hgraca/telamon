@@ -14,5 +14,6 @@ Description of the pattern and when to use it -->
 ## See also
 
 - [[memories]]
-- [[key_decisions]]
+- [[PDRs]]
+- [[ADRs]]
 - [[gotchas]]

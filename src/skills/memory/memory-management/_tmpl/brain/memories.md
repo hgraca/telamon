@@ -22,6 +22,7 @@ Categories: M-ARCH, M-TEST, M-DOMAIN, M-ANTI, M-FLOW -->
 
 ## See also
 
-- [[key_decisions]]
+- [[PDRs]]
+- [[ADRs]]
 - [[patterns]]
 - [[gotchas]]
