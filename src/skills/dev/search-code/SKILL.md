@@ -17,18 +17,18 @@ Selects the right search tool for the question. Different tools excel at differe
 
 ## Tool Selection
 
-| Question type | Tool | Why |
-|---|---|---|
-| Semantic search ("where is auth logic?") | `codebase_search` | Hybrid semantic + keyword, returns full code content |
-| Quick location lookup ("find the payment handler") | `codebase_peek` | Same search, returns only metadata — saves ~90% tokens |
-| Jump to definition ("where is validateToken defined?") | `implementation_lookup` | Finds authoritative source, skips tests/docs/examples |
-| Who calls this? / What does this call? | `call_graph` | Traces callers or callees by function name |
-| Find similar code (duplicate detection, refactoring) | `find_similar` | Vector similarity on a code snippet |
-| File path lookup by pattern | `Glob` | Fast glob matching (`**/*.ts`, `src/**/Handler.php`) |
-| Exact string or regex in file contents | `Grep` | Regex search across files, filterable by extension |
-| AST structural pattern matching | `ast-grep` | Matches code by AST structure, not text |
-| Cross-file relationships, architecture | `graphify` (MCP) | Knowledge graph with communities, god nodes, paths |
-| Full directory context for audit/analysis | `repomix` (MCP) | Packs files into single structured dump |
+| Question type                                          | Tool                    | Why                                                    |
+|--------------------------------------------------------|-------------------------|--------------------------------------------------------|
+| Semantic search ("where is auth logic?")               | `codebase_search`       | Hybrid semantic + keyword, returns full code content   |
+| Quick location lookup ("find the payment handler")     | `codebase_peek`         | Same search, returns only metadata — saves ~90% tokens |
+| Jump to definition ("where is validateToken defined?") | `implementation_lookup` | Finds authoritative source, skips tests/docs/examples  |
+| Who calls this? / What does this call?                 | `call_graph`            | Traces callers or callees by function name             |
+| Find similar code (duplicate detection, refactoring)   | `find_similar`          | Vector similarity on a code snippet                    |
+| File path lookup by pattern                            | `Glob`                  | Fast glob matching (`**/*.ts`, `src/**/Handler.php`)   |
+| Exact string or regex in file contents                 | `Grep`                  | Regex search across files, filterable by extension     |
+| AST structural pattern matching                        | `ast-grep`              | Matches code by AST structure, not text                |
+| Cross-file relationships, architecture                 | `graphify` (MCP)        | Knowledge graph with communities, god nodes, paths     |
+| Full directory context for audit/analysis              | `repomix` (MCP)         | Packs files into single structured dump                |
 
 ## Detailed Guidance
 

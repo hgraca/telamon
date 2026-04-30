@@ -80,6 +80,16 @@ Plugin source code lives in [`src/plugins/`](https://github.com/hgraca/telamon/t
 | [Langfuse](langfuse) | LLM observability — token usage, latency, cost | [langfuse.com](https://langfuse.com)                             |
 | [Graphiti](graphiti) | Temporal knowledge graph backed by Neo4j       | [github.com/getzep/graphiti](https://github.com/getzep/graphiti) |
 
+## Local LLM requirements
+
+Some tools run models locally — no cloud API calls for these operations:
+
+| Tool                             | Local model                                                      | Managed by       |
+|----------------------------------|------------------------------------------------------------------|------------------|
+| [Codebase Index](codebase-index) | Ollama `nomic-embed-text` (embeddings)                           | Docker container |
+| [QMD](qmd)                       | `embeddinggemma`, `qwen3-reranker`, `qmd-query-expansion` (GGUF) | Self-managed     |
+| [Graphify](graphify)             | Whisper (audio transcription, optional)                          | Python package   |
+
 ## Retired (evaluated and removed)
 
 | Tool                 | Description                                        |

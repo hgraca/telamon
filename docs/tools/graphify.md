@@ -29,3 +29,8 @@ The Graphify MCP server is registered during install and starts on-demand with e
 - `.opencode/graphify-serve.sh` — symlink in each project (created by `telamon init`)
 
 The wrapper checks for `graph.json` before starting. If the graph hasn't been built yet, it exits gracefully.
+
+### Local LLM dependency
+
+Uses **Whisper** locally for audio/video transcription (optional path — only when processing multimedia files). 
+The core graph-building pipeline uses the session's main LLM (Claude) for semantic extraction, not a local model.
