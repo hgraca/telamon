@@ -24,5 +24,11 @@
       },
       "builtin": true
     }
-  }
+  },
+
+  // ── Upstream patches ──────────────────────────────────────────────────────────
+  // PR URLs to apply when building opencode from source.
+  // When patches are configured, opencode is built from source with these PRs applied.
+  // Format: full GitHub PR URL, e.g. "https://github.com/anomalyco/opencode/pull/18559"
+  "opencode_patches": []
 }

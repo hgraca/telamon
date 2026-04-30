@@ -14,6 +14,10 @@ graphify-out/
 *codex*
 *junie*
 !opencode.dist.json
+!opencode.dist.jsonc
+!apply-patches.sh
+!src/tools/opencode/apply-patches.sh
+!opencode-patches.js
 AGENTS.md
 CLAUDE.md
 mcp.json

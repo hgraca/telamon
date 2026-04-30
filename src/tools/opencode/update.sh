@@ -19,3 +19,6 @@ step "Upgrading opencode via npm..."
 npm install -g opencode-ai --quiet 2>/dev/null \
   && log "opencode → $(opencode --version 2>/dev/null || echo 'updated')" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  opencode upgrade failed — try: npm install -g opencode-ai"; exit 1; }
+
+# Apply upstream patches (if configured)
+bash "${TOOLS_PATH}/opencode/apply-patches.sh" || true
