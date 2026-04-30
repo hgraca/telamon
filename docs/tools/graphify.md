@@ -20,8 +20,6 @@ Particularly valuable for large legacy codebases where nobody has a complete men
 - Linux: `systemctl --user status graphify-update-<project-name>.timer`
 - macOS: `launchctl list | grep graphify-update-<project-name>`
 
-**Priority:** Tier 2
-
 ### MCP server details
 
 The Graphify MCP server is registered during install and starts on-demand with each opencode session. It requires:

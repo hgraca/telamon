@@ -12,5 +12,3 @@ Semantic search over the knowledge vault using **fully local GGUF models** (~2 G
 - One named collection per vault section: `<project>-brain`, `-work`, `-reference`, `-thinking`
 - MCP server with `query`, `get`, `multi_get`, and `status` tools
 - `qmd update && qmd embed` keeps the index current (fast incremental refresh)
-
-**Priority:** Tier 3

@@ -21,5 +21,3 @@ npx -y promptfoo view
 ```
 
 **Slash command:** `/eval`
-
-**Priority:** Tier 2

@@ -17,5 +17,3 @@ Packs directory contents into a single compressed context dump using Tree-sitter
 Do **not** combine with Codebase Index for the same files — redundant context wastes tokens.
 
 **MCP tools:** `pack_codebase`, `pack_remote_repository`, `generate_skill`, `attach_packed_output`, `read_repomix_output`, `grep_repomix_output`
-
-**Priority:** Tier 2

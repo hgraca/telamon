@@ -16,5 +16,3 @@ Indexes the project's source code using Ollama embeddings, enabling natural-lang
 Complements Graphify: Graphify tells you the structure, Codebase Index lets you find code by meaning.
 
 **MCP tools:** `codebase_search`, `codebase_peek`, `implementation_lookup`, `call_graph`, `find_similar`, `index_codebase`, `index_status`, `index_health_check`
-
-**Priority:** Tier 2

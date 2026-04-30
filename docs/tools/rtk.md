@@ -15,5 +15,3 @@ Installed as an opencode plugin that auto-patches shell commands.
 - Companion plugin (`rtk-dedupe.ts`) deduplicates repeated output chunks
 
 **Type:** Built-in OpenCode plugin (`src/plugins/rtk.ts`, `src/plugins/rtk-dedupe.ts`)
-
-**Priority:** Tier 2

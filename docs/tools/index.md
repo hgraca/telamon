@@ -7,43 +7,41 @@ nav_section: docs
 
 Every tool Telamon installs and manages — all local, all automatic.
 
-**Tier 1** = highest ROI, essential. **Tier 2** = high value, automatic setup. **Tier 3** = useful, value depends on usage habits.
-
 ## Memory & session
 
-| Tool                                       | Description                                              | Priority |
-|--------------------------------------------|----------------------------------------------------------|----------|
-| [Session Capture](session-capture)         | Auto-promotes learnings to memory before compaction      | Built-in |
-| [Diff Context](diff-context)               | Injects git change summary at session start              | Built-in |
-| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user | Built-in |
-| [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items         | Built-in |
+| Tool                                       | Description                                              |
+|--------------------------------------------|----------------------------------------------------------|
+| [Session Capture](session-capture)         | Auto-promotes learnings to memory before compaction      |
+| [Diff Context](diff-context)               | Injects git change summary at session start              |
+| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user |
+| [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items         |
 
 ## Codebase understanding
 
-| Tool                             | Description                                            | Priority |
-|----------------------------------|--------------------------------------------------------|----------|
-| [Graphify](graphify)             | Auto-built structural knowledge graph of the codebase  | Tier 2   |
-| [Codebase Index](codebase-index) | Find code by natural language description              | Tier 2   |
-| [Repomix](repomix)               | Packs many files into a single compressed context dump | Tier 2   |
+| Tool                             | Description                                            |
+|----------------------------------|--------------------------------------------------------|
+| [Graphify](graphify)             | Auto-built structural knowledge graph of the codebase  |
+| [Codebase Index](codebase-index) | Find code by natural language description              |
+| [Repomix](repomix)               | Packs many files into a single compressed context dump |
 
 ## Knowledge vault
 
-| Tool       | Description                              | Priority |
-|------------|------------------------------------------|----------|
-| [QMD](qmd) | Semantic search over the knowledge vault | Tier 3   |
+| Tool       | Description                              |
+|------------|------------------------------------------|
+| [QMD](qmd) | Semantic search over the knowledge vault |
 
 ## Token efficiency (optional)
 
-| Tool               | Description                                           | Priority |
-|--------------------|-------------------------------------------------------|----------|
-| [RTK](rtk)         | Compresses bash output before it reaches the LLM      | Tier 2   |
-| [Caveman](caveman) | Ultra-compressed communication (~75% token reduction) | Tier 2   |
+| Tool               | Description                                           |
+|--------------------|-------------------------------------------------------|
+| [RTK](rtk)         | Compresses bash output before it reaches the LLM      |
+| [Caveman](caveman) | Ultra-compressed communication (~75% token reduction) |
 
 ## Testing
 
-| Tool                   | Description                                 | Priority |
-|------------------------|---------------------------------------------|----------|
-| [promptfoo](promptfoo) | Automated quality checks for agent behavior | Tier 2   |
+| Tool                   | Description                                 |
+|------------------------|---------------------------------------------|
+| [promptfoo](promptfoo) | Automated quality checks for agent behavior |
 
 ## MCP integrations
 
@@ -84,11 +82,11 @@ Plugin source code lives in [`src/plugins/`](https://github.com/hgraca/telamon/t
 
 ## Retired (evaluated and removed)
 
-| Tool                 | Description                                        | Priority |
-|----------------------|----------------------------------------------------|----------|
-| [Cass](cass)         | Conversation History Search                        | Tier 2   |
-| [Ogham](ogham)       | Semantic memory store (pgvector) — replaced by QMD | Tier 1   |
-| [Obsidian](obsidian) | Knowledge vault via MCP — replaced by QMD          | Tier 1   |
+| Tool                 | Description                                        |
+|----------------------|----------------------------------------------------|
+| [Cass](cass)         | Conversation History Search                        |
+| [Ogham](ogham)       | Semantic memory store (pgvector) — replaced by QMD |
+| [Obsidian](obsidian) | Knowledge vault via MCP — replaced by QMD          |
 
 ## More
 
