@@ -14,6 +14,7 @@ fi
 PROJECT=""
 FROM=""
 TO=""
+OUT=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -27,6 +28,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --to)
       TO="$2"
+      shift 2
+      ;;
+    --out)
+      OUT="$2"
       shift 2
       ;;
     *)
@@ -57,10 +62,16 @@ fi
 QUERY="$QUERY ORDER BY timestamp DESC"
 
 # Prepare output file
-THINKING_DIR="$TELAMON_ROOT/.ai/telamon/memory/thinking"
-mkdir -p "$THINKING_DIR"
-FILENAME="$(date '+%Y%m%d-%H%M%S')-stats.csv"
-OUTPUT_FILE="$THINKING_DIR/$FILENAME"
+if [[ -n "$OUT" ]]; then
+  [[ "$OUT" != /* ]] && OUT="$PWD/$OUT"
+  OUTPUT_FILE="$OUT"
+  mkdir -p "$(dirname "$OUTPUT_FILE")"
+else
+  THINKING_DIR="$TELAMON_ROOT/.ai/telamon/memory/thinking"
+  mkdir -p "$THINKING_DIR"
+  FILENAME="$(date '+%Y%m%d-%H%M%S')-stats.csv"
+  OUTPUT_FILE="$THINKING_DIR/$FILENAME"
+fi
 
 # Run query
 sqlite3 -header -csv "$DB_PATH" "$QUERY" > "$OUTPUT_FILE"

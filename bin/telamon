@@ -29,6 +29,7 @@ Commands:
   status                 Show installation status
   update                 Upgrade all Telamon tools
   doctor                 Run health check
+  stats [opts]           Query tool usage statistics (--project, --from, --to, --out)
   init [path]            Initialise a project (default: current dir)
   reset [path]           Remove project wiring, keep data (default: current dir)
   purge [path]           Remove project wiring and data (default: current dir)
@@ -52,6 +53,7 @@ case "${CMD}" in
   status)    make -C "${TELAMON_ROOT}" status ;;
   update)    make -C "${TELAMON_ROOT}" update ;;
   doctor)    make -C "${TELAMON_ROOT}" doctor ;;
+  stats)     shift; bash "${TELAMON_ROOT}/src/scripts/stats-query.sh" "$@" ;;
   module)    shift; bash "${TELAMON_ROOT}/bin/module.sh" "$@" ;;
   submodule)
     echo -e "\033[33m⚠  'telamon submodule' is deprecated — use 'telamon module' instead\033[0m" >&2
