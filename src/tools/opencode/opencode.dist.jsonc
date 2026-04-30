@@ -60,6 +60,7 @@
   //    }
   //  },
   "plugin": [
+    ".opencode/plugins/telamon/tool-stats.js",
     "opencode-scheduler",
     ".opencode/plugins/telamon/graphify.js",
     ".opencode/plugins/telamon/rtk-dedupe.ts",
