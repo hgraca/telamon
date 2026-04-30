@@ -143,6 +143,7 @@ up: ## Boot Telamon services (does not install — use 'make install' for first-
 	@test -f .env || { echo "Error: .env not found. Run 'make install' first."; exit 1; }
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
 	docker compose \
+		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
 		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
 		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
 		up -d --no-recreate
