@@ -98,6 +98,6 @@ else
   rm -f "${TMPOUT}"
 fi
 
-# ── Schedule periodic graph updates ──────────────────────────────────────────
-step "Scheduling 30-min graph update..."
-bash "${TOOLS_PATH}/graphify/schedule.sh" || warn "Failed to create scheduled job — graph updates will need manual runs"
+# ── Install graphify git hooks ────────────────────────────────────────────────
+step "Installing graphify git hooks..."
+bash "${TOOLS_PATH}/graphify/hooks-init.sh" || warn "Failed to install graphify git hooks — graph updates will need manual runs"
