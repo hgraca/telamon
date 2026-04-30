@@ -68,13 +68,26 @@ else
   warn "To retry manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
 fi
 
+# ── Detect GPU for QMD ────────────────────────────────────────────────────────
+if os.has_gpu; then
+  QMD_GPU_VALUE="true"
+  if [[ "$(os.get_os)" == "macos" ]]; then
+    log "GPU acceleration: enabled (Metal)"
+  else
+    log "GPU acceleration: enabled (NVIDIA)"
+  fi
+else
+  QMD_GPU_VALUE="false"
+  log "GPU acceleration: disabled (no GPU detected)"
+fi
+
 # ── Register QMD MCP server in opencode.jsonc ─────────────────────────────────
 # The {file:.ai/telamon/secrets/qmd-cache-home} reference is resolved by opencode
 # relative to the project root (where opencode.jsonc is symlinked). The symlink
 # .ai/telamon/secrets → <telamon-root>/storage/secrets makes the secret visible there.
 step "Registering QMD MCP in storage/opencode.jsonc ..."
 opencode.upsert_mcp "qmd" \
-  '{"type":"local","command":["qmd","mcp"],"enabled":true,"environment":{"XDG_CACHE_HOME":"{file:.ai/telamon/secrets/qmd-cache-home}","QMD_LLAMA_GPU":"false"}}'
+  "{\"type\":\"local\",\"command\":[\"qmd\",\"mcp\"],\"enabled\":true,\"environment\":{\"XDG_CACHE_HOME\":\"{file:.ai/telamon/secrets/qmd-cache-home}\",\"QMD_LLAMA_GPU\":\"${QMD_GPU_VALUE}\"}}"
 log "QMD MCP registered"
 
 # ── Pre-download models in background (~2 GB) ────────────────────────────────
@@ -89,7 +102,7 @@ if [[ -f "${QMD_MODEL_DIR}/hf_ggml-org_embeddinggemma-300M-Q8_0.gguf" ]] \
 else
   step "Pre-downloading QMD models in background (~2 GB)..."
   (
-    XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=false \
+    XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU="${QMD_GPU_VALUE}" \
       qmd query "test" >/dev/null 2>&1
   ) &
   log "QMD model download started in background (PID $!)"

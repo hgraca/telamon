@@ -116,11 +116,7 @@ install: ## Install all Telamon tools (first-time setup or reinstall)
 	bash bin/install.sh --pre-docker
 	echo -e "\n\033[1m\033[34m━━━ Pulling Docker images... ━━━\033[0m"
 	docker compose \
-		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
-		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
-		pull
-	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
-	docker compose \
+		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
 		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
 		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
 		up -d --no-recreate
@@ -176,7 +172,9 @@ down: ## Shut down Telamon services
 		fi; \
 		rm -f storage/remote-opencode.pid; \
 	fi
-	docker compose $(COMPOSE_PROFILES) down --remove-orphans
+	docker compose \
+		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
+		$(COMPOSE_PROFILES) down --remove-orphans
 
 reset: ## Remove project-side wiring created by init, keep storage data  (usage: make reset PROJ=path/to/project)
 	@if [ -z "$(PROJ)" ]; then echo "Usage: make reset PROJ=path/to/project"; exit 1; fi
