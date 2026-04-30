@@ -13,15 +13,15 @@ permission:
     "./.ai/telamon/memory/thinking/**": allow
   bash:
     "*": deny
-    "git diff *": allow
-    "git log *": allow
-    "git show *": allow
+    "git diff*": allow
+    "git log*": allow
+    "git show*": allow
     "git status*": allow
-    "make *": allow
-    "APP_ENV=* make *": allow
-    "php *": allow
-    "phpunit *": allow
-    "grep *": allow
+    "make*": allow
+    "APP_ENV=* make*": allow
+    "php*": allow
+    "phpunit*": allow
+    "grep*": allow
 ---
 
 You are the reviewer. You review changes against the architect's plan and project conventions. You report issues but do not modify code.

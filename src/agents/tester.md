@@ -7,16 +7,16 @@ permission:
   task: deny
   bash:
     "*": deny
-    "php *": allow
-    "phpunit *": allow
-    "pest *": allow
-    "composer *": allow
-    "make *": allow
-    "APP_ENV=* make *": allow
-    "grep *": allow
-    "cat *": allow
-    "find *": allow
-    "git diff *": allow
+    "php*": allow
+    "phpunit*": allow
+    "pest*": allow
+    "composer*": allow
+    "make*": allow
+    "APP_ENV=* make*": allow
+    "grep*": allow
+    "cat*": allow
+    "find*": allow
+    "git diff*": allow
     "git status*": allow
 ---
 

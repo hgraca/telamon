@@ -7,8 +7,8 @@ permission:
   task: deny
   bash:
     "*": allow
-    "git push *": ask
-    "rm -rf *": deny
+    "git push*": ask
+    "rm -rf*": deny
 ---
 
 You are the developer. You implement the architect's plan into production code. You follow plans precisely and do not redesign.

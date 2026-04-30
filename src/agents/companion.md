@@ -6,8 +6,8 @@ model: github-copilot/claude-sonnet-4.6
 permission:
   bash:
     "*": allow
-    "git push *": ask
-    "rm -rf *": deny
+    "git push*": ask
+    "rm -rf*": deny
   task: deny
 ---
 
