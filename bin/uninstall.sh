@@ -258,6 +258,16 @@ else
   skip "~/.local/bin/telamon (not found)"
 fi
 
+OBSIDIAN_CLI="${HOME}/.local/bin/obsidian"
+step "Removing ~/.local/bin/obsidian..."
+if [[ -L "${OBSIDIAN_CLI}" || -f "${OBSIDIAN_CLI}" ]]; then
+  rm -f "${OBSIDIAN_CLI}"
+  log "Removed ~/.local/bin/obsidian"
+  REMOVED+=("~/.local/bin/obsidian")
+else
+  skip "~/.local/bin/obsidian (not found)"
+fi
+
 OS="$(uname -s)"
 if [[ "${OS}" == "Linux" ]]; then
   DESKTOP_FILE="${HOME}/.local/share/applications/telamon.desktop"
