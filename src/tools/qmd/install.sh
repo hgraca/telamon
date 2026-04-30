@@ -71,8 +71,13 @@ fi
 # ── Detect GPU for QMD ────────────────────────────────────────────────────────
 GPU_CONFIG="$(config.read_ini "${TELAMON_ROOT}/.ai/telamon/telamon.jsonc" "gpu_enabled" || echo "null")"
 if [[ "${GPU_CONFIG}" == "true" ]]; then
-  QMD_GPU_VALUE="true"
-  log "GPU acceleration: force-enabled (telamon.jsonc)"
+  if os.has_gpu; then
+    QMD_GPU_VALUE="true"
+    log "GPU acceleration: force-enabled (telamon.jsonc)"
+  else
+    QMD_GPU_VALUE="false"
+    warn "gpu_enabled=true in telamon.jsonc but no GPU detected — falling back to CPU"
+  fi
 elif [[ "${GPU_CONFIG}" == "false" ]]; then
   QMD_GPU_VALUE="false"
   log "GPU acceleration: force-disabled (telamon.jsonc)"

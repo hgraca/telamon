@@ -67,10 +67,16 @@ fi
 ENV_FILE="${TELAMON_ROOT:?TELAMON_ROOT must be set}/.env"
 DOCKER_GPU_CONFIG="$(config.read_ini "${TELAMON_ROOT}/.ai/telamon/telamon.jsonc" "docker_gpu_enabled" || echo "null")"
 if [[ "${DOCKER_GPU_CONFIG}" == "true" ]]; then
-  log "Docker GPU: force-enabled (telamon.jsonc)"
-  os.sed_i "s|^GPU_ENABLED=.*|GPU_ENABLED=true|" "${ENV_FILE}"
-  grep -q '^GPU_ENABLED=' "${ENV_FILE}" || echo 'GPU_ENABLED=true' >> "${ENV_FILE}"
-  log "GPU_ENABLED=true written to .env"
+  if os.has_docker_gpu; then
+    log "Docker GPU: force-enabled (telamon.jsonc)"
+    os.sed_i "s|^GPU_ENABLED=.*|GPU_ENABLED=true|" "${ENV_FILE}"
+    grep -q '^GPU_ENABLED=' "${ENV_FILE}" || echo 'GPU_ENABLED=true' >> "${ENV_FILE}"
+    log "GPU_ENABLED=true written to .env"
+  else
+    warn "docker_gpu_enabled=true in telamon.jsonc but no Docker GPU support detected — falling back to CPU"
+    os.sed_i "s|^GPU_ENABLED=.*|GPU_ENABLED=false|" "${ENV_FILE}"
+    grep -q '^GPU_ENABLED=' "${ENV_FILE}" || echo 'GPU_ENABLED=false' >> "${ENV_FILE}"
+  fi
 elif [[ "${DOCKER_GPU_CONFIG}" == "false" ]]; then
   log "Docker GPU: force-disabled (telamon.jsonc)"
   os.sed_i "s|^GPU_ENABLED=.*|GPU_ENABLED=false|" "${ENV_FILE}"
