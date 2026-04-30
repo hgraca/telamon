@@ -40,6 +40,8 @@ You are the reviewer. You review changes against the architect's plan and projec
 - When reviewing PHPUnit tests (attributes, risky/slow warnings, handler cleanup, e2e patterns), use the skill `telamon.phpunit`
 - When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
 - When a pattern or bug is discovered during review, use the skill `telamon.remember_lessons_learned`
+- When completing a task or significant piece of work, use the skill `telamon.remember_task`
+- When wrapping up or ending a session, use the skill `telamon.remember_session`
 
 ## Activation
 

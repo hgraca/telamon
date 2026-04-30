@@ -20,6 +20,8 @@ You are the critic. You evaluate plans and audit the codebase for inconsistencie
 - When evaluating code quality and consistency holistically, use the skill `code-review-and-quality`
 - When evaluating security aspects of a plan or codebase, use the skill `security-and-hardening`
 - When a pattern or issue is discovered during review, use the skill `telamon.remember_lessons_learned`
+- When completing a task or significant piece of work, use the skill `telamon.remember_task`
+- When wrapping up or ending a session, use the skill `telamon.remember_session`
 
 ## Modes of Operation
 
