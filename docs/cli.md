@@ -21,6 +21,7 @@ After installing, the `telamon` command is available system-wide from any direct
 | `telamon reset [path]`             | Remove project wiring, keep storage data                   |
 | `telamon purge [path]`             | Remove project wiring **and** storage data                 |
 | `telamon recover-memories [path]`  | Extract memories from past session transcripts             |
+| `telamon stats [opts]`             | Query tool usage statistics                                |
 | `telamon module add <url-or-path>` | Register a module from a git URL or local path             |
 | `telamon module remove <name>`     | Remove a registered module by name                         |
 | `telamon module list`              | Show all registered modules with clone status              |
@@ -61,6 +62,29 @@ telamon recover-memories --batch-size 10 # larger batches (default: 5)
 **Model selection.** The command uses the `medium_model` setting from `telamon.jsonc`. On first run, it prompts interactively with suggestions derived from the project's `model` and `small_model` in `opencode.jsonc`. See [Configuration](configuration.md#per-project-settings).
 
 **Typical runtime.** For a project with 200 sessions at batch-size 5: ~40 LLM calls, ~7–10 minutes.
+
+### stats
+
+Queries the tool usage statistics database and exports the results as CSV. Statistics are collected by the stats plugin and stored in a SQLite database at `storage/stats/stats.sqlite`.
+
+```bash
+telamon stats                          # export all stats to thinking/ dir
+telamon stats --project my-app         # filter by project name
+telamon stats --from 2025-01-01        # from date (inclusive)
+telamon stats --to 2025-01-31          # to date (inclusive)
+telamon stats --out ./report.csv       # custom output path
+```
+
+| Flag             | Description                                                                                  |
+|------------------|----------------------------------------------------------------------------------------------|
+| `--project`      | Filter results to a specific project name                                                    |
+| `--from`         | Start date for filtering (ISO format, e.g. `2025-01-01`)                                     |
+| `--to`           | End date for filtering (inclusive, e.g. `2025-01-31`)                                         |
+| `--out`          | Output file path. If omitted, writes to `thinking/<timestamp>-stats.csv`                     |
+
+**Output columns:** `tool`, `agent`, `skill`, `project`, `timestamp`
+
+The command prints the output file path and row count on completion.
 
 ### module
 
