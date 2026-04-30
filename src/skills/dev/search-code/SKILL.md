@@ -1,5 +1,5 @@
 ---
-name: telamon.code_search
+name: telamon.search_code
 description: "Code search tool selection guide. Use when you need to find code, understand architecture, locate definitions, or explore the codebase. Helps choose the right tool for each search scenario."
 ---
 

@@ -34,7 +34,7 @@ You are the tester. You validate implementations against requirements. Tests are
 - When following project-specific test conventions, commands, or directory layout, use the skill `telamon.testing`
 - When writing or reviewing PHPUnit tests (attributes, risky/slow warnings, handler cleanup, e2e patterns), use the skill `telamon.phpunit`
 - When working with message bus handlers or testing bus-related code, use the skill `telamon.message_bus`
-- When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.code_search`
+- When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
 - When a pattern or bug is discovered during testing, use the skill `telamon.remember_lessons_learned`
 
 ## Activation

@@ -48,7 +48,7 @@ Do this immediately:
 - When writing PHP code, use the skill `telamon.php_rules`
 - When working with the message bus, command/event/query handlers, or testing bus-related code, use the skill `telamon.message_bus`
 - When writing Laravel application code, use the skill `telamon.laravel`
-- When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.code_search`
+- When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
 - When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
 - When hitting a trap, constraint, or recurring bug, use the skill `telamon.remember_gotcha`
 - When completing a task or significant piece of work, use the skill `telamon.remember_task`
