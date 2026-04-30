@@ -28,9 +28,9 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 ## Knowledge vault
 
-| Tool                         | Description                                          | Priority |
-|------------------------------|------------------------------------------------------|----------|
-| [QMD](qmd)                   | Semantic search over the knowledge vault             | Tier 3   |
+| Tool       | Description                              | Priority |
+|------------|------------------------------------------|----------|
+| [QMD](qmd) | Semantic search over the knowledge vault | Tier 3   |
 
 ## Token efficiency (optional)
 
@@ -84,9 +84,11 @@ Plugin source code lives in [`src/plugins/`](https://github.com/hgraca/telamon/t
 
 ## Retired (evaluated and removed)
 
-| Tool         | Description                 | Priority |
-|--------------|-----------------------------|----------|
-| [Cass](cass) | Conversation History Search | Tier 2   |
+| Tool                 | Description                                        | Priority |
+|----------------------|----------------------------------------------------|----------|
+| [Cass](cass)         | Conversation History Search                        | Tier 2   |
+| [Ogham](ogham)       | Semantic memory store (pgvector) — replaced by QMD | Tier 1   |
+| [Obsidian](obsidian) | Knowledge vault via MCP — replaced by QMD          | Tier 1   |
 
 ## More
 
