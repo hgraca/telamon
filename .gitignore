@@ -18,6 +18,7 @@ graphify-out/
 !apply-patches.sh
 !src/tools/opencode/apply-patches.sh
 !opencode-patches.js
+!docs/tools/opencode-patches.md
 AGENTS.md
 CLAUDE.md
 mcp.json

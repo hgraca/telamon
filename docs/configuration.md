@@ -39,6 +39,26 @@ Changes take effect on the next opencode session — no restart required for RTK
 
 ---
 
+## Global settings (`.telamon.jsonc`)
+
+The file `.telamon.jsonc` in the Telamon root directory contains global settings that apply to the Telamon installation itself (not per-project).
+
+```jsonc
+{
+  "modules": { ... },
+  "opencode_patches": []
+}
+```
+
+| Key                | Default | Description                                                                                                                     |
+|--------------------|---------|---------------------------------------------------------------------------------------------------------------------------------|
+| `modules`          | `{}`    | External modules (agent skills, commands, plugins) from git repos                                                               |
+| `opencode_patches` | `[]`    | Array of GitHub PR URLs to apply when building opencode from source. See [Opencode Patches](tools/opencode-patches) for details |
+
+When `opencode_patches` is non-empty, opencode is built from source with the specified patches applied on every `make update` or `make install`.
+
+---
+
 ## Optional services
 
 ### Langfuse (LLM observability)

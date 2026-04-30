@@ -17,5 +17,6 @@ Plugins are OpenCode extensions that run automatically. They fire on specific ev
 | [Script Runner](script-runner)             | Runs shell scripts and passes output to the LLM                                        | [`script-runner.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/script-runner.js)             |
 | [Active Work Context](active-work-context) | Injects active work items at session start, prompts user to continue/archive/start new | [`active-work-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/active-work-context.js) |
 | [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items                                       | [`compaction-save.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/compaction-save.js)         |
+| [Opencode Patches](opencode-patches)       | Detects opencode auto-updates and re-applies configured upstream PR patches            | [`opencode-patches.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/opencode-patches.js)       |
 
 Plugin source code lives in [`src/plugins/`](https://github.com/hgraca/telamon/tree/main/src/plugins).
