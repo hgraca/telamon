@@ -28,14 +28,14 @@ Use the `telamon.qmd` skill to initialize and query the vault index.
 
 When you need information, use the right tool for the question type:
 
-| Question type                                      | Tool                                                                                 |
-|----------------------------------------------------|--------------------------------------------------------------------------------------|
-| Lessons learned (categorized)                      | QMD search (`brain/memories.md`)                                                     |
-| Product decisions + stakeholder answers         | Read `brain/PDRs.md` directly                                                        |
-| Architectural/technical decisions               | Read `brain/ADRs.md` directly                                                        |
-| Codebase patterns                                  | Read `brain/patterns.md` directly                                                    |
-| Known traps and constraints                        | Read `brain/gotchas.md` directly                                                     |
-| Vault semantic search ("did we ever...")           | Use the `telamon.qmd` skill                                                          |
-| Architecture, relationships, god nodes             | Use the `telamon.graphify` skill                                                     |
-| Code by meaning ("find auth logic")                | codebase-index (ask naturally)                                                       |
-| Specs, ADRs, requirements                          | QMD search (follow `telamon.memory_management` skill for retrieval rules)            |
+| Question type                            | Tool                                                                      |
+|------------------------------------------|---------------------------------------------------------------------------|
+| Lessons learned (categorized)            | QMD search (`brain/memories.md`)                                          |
+| Product decisions + stakeholder answers  | Read `brain/PDRs.md` directly                                             |
+| Architectural/technical decisions        | Read `brain/ADRs.md` directly                                             |
+| Codebase patterns                        | Read `brain/patterns.md` directly                                         |
+| Known traps and constraints              | Read `brain/gotchas.md` directly                                          |
+| Vault semantic search ("did we ever...") | Use the `telamon.qmd` skill                                               |
+| Architecture, relationships, god nodes   | Use the `telamon.graphify` skill                                          |
+| Code by meaning ("find auth logic")      | codebase-index (ask naturally)                                            |
+| Specs, ADRs, requirements                | QMD search (follow `telamon.memory_management` skill for retrieval rules) |
