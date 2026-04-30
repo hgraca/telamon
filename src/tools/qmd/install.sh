@@ -69,7 +69,14 @@ else
 fi
 
 # ── Detect GPU for QMD ────────────────────────────────────────────────────────
-if os.has_gpu; then
+GPU_CONFIG="$(config.read_ini "${TELAMON_ROOT}/.ai/telamon/telamon.jsonc" "gpu_enabled" || echo "null")"
+if [[ "${GPU_CONFIG}" == "true" ]]; then
+  QMD_GPU_VALUE="true"
+  log "GPU acceleration: force-enabled (telamon.jsonc)"
+elif [[ "${GPU_CONFIG}" == "false" ]]; then
+  QMD_GPU_VALUE="false"
+  log "GPU acceleration: force-disabled (telamon.jsonc)"
+elif os.has_gpu; then
   QMD_GPU_VALUE="true"
   if [[ "$(os.get_os)" == "macos" ]]; then
     log "GPU acceleration: enabled (Metal)"
