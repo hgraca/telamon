@@ -516,11 +516,13 @@ if [[ "${_obsidian_installed}" -eq 1 ]]; then
       elif command -v flatpak &>/dev/null && flatpak list --app | grep -qi obsidian; then
         flatpak uninstall -y md.obsidian.Obsidian 2>/dev/null || true
         log "Obsidian flatpak removed"
-      elif [[ -f "$HOME/.local/bin/obsidian" ]]; then
-        rm -f "$HOME/.local/bin/obsidian"
-        log "Obsidian binary removed from ~/.local/bin"
       else
         warn "Could not determine how Obsidian was installed — remove it manually"
+      fi
+      # Always remove CLI tool (may exist independently of package install)
+      if [[ -f "$HOME/.local/bin/obsidian" ]]; then
+        rm -f "$HOME/.local/bin/obsidian"
+        log "Obsidian CLI removed from ~/.local/bin"
       fi
     fi
 
