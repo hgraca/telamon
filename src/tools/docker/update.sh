@@ -16,12 +16,28 @@ if ! command -v docker &>/dev/null || ! docker info &>/dev/null 2>&1; then
   exit 2
 fi
 
+# Capture image IDs before pulling so we can remove only the replaced ones
 step "Pulling latest Docker images..."
+_OLD_IDS=$(cd "${TELAMON_ROOT}" && docker compose images -q 2>/dev/null | sort -u || true)
+
 (cd "${TELAMON_ROOT}" && docker compose pull) \
   && log "Docker images updated" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  Docker image pull failed"; exit 1; }
 
-step "Removing old/dangling Docker images..."
-docker image prune -f >/dev/null 2>&1 \
-  && log "Old Docker images removed" \
-  || info "No dangling images to remove"
+# Remove only the old images that were replaced by the pull
+_NEW_IDS=$(cd "${TELAMON_ROOT}" && docker compose images -q 2>/dev/null | sort -u || true)
+_REPLACED=()
+for _id in ${_OLD_IDS}; do
+  if ! echo "${_NEW_IDS}" | grep -q "${_id}"; then
+    _REPLACED+=("${_id}")
+  fi
+done
+
+if [[ ${#_REPLACED[@]} -gt 0 ]]; then
+  step "Removing ${#_REPLACED[@]} replaced Docker image(s)..."
+  docker rmi "${_REPLACED[@]}" >/dev/null 2>&1 \
+    && log "Replaced images removed" \
+    || info "Some old images could not be removed (may still be in use)"
+else
+  info "No replaced images to clean up"
+fi
