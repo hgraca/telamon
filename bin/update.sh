@@ -546,6 +546,114 @@ if [[ "${_obsidian_installed}" -eq 1 ]]; then
   fi
 fi
 
+# ── Discord migration ──────────────────────────────────────────────────────────
+# Discord bot (remote-opencode) was removed from Telamon. Clean up leftovers.
+_discord_leftovers=0
+if command -v remote-opencode &>/dev/null; then
+  _discord_leftovers=1
+elif grep -qE '^DISCORD_(ENABLED|BRIDGE_ENABLED)=' "${TELAMON_ROOT}/.env" 2>/dev/null; then
+  _discord_leftovers=1
+elif find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null | while IFS= read -r _pp; do
+    _pd="$(cat "${_pp}")"
+    [[ -f "${_pd}/.ai/telamon/telamon.jsonc" ]] && grep -q '"discord_enabled"' "${_pd}/.ai/telamon/telamon.jsonc" 2>/dev/null && echo found && break
+  done | grep -q found; then
+  _discord_leftovers=1
+fi
+
+if [[ "${_discord_leftovers}" -eq 1 ]]; then
+  echo
+  header "Discord (removed)"
+
+  # Kill running remote-opencode process
+  _pid_file="${TELAMON_ROOT}/storage/remote-opencode.pid"
+  if [[ -f "${_pid_file}" ]]; then
+    _roc_pid="$(cat "${_pid_file}")"
+    if kill -0 "${_roc_pid}" 2>/dev/null; then
+      step "Stopping remote-opencode (pid ${_roc_pid})..."
+      kill "${_roc_pid}" 2>/dev/null || true
+      log "remote-opencode process stopped"
+    fi
+    rm -f "${_pid_file}"
+  fi
+
+  # Uninstall npm package
+  if command -v remote-opencode &>/dev/null; then
+    step "Uninstalling remote-opencode npm package..."
+    npm uninstall -g remote-opencode 2>/dev/null || true
+    log "remote-opencode npm package removed"
+  fi
+
+  # Remove config directory
+  if [[ -d "${HOME}/.remote-opencode" ]]; then
+    rm -rf "${HOME}/.remote-opencode"
+    log "Removed ~/.remote-opencode config directory"
+  fi
+
+  # Remove .env keys
+  _discord_sed_os="$(uname -s)"
+  if grep -qE '^DISCORD_(ENABLED|BRIDGE_ENABLED)=' "${TELAMON_ROOT}/.env" 2>/dev/null; then
+    step "Removing Discord env vars from .env..."
+    if [[ "${_discord_sed_os}" == "Darwin" ]]; then
+      sed -i '' '/^DISCORD_ENABLED=/d;/^DISCORD_BRIDGE_ENABLED=/d' "${TELAMON_ROOT}/.env"
+    else
+      sed -i '/^DISCORD_ENABLED=/d;/^DISCORD_BRIDGE_ENABLED=/d' "${TELAMON_ROOT}/.env"
+    fi
+    log "Removed DISCORD_ENABLED and DISCORD_BRIDGE_ENABLED from .env"
+  fi
+
+  # Remove storage files
+  if [[ -f "${TELAMON_ROOT}/storage/remote-opencode.log" ]]; then
+    rm -f "${TELAMON_ROOT}/storage/remote-opencode.log"
+    log "Removed storage/remote-opencode.log"
+  fi
+
+  # Remove per-project Discord keys and symlinks
+  while IFS= read -r _pp_file; do
+    _proj_dir="$(cat "${_pp_file}")"
+    [[ -d "${_proj_dir}" ]] || continue
+    _jsonc="${_proj_dir}/.ai/telamon/telamon.jsonc"
+    if [[ -f "${_jsonc}" ]] && grep -qE '"discord_(enabled|forum_channel|forum_channel_id)"' "${_jsonc}" 2>/dev/null; then
+      python3 - "${_jsonc}" <<'PYEOF'
+import json, sys, re
+path = sys.argv[1]
+with open(path) as f:
+    content = f.read()
+# Remove discord_* keys (handles trailing commas simply via re)
+keys = ['discord_enabled', 'discord_forum_channel', 'discord_forum_channel_id']
+for key in keys:
+    content = re.sub(r',?\s*"' + key + r'"\s*:[^,}\n]+,?', '', content)
+# Clean up double commas or leading commas before }
+content = re.sub(r',(\s*[}\]])', r'\1', content)
+with open(path, 'w') as f:
+    f.write(content)
+PYEOF
+      log "Removed Discord keys from $(basename "${_proj_dir}")/telamon.jsonc"
+    fi
+
+    # Remove discord-* symlinks from secrets dir
+    _secrets_dir="${_proj_dir}/.ai/telamon/secrets"
+    if [[ -d "${_secrets_dir}" ]]; then
+      for _sym in "${_secrets_dir}"/discord-*; do
+        [[ -L "${_sym}" ]] || continue
+        rm -f "${_sym}"
+        log "Removed symlink $(basename "${_sym}") from $(basename "${_proj_dir}")"
+      done
+    fi
+  done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null)
+
+  # Remove shared secret files
+  if [[ -f "${TELAMON_ROOT}/storage/secrets/discord-bot-token" ]]; then
+    rm -f "${TELAMON_ROOT}/storage/secrets/discord-bot-token"
+    log "Removed storage/secrets/discord-bot-token"
+  fi
+  if [[ -f "${TELAMON_ROOT}/storage/secrets/discord-allowed-user-ids" ]]; then
+    rm -f "${TELAMON_ROOT}/storage/secrets/discord-allowed-user-ids"
+    log "Removed storage/secrets/discord-allowed-user-ids"
+  fi
+
+  log "Discord cleanup complete"
+fi
+
 # ── Brain file migration: key_decisions.md → PDRs.md + ADRs.md ────────────────
 # key_decisions.md was split into PDRs.md (product decisions) and ADRs.md
 # (architecture/technical decisions). Rename existing file to PDRs.md and
