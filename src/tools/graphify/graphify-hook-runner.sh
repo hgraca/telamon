@@ -49,6 +49,30 @@ if [[ -f "${LOG_FILE}" ]] && [[ "$(wc -c < "${LOG_FILE}" 2>/dev/null || echo 0)"
   tail -n 50 "${LOG_FILE}" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "${LOG_FILE}" || true
 fi
 
+# ── Sync .gitignore → .graphifyignore (skip gitignored paths/files) ──────────
+# Graphify uses .graphifyignore (gitignore syntax) to exclude files.
+# We auto-generate it from .gitignore so graphify respects the same patterns.
+_GRAPHIFYIGNORE="${PROJECT_PATH}/.graphifyignore"
+_GITIGNORE="${PROJECT_PATH}/.gitignore"
+_MARKER="# ── AUTO-GENERATED FROM .gitignore ──"
+
+if [[ -f "${_GITIGNORE}" ]]; then
+  _new_content="$(printf '%s\n# Do not edit this section manually — it is regenerated on each commit.\n# Add custom patterns below the END marker.\n\n' "${_MARKER}")"
+  _new_content+="$(cat "${_GITIGNORE}")"
+  _new_content+="$(printf '\n\n# ── END AUTO-GENERATED ──')"
+
+  if [[ -f "${_GRAPHIFYIGNORE}" ]]; then
+    # Preserve any custom patterns added after the END marker
+    _custom=""
+    if grep -q "# ── END AUTO-GENERATED ──" "${_GRAPHIFYIGNORE}" 2>/dev/null; then
+      _custom="$(sed -n '/^# ── END AUTO-GENERATED ──$/,$ { /^# ── END AUTO-GENERATED ──$/d; p; }' "${_GRAPHIFYIGNORE}")"
+    fi
+    printf '%s\n%s\n' "${_new_content}" "${_custom}" > "${_GRAPHIFYIGNORE}"
+  else
+    printf '%s\n' "${_new_content}" > "${_GRAPHIFYIGNORE}"
+  fi
+fi
+
 # Launch graphify update in background.
 # The subshell writes its own PID as its first action (fixes race condition:
 # previously $! was written after backgrounding, but the subshell could finish

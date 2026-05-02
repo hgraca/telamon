@@ -68,6 +68,16 @@ fi
 if [[ -f "graphify-out/graph.json" ]]; then
   skip "Graph already built"
 else
+  # Sync .gitignore → .graphifyignore before building
+  if [[ -f ".gitignore" ]]; then
+    _MARKER="# ── AUTO-GENERATED FROM .gitignore ──"
+    _content="$(printf '%s\n# Do not edit this section manually — it is regenerated on each commit.\n# Add custom patterns below the END marker.\n\n' "${_MARKER}")"
+    _content+="$(cat .gitignore)"
+    _content+="$(printf '\n\n# ── END AUTO-GENERATED ──\n')"
+    printf '%s' "${_content}" > .graphifyignore
+    log "Created .graphifyignore from .gitignore"
+  fi
+
   DATE_STR=$(date '+%-d %b %Y, %H:%M')
   info "${DATE_STR} — Building initial knowledge graph..."
   TMPOUT=$(mktemp)
