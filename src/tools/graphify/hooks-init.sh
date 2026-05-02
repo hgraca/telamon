@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install graphify git hooks into a project.
-# Hooks trigger background graphify updates on branch switch and commit.
+# Install graphify and telamon git hooks into a project.
+# Hooks trigger background graphify updates, codebase-index rebuilds,
+# and memory session capture on branch switch and commit.
 #
 # Requires: PROJ (absolute or relative path to the target project)
 
@@ -15,6 +16,8 @@ PROJ="$(cd "${PROJ}" && pwd)"
 
 HOOKS_DIR="${PROJ}/.git/hooks"
 RUNNER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/graphify-hook-runner.sh"
+REMEMBER_SESSION_RUNNER="${TOOLS_PATH}/memory/remember-session-hook-runner.sh"
+CODEBASE_INDEX_RUNNER="${TOOLS_PATH}/codebase-index/codebase-index-hook-runner.sh"
 
 MARKER_START="# ── TELAMON GRAPHIFY START ──"
 MARKER_END="# ── TELAMON GRAPHIFY END ──"
@@ -64,8 +67,16 @@ if [[ \"\${3:-0}\" == \"1\" ]]; then
   bash \"${RUNNER}\" \"${PROJ}\" &
 fi"
 
-# ── post-commit: always trigger ───────────────────────────────────────────────
+# ── post-commit: trigger graphify, codebase-index, and remember-session ───────
 POST_COMMIT_BODY="bash \"${RUNNER}\" \"${PROJ}\" &"
+if [[ -f "${CODEBASE_INDEX_RUNNER}" ]]; then
+  POST_COMMIT_BODY="${POST_COMMIT_BODY}
+bash \"${CODEBASE_INDEX_RUNNER}\" \"${PROJ}\" &"
+fi
+if [[ -f "${REMEMBER_SESSION_RUNNER}" ]]; then
+  POST_COMMIT_BODY="${POST_COMMIT_BODY}
+bash \"${REMEMBER_SESSION_RUNNER}\" \"${PROJ}\" &"
+fi
 
 install_hook "post-checkout" "${POST_CHECKOUT_BODY}"
 install_hook "post-commit"   "${POST_COMMIT_BODY}"
