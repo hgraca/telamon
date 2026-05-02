@@ -56,7 +56,7 @@ cd path/to/your-project && opencode
   - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality
   - [Langfuse](docs/tools/langfuse.md), [Graphiti](docs/tools/graphiti.md) — Optional services
   - [Plugins](docs/tools/plugins.md) — OpenCode plugins
-  - [Retired experiments](docs/tools/cass.md) — [Cass](docs/tools/cass.md), [Ogham](docs/tools/ogham.md), [Obsidian](docs/tools/obsidian.md)
+  - [Retired experiments](docs/tools/cass.md) — [Cass](docs/tools/cass.md), [Discord](docs/tools/discord.md), [Ogham](docs/tools/ogham.md), [Obsidian](docs/tools/obsidian.md)
 - [Agents](docs/agents.md) — Primary agents, sub-agents, and roles
 - [Commands](docs/commands.md) — Slash commands available in opencode
 - [Skills](docs/skills.md) — Structured instruction sets for agents

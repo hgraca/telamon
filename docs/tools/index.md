@@ -92,11 +92,12 @@ Some tools run models locally — no cloud API calls for these operations:
 
 ## Retired (evaluated and removed)
 
-| Tool                 | Description                                        |
-|----------------------|----------------------------------------------------|
-| [Cass](cass)         | Conversation History Search                        |
-| [Ogham](ogham)       | Semantic memory store (pgvector) — replaced by QMD |
-| [Obsidian](obsidian) | Knowledge vault via MCP — replaced by QMD          |
+| Tool                   | Description                                        |
+|------------------------|----------------------------------------------------|
+| [Cass](cass)           | Conversation History Search                        |
+| [Discord](discord)     | Discord bot (remote-opencode) — couldn't stabilize |
+| [Ogham](ogham)         | Semantic memory store (pgvector) — replaced by QMD |
+| [Obsidian](obsidian)   | Knowledge vault via MCP — replaced by QMD          |
 
 ## More
 
