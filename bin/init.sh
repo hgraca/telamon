@@ -176,7 +176,7 @@ fi
 _telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
 if [[ -f "${_telamon_cfg}" ]]; then
   _module_lines="$(python3 - "${_telamon_cfg}" "${FUNCTIONS_PATH}" <<'PYEOF'
-import sys, os
+import json, sys, os
 sys.path.insert(0, sys.argv[2])
 from strip_jsonc import load_jsonc
 

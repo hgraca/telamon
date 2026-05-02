@@ -3,26 +3,16 @@ __pycache__/
 storage/*
 # storage/opencode.jsonc is generated per-machine by the installer — MUST NOT be tracked
 .env
-.telamon.jsonc
 
 ###> ai ###
 .ai
-graphify-out
-graphify-out/
 *opencode*
 *claude*
 *codex*
 *junie*
-!opencode.dist.json
-!opencode.dist.jsonc
-!apply-patches.sh
-!src/tools/opencode/apply-patches.sh
-!opencode-patches.js
-!docs/tools/opencode-patches.md
 AGENTS.md
 CLAUDE.md
 mcp.json
-repomix.config.json
 ###< ai ###
 
 # ── promptfoo eval cache & deps ───────────────────────────────────────────────
@@ -40,3 +30,18 @@ docs/_site/
 docs/.jekyll-cache/
 docs/.jekyll-metadata
 docs/Gemfile.lock
+
+###> telamon ###
+.ai/telamon
+.graphifyignore
+graphify-out
+graphify-out/
+*opencode*
+*claude*
+*codex*
+*junie*
+!opencode.dist.json
+!opencode.dist.jsonc
+repomix.config.json
+.telamon.jsonc
+###< telamon ###
