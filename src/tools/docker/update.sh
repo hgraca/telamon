@@ -20,3 +20,8 @@ step "Pulling latest Docker images..."
 (cd "${TELAMON_ROOT}" && docker compose pull) \
   && log "Docker images updated" \
   || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  Docker image pull failed"; exit 1; }
+
+step "Removing old/dangling Docker images..."
+docker image prune -f >/dev/null 2>&1 \
+  && log "Old Docker images removed" \
+  || info "No dangling images to remove"

@@ -29,8 +29,11 @@ if [[ -z "${MCP_BIN}" ]]; then
 fi
 MCP_SCRIPT=$(readlink -f "${MCP_BIN}")
 
-# ── Rebuild missing indices for initialized projects ─────────────────────────
+# ── Rebuild missing indices for initialized projects (background, incremental) ─
+# Codebase-index natively respects .gitignore (skips gitignored paths/files).
+# Running in background with nohup so the process survives terminal close.
 TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
+_BG_PIDS=()
 for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
   [[ -d "${storage_dir}" ]] || continue
   [[ -f "${storage_dir}.project-path" ]] || continue
@@ -39,9 +42,12 @@ for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
   [[ -d "${proj}/.opencode/index" ]] && continue
   [[ -f "${proj}/.opencode/codebase-index.json" ]] || continue
 
-  step "Building missing codebase index for $(basename "${proj}")..."
+  step "Building missing codebase index for $(basename "${proj}") (background)..."
 
-  RESULT=$(node - "${MCP_SCRIPT}" "${proj}" <<'NODE_SCRIPT'
+  # Run the embedding in a background subshell with nohup so it survives terminal close
+  _LOG_FILE="${storage_dir}.codebase-index-build.log"
+  (
+    nohup node - "${MCP_SCRIPT}" "${proj}" <<'NODE_SCRIPT'
 const { spawn } = require('child_process');
 const [,, mcpScript, projectDir] = process.argv;
 
@@ -174,28 +180,13 @@ child.on('close', (code) => {
 
 sendInitialize();
 NODE_SCRIPT
-  ) && NODE_EXIT=0 || NODE_EXIT=$?
-
-  if [[ ${NODE_EXIT} -ne 0 ]]; then
-    warn "codebase-index build failed for ${proj} — continuing"
-  else
-    # Parse result fields from the response text
-    FILES=$(echo "${RESULT}"    | grep -oP '\d+(?= files processed)'          || echo "?")
-    EMBEDDED=$(echo "${RESULT}" | grep -oP '\d+(?= new chunks embedded)'      || echo "0")
-    SKIPPED=$(echo "${RESULT}"  | grep -oP '\d+(?= unchanged chunks skipped)' || echo "0")
-    REMOVED=$(echo "${RESULT}"  | grep -oP '\d+(?= stale chunks)'             || echo "0")
-    TOKENS=$(echo "${RESULT}"   | grep -oP '(?<=Tokens: )[\d,]+'              || echo "?")
-    DURATION=$(echo "${RESULT}" | grep -oP '(?<=Duration: )[^\n]+'            || echo "?")
-    TOTAL=$(( ${EMBEDDED:-0} + ${SKIPPED:-0} ))
-
-    echo -e ""
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}┌─ $(basename "${proj}") ──────────────────────────────────────┐${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Files processed   : ${TEXT_BOLD}${FILES}${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_GREEN}✔${TEXT_CLEAR}  Chunks embedded   : ${TEXT_BOLD}${EMBEDDED}${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}–${TEXT_CLEAR}  Chunks skipped    : ${SKIPPED}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}–${TEXT_CLEAR}  Stale removed     : ${REMOVED}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}–${TEXT_CLEAR}  Total indexed     : ${TEXT_BOLD}${TOTAL}${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}⏱${TEXT_CLEAR}  Duration          : ${DURATION}   (tokens: ${TOKENS})"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}└───────────────────────────────────────────────────────┘${TEXT_CLEAR}"
-  fi
+  ) > "${_LOG_FILE}" 2>&1 &
+  _BG_PIDS+=($!)
+  log "Embedding started in background (pid $!) — log: ${_LOG_FILE}"
 done
+
+# Wait briefly for background processes and report status
+if [[ ${#_BG_PIDS[@]} -gt 0 ]]; then
+  info "Background embedding processes: ${_BG_PIDS[*]}"
+  info "Logs are in storage/graphify/<project>/.codebase-index-build.log"
+fi
