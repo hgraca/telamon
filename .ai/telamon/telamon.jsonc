@@ -1,0 +1,10 @@
+{
+  "project_name": "telamon",
+  "rtk_enabled": true,
+  "caveman_enabled": true,
+  "medium_model": "github-copilot/claude-sonnet-4",
+  "memory_owner": "telamon",
+  "gpu_enabled": null,
+  "docker_gpu_enabled": null,
+  "ogham_db": "telamon"
+}

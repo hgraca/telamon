@@ -149,7 +149,7 @@ fi
 header "Project config sync"
 
 # Defaults MUST match src/tools/opencode/init.sh template (step 5)
-_CFG_DEFAULTS='{"rtk_enabled":true,"caveman_enabled":true,"medium_model":"","memory_owner":"telamon","discord_enabled":false,"discord_forum_channel":"","discord_forum_channel_id":""}'
+_CFG_DEFAULTS='{"rtk_enabled":true,"caveman_enabled":true,"medium_model":"","memory_owner":"telamon"}'
 
 while IFS= read -r _ppath_file; do
   [[ -f "${_ppath_file}" ]] || continue
@@ -323,7 +323,7 @@ done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/nu
 #   0 — success
 #   1 — failure
 #   2 — tool not installed → fall through to install.sh
-UPDATE_APPS=(homebrew docker opencode graphify codebase-index caveman rtk nodejs qmd repomix promptfoo discord)
+UPDATE_APPS=(homebrew docker opencode graphify codebase-index caveman rtk nodejs qmd repomix promptfoo)
 
 for _app in "${UPDATE_APPS[@]}"; do
   _script="${TOOLS_PATH}/${_app}/update.sh"

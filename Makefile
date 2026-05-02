@@ -122,20 +122,6 @@ install: ## Install all Telamon tools (first-time setup or reinstall)
 		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
-	@echo -e "\n\033[1m\033[34m━━━ Starting Discord Bot... ━━━\033[0m"
-	@if grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1 && command -v remote-opencode >/dev/null 2>&1; then \
-		if [ -f storage/remote-opencode.pid ] && kill -0 "$$(cat storage/remote-opencode.pid)" 2>/dev/null; then \
-			echo "  ✓ remote-opencode already running (PID $$(cat storage/remote-opencode.pid))"; \
-		else \
-			nohup remote-opencode start >storage/remote-opencode.log 2>&1 & \
-			echo "$$!" > storage/remote-opencode.pid; \
-			echo "  ✓ remote-opencode launched (PID $$!)"; \
-		fi; \
-	elif grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1; then \
-		echo "  ⚠ remote-opencode not found — run: npm install -g remote-opencode && remote-opencode setup"; \
-	else \
-		echo "  – Discord Bot (disabled)"; \
-	fi
 	echo -e "\n\033[1m\033[34m━━━ Telamon installed and running. ━━━\033[0m\n"
 	$(MAKE) status
 
@@ -147,32 +133,11 @@ up: ## Boot Telamon services (does not install — use 'make install' for first-
 		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
 		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
 		up -d --no-recreate
-	@echo -e "\n\033[1m\033[34m━━━ Starting Discord Bot... ━━━\033[0m"
-	@if grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1 && command -v remote-opencode >/dev/null 2>&1; then \
-		if [ -f storage/remote-opencode.pid ] && kill -0 "$$(cat storage/remote-opencode.pid)" 2>/dev/null; then \
-			echo "  ✓ remote-opencode already running (PID $$(cat storage/remote-opencode.pid))"; \
-		else \
-			nohup remote-opencode start >storage/remote-opencode.log 2>&1 & \
-			echo "$$!" > storage/remote-opencode.pid; \
-			echo "  ✓ remote-opencode launched (PID $$!)"; \
-		fi; \
-	elif grep -s '^DISCORD_ENABLED=true' .env > /dev/null 2>&1; then \
-		echo "  ⚠ remote-opencode not found — run: npm install -g remote-opencode && remote-opencode setup"; \
-	else \
-		echo "  – Discord Bot (disabled)"; \
-	fi
 	echo -e "\n\033[1m\033[34m━━━ Telamon is up. ━━━\033[0m\n"
 	$(MAKE) status
 
 down: ## Shut down Telamon services
 	echo -e "\n\033[1m\033[34m━━━ Shutting down Telamon services... ━━━\033[0m"
-	@if [ -f storage/remote-opencode.pid ]; then \
-		_pid=$$(cat storage/remote-opencode.pid); \
-		if kill -0 "$$_pid" 2>/dev/null; then \
-			kill "$$_pid" 2>/dev/null && echo "  ✓ remote-opencode stopped (PID $$_pid)"; \
-		fi; \
-		rm -f storage/remote-opencode.pid; \
-	fi
 	docker compose \
 		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
 		$(COMPOSE_PROFILES) down --remove-orphans

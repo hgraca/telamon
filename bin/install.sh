@@ -95,9 +95,6 @@ load_saved_inputs() {
   if [[ -f "${TELAMON_ROOT}/.env" ]]; then
     export LANGFUSE_ENABLED="$(grep -s '^LANGFUSE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
     export GRAPHITI_ENABLED="$(grep -s '^GRAPHITI_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-    _disc="$(grep -s '^DISCORD_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-    [[ -z "${_disc}" ]] && _disc="$(grep -s '^DISCORD_BRIDGE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-    export DISCORD_ENABLED="${_disc}"
   fi
 }
 
@@ -214,7 +211,7 @@ print_summary() {
 # ── Installation phases ────────────────────────────────────────────────────────
 # Phase 1: tools that must exist BEFORE docker compose up (package managers,
 #           docker itself). Called by `make install` before booting containers.
-PRE_DOCKER_APPS=(homebrew docker discord)
+PRE_DOCKER_APPS=(homebrew docker)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make install` after docker compose up.
