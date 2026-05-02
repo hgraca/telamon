@@ -175,10 +175,10 @@ fi
 # ── Wire external modules ─────────────────────────────────────────────────────
 _telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
 if [[ -f "${_telamon_cfg}" ]]; then
-  _module_lines="$(python3 - "${_telamon_cfg}" <<'PYEOF'
-import json, re, sys, os
-
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+  _module_lines="$(python3 - "${_telamon_cfg}" "${FUNCTIONS_PATH}" <<'PYEOF'
+import sys, os
+sys.path.insert(0, sys.argv[2])
+from strip_jsonc import load_jsonc
 
 def url_to_vendor(url):
     url = url.rstrip('/').removesuffix('.git')
@@ -188,7 +188,7 @@ def url_to_vendor(url):
     return 'vendor/' + ('/'.join(parts[1:]) if len(parts) > 2 else parts[-1])
 
 with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 for name, entry in data.get('modules', {}).items():
     local_path = entry.get('local_path', '')

@@ -105,13 +105,13 @@ if [[ ! -f "${_telamon_cfg}" ]]; then
   skip "no .telamon.jsonc found"
 else
   # Read module URLs (excluding built-ins and local-path modules) from .telamon.jsonc
-  _user_module_lines="$(python3 - "${_telamon_cfg}" <<'PYEOF'
-import json, re, sys
-
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+  _user_module_lines="$(python3 - "${_telamon_cfg}" "${FUNCTIONS_PATH}" <<'PYEOF'
+import sys
+sys.path.insert(0, sys.argv[2])
+from strip_jsonc import load_jsonc
 
 with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 for name, entry in data.get('modules', {}).items():
     if entry.get('builtin', False):
@@ -197,16 +197,16 @@ PYEOF
   fi
 
   # Ensure all default keys are present
-  _result="$(python3 - "${_cfg_file}" "${_CFG_DEFAULTS}" <<'PYEOF'
-import json, re, sys
-
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+  _result="$(python3 - "${_cfg_file}" "${_CFG_DEFAULTS}" "${FUNCTIONS_PATH}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[3])
+from strip_jsonc import load_jsonc
 
 path = sys.argv[1]
 defaults = json.loads(sys.argv[2])
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 added = []
 for k, v in defaults.items():

@@ -1,4 +1,7 @@
-"""Shared JSONC comment stripper — single source of truth for Telamon."""
+"""Shared JSONC parser — single source of truth for Telamon."""
+
+import json
+import re
 
 
 def strip_jsonc_comments(text):
@@ -28,3 +31,19 @@ def strip_jsonc_comments(text):
             result.append(text[i])
             i += 1
     return "".join(result)
+
+
+def _fix_commas(text):
+    """Fix trailing commas before } or ] and missing commas between properties."""
+    # Remove trailing commas: ,\s*} or ,\s*]
+    text = re.sub(r",(\s*[}\]])", r"\1", text)
+    # Insert missing commas: "value"\n"key" or value\n"key" (missing comma between properties)
+    text = re.sub(r'("(?:[^"\\]|\\.)*"|true|false|null|\d+(?:\.\d+)?)\s*\n(\s*")', r"\1,\n\2", text)
+    return text
+
+
+def load_jsonc(text):
+    """Parse JSONC text (with comments, trailing/missing commas) into a Python object."""
+    stripped = strip_jsonc_comments(text)
+    fixed = _fix_commas(stripped)
+    return json.loads(fixed)
