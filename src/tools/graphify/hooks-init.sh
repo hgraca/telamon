@@ -19,8 +19,8 @@ RUNNER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/graphify-hook-runner.sh"
 REMEMBER_SESSION_RUNNER="${TOOLS_PATH}/memory/remember-session-hook-runner.sh"
 CODEBASE_INDEX_RUNNER="${TOOLS_PATH}/codebase-index/codebase-index-hook-runner.sh"
 
-MARKER_START="# ── TELAMON GRAPHIFY START ──"
-MARKER_END="# ── TELAMON GRAPHIFY END ──"
+MARKER_START="# ── TELAMON START ──"
+MARKER_END="# ── TELAMON END ──"
 
 if [[ ! -d "${HOOKS_DIR}" ]]; then
   warn "No .git/hooks directory found in ${PROJ} — skipping git hook installation"
