@@ -120,6 +120,58 @@ for _app in "${INIT_APPS[@]}"; do
   (cd "${PROJ}" && timed_run "${_app}" bash "${_script}")
 done
 
+# ── .gitignore telamon section ────────────────────────────────────────────────
+header ".gitignore"
+
+_GITIGNORE="${PROJ}/.gitignore"
+_GI_MARKER_START="###> telamon ###"
+_GI_MARKER_END="###< telamon ###"
+_GI_SECTION="${_GI_MARKER_START}
+.ai/telamon
+.graphifyignore
+graphify-out
+graphify-out/
+*opencode*
+*claude*
+*codex*
+*junie*
+!opencode.dist.json
+!opencode.dist.jsonc
+repomix.config.json
+.telamon.jsonc
+${_GI_MARKER_END}"
+
+if [[ -f "${_GITIGNORE}" ]]; then
+  if grep -qF "${_GI_MARKER_START}" "${_GITIGNORE}"; then
+    # Extract existing section and compare
+    _existing_section="$(sed -n "/^${_GI_MARKER_START//\//\\/}$/,/^${_GI_MARKER_END//\//\\/}$/p" "${_GITIGNORE}")"
+    if [[ "${_existing_section}" == "${_GI_SECTION}" ]]; then
+      skip ".gitignore telamon section (already up to date)"
+    else
+      # Replace existing section
+      _tmp="$(mktemp)"
+      awk -v start="${_GI_MARKER_START}" -v end="${_GI_MARKER_END}" '
+        $0 == start { skip=1; next }
+        $0 == end   { skip=0; next }
+        !skip { print }
+      ' "${_GITIGNORE}" > "${_tmp}"
+      # Remove trailing blank lines then append section
+      sed -i -e :a -e '/^\n*$/{$d;N;ba}' "${_tmp}"
+      printf '\n\n%s\n' "${_GI_SECTION}" >> "${_tmp}"
+      mv "${_tmp}" "${_GITIGNORE}"
+      log ".gitignore telamon section updated"
+    fi
+  else
+    # Append section
+    printf '\n%s\n' "${_GI_SECTION}" >> "${_GITIGNORE}"
+    log ".gitignore telamon section added"
+  fi
+else
+  # Create .gitignore with section
+  printf '%s\n' "${_GI_SECTION}" > "${_GITIGNORE}"
+  log ".gitignore created with telamon section"
+fi
+
 # ── Wire external modules ─────────────────────────────────────────────────────
 _telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
 if [[ -f "${_telamon_cfg}" ]]; then
