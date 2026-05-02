@@ -233,12 +233,9 @@ post_docker() {
 main() {
   local total_start=${SECONDS}
   echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
-  echo "  ╔══════════════════════════════════════════════════════╗"
-  echo "  ║   Telamon — Harness for Agentic Software Development ║"
-  echo "  ║   macOS · Linux Mint · Ubuntu · Debian               ║"
-  echo "  ║   Graphify · codebase-index                          ║"
-  echo "  ║   Ollama · RTK · QMD · Caveman                      ║"
-  echo "  ╚══════════════════════════════════════════════════════╝"
+  echo "  ══════════════════════════════════════════"
+  echo "  Telamon Install"
+  echo "  ══════════════════════════════════════════"
   echo -e "${TEXT_CLEAR}"
 
   collect_inputs

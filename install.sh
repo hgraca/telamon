@@ -40,10 +40,9 @@ REPO_URL="https://github.com/hgraca/telamon.git"
 main() {
   # Header banner
   echo -e ""
-  echo -e "${TEXT_BOLD}${TEXT_BLUE}╔═══════════════════════════════════════════════════╗${TEXT_CLEAR}"
-  echo -e "${TEXT_BOLD}${TEXT_BLUE}║   Telamon Installer                               ║${TEXT_CLEAR}"
-  echo -e "${TEXT_BOLD}${TEXT_BLUE}║   Harness for Agentic Software Development        ║${TEXT_CLEAR}"
-  echo -e "${TEXT_BOLD}${TEXT_BLUE}╚═══════════════════════════════════════════════════╝${TEXT_CLEAR}"
+  echo -e "${TEXT_BOLD}${TEXT_BLUE}══════════════════════════════════════════${TEXT_CLEAR}"
+  echo -e "${TEXT_BOLD}${TEXT_BLUE}Telamon Installer${TEXT_CLEAR}"
+  echo -e "${TEXT_BOLD}${TEXT_BLUE}══════════════════════════════════════════${TEXT_CLEAR}"
   echo -e ""
 
   # ── Check prerequisites ─────────────────────────────────────────────────────

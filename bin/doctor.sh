@@ -31,9 +31,9 @@ _warn() { echo -e "  ${TEXT_YELLOW}⚠${TEXT_CLEAR}  $1"; WARN_COUNT=$((WARN_COU
 _info() { echo -e "  ${TEXT_BLUE}ℹ${TEXT_CLEAR}  $1"; }
 
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
-echo "  ╔═══════════════════════════════════════════════════════╗"
-echo "  ║   Telamon — Harness for Agentic Software Development  ║"
-echo "  ╚═══════════════════════════════════════════════════════╝"
+echo "  ══════════════════════════════════════════"
+echo "  Telamon Doctor"
+echo "  ══════════════════════════════════════════"
 echo -e "${TEXT_CLEAR}"
 
 # ── 1. Core Infrastructure ────────────────────────────────────────────────────

@@ -22,9 +22,9 @@ export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
-echo "  ╔═════════════════════════════════════════════════╗"
-echo "  ║   Telamon — Harness for Agentic Software Development          ║"
-echo "  ╚═════════════════════════════════════════════════╝"
+echo "  ══════════════════════════════════════════"
+echo "  Telamon Update"
+echo "  ══════════════════════════════════════════"
 echo -e "${TEXT_CLEAR}"
 
 FAILED=0
