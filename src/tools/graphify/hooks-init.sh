@@ -64,18 +64,20 @@ install_hook() {
 # ── post-checkout: only trigger on branch switch (3rd arg == 1) ───────────────
 POST_CHECKOUT_BODY="# Args: prev-ref new-ref branch-flag
 if [[ \"\${3:-0}\" == \"1\" ]]; then
-  bash \"${RUNNER}\" \"${PROJ}\" &
+  bash \"${RUNNER}\" \"${PROJ}\" >/dev/null 2>&1 & disown
 fi"
 
 # ── post-commit: trigger graphify, codebase-index, and remember-session ───────
-POST_COMMIT_BODY="bash \"${RUNNER}\" \"${PROJ}\" &"
+# Note: >/dev/null 2>&1 & disown — prevents MCP git server from waiting
+# on child processes (Python subprocess waits until inherited FDs close)
+POST_COMMIT_BODY="bash \"${RUNNER}\" \"${PROJ}\" >/dev/null 2>&1 & disown"
 if [[ -f "${CODEBASE_INDEX_RUNNER}" ]]; then
   POST_COMMIT_BODY="${POST_COMMIT_BODY}
-bash \"${CODEBASE_INDEX_RUNNER}\" \"${PROJ}\" &"
+bash \"${CODEBASE_INDEX_RUNNER}\" \"${PROJ}\" >/dev/null 2>&1 & disown"
 fi
 if [[ -f "${REMEMBER_SESSION_RUNNER}" ]]; then
   POST_COMMIT_BODY="${POST_COMMIT_BODY}
-bash \"${REMEMBER_SESSION_RUNNER}\" \"${PROJ}\" &"
+bash \"${REMEMBER_SESSION_RUNNER}\" \"${PROJ}\" >/dev/null 2>&1 & disown"
 fi
 
 install_hook "post-checkout" "${POST_CHECKOUT_BODY}"
