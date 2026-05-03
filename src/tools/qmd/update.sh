@@ -20,14 +20,22 @@ fi
 export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
 mkdir -p "${TELAMON_ROOT}/storage/qmd"
 
-step "Upgrading QMD via npm..."
-_npm_out="$(npm install -g @tobilu/qmd 2>&1)" && _npm_ok=1 || _npm_ok=0
+# Check if update is needed
+CURRENT_VERSION="$(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")"
+LATEST_VERSION="$(npm view @tobilu/qmd version 2>/dev/null || echo "")"
 
-if [[ "${_npm_ok}" -eq 1 ]]; then
-  log "qmd → $(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')"
+if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; then
+  log "qmd v${CURRENT_VERSION} (already latest)"
 else
-  warn "QMD upgrade failed (non-fatal):"
-  echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
+  step "Upgrading QMD via npm..."
+  _npm_out="$(npm install -g @tobilu/qmd 2>&1)" && _npm_ok=1 || _npm_ok=0
+
+  if [[ "${_npm_ok}" -eq 1 ]]; then
+    log "qmd → $(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')"
+  else
+    warn "QMD upgrade failed (non-fatal):"
+    echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
+  fi
 fi
 
 step "Refreshing QMD vault index..."
