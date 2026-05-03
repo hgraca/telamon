@@ -120,17 +120,18 @@ fi
 # ── 6. Apply each patch ───────────────────────────────────────────────────────
 step "Applying patches..."
 
-python3 - "${PATCHES_JSON}" "${SRC_DIR}" "${VERSION}" <<'PYEOF'
+APPLIED_COUNT="$(python3 - "${PATCHES_JSON}" "${SRC_DIR}" "${VERSION}" <<'PYEOF'
 import json, os, re, subprocess, sys
 
 patches = json.loads(sys.argv[1])
 src_dir = sys.argv[2]
 version = sys.argv[3]
+applied = 0
 
 for pr_url in patches:
     m = re.search(r'/pull/([0-9]+)$', pr_url)
     if not m:
-        print(f"  WARN: Cannot extract PR number from URL: {pr_url}", flush=True)
+        print(f"  WARN: Cannot extract PR number from URL: {pr_url}", file=sys.stderr, flush=True)
         continue
 
     pr_num = m.group(1)
@@ -142,7 +143,7 @@ for pr_url in patches:
         capture_output=True
     )
     if result.returncode != 0:
-        print(f"  WARN: Failed to download patch for PR #{pr_num}", flush=True)
+        print(f"  WARN: Failed to download patch for PR #{pr_num}", file=sys.stderr, flush=True)
         if os.path.exists(patch_file):
             os.remove(patch_file)
         continue
@@ -158,10 +159,11 @@ for pr_url in patches:
             ["git", "-C", src_dir, "apply", patch_file],
             capture_output=True, text=True
         )
-        print(f"  ✔  Applied PR #{pr_num} ({pr_url})", flush=True)
+        print(f"  ✔  Applied PR #{pr_num} ({pr_url})", file=sys.stderr, flush=True)
+        applied += 1
     else:
         # Patch doesn't apply cleanly to this version — skip it
-        print(f"  SKIP: PR #{pr_num} conflicts with v{version} — skipping", flush=True)
+        print(f"  SKIP: PR #{pr_num} conflicts with v{version} — skipping", file=sys.stderr, flush=True)
         subprocess.run(
             ["git", "-C", src_dir, "reset", "--hard", "HEAD"],
             capture_output=True, text=True
@@ -170,7 +172,15 @@ for pr_url in patches:
     # Clean up patch file
     if os.path.exists(patch_file):
         os.remove(patch_file)
+
+print(applied)
 PYEOF
+)"
+
+if [[ "${APPLIED_COUNT}" -eq 0 ]]; then
+  warn "No patches applied cleanly — skipping build"
+  exit 0
+fi
 
 # ── 7. Build ──────────────────────────────────────────────────────────────────
 step "Installing dependencies..."
