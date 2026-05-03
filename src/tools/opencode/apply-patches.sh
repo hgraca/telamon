@@ -115,7 +115,7 @@ fi
 step "Applying patches..."
 
 python3 - "${PATCHES_JSON}" "${SRC_DIR}" "${VERSION}" <<'PYEOF'
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 
 patches = json.loads(sys.argv[1])
 src_dir = sys.argv[2]
