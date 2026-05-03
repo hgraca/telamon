@@ -112,7 +112,13 @@ for pr_url in patches:
             os.remove(patch_file)
         continue
 
-    # Apply patch
+    # Fetch PR ref so git has blobs needed for 3-way merge
+    subprocess.run(
+        ["git", "-C", src_dir, "fetch", "origin", f"pull/{pr_num}/head"],
+        capture_output=True, text=True
+    )
+
+    # Apply patch with 3-way merge
     result = subprocess.run(
         ["git", "-C", src_dir, "apply", "--3way", patch_file],
         capture_output=True, text=True
