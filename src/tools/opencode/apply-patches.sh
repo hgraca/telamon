@@ -185,9 +185,21 @@ fi
 log "Built binary: ${BUILT_BINARY}"
 
 DEST="${HOME}/.opencode/bin/opencode"
-mkdir -p "$(dirname "${DEST}")"
-cp "${BUILT_BINARY}" "${DEST}"
-chmod +x "${DEST}"
+BACKUP_DIR="${TELAMON_ROOT}/storage/opencode-backups"
+mkdir -p "$(dirname "${DEST}")" "${BACKUP_DIR}"
+
+# Backup current binary before replacing
+if [[ -f "${DEST}" ]]; then
+  BACKUP_NAME="opencode-v${VERSION}"
+  cp "${DEST}" "${BACKUP_DIR}/${BACKUP_NAME}" 2>/dev/null || true
+  log "Backed up current binary → ${BACKUP_DIR}/${BACKUP_NAME}"
+fi
+
+# Use mv (atomic rename) instead of cp — works even when binary is running
+# because mv replaces the directory entry while the old inode stays open
+cp "${BUILT_BINARY}" "${DEST}.new"
+chmod +x "${DEST}.new"
+mv -f "${DEST}.new" "${DEST}"
 log "Installed patched opencode → ${DEST}"
 
 # ── 9. Save state ─────────────────────────────────────────────────────────────

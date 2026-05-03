@@ -35,6 +35,7 @@ Commands:
   purge [path]           Remove project wiring and data (default: current dir)
   recover-memories [path]  Extract memories from past session transcripts
                            Flags: --all, --full, --dry-run, --batch-size N
+  opencode recover         Restore opencode binary from backup
   module add <url-or-path>  Register a module from a git URL or local directory
                            Flags: --name=<name>, --commands=, --agents=, --skills=, --plugins=
   module remove <name>   Remove a registered module by name
@@ -66,6 +67,30 @@ case "${CMD}" in
   recover-memories)
     shift
     bash "${TELAMON_ROOT}/src/scripts/recover-memories.sh" "$@" ;;
+
+  opencode)
+    shift
+    case "${1:-}" in
+      recover)
+        BACKUP_DIR="${TELAMON_ROOT}/storage/opencode-backups"
+        DEST="${HOME}/.opencode/bin/opencode"
+        if [[ ! -d "${BACKUP_DIR}" ]] || [[ -z "$(ls -A "${BACKUP_DIR}" 2>/dev/null)" ]]; then
+          echo "No backups found in ${BACKUP_DIR}" >&2; exit 1
+        fi
+        echo "Available backups:"
+        ls -1 "${BACKUP_DIR}" | sed 's/^/  /'
+        LATEST="$(ls -1t "${BACKUP_DIR}" | head -1)"
+        echo ""
+        echo "Restoring latest: ${LATEST}"
+        cp "${BACKUP_DIR}/${LATEST}" "${DEST}.new"
+        chmod +x "${DEST}.new"
+        mv -f "${DEST}.new" "${DEST}"
+        echo "✔ Restored ${LATEST} → ${DEST}"
+        ;;
+      *)
+        echo "Usage: telamon opencode recover" >&2; exit 1 ;;
+    esac
+    ;;
 
   uninstall) make -C "${TELAMON_ROOT}" uninstall ;;
   init|reset|purge)
