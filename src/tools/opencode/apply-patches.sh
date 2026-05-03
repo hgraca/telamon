@@ -41,11 +41,35 @@ fi
 
 step "Found ${PATCH_COUNT} patch(es) to apply..."
 
-# ── 2. Ensure Bun is available ────────────────────────────────────────────────
+# ── 2. Ensure Bun meets minimum version ──────────────────────────────────────
+_install_bun() {
+  step "Installing/upgrading bun..."
+  curl -fsSL https://bun.sh/install | bash
+  export PATH="$HOME/.bun/bin:$PATH"
+}
+
+BUN_REQUIRED="$(config.read_ini "${CONFIG_FILE}" "bun_version" 2>/dev/null || echo "")"
+# Strip ^ or ~ prefix to get the minimum version
+BUN_MIN="${BUN_REQUIRED#^}"
+BUN_MIN="${BUN_MIN#~}"
+BUN_MIN="${BUN_MIN:-1.3.13}"  # fallback if not configured
+
 if ! command -v bun &>/dev/null; then
-  warn "bun not found — cannot build opencode from source. Install bun first."
-  exit 1
+  _install_bun
 fi
+
+BUN_CURRENT="$(bun --version 2>/dev/null || echo "0.0.0")"
+if [[ $(os.version_to_number "${BUN_CURRENT}") -lt $(os.version_to_number "${BUN_MIN}") ]]; then
+  warn "bun ${BUN_CURRENT} is below required ${BUN_MIN}"
+  _install_bun
+  BUN_CURRENT="$(bun --version 2>/dev/null || echo "0.0.0")"
+  if [[ $(os.version_to_number "${BUN_CURRENT}") -lt $(os.version_to_number "${BUN_MIN}") ]]; then
+    warn "bun upgrade failed — version ${BUN_CURRENT} still below ${BUN_MIN}"
+    exit 1
+  fi
+fi
+
+log "bun ${BUN_CURRENT} (required: ${BUN_REQUIRED:-≥${BUN_MIN}})"
 
 # ── 3. Clone or update opencode source ───────────────────────────────────────
 REPO_URL="https://github.com/anomalyco/opencode.git"
