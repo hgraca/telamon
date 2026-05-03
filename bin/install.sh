@@ -48,6 +48,20 @@ export TELAMON_ROOT STATE_DIR SECRETS_DIR
 # ── PATH ──────────────────────────────────────────────────────────────────────
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
+# ── Ensure bun is installed ───────────────────────────────────────────────────
+# bun — required for building opencode from source (patches)
+_BUN_MIN="1.3.13"  # fallback; ideally read from .telamon.jsonc after clone
+if ! command -v bun >/dev/null 2>&1; then
+  step "Installing bun..."
+  curl -fsSL https://bun.sh/install | bash
+  export PATH="$HOME/.bun/bin:$PATH"
+fi
+if command -v bun >/dev/null 2>&1; then
+  log "bun found: $(bun --version)"
+else
+  warn "bun installation failed — opencode patches will not work"
+fi
+
 # ── Built-in vendor repos ────────────────────────────────────────────────────
 # Clone mandatory vendor repos if not already present (plain clones, not submodules).
 _derive_vendor_path() {

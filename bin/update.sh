@@ -21,6 +21,37 @@ export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:$PATH"
 
+# ── Ensure Bun meets minimum version ─────────────────────────────────────────
+_bun_ensure_version() {
+  local config_file="${TELAMON_ROOT}/.telamon.jsonc"
+  local bun_required
+  bun_required="$(config.read_ini "${config_file}" "bun_version" 2>/dev/null || echo "")"
+  # Strip ^ or ~ prefix
+  local bun_min="${bun_required#^}"
+  bun_min="${bun_min#\~}"
+  bun_min="${bun_min:-1.3.13}"
+
+  if ! command -v bun &>/dev/null; then
+    step "Installing bun..."
+    curl -fsSL https://bun.sh/install | bash
+    export PATH="$HOME/.bun/bin:$PATH"
+  fi
+
+  local bun_current
+  bun_current="$(bun --version 2>/dev/null || echo "0.0.0")"
+  if [[ $(os.version_to_number "${bun_current}") -lt $(os.version_to_number "${bun_min}") ]]; then
+    step "Upgrading bun (${bun_current} → ≥${bun_min})..."
+    curl -fsSL https://bun.sh/install | bash
+    export PATH="$HOME/.bun/bin:$PATH"
+    bun_current="$(bun --version 2>/dev/null || echo "0.0.0")"
+    if [[ $(os.version_to_number "${bun_current}") -lt $(os.version_to_number "${bun_min}") ]]; then
+      warn "bun ${bun_current} still below required ${bun_min} — opencode patches may fail"
+    fi
+  fi
+  log "bun ${bun_current} (required: ≥${bun_min})"
+}
+_bun_ensure_version
+
 echo -e "\n${TEXT_BOLD}${TEXT_BLUE}"
 echo "  ══════════════════════════════════════════"
 echo "  Telamon Update"
