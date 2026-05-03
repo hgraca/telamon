@@ -97,6 +97,10 @@ log "opencode version: ${VERSION}"
 
 # ── 5. Checkout the version tag ───────────────────────────────────────────────
 step "Checking out v${VERSION}..."
+# Hard reset to clear any leftover state from previous failed runs
+# (git apply --3way stages conflicted files normally, so checkout --force alone
+# may not fully clean them)
+git -C "${SRC_DIR}" reset --hard --quiet 2>/dev/null || true
 if git -C "${SRC_DIR}" tag | grep -q "^v${VERSION}$"; then
   git -C "${SRC_DIR}" checkout "v${VERSION}" --force --quiet
   log "Checked out tag v${VERSION}"
