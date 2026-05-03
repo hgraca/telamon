@@ -154,13 +154,23 @@ for pr_url in patches:
             capture_output=True, text=True
         )
         if unmerged.stdout.strip():
-            # Resolve conflicts by accepting the patch version
+            # Resolve conflicts by stripping markers, keeping incoming (theirs) version
+            # git checkout --theirs doesn't work with git apply --3way conflicts
+            import re
             conflicted_files = unmerged.stdout.strip().split("\n")
             for f in conflicted_files:
-                subprocess.run(
-                    ["git", "-C", src_dir, "checkout", "--theirs", "--", f],
-                    capture_output=True, text=True
+                fpath = os.path.join(src_dir, f)
+                with open(fpath, "r") as fh:
+                    content = fh.read()
+                # Strip conflict markers keeping "theirs" (the patch version)
+                content = re.sub(
+                    r'<<<<<<< ours\n.*?=======\n(.*?)>>>>>>> theirs\n',
+                    r'\1',
+                    content,
+                    flags=re.DOTALL
                 )
+                with open(fpath, "w") as fh:
+                    fh.write(content)
                 subprocess.run(
                     ["git", "-C", src_dir, "add", "--", f],
                     capture_output=True, text=True
