@@ -126,7 +126,7 @@ export const RtkDedupePlugin: Plugin = async (ctx) => {
       // Check if result is empty or whitespace-only
       const result = (output as Record<string, unknown>)?.result
       const stdout = String((result as Record<string, unknown>)?.stdout ?? "")
-      const isEmptyOrWhitespace = !stdout || stdout.trim() === ""
+      const isEmptyOrWhitespace = !stdout || stdout.trim() === "" || stdout.trim().toLowerCase() === "(no output)"
 
       if (isEmptyOrWhitespace) {
         // RTK result was empty — execute the original bare command as fallback

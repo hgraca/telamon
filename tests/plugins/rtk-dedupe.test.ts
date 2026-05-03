@@ -376,6 +376,32 @@ describe("RtkDedupePlugin", () => {
       expect(String((aOutput.result as Record<string, unknown>).stdout)).toBe("real output")
     })
 
+    test("'(no output)' placeholder string triggers fallback and result IS updated", async () => {
+      _rtkEnabled = true
+
+      const shellSpy = mock((_strings: TemplateStringsArray, ..._expressions: unknown[]) => {
+        return makeShellPromise({ stdout: Buffer.from("bare output"), stderr: Buffer.from(""), exitCode: 0 })
+      })
+      const ctx = { $: shellSpy } as unknown as Parameters<typeof RtkDedupePlugin>[0]
+
+      const hooks = await RtkDedupePlugin(ctx)
+      const before = hooks["tool.execute.before"]!
+      const after = hooks["tool.execute.after"]!
+
+      const { input: bInput, output: bOutput } = makeBeforeArgs("ls -la")
+      await before(bInput, bOutput)
+      const rewrittenCmd = String((bOutput.args as Record<string, unknown>).command)
+      expect(rewrittenCmd).toBe("rtk run ls -la")
+
+      const { input: aInput, output: aOutput } = makeAfterArgs(rewrittenCmd, "(no output)")
+      await after(aInput, aOutput)
+
+      // ctx.$ IS called (fallback triggered by "(no output)" placeholder)
+      expect(shellSpy).toHaveBeenCalledTimes(1)
+      // Result IS updated with fallback output
+      expect(String((aOutput.result as Record<string, unknown>).stdout)).toBe("bare output")
+    })
+
     test("after hook ignores non-bash tools", async () => {
       _rtkEnabled = true
 
