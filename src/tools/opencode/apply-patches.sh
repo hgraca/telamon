@@ -148,33 +148,36 @@ for pr_url in patches:
         capture_output=True, text=True
     )
     if result.returncode != 0:
-        # Check for unmerged files (conflicts from 3-way merge)
-        unmerged = subprocess.run(
-            ["git", "-C", src_dir, "diff", "--name-only", "--diff-filter=U"],
+        # git apply --3way may leave conflict markers in files without creating
+        # proper unmerged index entries. Scan all modified files for markers.
+        modified = subprocess.run(
+            ["git", "-C", src_dir, "diff", "--name-only", "HEAD"],
             capture_output=True, text=True
         )
-        if unmerged.stdout.strip():
-            # Resolve conflicts by stripping markers, keeping incoming (theirs) version
-            # git checkout --theirs doesn't work with git apply --3way conflicts
-            import re
-            conflicted_files = unmerged.stdout.strip().split("\n")
-            for f in conflicted_files:
-                fpath = os.path.join(src_dir, f)
-                with open(fpath, "r") as fh:
-                    content = fh.read()
-                # Strip conflict markers keeping "theirs" (the patch version)
-                content = re.sub(
-                    r'<<<<<<< ours\n.*?=======\n(.*?)>>>>>>> theirs\n',
-                    r'\1',
-                    content,
-                    flags=re.DOTALL
-                )
-                with open(fpath, "w") as fh:
-                    fh.write(content)
-                subprocess.run(
-                    ["git", "-C", src_dir, "add", "--", f],
-                    capture_output=True, text=True
-                )
+        conflicted_files = []
+        for f in (modified.stdout.strip().split("\n") if modified.stdout.strip() else []):
+            fpath = os.path.join(src_dir, f)
+            if not os.path.isfile(fpath):
+                continue
+            with open(fpath, "r") as fh:
+                content = fh.read()
+            if "<<<<<<< ours" not in content:
+                continue
+            # Strip conflict markers keeping "theirs" (the patch version)
+            content = re.sub(
+                r'<<<<<<< ours\n.*?=======\n(.*?)>>>>>>> theirs\n',
+                r'\1',
+                content,
+                flags=re.DOTALL
+            )
+            with open(fpath, "w") as fh:
+                fh.write(content)
+            subprocess.run(
+                ["git", "-C", src_dir, "add", "--", f],
+                capture_output=True, text=True
+            )
+            conflicted_files.append(f)
+        if conflicted_files:
             print(f"  ✔  Applied PR #{pr_num} (resolved {len(conflicted_files)} conflict(s))", flush=True)
         else:
             print(f"  WARN: Failed to apply patch for PR #{pr_num}: {result.stderr.strip()}", flush=True)
