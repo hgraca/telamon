@@ -17,8 +17,8 @@ fi
 
 # Check if update is needed by comparing local version with latest repo tag
 CURRENT_VERSION="$(opencode --version 2>/dev/null || echo "0.0.0")"
-LATEST_VERSION="$(git ls-remote --tags --sort=-v:refname https://github.com/anomalyco/opencode.git 'refs/tags/v*' 2>/dev/null \
-  | head -1 | sed 's|.*refs/tags/v||' || echo "")"
+LATEST_VERSION="$(git ls-remote --tags https://github.com/anomalyco/opencode.git 'refs/tags/v[0-9]*' 2>/dev/null \
+  | sed 's|.*refs/tags/v||' | sort -V -r | head -1 || echo "")"
 
 if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; then
   log "opencode v${CURRENT_VERSION} (already latest)"
