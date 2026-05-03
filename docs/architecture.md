@@ -42,7 +42,7 @@ flowchart TB
         end
 
         subgraph plugins["OpenCode Plugins (always-on)"]
-            p_sc["session-capture"]
+            p_sc["remember-session"]
             p_gf["graphify"]
             p_rd["rtk-dedupe"]
             p_dc["diff-context"]
@@ -198,7 +198,7 @@ src/
     graphify.js              # injects graph context into first tool call
     rtk.ts                   # RTK token compression integration
     rtk-dedupe.ts            # deduplicates RTK output
-    session-capture.js       # auto-captures learnings before compaction
+    remember-session.js       # auto-captures learnings before compaction
     diff-context.js          # injects git change summary on first bash call
     active-work-context.js   # injects active work items at session start
     compaction-save.js       # saves compaction timestamps to active work items
@@ -230,7 +230,7 @@ src/
     codebase-index/          # MCP registration + per-project config
     repomix/                 # Repomix MCP installer, init, update, doctor
     promptfoo/               # promptfoo eval framework installer, init, update
-    session-capture/         # session-capture opencode plugin + init
+    remember-session/         # remember-session opencode plugin + init
     diff-context/            # diff-context opencode plugin registration
     cli/                     # telamon CLI + desktop menu entry installer
 

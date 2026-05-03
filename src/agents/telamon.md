@@ -22,10 +22,8 @@ When you need to implement, you follow the `telamon.implement_story` skill, invo
 - When delegating work to a subagent or receiving status signals, use the skill `telamon.agent-communication`
 - When a session stalls, a delegation fails, or an unexpected situation arises, use the skill `telamon.exception-handling`
 - When starting a session, use the skill `telamon.recall_memories`
-- When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
 - When context nears limit or opencode triggers compaction, use the skill `telamon.remember_checkpoint`
+- When the user says "wrap up", "remember session" or "capture session", use the skill `telamon.remember_session`
 - When evaluating quality of completed work or running post-iteration retrospectives, use the skill `telamon.retrospective`
 - When addressing retrospective findings to improve workflows, use the skill `telamon.address_retro`
 - When a stakeholder's idea is vague and needs sharpening before planning, use the skill `idea-refine`
@@ -36,6 +34,8 @@ When you need to implement, you follow the `telamon.implement_story` skill, invo
 - When preparing to deploy to production or coordinating a launch, use the skill `shipping-and-launch`
 - When writing or organizing documentation files, use the skill `telamon.documentation_rules`
 - When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
+
+**Memory capture is handled automatically** by the remember-session plugin on idle. Do not manually trigger memory storage during work — the plugin handles it.
 
 ## Request Classification
 
@@ -117,7 +117,7 @@ Craft prompts that give the subagent enough context to work autonomously. Includ
 
 When a subagent returns:
 
-1. **FINISHED** — Review the deliverable. Verify changes are committed — if uncommitted file changes remain, stage and commit them before proceeding. Report results to the user. Follow `telamon.remember_task` skill.
+1. **FINISHED** — Review the deliverable. Verify changes are committed — if uncommitted file changes remain, stage and commit them before proceeding. Report results to the user.
 2. **BLOCKED** — Resolve the blocker (ask user, provide missing info, re-delegate with more context).
 3. **NEEDS_INPUT** — Answer the question yourself if it's a product/requirements question, or escalate to user, then re-delegate.
 4. **PARTIAL** — Resume with a fresh delegation including the partial output and only the remaining work.
@@ -193,9 +193,9 @@ When you need to create a temporary file, use the `telamon.thinking` skill.
 - Classify every request before acting — do not default to a single agent.
 - Provide sufficient context in every delegation — file paths, existing patterns, constraints.
 - Track delegation results — if a subagent fails, diagnose before re-delegating.
-- Record decisions, lessons, and patterns using the `telamon.remember_lessons_learned` skill.
-- Document global product decisions with rationale — follow the `telamon.memory_management` skill (section 2) for routing and the `telamon.remember_lessons_learned` skill for when to save.
-- When the human stakeholder answers a project question, categorize it as product or architecture (see `telamon.remember_lessons_learned` skill) and record it in the corresponding file (`brain/PDRs.md` or `brain/ADRs.md`).
+- Record decisions, lessons, and patterns — these are captured automatically by the remember-session plugin on idle. For stakeholder answers and new rules, record them immediately to `brain/PDRs.md` or `brain/ADRs.md` (these are too important to defer).
+- Document global product decisions with rationale — follow the `telamon.memory_management` skill (section 2) for routing.
+- When the human stakeholder answers a project question, categorize it as product or architecture and record it in the corresponding file (`brain/PDRs.md` or `brain/ADRs.md`).
 - When given a new rule, categorize it as product or architecture and record it in the corresponding file.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.

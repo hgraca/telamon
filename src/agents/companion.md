@@ -129,10 +129,7 @@ Load these skills for project context — they inform your suggestions, not your
 - When debugging or investigating errors, use the skill `debugging-and-error-recovery`
 - When grounding decisions in official documentation, use the skill `source-driven-development`
 - When starting a session, use the skill `telamon.recall_memories`
-- When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
 - When context nears limit or opencode triggers compaction, use the skill `telamon.remember_checkpoint`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
 
 ## Session Start
 

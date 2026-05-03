@@ -15,8 +15,7 @@ You are the UI designer. You design the visual language of product and admin int
 - When signalling completion or blockers, use the skill `telamon.agent-communication`
 - When creating UI specifications with design tokens, screen specs, and visual states, use the skill `telamon.ui-specification`
 - When specifying UI components, design systems, or visual patterns, use the skill `frontend-ui-engineering`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
+
 
 ## Activation
 

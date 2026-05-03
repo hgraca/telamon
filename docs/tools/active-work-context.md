@@ -31,4 +31,4 @@ An OpenCode plugin that injects a summary of active work items into the first ba
 
 - [Compaction Save](compaction-save) — Saves compaction timestamps to active work items
 - [Diff Context](diff-context) — Injects git change summary at session start
-- [Session Capture](session-capture) — Auto-promotes learnings before compaction
+- [Session Capture](remember-session) — Auto-promotes learnings before compaction

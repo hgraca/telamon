@@ -28,4 +28,4 @@ An OpenCode plugin that writes a `compaction.md` file to each active work item d
 ## Related
 
 - [Active Work Context](active-work-context) — Injects active work items at session start
-- [Session Capture](session-capture) — Auto-promotes learnings before compaction
+- [Session Capture](remember-session) — Auto-promotes learnings before compaction

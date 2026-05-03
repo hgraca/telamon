@@ -11,7 +11,7 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 | Tool                                       | Description                                              |
 |--------------------------------------------|----------------------------------------------------------|
-| [Session Capture](session-capture)         | Auto-promotes learnings to memory before compaction      |
+| [Session Capture](remember-session)         | Auto-promotes learnings to memory before compaction      |
 | [Diff Context](diff-context)               | Injects git change summary at session start              |
 | [Active Work Context](active-work-context) | Injects active work items at session start, prompts user |
 | [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items         |
@@ -62,7 +62,7 @@ Plugins are OpenCode extensions that run automatically. They fire on specific ev
 
 | Plugin                                     | What it does                                                                           | Source                                                                                                     |
 |--------------------------------------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| [Session Capture](session-capture)         | Promotes learnings to memory after each turn and on wrap-up                            | [`session-capture.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/session-capture.js)         |
+| [Session Capture](remember-session)         | Promotes learnings to memory after each turn and on wrap-up                            | [`remember-session.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/remember-session.js)         |
 | [Diff Context](diff-context)               | Injects git change summary on first bash call                                          | [`diff-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/diff-context.js)               |
 | [Graphify](graphify)                       | Injects god nodes and communities at session start                                     | [`graphify.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/graphify.js)                       |
 | [RTK](rtk)                                 | Compresses bash output before it reaches the LLM                                       | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk.ts)                                 |

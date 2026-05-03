@@ -4,7 +4,7 @@
 # rtk init -g --opencode installs the plugin to ~/.config/opencode/plugins/rtk.ts
 # (no destination override available). We copy that file into src/plugins/rtk.ts
 # so it is shipped as part of Telamon and delivered to projects via the
-# .opencode/plugins/telamon symlink — consistent with graphify and session-capture.
+# .opencode/plugins/telamon symlink — consistent with graphify and remember-session.
 
 set -euo pipefail
 

@@ -32,10 +32,7 @@ Do this immediately:
 - When performance requirements influence architectural decisions, use the skill `performance-optimization`
 - When grounding design decisions in official documentation, use the skill `source-driven-development`
 - When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
-- When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
 - When context nears limit or opencode triggers compaction, use the skill `telamon.remember_checkpoint`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
 
 ## Planning
 
@@ -74,7 +71,7 @@ When you need to create a temporary file, use the `telamon.thinking` skill.
 
 ## MUST
 
-- When making an architecture or technical decision, append it to `brain/ADRs.md` with rationale using the `telamon.remember_lessons_learned` skill.
+- When making an architecture or technical decision, append it to `brain/ADRs.md` with rationale.
 - Before designing a plan, explicitly list assumptions about the domain, the existing system, and constraints. Present them and wait for confirmation. Wrong assumptions that propagate into a plan are expensive to fix during implementation.
 - If the brief has issues, point them out with concrete, quantified downsides and propose alternatives. Do not silently plan around problems.
 - Before finalizing a plan, verify simplicity: is this the simplest design that satisfies the requirements? If 3 steps would suffice where the plan has 10, simplify.

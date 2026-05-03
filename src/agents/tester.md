@@ -10,6 +10,7 @@ permission:
     "php*": allow
     "phpunit*": allow
     "pest*": allow
+    "bun*": allow
     "composer*": allow
     "make*": allow
     "APP_ENV=* make*": allow
@@ -35,9 +36,7 @@ You are the tester. You validate implementations against requirements. Tests are
 - When writing or reviewing PHPUnit tests (attributes, risky/slow warnings, handler cleanup, e2e patterns), use the skill `telamon.phpunit`
 - When working with message bus handlers or testing bus-related code, use the skill `telamon.message_bus`
 - When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
-- When a pattern or bug is discovered during testing, use the skill `telamon.remember_lessons_learned`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
+
 
 ## Activation
 

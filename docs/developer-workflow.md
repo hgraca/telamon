@@ -77,7 +77,7 @@ When you're done, say *"wrap up"*. The agent saves session learnings and archive
 
 ### 6. Recover memories (optional)
 
-If you started using Telamon before the session-capture plugin existed, or if you want to backfill knowledge from your full session history, run:
+If you started using Telamon before the remember-session plugin existed, or if you want to backfill knowledge from your full session history, run:
 
 ```bash
 telamon recover-memories          # incremental — current project
@@ -85,12 +85,12 @@ telamon recover-memories --full   # full reset — reprocess all sessions from s
 telamon recover-memories --all    # incremental — all initialized projects
 ```
 
-This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to the `brain/` markdown files — the same destinations the session-capture plugin uses live.
+This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to the `brain/` markdown files — the same destinations the remember-session plugin uses live.
 
 **When to use it:**
 - First time setting up Telamon on a project that already has session history
 - After a `--full` reset of the memory vault
-- Periodically, if you suspect the session-capture plugin missed context (e.g. after crashes or forced exits)
+- Periodically, if you suspect the remember-session plugin missed context (e.g. after crashes or forced exits)
 
 The command is **incremental by default** — it tracks which sessions have been processed and only analyzes new ones. Use `--dry-run` to preview without making changes.
 
@@ -128,7 +128,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 - Symlinks each registered module into `<project>/.opencode/{skills,agents,...}/<module-name>` (see [module command](cli.md#module))
 - Writes `<project>/.ai/telamon/telamon.jsonc` with the project name
 - Installs the Graphify git hook and OpenCode plugin
-- Installs the session-capture OpenCode plugin (auto-captures before compaction)
+- Installs the remember-session OpenCode plugin (auto-captures before compaction)
 - Registers QMD vault collections and builds the initial semantic index
 
 ### What the agent does at session start
@@ -161,11 +161,11 @@ The agent saves to `brain/` notes (human-readable, curated):
 | Pattern established    | Appended to `brain/patterns.md`                  |
 | Session ends           | Work notes archived from `active/` to `archive/` |
 
-The **session-capture plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
+The **remember-session plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
 
 ### Recovering memories from past sessions
 
-If you started using Telamon before the session-capture plugin existed, or if memories were lost, you can backfill them from your entire opencode session history:
+If you started using Telamon before the remember-session plugin existed, or if memories were lost, you can backfill them from your entire opencode session history:
 
 ```bash
 telamon recover-memories                 # incremental — current project
@@ -176,7 +176,7 @@ telamon recover-memories --dry-run       # preview without making changes
 telamon recover-memories --batch-size 10 # larger batches (default: 5)
 ```
 
-This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to the `brain/` markdown files — the same destinations the session-capture plugin uses.
+This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to the `brain/` markdown files — the same destinations the remember-session plugin uses.
 
 **Recommended first run:** use `--full` to get a clean, deduplicated baseline. Subsequent runs are incremental — only sessions not yet processed are analyzed.
 

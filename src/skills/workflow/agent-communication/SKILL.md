@@ -23,28 +23,13 @@ Every agent must end its final message with exactly one of these signals on its 
 - `NEEDS_INPUT: <question>` — Can proceed partially but needs clarification on a specific point.
 - `PARTIAL: <summary of what is done and what remains>` — Session ending with incomplete work. Provides enough context for a fresh session to resume.
 
-## Pre-return Memory Capture
+## Memory Capture
 
-Before emitting a status signal, every agent must persist session knowledge to prevent loss at session boundaries.
+Memory capture is handled **automatically** by the remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
 
-### Always (all sessions where work was done)
-
-Invoke the `telamon.remember_task` skill — captures decisions, patterns, gotchas, and reusable context discovered during the task.
-
-### Long/complex sessions only
-
-Additionally invoke the `telamon.remember_session` skill when:
-- The session involved multi-step implementation (3+ tasks or files)
-- Extended debugging or exploration occurred
-- Significant architectural context or domain knowledge was accumulated
-- Scratch files were created in `thinking/`
-
-### Skip conditions
-
-Skip memory capture entirely when:
-- The task was trivial (single file rename, formatting fix)
-- No new knowledge was produced (purely mechanical execution of a known pattern)
-- The status signal is `BLOCKED` with no work completed
+Exceptions:
+- **PDRs/ADRs**: When a stakeholder answers a question or makes a decision, PO and Architect should record it immediately in `brain/PDRs.md` or `brain/ADRs.md` (too important to defer).
+- **Checkpoint**: If context nears overflow, use `telamon.remember_checkpoint`.
 
 ## Delegation Format
 

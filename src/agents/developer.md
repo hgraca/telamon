@@ -49,11 +49,7 @@ Do this immediately:
 - When working with the message bus, command/event/query handlers, or testing bus-related code, use the skill `telamon.message_bus`
 - When writing Laravel application code, use the skill `telamon.laravel`
 - When searching for code, locating definitions, or exploring the codebase, use the skill `telamon.search_code`
-- When a decision, pattern, or bug is discovered during work, use the skill `telamon.remember_lessons_learned`
-- When hitting a trap, constraint, or recurring bug, use the skill `telamon.remember_gotcha`
-- When completing a task or significant piece of work, use the skill `telamon.remember_task`
 - When context nears limit or opencode triggers compaction, use the skill `telamon.remember_checkpoint`
-- When wrapping up or ending a session, use the skill `telamon.remember_session`
 
 ## Responsibilities
 

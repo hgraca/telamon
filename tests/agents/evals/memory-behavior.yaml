@@ -1,0 +1,79 @@
+description: "Verify agents do NOT proactively trigger memory skills — memory is captured automatically by the remember-session plugin on idle"
+
+providers:
+  - id: "opencode:sdk"
+    config:
+      working_dir: "../fixtures/developer-skill-routing"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/developer.md"
+      tools: [read, grep, glob, skill, write, edit]
+      permission:
+        read: "allow"
+        write: "allow"
+        bash: "deny"
+
+prompts:
+  - "{{task}}"
+
+tests:
+  - description: "Developer completing work does NOT load remember_lessons_learned"
+    vars:
+      task: |
+        Task: Implement a simple value object class in src/Domain/User/Email.php.
+        Context files: none needed — this is a standalone value object.
+        Deliverable: Email value object with validation.
+        Constraints: Follow project PHP conventions. The plan status is FINAL.
+        Acceptance criteria: Email class validates format, is immutable, has equals() method.
+        
+        After implementing, signal FINISHED.
+    assert:
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_lessons_learned"
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_task"
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_gotcha"
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_session"
+      - type: cost
+        threshold: 2.00
+
+  - description: "Developer after debugging does NOT load memory skills"
+    vars:
+      task: |
+        Task: Fix a type error in src/Application/User/CreateUserHandler.php — the constructor parameter $repository should be typed as UserRepositoryInterface, not UserRepository.
+        Context files: src/Application/User/CreateUserHandler.php
+        Deliverable: Fixed type declaration.
+        Constraints: Follow project PHP conventions. The plan status is FINAL.
+        Acceptance criteria: Constructor uses interface type, not concrete type.
+        
+        After fixing, signal FINISHED.
+    assert:
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_lessons_learned"
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_task"
+      - type: not-trajectory:tool-args-match
+        value:
+          name: skill
+          args:
+            name: "telamon.remember_gotcha"
+      - type: cost
+        threshold: 2.00
