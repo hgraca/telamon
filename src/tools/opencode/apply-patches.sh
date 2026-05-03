@@ -124,7 +124,26 @@ for pr_url in patches:
         capture_output=True, text=True
     )
     if result.returncode != 0:
-        print(f"  WARN: Failed to apply patch for PR #{pr_num}: {result.stderr.strip()}", flush=True)
+        # Check for unmerged files (conflicts from 3-way merge)
+        unmerged = subprocess.run(
+            ["git", "-C", src_dir, "diff", "--name-only", "--diff-filter=U"],
+            capture_output=True, text=True
+        )
+        if unmerged.stdout.strip():
+            # Resolve conflicts by accepting the patch version
+            conflicted_files = unmerged.stdout.strip().split("\n")
+            for f in conflicted_files:
+                subprocess.run(
+                    ["git", "-C", src_dir, "checkout", "--theirs", "--", f],
+                    capture_output=True, text=True
+                )
+                subprocess.run(
+                    ["git", "-C", src_dir, "add", "--", f],
+                    capture_output=True, text=True
+                )
+            print(f"  ✔  Applied PR #{pr_num} (resolved {len(conflicted_files)} conflict(s))", flush=True)
+        else:
+            print(f"  WARN: Failed to apply patch for PR #{pr_num}: {result.stderr.strip()}", flush=True)
     else:
         print(f"  ✔  Applied PR #{pr_num} ({pr_url})", flush=True)
 
@@ -138,7 +157,7 @@ step "Installing dependencies..."
 bun install --cwd "${SRC_DIR}" --quiet
 
 step "Building opencode..."
-bun run build --cwd "${SRC_DIR}/packages/opencode"
+bun run --cwd "${SRC_DIR}/packages/opencode" build
 
 # ── 8. Find and install the built binary ─────────────────────────────────────
 step "Locating built binary..."
