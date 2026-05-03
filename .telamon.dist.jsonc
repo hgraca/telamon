@@ -35,7 +35,7 @@
     // Strips trailing assistant messages in normalizeMessages() for models that
     // don't support prefill (Opus 4.6, Sonnet 4.6 via any provider).
     // Remove when merged upstream.
-    "https://github.com/anomalyco/opencode/pull/14772" // this didnt work
+//    "https://github.com/anomalyco/opencode/pull/14772" // this didnt work
   ],
   "bun_version": "^1.3.13"
 }
