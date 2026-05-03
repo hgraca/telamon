@@ -20,12 +20,10 @@ fi
 export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
 mkdir -p "${TELAMON_ROOT}/storage/qmd"
 
-_failed=0
-
 step "Upgrading QMD via npm..."
 npm install -g @tobilu/qmd --quiet 2>/dev/null \
   && log "qmd → $(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null || echo 'updated')" \
-  || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  QMD upgrade failed — try: npm install -g @tobilu/qmd"; _failed=1; }
+  || warn "QMD upgrade failed (non-fatal) — try: npm install -g @tobilu/qmd"
 
 step "Refreshing QMD vault index..."
 if qmd update 2>/dev/null && qmd embed 2>/dev/null; then
@@ -33,5 +31,3 @@ if qmd update 2>/dev/null && qmd embed 2>/dev/null; then
 else
   warn "QMD re-index did not complete cleanly — run manually: XDG_CACHE_HOME=${TELAMON_ROOT}/storage qmd update && qmd embed"
 fi
-
-[[ "${_failed}" -eq 0 ]] || exit 1
