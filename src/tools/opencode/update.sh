@@ -15,24 +15,52 @@ if ! command -v opencode &>/dev/null; then
   exit 2
 fi
 
-# Check if update is needed by comparing local version with latest repo tag
-CURRENT_VERSION="$(opencode --version 2>/dev/null || echo "0.0.0")"
+# Determine latest upstream version
 LATEST_VERSION="$(git ls-remote --tags https://github.com/anomalyco/opencode.git 'refs/tags/v[0-9]*' 2>/dev/null \
   | sed 's|.*refs/tags/v||' | sort -V -r | head -1 || echo "")"
 
-if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; then
-  log "opencode v${CURRENT_VERSION} (already latest)"
-else
-  step "Upgrading opencode via npm..."
-  _npm_out="$(npm install -g opencode-ai 2>&1)" && _npm_ok=1 || _npm_ok=0
+# Check if we already have a patched build at this version
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
+STATE_FILE="${TELAMON_ROOT}/storage/opencode-patch-state.json"
+CONFIG_FILE="${TELAMON_ROOT}/.telamon.jsonc"
+_ALREADY_PATCHED=0
 
-  if [[ "${_npm_ok}" -eq 1 ]]; then
-    log "opencode → $(opencode --version 2>/dev/null || echo 'updated')"
-  else
-    warn "npm upgrade failed (non-fatal):"
-    echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
+if [[ -n "${LATEST_VERSION}" && -f "${STATE_FILE}" && -f "${CONFIG_FILE}" ]]; then
+  _state_version="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('version',''))" "${STATE_FILE}" 2>/dev/null || echo "")"
+  _state_patches="$(python3 -c "import json,sys; print(json.dumps(json.load(open(sys.argv[1])).get('patches',[])))" "${STATE_FILE}" 2>/dev/null || echo "[]")"
+  _config_patches="$(python3 -c "
+import json, re, sys
+def strip(t): return re.sub(r'(?m)(?<!:)//.*\$', '', t)
+with open(sys.argv[1]) as f:
+    data = json.loads(strip(f.read()))
+print(json.dumps(data.get('opencode_patches', [])))
+" "${CONFIG_FILE}" 2>/dev/null || echo "[]")"
+
+  if [[ "${_state_version}" == "${LATEST_VERSION}" && "${_state_patches}" == "${_config_patches}" ]]; then
+    _ALREADY_PATCHED=1
   fi
 fi
 
-# Apply upstream patches (if configured)
-bash "${TOOLS_PATH}/opencode/apply-patches.sh" || true
+if [[ "${_ALREADY_PATCHED}" -eq 1 ]]; then
+  log "opencode v${LATEST_VERSION} (patched, up to date)"
+else
+  # Need to (re)install + patch
+  CURRENT_VERSION="$(opencode --version 2>/dev/null || echo "0.0.0")"
+
+  if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; then
+    log "opencode v${CURRENT_VERSION} (already latest)"
+  else
+    step "Upgrading opencode via npm..."
+    _npm_out="$(npm install -g opencode-ai 2>&1)" && _npm_ok=1 || _npm_ok=0
+
+    if [[ "${_npm_ok}" -eq 1 ]]; then
+      log "opencode → $(opencode --version 2>/dev/null || echo 'updated')"
+    else
+      warn "npm upgrade failed (non-fatal):"
+      echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
+    fi
+  fi
+
+  # Apply upstream patches (if configured) — pass target version explicitly
+  bash "${TOOLS_PATH}/opencode/apply-patches.sh" "${LATEST_VERSION}" || true
+fi

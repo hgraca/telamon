@@ -85,15 +85,21 @@ else
   log "opencode source cloned → ${SRC_DIR}"
 fi
 
-# ── 4. Determine current opencode version ────────────────────────────────────
-VERSION="$(opencode --version 2>/dev/null || echo "")"
+# ── 4. Determine target version to patch ─────────────────────────────────────
+# Accept version as first argument (from update.sh), or resolve from git tags
+VERSION="${1:-}"
 
 if [[ -z "${VERSION}" ]]; then
-  warn "opencode not installed — cannot determine version to patch"
+  VERSION="$(git ls-remote --tags https://github.com/anomalyco/opencode.git 'refs/tags/v[0-9]*' 2>/dev/null \
+    | sed 's|.*refs/tags/v||' | sort -V -r | head -1 || echo "")"
+fi
+
+if [[ -z "${VERSION}" ]]; then
+  warn "Cannot determine opencode version to patch (no argument, git ls-remote failed)"
   exit 1
 fi
 
-log "opencode version: ${VERSION}"
+log "Target version: ${VERSION}"
 
 # ── 5. Checkout the version tag ───────────────────────────────────────────────
 step "Checking out v${VERSION}..."
