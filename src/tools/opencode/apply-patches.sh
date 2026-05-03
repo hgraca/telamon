@@ -114,7 +114,7 @@ for pr_url in patches:
 
     # Apply patch
     result = subprocess.run(
-        ["git", "-C", src_dir, "apply", patch_file],
+        ["git", "-C", src_dir, "apply", "--3way", patch_file],
         capture_output=True, text=True
     )
     if result.returncode != 0:
