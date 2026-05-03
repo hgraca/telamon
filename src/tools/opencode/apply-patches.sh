@@ -181,7 +181,7 @@ step "Installing dependencies..."
 bun install --cwd "${SRC_DIR}" --quiet
 
 step "Building opencode..."
-bun run --cwd "${SRC_DIR}/packages/opencode" build
+bun run --cwd "${SRC_DIR}/packages/opencode" build -- --single --skip-install
 
 # ── 8. Find and install the built binary ─────────────────────────────────────
 step "Locating built binary..."
