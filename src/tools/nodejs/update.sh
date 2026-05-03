@@ -23,12 +23,18 @@ if [[ -n "${NPM_GLOBAL_PREFIX}" && -d "${NPM_GLOBAL_PREFIX}/lib/node_modules" ]]
 fi
 
 step "Updating npm global packages..."
-if ! npm update -g --quiet 2>/dev/null; then
-  # Self-heal: retry after cleaning stale temp dirs (in case new ones appeared)
+_npm_ok=0
+_npm_out="$(npm update -g 2>&1)" && _npm_ok=1
+
+if [[ "${_npm_ok}" -eq 0 ]]; then
+  # Self-heal: clean stale temp dirs and retry
   find "${NPM_GLOBAL_PREFIX}/lib/node_modules" -maxdepth 2 -name ".*" -type d -exec rm -rf {} + 2>/dev/null || true
-  npm update -g --quiet 2>/dev/null \
-    && log "npm global packages updated (recovered)" \
-    || warn "npm global update failed (non-fatal)"
-else
+  _npm_out="$(npm update -g 2>&1)" && _npm_ok=1
+fi
+
+if [[ "${_npm_ok}" -eq 1 ]]; then
   log "npm global packages updated"
+else
+  warn "npm global update failed (non-fatal):"
+  echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
 fi

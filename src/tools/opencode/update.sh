@@ -24,9 +24,14 @@ if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; 
   log "opencode v${CURRENT_VERSION} (already latest)"
 else
   step "Upgrading opencode via npm..."
-  npm install -g opencode-ai --quiet 2>/dev/null \
-    && log "opencode → $(opencode --version 2>/dev/null || echo 'updated')" \
-    || warn "npm upgrade failed (non-fatal) — patches will still be applied"
+  _npm_out="$(npm install -g opencode-ai 2>&1)" && _npm_ok=1 || _npm_ok=0
+
+  if [[ "${_npm_ok}" -eq 1 ]]; then
+    log "opencode → $(opencode --version 2>/dev/null || echo 'updated')"
+  else
+    warn "npm upgrade failed (non-fatal):"
+    echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
+  fi
 fi
 
 # Apply upstream patches (if configured)
