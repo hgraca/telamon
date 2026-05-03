@@ -152,8 +152,11 @@ for pr_url in patches:
         capture_output=True, text=True
     )
     if result.returncode != 0:
-        # git apply --3way may leave conflict markers in files without creating
-        # proper unmerged index entries. Scan all modified files for markers.
+        # git apply --3way may leave conflict markers in files. When that
+        # happens, the "theirs" block comes from the dev branch context and
+        # can't simply replace the tag version. Instead, take the whole file
+        # from the PR branch (FETCH_HEAD) — the PR was tested against dev,
+        # so its files are internally consistent.
         modified = subprocess.run(
             ["git", "-C", src_dir, "diff", "--name-only", "HEAD"],
             capture_output=True, text=True
@@ -167,22 +170,17 @@ for pr_url in patches:
                 content = fh.read()
             if "<<<<<<< ours" not in content:
                 continue
-            # Strip conflict markers keeping "theirs" (the patch version)
-            content = re.sub(
-                r'<<<<<<< ours\n.*?=======\n(.*?)>>>>>>> theirs\n',
-                r'\1',
-                content,
-                flags=re.DOTALL
-            )
-            with open(fpath, "w") as fh:
-                fh.write(content)
-            subprocess.run(
-                ["git", "-C", src_dir, "add", "--", f],
+            # Take the whole file from the PR branch
+            checkout = subprocess.run(
+                ["git", "-C", src_dir, "checkout", "FETCH_HEAD", "--", f],
                 capture_output=True, text=True
             )
+            if checkout.returncode != 0:
+                print(f"  WARN: Could not checkout {f} from FETCH_HEAD: {checkout.stderr.strip()}", flush=True)
+                continue
             conflicted_files.append(f)
         if conflicted_files:
-            print(f"  ✔  Applied PR #{pr_num} (resolved {len(conflicted_files)} conflict(s))", flush=True)
+            print(f"  ✔  Applied PR #{pr_num} (took {len(conflicted_files)} file(s) from PR branch)", flush=True)
         else:
             print(f"  WARN: Failed to apply patch for PR #{pr_num}: {result.stderr.strip()}", flush=True)
     else:
