@@ -24,11 +24,6 @@ if [[ -n "${LATEST_VERSION}" && "${CURRENT_VERSION}" == "${LATEST_VERSION}" ]]; 
   log "opencode v${CURRENT_VERSION} (already latest)"
 else
   step "Upgrading opencode via npm..."
-  # Clean stale npm temp dirs from previous interrupted installs (ENOTEMPTY fix)
-  NPM_GLOBAL_PREFIX="$(npm prefix -g 2>/dev/null || echo "")"
-  if [[ -n "${NPM_GLOBAL_PREFIX}" ]]; then
-    rm -rf "${NPM_GLOBAL_PREFIX}/lib/node_modules/.opencode-ai-"* 2>/dev/null || true
-  fi
   npm install -g opencode-ai --quiet 2>/dev/null \
     && log "opencode → $(opencode --version 2>/dev/null || echo 'updated')" \
     || warn "npm upgrade failed (non-fatal) — patches will still be applied"

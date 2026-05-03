@@ -28,10 +28,10 @@ else
 fi
 
 # Clean stale npm temp dirs from previous interrupted installs (ENOTEMPTY fix)
-# Runs regardless of whether Node was just installed or already existed
+# These appear at top level (.opencode-ai-XXXX) and inside scoped dirs (@tobilu/.qmd-XXXX)
 if command -v npm &>/dev/null; then
   NPM_GLOBAL_PREFIX="$(npm prefix -g 2>/dev/null || echo "")"
   if [[ -n "${NPM_GLOBAL_PREFIX}" && -d "${NPM_GLOBAL_PREFIX}/lib/node_modules" ]]; then
-    find "${NPM_GLOBAL_PREFIX}/lib/node_modules" -maxdepth 1 -name ".*" -type d -mmin +5 -exec rm -rf {} + 2>/dev/null || true
+    find "${NPM_GLOBAL_PREFIX}/lib/node_modules" -maxdepth 2 -name ".*" -type d -exec rm -rf {} + 2>/dev/null || true
   fi
 fi
