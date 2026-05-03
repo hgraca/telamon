@@ -114,11 +114,12 @@ fi
 # ── 6. Apply each patch ───────────────────────────────────────────────────────
 step "Applying patches..."
 
-python3 - "${PATCHES_JSON}" "${SRC_DIR}" <<'PYEOF'
-import json, os, re, subprocess, sys
+python3 - "${PATCHES_JSON}" "${SRC_DIR}" "${VERSION}" <<'PYEOF'
+import json, os, subprocess, sys
 
 patches = json.loads(sys.argv[1])
 src_dir = sys.argv[2]
+version = sys.argv[3]
 
 for pr_url in patches:
     m = re.search(r'/pull/([0-9]+)$', pr_url)
@@ -140,51 +141,25 @@ for pr_url in patches:
             os.remove(patch_file)
         continue
 
-    # Fetch PR ref so git has blobs needed for 3-way merge
-    subprocess.run(
-        ["git", "-C", src_dir, "fetch", "origin", f"pull/{pr_num}/head"],
-        capture_output=True, text=True
-    )
-
-    # Apply patch with 3-way merge
+    # Apply patch — try clean apply first, skip on conflict
     result = subprocess.run(
-        ["git", "-C", src_dir, "apply", "--3way", patch_file],
+        ["git", "-C", src_dir, "apply", "--check", patch_file],
         capture_output=True, text=True
     )
-    if result.returncode != 0:
-        # git apply --3way may leave conflict markers in files. When that
-        # happens, the "theirs" block comes from the dev branch context and
-        # can't simply replace the tag version. Instead, take the whole file
-        # from the PR branch (FETCH_HEAD) — the PR was tested against dev,
-        # so its files are internally consistent.
-        modified = subprocess.run(
-            ["git", "-C", src_dir, "diff", "--name-only", "HEAD"],
+    if result.returncode == 0:
+        # Clean apply — no conflicts
+        subprocess.run(
+            ["git", "-C", src_dir, "apply", patch_file],
             capture_output=True, text=True
         )
-        conflicted_files = []
-        for f in (modified.stdout.strip().split("\n") if modified.stdout.strip() else []):
-            fpath = os.path.join(src_dir, f)
-            if not os.path.isfile(fpath):
-                continue
-            with open(fpath, "r") as fh:
-                content = fh.read()
-            if "<<<<<<< ours" not in content:
-                continue
-            # Take the whole file from the PR branch
-            checkout = subprocess.run(
-                ["git", "-C", src_dir, "checkout", "FETCH_HEAD", "--", f],
-                capture_output=True, text=True
-            )
-            if checkout.returncode != 0:
-                print(f"  WARN: Could not checkout {f} from FETCH_HEAD: {checkout.stderr.strip()}", flush=True)
-                continue
-            conflicted_files.append(f)
-        if conflicted_files:
-            print(f"  ✔  Applied PR #{pr_num} (took {len(conflicted_files)} file(s) from PR branch)", flush=True)
-        else:
-            print(f"  WARN: Failed to apply patch for PR #{pr_num}: {result.stderr.strip()}", flush=True)
-    else:
         print(f"  ✔  Applied PR #{pr_num} ({pr_url})", flush=True)
+    else:
+        # Patch doesn't apply cleanly to this version — skip it
+        print(f"  SKIP: PR #{pr_num} conflicts with v{version} — skipping", flush=True)
+        subprocess.run(
+            ["git", "-C", src_dir, "reset", "--hard", "HEAD"],
+            capture_output=True, text=True
+        )
 
     # Clean up patch file
     if os.path.exists(patch_file):
