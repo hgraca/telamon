@@ -151,6 +151,20 @@ When a `catch` block logs via a PSR-3 logger method (`->warning()`, `->error()`,
 - Missing the exception object in a `->warning()` or `->error()` call inside a catch block is a WARNING.
 - A catch block that logs `$e->getMessage()` but omits `'exception' => $e` is the most common pattern to flag.
 
+### 18. PHP Error Suppression Operator
+
+When the `@` operator is used on any function or method call:
+- Flag as WARNING — the `@` operator suppresses all PHP errors indiscriminately, hiding potentially important warnings and making debugging difficult.
+- Require a targeted `set_error_handler`/`restore_error_handler` pair in a `try/finally` block instead, so only expected warnings are suppressed and unexpected ones remain observable.
+- The only acceptable use of `@` is on trivially safe operations where failure is immediately checked (e.g. `@unlink()` followed by an existence check).
+
+### 19. Log Level Appropriateness
+
+When a log statement is added or modified in a method that is called repeatedly (worker loops, per-request handlers, queue consumers, scheduled tasks):
+- Verify the log level is appropriate for the call frequency. `info` or higher in a hot path that fires every iteration generates high-volume logs and cost.
+- Routine "nothing happened" messages (e.g. partition empty, no work found, heartbeat) should be `debug` level — flag `info`+ as WARNING.
+- Actionable events (message received, error encountered, retry triggered) are appropriate at `info` or higher.
+
 ## Review Report
 
 Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
@@ -184,6 +198,8 @@ Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 > - **Magic Values** — Domain-meaningful literals extracted to class constants?
 > - **Kubernetes Manifest Consistency** — Same-kind resources have consistent ArgoCD annotations? Custom CRD resources have `SkipDryRunOnMissingResource`? New files listed in `kustomization.yaml`?
 > - **PSR-3 Exception Logging** — Catch blocks that log include `'exception' => $e` in context for stack traces?
+> - **PHP Error Suppression** — No `@` operator usage? Targeted error handlers used instead?
+> - **Log Level Appropriateness** — Hot-path log statements use `debug` for routine "nothing happened" messages?
 > - **Code Style** — Symbols imported? No FQCNs inline? Explicit guards? Sealed/final convention?
 > - **Role Compliance** — All code changes made by the Developer?
 > - **Documentation** — Manual config steps documented? Obsolete steps removed?
