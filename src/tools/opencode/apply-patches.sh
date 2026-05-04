@@ -101,21 +101,14 @@ fi
 
 log "Target version: ${VERSION}"
 
-# ── 5. Checkout the version tag ───────────────────────────────────────────────
-step "Checking out v${VERSION}..."
+# ── 5. Checkout the dev branch (patches target dev, not version tags) ─────────
+step "Checking out dev branch..."
 # Hard reset to clear any leftover state from previous failed runs
-# (git apply --3way stages conflicted files normally, so checkout --force alone
-# may not fully clean them)
 git -C "${SRC_DIR}" reset --hard --quiet 2>/dev/null || true
-if git -C "${SRC_DIR}" tag | grep -q "^v${VERSION}$"; then
-  git -C "${SRC_DIR}" checkout "v${VERSION}" --force --quiet
-  log "Checked out tag v${VERSION}"
-else
-  warn "Tag v${VERSION} not found — falling back to dev branch"
-  git -C "${SRC_DIR}" checkout dev --force --quiet 2>/dev/null \
-    || git -C "${SRC_DIR}" checkout main --force --quiet
-  log "Checked out dev/main branch"
-fi
+git -C "${SRC_DIR}" checkout dev --force --quiet 2>/dev/null \
+  || git -C "${SRC_DIR}" checkout origin/dev --force --quiet
+git -C "${SRC_DIR}" reset --hard origin/dev --quiet
+log "Checked out dev branch (base for patches)"
 
 # ── 6. Apply each patch ───────────────────────────────────────────────────────
 step "Applying patches..."
