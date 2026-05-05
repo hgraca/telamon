@@ -83,6 +83,14 @@ The exact internal structure (sections, templates, what each layer contains) is 
 
 When you need to create a temporary file, use the `telamon.thinking` skill.
 
+## Plan-document hygiene
+
+DRAFT plans MUST NOT contain self-revision narrative. Phrases such as "Wait — I need to reconsider…", "But wait —", "Actually let me redo…", or stream-of-consciousness corrections belong in scratch notes (use `telamon.thinking` skill), not the deliverable.
+
+Acceptable: a single `Trade-offs considered` subsection per Step listing the top 1-3 alternatives that were considered and rejected, with one-line rationale each. The deliverable presents the chosen design only.
+
+Reasoning narrative is welcome in the response that accompanies the plan, but the plan file itself is a clean specification.
+
 ## MUST
 
 - When making an architecture or technical decision, append it to `brain/ADRs.md` with rationale.

@@ -65,6 +65,20 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 > |#| Decision | Rationale |
 > |-|----------|-----------|
 >
+> ## Constraints
+>
+> Project-wide coding rules that apply to every Step in this plan. Source from `telamon.architecture_rules`, `telamon.php_rules`, `telamon.testing`, and any project-specific files under `.ai/<owner>/memory/project-rules/`.
+>
+> Restate the rules inline (do not link out) so a reader of any single Step has all rules in immediate view. Bullet list, no prose. Cite the source skill name in each bullet so a reader can verify currency.
+>
+> Required topics:
+> - Type strictness (declarations, return types, generics)
+> - Immutability defaults
+> - Naming conventions (classes, methods, files)
+> - Security MUST/MUST NOT
+> - Testing rules (test-level placement, fixture style)
+> - Any framework-specific lifecycle rules in scope
+>
 > ## Acceptance Criteria
 >
 > Restate the acceptance criteria. Flag gaps or ambiguities back to the orchestrator.
@@ -84,6 +98,7 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 > - **Behaviour**: Precise enough for a developer to implement without design decisions.
 > - **Dependencies**: Which earlier steps this depends on.
 > - **Notes**: Edge cases, idempotency, rollback strategy, or references to existing code.
+> - **Failure modes considered** (Wiring/Infrastructure steps only): list the top 3 ways this wiring or adapter could break or be misused later — silent recursion, double-registration, missing handler, race, leaky lifecycle, etc. For each, state whether the design eliminates the failure mode or whether a maintenance rule is documented inline.
 >
 > ## Test Plan
 >

@@ -103,21 +103,32 @@ After the script succeeds, write `iteration-<n>/metadata.json`:
 
 The user opens a new opencode session in `iteration-<n>/` and tells the agent: *"Execute the instructions in PROMPT.md"*. That prompt instructs the solver to run Phase 1 (planning only — no implementation) and Phase 2 (write `interactions.md`) end-to-end **without asking the human stakeholder for approvals**. When the solver finishes, it instructs the user to return to the main session and say "evaluate this iteration".
 
-The required artifacts in `iteration-<n>/` after the solver finishes:
+The solver follows the standard `plan_story` workflow, which creates a normal **issue-folder** under:
+
+```
+iteration-<n>/.ai/telamon/memory/work/active/<YYYYMMDD-HHMMSS-NN>-<slug>/
+```
+
+This issue-folder is referred to below as `<issue-folder>`. Locate it by globbing `iteration-<n>/.ai/telamon/memory/work/active/*/` — there should be exactly one match. If there are zero or more than one, treat as a solver failure (record in `iteration-<n>/handoff-failure.md`).
+
+The required artifacts inside `<issue-folder>` after the solver finishes:
 
 - `backlog.md`
 - `PLAN-ARCH-*.md` (architect's combined architecture spec + implementation plan)
 - `PLAN-REVIEW-*.md` (critic review)
+- `summary.md` (planning summary)
 - Any UI/UX specs
 - `interactions.md`
 
-**Failure path**: If the task-solver session fails to produce required artifacts (planning loops, agents stall, errors), record the failure in `iteration-<n>/handoff-failure.md` and treat that as the iteration's data — diagnose the failure as an instruction gap (e.g., "telamon doesn't know how to recover when critic returns no feedback"). Do not retry the task in the same iteration. Failed iterations are kept (not deleted) and counted as data points; mark them in the tracker with `status: failed`.
+Main-session evaluation artifacts (`metadata.json`, `quality-report.md`, `root-cause-analysis.md`, `proposals.md`, `approved-changes.md`, `handoff-failure.md`) live at the **iteration root** (`iteration-<n>/`), NOT inside `<issue-folder>`.
+
+**Failure path**: If the task-solver session fails to produce required artifacts (planning loops, agents stall, errors, or no `<issue-folder>` was created), record the failure in `iteration-<n>/handoff-failure.md` and treat that as the iteration's data — diagnose the failure as an instruction gap (e.g., "telamon doesn't know how to recover when critic returns no feedback"). Do not retry the task in the same iteration. Failed iterations are kept (not deleted) and counted as data points; mark them in the tracker with `status: failed`.
 
 ### Step 2: Gather Comparison Inputs
 
 Back in the main session:
 
-1. **Solver artifacts** — confirm the expected files exist in `iteration-<n>/` (used by Steps 3 and 4).
+1. **Solver artifacts** — locate `<issue-folder>` (single match for `iteration-<n>/.ai/telamon/memory/work/active/*/`) and confirm every required file from Step 1.5 exists inside it (used by Steps 3 and 4).
 2. **Reference standards** — architecture rules, the `plan_story` skill, the `plan_implementation` skill (used by Steps 3 and 4).
 3. **Previous iteration data** — `iterations_quality.md`, prior `quality-report.md` and `root-cause-analysis.md` (used by Steps 5 and 6 for delta and regression analysis; skip for iteration 1).
 4. **Rejected proposals log** — `storage/self-improvement/improve-planning/rejected-proposals.md` (used by Step 7 to suppress re-proposals).
@@ -415,16 +426,18 @@ storage/self-improvement/improve-planning/
 ├── rejected-proposals.md           # User-rejected proposals (don't re-propose; matched by file+section)
 ├── lessons.md                      # Consolidated learnings (updated every 5 iterations)
 └── iteration-<n>/
-    ├── metadata.json               # iteration, timestamp, model, rubric_version
-    ├── handoff-failure.md          # Only if task-solver failed
-    ├── backlog.md                  # Solver output
-    ├── PLAN-ARCH-*.md              # Solver output (combined architecture spec + implementation plan)
-    ├── PLAN-REVIEW-*.md            # Solver output (critic review)
-    ├── interactions.md             # Solver output (from template)
+    ├── metadata.json               # Main session: iteration, timestamp, model, rubric_version
+    ├── handoff-failure.md          # Main session: only if task-solver failed
     ├── quality-report.md           # Main session output
     ├── root-cause-analysis.md      # Main session output
     ├── proposals.md                # Main session output
-    └── approved-changes.md         # User-approved subset (applied & committed at end of Step 7)
+    ├── approved-changes.md         # Main session: user-approved subset (applied & committed at end of Step 7)
+    └── .ai/telamon/memory/work/active/<YYYYMMDD-HHMMSS-NN>-<slug>/  # Solver issue-folder
+        ├── backlog.md              # Solver output
+        ├── PLAN-ARCH-*.md          # Solver output (combined architecture spec + implementation plan)
+        ├── PLAN-REVIEW-*.md        # Solver output (critic review)
+        ├── summary.md              # Solver output (planning summary)
+        └── interactions.md         # Solver output (from template)
 ```
 
 **Retention**: failed iterations (with `handoff-failure.md`) are kept indefinitely as data points. They are *never* auto-deleted. If you need to free space, archive them under `storage/self-improvement/improve-planning/archive/iteration-<n>/` manually.
@@ -441,7 +454,8 @@ This checklist is a **mandatory gate**. Before declaring iteration N complete an
 - [ ] `metadata.json` records iteration, timestamp, model, rubric version
 - [ ] User warned if model or rubric version changed
 - [ ] Task-solver session ran in isolation
-- [ ] All required solver artifacts present in `iteration-<n>/`
+- [ ] Solver `<issue-folder>` located (single match for `iteration-<n>/.ai/telamon/memory/work/active/*/`)
+- [ ] All required solver artifacts present in `<issue-folder>` (`backlog.md`, `PLAN-ARCH-*.md`, `PLAN-REVIEW-*.md`, `summary.md`, `interactions.md`)
 - [ ] Quality report has all 8 sections (0–7) with correct numbering
 - [ ] Section 0 (Metrics) populated from `interactions.md`
 - [ ] Every negative has Problem/Impact/Fix

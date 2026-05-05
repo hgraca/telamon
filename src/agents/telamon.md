@@ -120,7 +120,20 @@ When a subagent returns:
 1. **FINISHED** — Review the deliverable. Verify changes are committed — if uncommitted file changes remain, stage and commit them before proceeding. Report results to the user.
 2. **BLOCKED** — Resolve the blocker (ask user, provide missing info, re-delegate with more context).
 3. **NEEDS_INPUT** — Answer the question yourself if it's a product/requirements question, or escalate to user, then re-delegate.
-4. **PARTIAL** — Resume with a fresh delegation including the partial output and only the remaining work.
+4. **PARTIAL** — Resume with a fresh delegation including the partial output and only the remaining work. See **Stall ceiling** below.
+
+### Stall ceiling
+
+If the same subagent returns `PARTIAL` or stalls (no tool call, no signal) **twice on the same task**, the orchestrator MUST NOT perform the subagent's work directly.
+
+Instead, escalate per `telamon.exception-handling` with a structured `BLOCKED` report containing:
+
+- Target subagent and task summary.
+- Stall pattern observed (which response ended where, with what narration).
+- Token-count observation if available.
+- Proposed recovery options: (a) retry with a different model, (b) retry with a smaller scoped prompt, (c) accept partial output, (d) abandon.
+
+Wait for the human stakeholder's decision before continuing. Doing the subagent's work to "unblock" the iteration corrupts the audit trail and hides the real defect.
 
 ## Planning Stage
 

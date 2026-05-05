@@ -33,6 +33,14 @@ If the task's deliverable is one or more files, the FINISHED message MUST includ
 
 A FINISHED signal that claims a file deliverable but lacks all three items is invalid. The orchestrator will treat it as a stall and re-delegate. Agents that fail this gate three times in a row should be escalated to the human stakeholder.
 
+### Action-before-narration gate (all signals)
+
+When your response describes an immediate next tool action — phrases like "Now I will write…", "Let me write…", "Now let me load X and write Y", "I'll now run…" — you MUST emit the corresponding tool call in the SAME response. A response that ends with such a narration but no matching tool call is a stall, not progress.
+
+Scope: this gate covers *immediate-next-step* narrations only. Sentences that describe later steps in a multi-step plan ("In Step 3 I will…", "After this, the architect should…") are not in scope.
+
+The orchestrator MUST treat a stalled response as `PARTIAL` and re-delegate with the narration removed and the action explicit in the prompt. Three consecutive stalls of the same agent on the same task triggers escalation per `telamon.exception-handling`.
+
 ## Memory Capture
 
 Memory capture is handled **automatically** by the remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
