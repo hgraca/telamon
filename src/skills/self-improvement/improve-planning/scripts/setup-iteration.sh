@@ -137,6 +137,19 @@ log "Initialising iteration as its own git root (isolation barrier)..."
 git -C "${ITER_DIR}" init -q
 ok "Git root created — opencode discovery will stop at this folder"
 
+# -- initial commit ------------------------------------------------------------
+# Capture the iteration's starting state so subsequent changes (made by the
+# solver session) are visible as diffs against a clean baseline.
+log "Creating initial commit (baseline)..."
+git -C "${ITER_DIR}" add -A
+# Use -c to avoid requiring global git user config; --allow-empty in case
+# everything in the folder happens to be gitignored.
+git -C "${ITER_DIR}" \
+  -c user.name="telamon-setup" \
+  -c user.email="telamon-setup@local" \
+  commit -q --allow-empty -m "chore: initial iteration baseline"
+ok "Initial commit created"
+
 # -- run telamon init with project-side memory ownership -----------------------
 log "Running 'telamon init' (memory ownership: project-side)..."
 # TELAMON_MEMORY_OWNER=project signals init to keep memory inside the project
