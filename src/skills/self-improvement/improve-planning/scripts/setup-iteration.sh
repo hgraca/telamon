@@ -242,8 +242,22 @@ for name in ("telamon/telamon", "telamon/po", "telamon/architect",
     a = agents.setdefault(name, {})
     a["model"] = model
 
+# 3. If the chosen model is on the cortecs provider, inject the provider
+#    config so opencode can authenticate. The apiKey is loaded from a secret
+#    file (resolved relative to this opencode.jsonc's directory).
+if model.startswith("cortecs/"):
+    providers = data.setdefault("provider", {})
+    cortecs = providers.setdefault("cortecs", {})
+    options = cortecs.setdefault("options", {})
+    options["apiKey"] = "{file:.ai/telamon/secrets/provider-key-cortecs}"
+
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
+
+# Report whether the cortecs provider was injected.
+if [[ "${CHOSEN_MODEL}" == cortecs/* ]]; then
+  ok "Cortecs provider injected (apiKey from .ai/telamon/secrets/provider-key-cortecs)"
+fi
 
 ok "Model assigned to planning agents in opencode.jsonc"
 
