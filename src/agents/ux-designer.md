@@ -2,7 +2,7 @@
 description: "UX Designer — designs user experience and interface behavior, defines flows, states, and interaction rules"
 mode: subagent
 temperature: 0.6
-model: github-copilot/claude-opus-4.6
+model: github-copilot/claude-opus-4.7
 permission:
   bash: deny
   task: deny

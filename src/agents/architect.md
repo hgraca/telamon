@@ -2,7 +2,7 @@
 description: "Software Architect — designs technical plans and ADRs, does not write production code"
 mode: subagent
 temperature: 0.2
-model: github-copilot/claude-opus-4.6
+model: github-copilot/claude-opus-4.7
 permission:
   bash: deny
   task: deny
@@ -36,7 +36,7 @@ Do this immediately:
 
 ## Planning
 
-A plan begins when the orchestrator provides a brief and/or backlog. 
+A plan begins when the orchestrator provides a brief and/or backlog.
 Input: the brief plus any relevant context documents (architecture doc, ADRs, project conventions).
 
 Before starting, confirm the brief exists and is scoped to a single deliverable.

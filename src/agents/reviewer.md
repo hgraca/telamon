@@ -2,7 +2,7 @@
 description: "Reviewer — reviews changes against the architect's plan and project conventions, reports issues without modifying code"
 mode: subagent
 temperature: 0.2
-model: github-copilot/claude-opus-4.6
+model: github-copilot/claude-opus-4.7
 permission:
   task: deny
   write:

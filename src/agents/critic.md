@@ -2,7 +2,7 @@
 description: "Critic — evaluates plans and audits the codebase for inconsistencies, architectural erosion, and pattern drift"
 mode: subagent
 temperature: 0.1
-model: github-copilot/claude-opus-4.6
+model: github-copilot/claude-opus-4.7
 permission:
   bash: deny
   task: deny

@@ -2,7 +2,7 @@
 description: "Companion — pair programming partner, works alongside you incrementally, never autonomously"
 mode: primary
 temperature: 0.3
-model: github-copilot/claude-sonnet-4.6
+model: github-copilot/claude-sonnet-4.7
 permission:
   bash:
     "*": allow
