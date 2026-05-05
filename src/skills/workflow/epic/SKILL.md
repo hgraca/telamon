@@ -25,7 +25,7 @@ Place all artifacts under a single `<epic-folder>` in `.ai/telamon/memory/work/a
   summary.md                          # Epic planning summary
   YYYYMMDD-HHMMSS-NN-<story_slug>/    # One sub-folder per story
     backlog.md                        # Story-level backlog (tasks)
-    ARCH-YYYY-MM-DD-NNN.md            # Architecture spec (if needed)
+    PLAN-ARCH-YYYY-MM-DD-NNN.md       # Combined architecture spec + implementation plan
     summary.md                        # Story planning summary
     ...
 ```

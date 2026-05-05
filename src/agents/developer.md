@@ -22,7 +22,7 @@ Do this immediately:
 
 ## Skills
 
-- When signalling completion, blockers, or responding to review feedback, use the skill `telamon.agent-communication`
+- When signalling completion, blockers, or responding to review feedback, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
 - When a session stalls, tools fail, tests loop, or instructions conflict, use the skill `telamon.exception-handling`
 - When executing plan steps, signalling completion, and handling review feedback, use the skill `telamon.execute_plan`
 - When asked to create a new `use case` - use skill `telamon.create-use-case`

@@ -140,12 +140,16 @@ When a subagent returns:
 - At the end of a planning stage, use the `telamon.retrospective` skill to evaluate the planning process, write the report to `<issue-folder>/retrospective/planning.md` and output it to the human user.
 - At the end of a planning stage, use the `telamon.summarize_plan` skill to create a summary, write it to `<issue-folder>/summary.md` and output it to the human user.
 
+### Planning Stage completion gate — MUST
+
+The Planning Stage is NOT complete — and the orchestrator MUST NOT transition to the Implementation Stage — until `<issue-folder>/summary.md` exists, was written by the `telamon.summarize_plan` skill, and has been shown to the human stakeholder. This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and be verified by reading it back. If `summary.md` is missing or empty, treat the planning stage as PARTIAL and complete the missing step before proceeding.
+
 ## Implementation Stage
 
 ### Activation
 
 - **Trigger**: Plan has reached FINAL status (Architect's plan approved by Critic with zero BLOCKERs, and approved by the orchestrator).
-- **Input**: Final plan (`PLAN.md`), refined backlog (`backlog.md`), architecture document.
+- **Input**: Final plan (`PLAN-ARCH-YYYY-MM-DD-NNN.md`), refined backlog (`backlog.md`), architecture document.
 
 ### Responsibilities
 

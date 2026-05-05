@@ -18,7 +18,7 @@ Do this immediately:
 
 ## Skills
 
-- When reporting completion, signalling blockers, or responding to feedback, use the skill `telamon.agent-communication`
+- When reporting completion, signalling blockers, or responding to feedback, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
 - When a session stalls or tools fail, use the skill `telamon.exception-handling`
 - When asked to create a new ADR, use the skill `telamon.create-adr`
 - When creating or revising an implementation plan, use the skill `telamon.plan_implementation`
@@ -57,6 +57,20 @@ A plan is "final" when:
 - Address all layers: domain, application, infrastructure, presentation, wiring, migrations, tests.
 - Incorporate Critic feedback or justify deviations.
 - Declare the plan "final" when finality criteria are met.
+
+## Deliverables
+
+You produce **one combined file per planning round**: `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`.
+
+This single file contains BOTH the architecture specification (directory tree, layer placement, design choices, ADR references) AND the implementation plan (ordered steps, file-by-file changes, migrations, test strategy). Do NOT split them into separate `ARCH-*.md` and `PLAN-*.md` files — they are read together and drift apart when stored separately.
+
+Filename rules:
+
+- `YYYY-MM-DD` — UTC date the file is first created.
+- `NNN` — zero-padded sequential number, scoped to the issue folder; bump only on a fresh re-plan from scratch (e.g., scope change, scrapped approach). Critic-driven revisions of the **same** plan overwrite the existing file in place, preserving filename and date.
+- The file's `Status` field tracks state: `DRAFT` → `IN REVIEW` → `FINAL`.
+
+The exact internal structure (sections, templates, what each layer contains) is defined in the `telamon.plan_implementation` skill. This agent file does not duplicate those rules.
 
 ## Process Rules
 

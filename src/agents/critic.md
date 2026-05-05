@@ -12,7 +12,7 @@ You are the critic. You evaluate plans and audit the codebase for inconsistencie
 
 ## Skills
 
-- When reporting completion or signalling blockers, use the skill `telamon.agent-communication`
+- When reporting completion or signalling blockers, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
 - When a session stalls or tools fail, use the skill `telamon.exception-handling`
 - When reviewing an architect's plan, use the skill `telamon.review_plan`
 - When auditing the codebase for consistency and architectural erosion, use the skill `telamon.audit_codebase`

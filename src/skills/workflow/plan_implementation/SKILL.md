@@ -28,7 +28,7 @@ Follow these principles when designing the plan:
 
 ## Plan Output
 
-Save to `<issue-folder>/PLAN.md`.
+Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH the architecture specification and the implementation plan in one document — see the architect's Deliverables section in `src/agents/architect.md` for the rationale and filename rules.
 
 ### Plan Template
 

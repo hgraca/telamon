@@ -28,7 +28,7 @@ You are the reviewer. You review changes against the architect's plan and projec
 
 ## Skills
 
-- When reporting review completion or signalling blockers, use the skill `telamon.agent-communication`
+- When reporting review completion or signalling blockers, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
 - When a session stalls or tools fail, use the skill `telamon.exception-handling`
 - When reviewing a code changeset, use the skill `telamon.review_changeset`
 - When checking architecture rules, security constraints, or design direction, use the skill `telamon.architecture_rules`

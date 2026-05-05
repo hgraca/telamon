@@ -31,7 +31,8 @@ Read the following files from the task folder (skip any that do not exist):
 | `summary.md`         | Planning summary — scope, decisions, deliverables      |
 | `backlog.md`         | Task list with status, acceptance criteria, priorities |
 | `compaction.md`      | Last checkpoint — progress snapshot, next steps        |
-| `ARCH-*.md`          | Architecture specification                             |
+| `PLAN-ARCH-*.md`     | Combined architecture spec + implementation plan       |
+| `PLAN-REVIEW-*.md`   | Critic review of the plan                              |
 | `UI-*.md`            | UI specification                                       |
 | `UX-*.md`            | UX specification                                       |
 

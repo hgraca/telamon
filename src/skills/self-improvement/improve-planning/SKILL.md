@@ -43,25 +43,18 @@ The task is **always** the Poke API kata at `references/poke-api-kata/`. Holding
 
 ## Workflow
 
-### Step 0: Apply approved changes from the previous iteration
+### Step 0: Verify previous iteration's edits are committed
 
 Performed in the **main session**, *before* invoking the setup script.
 
-Read `storage/self-improvement/improve-planning/iteration-<n-1>/approved-changes.md` (if it exists). Apply each approved instruction edit to the target file using the Edit tool. No git commits are required for these edits — they are applied directly to the working tree of the main project.
+Approved planning improvements are applied and committed at the **end of Step 7** of the iteration that produced them (not at the start of the next iteration). Step 0 is therefore a verification gate, not an application step:
 
-If no previous iteration or no approved changes, skip.
+1. Locate the previous iteration's `approved-changes.md` (`storage/self-improvement/improve-planning/iteration-<n-1>/approved-changes.md`). If none exists (first iteration, or no approvals), skip the rest of Step 0.
+2. Confirm it has an "Applied" footer with a commit SHA.
+3. Run `git log --oneline -1 <SHA>` to verify the commit exists in the current branch's history.
+4. If the footer is missing or the commit cannot be found, the prior iteration was not closed correctly — stop and ask the user how to resolve (re-apply, skip, or abort iteration N).
 
-#### Failure recovery
-
-If an approved change fails to apply (target file moved, section renamed, anchor text gone):
-
-1. **Stop applying** — do not continue with subsequent changes.
-2. **Diagnose**: locate the target file's current state and identify what changed.
-3. **Three resolutions, ask the user to choose:**
-   - **Adapt** — rewrite the change to match the new structure (record the adapted text in `iteration-<n-1>/approved-changes.md` under a "Re-adaptation" subsection with the original + new text + reason).
-   - **Drop** — skip this change and append it to `storage/self-improvement/improve-planning/rejected-proposals.md` with reason "could not apply at iteration N — target moved/changed".
-   - **Abort iteration** — do not run iteration N. Investigate the drift before retrying.
-4. **Resume only after all changes have a resolution**.
+If everything checks out, proceed to Step 1.
 
 ### Step 1: Run the setup script
 
@@ -113,8 +106,8 @@ The user opens a new opencode session in `iteration-<n>/` and tells the agent: *
 The required artifacts in `iteration-<n>/` after the solver finishes:
 
 - `backlog.md`
-- `ARCH-*.md` (architect review)
-- `CRITIC-*.md` (critic review)
+- `PLAN-ARCH-*.md` (architect's combined architecture spec + implementation plan)
+- `PLAN-REVIEW-*.md` (critic review)
 - Any UI/UX specs
 - `interactions.md`
 
@@ -244,19 +237,34 @@ Write `iteration-<n>/proposals.md`. For each proposal:
 
 To prevent unbounded approval loops:
 
-1. **Batch size**: present proposals in batches of **at most 5**. After each batch, capture decisions before showing the next.
-2. **Per-proposal decision**: each proposal gets one of `approved`, `rejected (<reason>)`, or `modified (<new text>)`.
-3. **Override**: the user may say "approve all" or "reject all" for a batch as a shortcut.
+1. **Total proposals per iteration**: cap at **3-5 highest-impact items**. The evaluator selects them by expected lift (estimated rubric-point gain × confidence). Proposals beyond the cap are dropped, not deferred — if a low-impact gap matters, it will resurface in a future iteration's evidence. Document dropped proposals in the RCA file (so future iterations can see they were considered) but do not present them to the user.
+2. **Batch size**: present proposals in a single batch of at most 5 (the cap above ensures this is always feasible). Capture decisions before closing.
+3. **Per-proposal decision**: each proposal gets one of `approved`, `rejected (<reason>)`, or `modified (<new text>)`.
+4. **Override**: the user may say "approve all" or "reject all" as a shortcut.
 
 There is no `defer` option. Every proposal must resolve to approved/rejected/modified in the iteration that produced it. Undecided proposals at end-of-batch are treated as rejected (with reason "no decision before batch close").
 
 Record decisions:
 
-- **Approved** → write to `iteration-<n>/approved-changes.md` (will be applied in next iteration's Step 0).
+- **Approved** → write to `iteration-<n>/approved-changes.md`.
 - **Rejected** → append to `storage/self-improvement/improve-planning/rejected-proposals.md` with target file, target section, full text, user's reason, iteration number. Future iterations match by **file + section** (not exact text), see RCA "Previously rejected?" check.
 - **Modified** → record the modified text in `approved-changes.md`. Also log in `rejected-proposals.md` referencing the original (file + section + "modified — see iteration N approved-changes.md").
 
-Do NOT apply changes in this step — they are applied in Step 0 of the next iteration, so the change-and-effect chain is auditable.
+#### Apply and commit (end of Step 7)
+
+After all decisions are captured, the orchestrator MUST apply the approved/modified edits to the source files in this same session, then commit them in a single commit:
+
+1. **Audit cross-cutting impact** — when an approved change renames a file or symbol referenced elsewhere (e.g., changing `PLAN.md` to `PLAN-ARCH-*.md`), grep the entire `src/` tree for stale references and update them in the same edit pass. Consistency across the codebase is a hard requirement; the "scope of edits" table is a suggestion for *where defects originate*, not a fence around *where fixes go*.
+2. **Apply the edits** in the order recorded in `approved-changes.md` (foundational rules first; rules that depend on them after; renames last because they have the widest blast radius).
+3. **Verify the working tree** — `git status` should show only files in scope. If anything unexpected appears, abort the commit and resolve before continuing.
+4. **Single commit** — stage exactly the files touched by the approved edits and commit with message:
+   ```
+   chore(planning): apply iteration-<n> approved planning improvements
+
+   <one-line summary per approved change, referencing iteration-<n>/approved-changes.md>
+   ```
+   Do NOT amend a previous commit. Do NOT push. The user pushes when they choose to.
+5. **Update `approved-changes.md`** — append an "Applied" footer with the commit SHA and the list of files actually touched (which may exceed the proposals' enumerated targets due to the cross-cutting audit in step 1).
 
 ### Step 8: Decide Whether to Continue
 
@@ -410,13 +418,13 @@ storage/self-improvement/improve-planning/
     ├── metadata.json               # iteration, timestamp, model, rubric_version
     ├── handoff-failure.md          # Only if task-solver failed
     ├── backlog.md                  # Solver output
-    ├── ARCH-*.md                   # Solver output
-    ├── CRITIC-*.md                 # Solver output
+    ├── PLAN-ARCH-*.md              # Solver output (combined architecture spec + implementation plan)
+    ├── PLAN-REVIEW-*.md            # Solver output (critic review)
     ├── interactions.md             # Solver output (from template)
     ├── quality-report.md           # Main session output
     ├── root-cause-analysis.md      # Main session output
     ├── proposals.md                # Main session output
-    └── approved-changes.md         # User-approved subset (applied next iteration)
+    └── approved-changes.md         # User-approved subset (applied & committed at end of Step 7)
 ```
 
 **Retention**: failed iterations (with `handoff-failure.md`) are kept indefinitely as data points. They are *never* auto-deleted. If you need to free space, archive them under `storage/self-improvement/improve-planning/archive/iteration-<n>/` manually.

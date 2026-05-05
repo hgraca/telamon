@@ -21,7 +21,16 @@ Evaluate an architect's implementation plan for correctness, completeness, and a
 
 ## Plan Review Report
 
-Save to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md`.
+### Mandatory output filename — MUST
+
+Save the review to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md` where:
+
+- `YYYY-MM-DD` is the current UTC date.
+- `NNN` is a zero-padded 3-digit sequential number, scoped to the same issue folder. List existing `PLAN-REVIEW-*.md` files in the folder and use the next available number; start at `001`.
+
+Do **not** use any other prefix (no `CRITIC-*.md`, no `REVIEW-*.md`, no `critic-feedback.md`). The orchestrator and downstream tooling locate review files by the `PLAN-REVIEW-` prefix; deviating breaks `recall_active_task` and the architect's "address feedback" loop.
+
+If a previous review with the same date+number already exists, do not overwrite it — bump `NNN`. Each iteration of the critic loop produces a new file.
 
 ### Template
 

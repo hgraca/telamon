@@ -49,13 +49,13 @@ Delegate to @po to create `<issue-folder>/backlog.md` with prioritized tasks, re
 - PO saves to `<issue-folder>/backlog.md`, signals FINISHED with the backlog.
 - If the PO signals NEEDS_INPUT, relay the question to the human stakeholder and re-delegate with the answer.
 
-### Step 2: Architecture review
+### Step 2: Architecture and implementation plan
 
-Delegate to @architect to review the backlog and add architecture guidelines.
+Delegate to @architect to review the backlog and produce a combined architecture-and-implementation plan.
 
 - Architect must produce a concrete directory tree mapping every source file to an assigned path.
-- Architecture details go in a separate specification only if necessary — not inline in the backlog.
-- Architect saves to `<issue-folder>/ARCH-YYYY-MM-DD-NNN.md`, signals FINISHED with the report.
+- Architect produces a **single** `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md` file containing BOTH the architecture spec and the implementation plan. Do NOT instruct the architect to split these into separate `ARCH-*.md` and `PLAN-*.md` files. The exact internal structure is defined in the `telamon.plan_implementation` skill; the architect's deliverable contract is in `src/agents/architect.md`.
+- Architect signals FINISHED with the file path. The orchestrator routes it to @critic in Step 4.
 
 ### Step 3: UI/UX review (if applicable)
 
@@ -70,10 +70,10 @@ Skip this step if the story has no UI component.
 
 Delegate to @critic for feedback on all documents produced so far.
 
-- Critic saves to `<issue-folder>/CRITIC-YYYY-MM-DD-NNN.md`.
+- Critic saves to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md` per the `telamon.review_plan` skill (do NOT use a `CRITIC-*.md` prefix).
 - Address issues deemed necessary.
 - Justify issues that will not be addressed.
-- After addressing findings, update the architecture spec (if one exists) so its code snippets and details match the revised backlog. Change ARCH spec status from DRAFT to FINAL when the critic loop concludes with no remaining issues.
+- After addressing findings, update `PLAN-ARCH-*.md` in place so its directory tree, code snippets, and step list match the revised backlog. Change the file's `Status` from `DRAFT`/`IN REVIEW` to `FINAL` when the critic loop concludes with no remaining BLOCKERs.
 - Terminate the loop if progress stalls or goals shift — ask human stakeholder for direction.
 - Iterate from step 3 until no remaining issues to address.
 

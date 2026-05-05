@@ -23,6 +23,16 @@ Every agent must end its final message with exactly one of these signals on its 
 - `NEEDS_INPUT: <question>` — Can proceed partially but needs clarification on a specific point.
 - `PARTIAL: <summary of what is done and what remains>` — Session ending with incomplete work. Provides enough context for a fresh session to resume.
 
+### Self-verification gate (FINISHED only)
+
+If the task's deliverable is one or more files, the FINISHED message MUST include for each file:
+
+1. **Absolute path**.
+2. **Read-back confirmation** — the agent must read the file after writing and include either the first line or a 1-line summary as proof.
+3. **Size or line count**.
+
+A FINISHED signal that claims a file deliverable but lacks all three items is invalid. The orchestrator will treat it as a stall and re-delegate. Agents that fail this gate three times in a row should be escalated to the human stakeholder.
+
 ## Memory Capture
 
 Memory capture is handled **automatically** by the remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
@@ -67,13 +77,13 @@ Each transition between agents has a defined set of artifacts that must be passe
 
 ### Architect to Critic
 
-- Draft plan (`PLAN.md` or `ARCH-YYYY-MM-DD-NNN.md`)
+- Draft plan (`PLAN-ARCH-YYYY-MM-DD-NNN.md`)
 - The brief (for scope validation)
 - Architecture document and ADR log
 
 ### Critic to Architect (feedback loop)
 
-- Plan Review Report (`CRITIC-YYYY-MM-DD-NNN.md`)
+- Plan Review Report (`PLAN-REVIEW-YYYY-MM-DD-NNN.md`)
 - Specific findings with file paths and recommendations
 
 ### Orchestrator to Tester (pre-implementation)
