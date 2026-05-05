@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 merge-config.py — Merge Telamon opencode config into an existing project config.
 
@@ -22,7 +23,7 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "functions"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "functions"))
 from strip_jsonc import strip_jsonc_comments
 
 
