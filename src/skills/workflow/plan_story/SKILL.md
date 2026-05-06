@@ -57,6 +57,12 @@ Delegate to @architect to review the backlog and produce a combined architecture
 - Architect produces a **single** `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md` file containing BOTH the architecture spec and the implementation plan. Do NOT instruct the architect to split these into separate `ARCH-*.md` and `PLAN-*.md` files. The exact internal structure is defined in the `telamon.plan_implementation` skill; the architect's deliverable contract is in `src/agents/architect.md`.
 - Architect signals FINISHED with the file path. The orchestrator routes it to @critic in Step 4.
 
+#### Spike-during-planning rule
+
+When the plan depends on a third-party API capability (plugin hooks, SDK features, undocumented runtime behavior, etc.) AND the project's existing brain/ notes do not already confirm that capability, instruct the architect to run a verification spike DURING planning, not as Task 0 of implementation. Adding the spike to the implementation backlog leaves the architecture spec resting on unverified assumptions and forces fallback designs to be carried through review.
+
+A 5-minute API check during planning eliminates the need for fallback design sections in the spec. Skip this rule only when the architect explicitly cites a brain/ note (gotcha, ADR, or pattern) that already confirms the relevant API capability.
+
 ### Step 3: UI/UX review (if applicable)
 
 If UI work is needed, delegate to @ui-designer and/or @ux-designer to review the backlog.

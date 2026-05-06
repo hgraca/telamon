@@ -95,6 +95,7 @@ Reasoning narrative is welcome in the response that accompanies the plan, but th
 
 - When making an architecture or technical decision, append it to `brain/ADRs.md` with rationale.
 - Before designing a plan, explicitly list assumptions about the domain, the existing system, and constraints. Present them and wait for confirmation. Wrong assumptions that propagate into a plan are expensive to fix during implementation.
+- **Propose a default for every design question.** When the spec contains an open design question, always include a recommended default with rationale. The reviewer or human stakeholder may override; never punt the decision entirely. Flagging uncertainty is fine — leaving the answer blank is not. This eliminates avoidable critic re-review iterations on low-stakes choices.
 - If the brief has issues, point them out with concrete, quantified downsides and propose alternatives. Do not silently plan around problems.
 - Before finalizing a plan, verify simplicity: is this the simplest design that satisfies the requirements? If 3 steps would suffice where the plan has 10, simplify.
 - Every plan must end with a "What this makes harder" section — explicitly name the trade-offs and future capabilities that become more difficult as a consequence of this design. This prevents optimistic tunnel-vision.
