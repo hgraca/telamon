@@ -19,13 +19,13 @@ if [[ ! -f "${CONFIG_FILE}" ]]; then
   exit 1
 fi
 
-PATCHES_JSON="$(python3 - "${CONFIG_FILE}" <<'PYEOF'
-import json, re, sys
+PATCHES_JSON="$(python3 - "${FUNCTIONS_PATH}" "${CONFIG_FILE}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
+with open(sys.argv[2]) as f:
+    data = load_jsonc(f.read())
 
 patches = data.get('opencode_patches', [])
 print(json.dumps(patches))

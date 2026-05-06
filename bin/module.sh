@@ -83,14 +83,14 @@ JSONC
   fi
 
   # Ensure "modules" key exists
-  python3 - "${MODULES_FILE}" <<'PYEOF'
-import json, re, sys
+  python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path = sys.argv[1]
+path = sys.argv[2]
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 if 'modules' not in data:
     data['modules'] = {
@@ -109,19 +109,19 @@ PYEOF
   local _legacy="${TELAMON_ROOT}/storage/modules.jsonc"
   if [[ -f "${_legacy}" ]]; then
     step "Migrating storage/modules.jsonc → .telamon.jsonc ..."
-    python3 - "${_legacy}" "${MODULES_FILE}" <<'PYEOF'
-import json, re, sys
+    python3 - "${FUNCTIONS_PATH}" "${_legacy}" "${MODULES_FILE}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-legacy_path = sys.argv[1]
-target_path = sys.argv[2]
+legacy_path = sys.argv[2]
+target_path = sys.argv[3]
 
 with open(legacy_path) as f:
-    legacy = json.loads(strip(f.read()))
+    legacy = load_jsonc(f.read())
 
 with open(target_path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 modules = data.get('modules', {})
 for old_key, entry in legacy.items():
@@ -155,17 +155,17 @@ PYEOF
         # Skip if it's the built-in
         [[ "${_mname}" == "addyosmani" || "${_mname}" == "agent-skills" ]] && continue
         # Add to .telamon.jsonc modules section
-        python3 - "${MODULES_FILE}" "${_mname}" "${_murl}" <<'PYEOF'
-import json, sys, re
+        python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" "${_mname}" "${_murl}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path = sys.argv[1]
-name = sys.argv[2]
-url  = sys.argv[3]
+path = sys.argv[2]
+name = sys.argv[3]
+url  = sys.argv[4]
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 modules = data.get('modules', {})
 if name not in modules:
@@ -199,13 +199,13 @@ PYEOF
 # _read_modules_jsonc
 # Outputs the "modules" section as parsed JSON (comments stripped) to stdout.
 _read_modules_jsonc() {
-  python3 - "${MODULES_FILE}" <<'PYEOF'
-import json, sys, re
+  python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
+with open(sys.argv[2]) as f:
+    data = load_jsonc(f.read())
 
 print(json.dumps(data.get('modules', {})))
 PYEOF
@@ -216,16 +216,16 @@ PYEOF
 # Returns empty string if missing.
 _get_module_field() {
   local name="$1" field="$2"
-  python3 - "${MODULES_FILE}" "${name}" "${field}" <<'PYEOF'
-import json, sys, re
+  python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" "${name}" "${field}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+with open(sys.argv[2]) as f:
+    data = load_jsonc(f.read())
 
-with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
-
-name  = sys.argv[2]
-field = sys.argv[3]
+name  = sys.argv[3]
+field = sys.argv[4]
 
 modules = data.get('modules', {})
 entry   = modules.get(name, {})
@@ -425,18 +425,18 @@ PYEOF
 
     # Register in .telamon.jsonc with local_path (no url field)
     step "Registering in .telamon.jsonc ..."
-    python3 - "${MODULES_FILE}" "${name}" "${local_abs_path}" "${paths_json}" <<'PYEOF'
-import json, sys, re
+    python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" "${name}" "${local_abs_path}" "${paths_json}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path       = sys.argv[1]
-name       = sys.argv[2]
-local_path = sys.argv[3]
-paths      = json.loads(sys.argv[4])
+path       = sys.argv[2]
+name       = sys.argv[3]
+local_path = sys.argv[4]
+paths      = json.loads(sys.argv[5])
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 modules = data.get('modules', {})
 modules[name] = {"local_path": local_path, "paths": paths}
@@ -529,18 +529,18 @@ PYEOF
 
     # Register in .telamon.jsonc modules section
     step "Registering in .telamon.jsonc ..."
-    python3 - "${MODULES_FILE}" "${name}" "${url}" "${paths_json}" <<'PYEOF'
-import json, sys, re
+    python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" "${name}" "${url}" "${paths_json}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path      = sys.argv[1]
-name      = sys.argv[2]
-url       = sys.argv[3]
-paths     = json.loads(sys.argv[4])
+path      = sys.argv[2]
+name      = sys.argv[3]
+url       = sys.argv[4]
+paths     = json.loads(sys.argv[5])
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 modules = data.get('modules', {})
 modules[name] = {"url": url, "paths": paths}
@@ -600,16 +600,16 @@ cmd_remove() {
 
     # Remove from .telamon.jsonc modules section
     step "Removing from .telamon.jsonc ..."
-    python3 - "${MODULES_FILE}" "${name}" <<'PYEOF'
-import json, sys, re
+    python3 - "${FUNCTIONS_PATH}" "${MODULES_FILE}" "${name}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path = sys.argv[1]
-name = sys.argv[2]
+path = sys.argv[2]
+name = sys.argv[3]
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 modules = data.get('modules', {})
 modules.pop(name, None)

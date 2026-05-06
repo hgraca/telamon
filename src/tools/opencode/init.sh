@@ -127,18 +127,18 @@ fi
 if [[ -f "${TELAMON_CFG}" ]]; then
   skip ".ai/telamon/telamon.jsonc (already exists)"
   # Ensure new keys are present (migration for older configs)
-  python3 - "${TELAMON_CFG}" "${MEMORY_OWNER:-telamon}" "${OGHAM_DB:-telamon}" <<'PYEOF'
-import json, re, sys
+  python3 - "${FUNCTIONS_PATH}" "${TELAMON_CFG}" "${MEMORY_OWNER:-telamon}" "${OGHAM_DB:-telamon}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path = sys.argv[1]
-memory_owner = sys.argv[2]
-ogham_db = sys.argv[3]
+path = sys.argv[2]
+memory_owner = sys.argv[3]
+ogham_db = sys.argv[4]
 changed = False
 
 with open(path) as f:
-    data = json.loads(strip(f.read()))
+    data = load_jsonc(f.read())
 
 if 'memory_owner' not in data:
     data['memory_owner'] = memory_owner

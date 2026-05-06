@@ -28,13 +28,15 @@ _HAS_PATCHES=0
 
 # Determine if patches are configured
 if [[ -f "${CONFIG_FILE}" ]]; then
-  _config_patches="$(python3 -c "
-import json, re, sys
-def strip(t): return re.sub(r'(?m)(?<!:)//.*\$', '', t)
-with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
+  _config_patches="$(python3 - "${FUNCTIONS_PATH}" "${CONFIG_FILE}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
+with open(sys.argv[2]) as f:
+    data = load_jsonc(f.read())
 print(json.dumps(data.get('opencode_patches', [])))
-" "${CONFIG_FILE}" 2>/dev/null || echo "[]")"
+PYEOF
+  2>/dev/null || echo "[]")"
   _patch_count="$(python3 -c "import json,sys; print(len(json.loads(sys.argv[1])))" "${_config_patches}")"
   [[ "${_patch_count}" -gt 0 ]] && _HAS_PATCHES=1
 fi

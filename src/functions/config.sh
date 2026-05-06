@@ -14,15 +14,15 @@ config.read_ini() {
   local file="$1" key="$2"
   [[ -f "${file}" ]] || return 1
   local val
-  val="$(python3 - "${file}" "${key}" <<'PYEOF'
-import json, re, sys
+  val="$(python3 - "${FUNCTIONS_PATH}" "${file}" "${key}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
+with open(sys.argv[2]) as f:
+    data = load_jsonc(f.read())
 
-with open(sys.argv[1]) as f:
-    data = json.loads(strip(f.read()))
-
-val = data.get(sys.argv[2], '')
+val = data.get(sys.argv[3], '')
 if isinstance(val, bool):
     print('true' if val else 'false')
 elif isinstance(val, dict) or isinstance(val, list):
@@ -47,19 +47,19 @@ PYEOF
 config.write_ini() {
   local file="$1" key="$2" value="$3"
 
-  python3 - "${file}" "${key}" "${value}" <<'PYEOF'
-import json, re, sys
+  python3 - "${FUNCTIONS_PATH}" "${file}" "${key}" "${value}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from strip_jsonc import load_jsonc
 
-def strip(t): return re.sub(r'(?m)(?<!:)//.*$', '', t)
-
-path  = sys.argv[1]
-key   = sys.argv[2]
-value = sys.argv[3]
+path  = sys.argv[2]
+key   = sys.argv[3]
+value = sys.argv[4]
 
 with open(path) as f:
     raw = f.read()
 
-data = json.loads(strip(raw))
+data = load_jsonc(raw)
 
 # Coerce string booleans
 if value.lower() == 'true':
