@@ -11,7 +11,7 @@
 // Task 2 scope: idle hook + message fetch + marker detection.
 // Tasks 3+: nudge prompt, lock file, attempt counter, tag string, ordering.
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, unlinkSync } from "fs";
 import { join, basename, dirname } from "path";
 
 // ─── Marker regex ─────────────────────────────────────────────────────────────
@@ -38,12 +38,48 @@ const DEFAULT_EXEMPT_AGENTS = ["repomix-agent", "qmd"];
 export const MAX_COUNTER_ENTRIES = 100;
 export const COUNTER_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+// ─── Lock file constants ───────────────────────────────────────────────────────
+export const LOCK_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 // ─── worktreeSlug ─────────────────────────────────────────────────────────────
 // Duplicated from src/plugins/remember-session.js per ADR "Duplicate worktreeSlug function".
 // Do NOT import — each plugin is self-contained.
 export function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");
   return raw.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+}
+
+// ─── Lock file path ───────────────────────────────────────────────────────────
+export function lockPath(slug, directory) {
+  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`);
+}
+
+// ─── isLockFresh ──────────────────────────────────────────────────────────────
+// Returns true if the lock file at `path` was written within LOCK_TTL_MS of `now`.
+export function isLockFresh(path, now) {
+  try {
+    if (!existsSync(path)) return false;
+    const raw = readFileSync(path, "utf8");
+    const lock = JSON.parse(raw);
+    const age = (now ?? Date.now()) - new Date(lock.started).getTime();
+    return age < LOCK_TTL_MS;
+  } catch {
+    return false;
+  }
+}
+
+// ─── hasEnforcerTag ───────────────────────────────────────────────────────────
+// Returns true if the last user message in `messages` contains [Telamon-StatusEnforcer].
+// Uses canonical SDK shape: m.info.role and m.parts[i].text.
+export function hasEnforcerTag(messages) {
+  const lastUserMsg = [...(messages ?? [])].reverse().find(function (m) {
+    return m.info?.role === "user";
+  });
+  if (!lastUserMsg) return false;
+  const parts = lastUserMsg.parts ?? [];
+  return parts.some(function (p) {
+    return typeof p.text === "string" && p.text.includes("[Telamon-StatusEnforcer]");
+  });
 }
 
 // ─── Counter file path ────────────────────────────────────────────────────────
@@ -229,7 +265,15 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           return;
         }
 
-        // 9. Attempt counter (Task 4)
+        // 9. Last-message tag check (Task 5) — skip if our own nudge triggered this idle
+        if (hasEnforcerTag(messages ?? [])) return;
+
+        // 10. Lock file check (Task 5) — skip if a fresh lock exists (in-flight nudge)
+        const slug = worktreeSlug(worktree, directory);
+        const lock = lockPath(slug, directory);
+        if (isLockFresh(lock, Date.now())) return;
+
+        // 11. Attempt counter (Task 4)
         const counter = readCounter(directory, worktree);
         const entry = counter[sessionId] ?? { attempts: 0, lastNudge: null };
 
@@ -240,22 +284,38 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           return;
         }
 
-        // Send nudge
-        await client.session.prompt({
-          path: { id: sessionId },
-          body: {
-            parts: [
-              {
-                type: "text",
-                text: NUDGE_PROMPT,
-                synthetic: true,
-                metadata: { hidden: true, source: "status-marker-enforcer" },
-              },
-            ],
-          },
-        });
+        // 12. Acquire lock before prompt (Task 5)
+        try {
+          mkdirSync(dirname(lock), { recursive: true });
+          writeFileSync(lock, JSON.stringify({ started: new Date().toISOString() }), "utf8");
+        } catch (lockErr) {
+          process.stderr.write(`[status-marker-enforcer] Failed to write lock file: ${lockErr?.message ?? lockErr}\n`);
+        }
 
-        // Increment counter
+        // 13. Send nudge; release lock in finally (Task 5)
+        try {
+          await client.session.prompt({
+            path: { id: sessionId },
+            body: {
+              parts: [
+                {
+                  type: "text",
+                  text: NUDGE_PROMPT,
+                  synthetic: true,
+                  metadata: { hidden: true, source: "status-marker-enforcer" },
+                },
+              ],
+            },
+          });
+        } finally {
+          try {
+            if (existsSync(lock)) unlinkSync(lock);
+          } catch (unlinkErr) {
+            process.stderr.write(`[status-marker-enforcer] Failed to delete lock file: ${unlinkErr?.message ?? unlinkErr}\n`);
+          }
+        }
+
+        // 14. Increment counter
         counter[sessionId] = { attempts: entry.attempts + 1, lastNudge: new Date().toISOString() };
 
         // Eviction: if over limit, drop oldest lastNudge entry
@@ -273,7 +333,6 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
         } else {
           writeCounter(directory, worktree, counter);
         }
-        // TODO(Task 5): lock file + last-message check
       } catch (err) {
         process.stderr.write(`[status-marker-enforcer] Error in event handler: ${err?.message ?? err}\n`);
       }
