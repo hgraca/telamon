@@ -19,6 +19,18 @@ import { join } from "path";
 // Line-anchored; no multiline flag — we test one extracted line at a time.
 export const MARKER_RE = /^(FINISHED!|BLOCKED:|NEEDS_INPUT:|PARTIAL:)/;
 
+// ─── Nudge prompt ─────────────────────────────────────────────────────────────
+// Delivered as a synthetic hidden message when no terminal marker is detected.
+// Numbered checklist format per M-FLOW-072. All four markers verbatim (PDR guard).
+export const NUDGE_PROMPT = `[Telamon-StatusEnforcer] Your last response did not end with a required status marker. End your next response with exactly one of the following markers on its own line:
+
+1. FINISHED! — work is genuinely complete
+2. BLOCKED: <reason> — cannot proceed without external action
+3. NEEDS_INPUT: <question> — needs clarification from the human before continuing
+4. PARTIAL: <summary> — work is incomplete; a fresh session must resume from this point
+
+Do NOT default to FINISHED! if the work is not actually complete — PARTIAL: is the honest answer for incomplete work.`;
+
 // ─── Default config ───────────────────────────────────────────────────────────
 const DEFAULT_EXEMPT_AGENTS = ["repomix-agent", "qmd"];
 
@@ -132,7 +144,20 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
         const hasMarker = detectTerminalMarker(lastAssistant);
         if (hasMarker) return;
 
-        // TODO(Task 3): send nudge prompt here
+        // TODO(Task 4/5): add attempt counter and lock-file / last-message check here
+        await client.session.prompt({
+          path: { id: sessionId },
+          body: {
+            parts: [
+              {
+                type: "text",
+                text: NUDGE_PROMPT,
+                synthetic: true,
+                metadata: { hidden: true, source: "status-marker-enforcer" },
+              },
+            ],
+          },
+        });
       } catch (err) {
         console.error("[status-marker-enforcer] Error in event handler:", err);
       }
