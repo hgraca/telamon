@@ -72,10 +72,10 @@ export const RememberSessionPlugin = async ({ directory, worktree, client }) => 
           // Find the last user message
           const lastUserMsg = [...messages]
             .reverse()
-            .find((m) => m.role === "user");
+            .find((m) => m.info?.role === "user");
           if (lastUserMsg) {
             // Check if any text part matches our prompt
-            const parts = lastUserMsg.parts || lastUserMsg.content?.parts || [];
+            const parts = lastUserMsg.parts || [];
             const isOurPrompt = parts.some(
               (p) =>
                 p.type === "text" && p.text && p.text.includes("[Telamon]")
