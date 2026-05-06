@@ -152,6 +152,11 @@ Wait for the human stakeholder's decision before continuing. Doing the subagent'
 - Terminate the planning loop if progress stalls or goals shift.
 - At the end of a planning stage, use the `telamon.retrospective` skill to evaluate the planning process, write the report to `<issue-folder>/retrospective/planning.md` and output it to the human user.
 - At the end of a planning stage, use the `telamon.summarize_plan` skill to create a summary, write it to `<issue-folder>/summary.md` and output it to the human user.
+- **Critic-finding routing**: when the critic returns findings on a plan, route them as follows:
+  - **Re-delegate to architect** when findings include any `BLOCKER`, OR when findings touch ≥2 plan Steps, OR when any finding requires a structural change (new Step, removed Step, changed Step layer).
+  - **Self-fix allowed** only when ALL findings are `SUGGESTION` severity AND touch a single plan Step AND are limited to wording, formatting, or table fixes.
+  - When self-fixing, the orchestrator MUST also re-run the Pre-FINISHED Hygiene Gate (see `plan_implementation` SKILL) on the edited plan before re-submitting to critic.
+  - Document the routing decision in the interactions log: "Routing: re-delegated to architect because <reason>" or "Routing: self-fixed because <reason>".
 
 ### Planning Stage completion gate — MUST
 

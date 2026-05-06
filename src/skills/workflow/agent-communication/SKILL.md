@@ -35,11 +35,15 @@ A FINISHED signal that claims a file deliverable but lacks all three items is in
 
 ### Action-before-narration gate (all signals)
 
-When your response describes an immediate next tool action — phrases like "Now I will write…", "Let me write…", "Now let me load X and write Y", "I'll now run…" — you MUST emit the corresponding tool call in the SAME response. A response that ends with such a narration but no matching tool call is a stall, not progress.
+Before emitting your response, run this 3-step check on the response text you are about to send:
 
-Scope: this gate covers *immediate-next-step* narrations only. Sentences that describe later steps in a multi-step plan ("In Step 3 I will…", "After this, the architect should…") are not in scope.
+1. **Scan the last paragraph** for any of these phrases (case-insensitive): "Now I will", "Now let me", "Let me write", "Let me load", "Let me read", "I'll now", "I will now", "Next I'll", "Next let me", "Going to", "Time to".
+2. **If matched**: the next tool call described by that phrase MUST be in this same response. Append it now.
+3. **If you cannot append the tool call** in this response (waiting on input, ending session, etc.): rewrite the last paragraph to NOT describe an immediate next action. Replace with a status signal (`FINISHED!`, `BLOCKED:`, `NEEDS_INPUT:`, `PARTIAL:`).
 
-The orchestrator MUST treat a stalled response as `PARTIAL` and re-delegate with the narration removed and the action explicit in the prompt. Three consecutive stalls of the same agent on the same task triggers escalation per `telamon.exception-handling`.
+Scope: only *immediate next* narrations. Multi-step plan descriptions ("In Step 3 I will…") are not in scope.
+
+The orchestrator MUST treat a stalled response (narration without matching tool call) as `PARTIAL` and re-delegate with the narration removed and the action explicit in the prompt. Three consecutive stalls of the same agent on the same task triggers escalation per `telamon.exception-handling`.
 
 ## Memory Capture
 

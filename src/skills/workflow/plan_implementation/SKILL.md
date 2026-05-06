@@ -98,7 +98,7 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 > - **Behaviour**: Precise enough for a developer to implement without design decisions.
 > - **Dependencies**: Which earlier steps this depends on.
 > - **Notes**: Edge cases, idempotency, rollback strategy, or references to existing code.
-> - **Failure modes considered** (Wiring/Infrastructure steps only): list the top 3 ways this wiring or adapter could break or be misused later — silent recursion, double-registration, missing handler, race, leaky lifecycle, etc. For each, state whether the design eliminates the failure mode or whether a maintenance rule is documented inline.
+> - **Failure modes considered** — REQUIRED for any Step whose Layer is one of: `Infrastructure`, `Wiring`, `Presentation`, OR any Step in `Application` that introduces a new handler/use-case, OR any Step in `Domain` that defines a port (interface). NOT required for pure Domain entity/value-object steps, pure DTO definition steps, or migration-only steps. List the top 3 ways this step's integration surface could break or be misused later — silent recursion, double-registration, missing handler, race, leaky lifecycle, partial failure under iteration, error-translation gap between layers, etc. For each, state whether the design eliminates the failure mode or whether a maintenance rule is documented inline. If a Step is ambiguous (could be Domain pure or could expose a port), default to including the block.
 >
 > ## Test Plan
 >
@@ -115,6 +115,23 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 >
 > ### MCP tools
 > List MCP tools used by the agent while creating the report, or "None."
+
+## Pre-FINISHED Hygiene Gate
+
+Before signalling `FINISHED!` for a plan deliverable, the architect MUST run this checklist against the plan file and report each result in the FINISHED message:
+
+1. **Self-revision residue grep** — search the plan for: `Wait`, `Actually`, `let me re-`, `let me fix`, `let me redo`, `simplest approach`, `On reflection`, `Hmm`. Report match count. **Must be 0** outside fenced code blocks. If matches found, edit them out before signalling FINISHED.
+2. **Single-version check** — confirm no Step or section appears twice with conflicting content (e.g., "Step 7 (revised)" alongside "Step 7"). Report yes/no.
+3. **Trade-offs format** — alternatives appear only inside `Trade-offs considered` subsections, never as inline "but actually X is better" passages. Report yes/no.
+
+Format in FINISHED message:
+
+> Hygiene gate:
+> 1. Residue grep: 0 matches
+> 2. Single-version: yes
+> 3. Trade-offs format: yes
+
+A FINISHED signal that omits this block, or that reports any failure without an accompanying fix, is invalid. The orchestrator MUST treat it as `PARTIAL` and re-delegate with the failing items called out.
 
 ### Review Response Template
 
