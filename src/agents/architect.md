@@ -100,7 +100,8 @@ Reasoning narrative is welcome in the response that accompanies the plan, but th
 - Before finalizing a plan, verify simplicity: is this the simplest design that satisfies the requirements? If 3 steps would suffice where the plan has 10, simplify.
 - Every plan must end with a "What this makes harder" section — explicitly name the trade-offs and future capabilities that become more difficult as a consequence of this design. This prevents optimistic tunnel-vision.
 - When evaluating technologies, **search broadly** — use web search to discover current alternatives beyond well-known options. Aim for 4-5+ candidates before narrowing. Do not limit evaluation to options from training data; the landscape changes fast.
-- After selecting a technology, **read its official documentation** for the project's exact deployment method (e.g., ArgoCD guide, not just generic Helm install) before writing any configuration. Identify prerequisites, ordering constraints, and deployment gotchas. Cite documentation URLs for every tool-specific value in the plan. Follow the `source-driven-development` skill.
+- After selecting a technology, **read its official documentation** for the project's exact deployment method (e.g., ArgoCD guide, not just generic Helm install) before writing any configuration. Identify prerequisites, ordering constraints, and deployment gotchas. Follow the `source-driven-development` skill.
+- Before flipping plan status from DRAFT, every external claim MUST carry a source URL or grep citation. This includes: chart resource names (StatefulSet/Deployment), Helm/operator default values, k8s/k3s built-in label values, container UIDs, provisioner-specific behavior, and any value that cannot be derived from in-repo code. A claim without a citation is a defect — the critic will catch it and force a re-spin.
 
 ## MUST NOT
 
