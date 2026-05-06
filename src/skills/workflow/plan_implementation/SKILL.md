@@ -25,6 +25,7 @@ Follow these principles when designing the plan:
 - Exceptions crossing layer boundaries must be defined at the port level.
 - Design all event handlers and projections for idempotency.
 - Every schema change needs a migration plan with rollback strategy.
+- When proposing to inline or remove an interface whose concrete is declared `readonly class`, the plan MUST include an explicit test-double strategy. Mockery cannot subclass readonly classes (engine fatal: `Cannot declare class ... because the parent class is readonly`). Acceptable strategies: (a) keep the interface and mock the interface; (b) drop the `readonly` modifier from the concrete; (c) provide a hand-written fake under `tests/Support/`. See `brain/gotchas.md` — "Mockery cannot mock `readonly class`".
 
 ## Plan Output
 
