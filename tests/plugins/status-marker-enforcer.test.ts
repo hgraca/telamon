@@ -1410,3 +1410,967 @@ describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
     }
   })
 })
+
+// ─── Task 5 helpers ───────────────────────────────────────────────────────────
+
+/** Return the lock file path for a given directory + slug (mirrors backlog L135). */
+function lockFilePath(directory: string, slug: string): string {
+  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`)
+}
+
+/** Write a lock file with a given `started` timestamp (bypasses plugin logic). */
+function writeLockFile(directory: string, slug: string, startedIso: string) {
+  const { writeFileSync, mkdirSync } = require("fs")
+  const path = lockFilePath(directory, slug)
+  mkdirSync(require("path").dirname(path), { recursive: true })
+  writeFileSync(path, JSON.stringify({ started: startedIso }), "utf8")
+}
+
+/** ISO string N seconds ago. */
+function secondsAgo(n: number): string {
+  return new Date(Date.now() - n * 1000).toISOString()
+}
+
+// ─── Suite Q — Lock file loop prevention ─────────────────────────────────────
+
+describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention", () => {
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.1  Lock file path
+  //      backlog L135: .ai/telamon/memory/thinking/.status-enforcer-lock-<slug>
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.1 [backlog L135] lock file created at .ai/telamon/memory/thinking/.status-enforcer-lock-<slug> before prompt", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q1-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q1-lockpath"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const expectedLock = lockFilePath(tmpDir, slug)
+
+      // Capture whether lock existed at prompt call time
+      let lockExistedAtPrompt = false
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")], // no marker → nudge
+          }),
+          prompt: async (_args: any) => {
+            lockExistedAtPrompt = existsSync(expectedLock)
+          },
+        },
+      }
+
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Lock must have existed when prompt was called
+      expect(lockExistedAtPrompt).toBe(true)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.2  Lock deleted after successful prompt (finally clause)
+  //      backlog L136
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.2 [backlog L136] lock file deleted after prompt returns successfully (finally clause)", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q2-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q2-lockclean"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const expectedLock = lockFilePath(tmpDir, slug)
+
+      const client = makeClient({
+        messages: [makeMsg("assistant", "Working.")],
+      })
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Lock must be gone after handler completes
+      expect(existsSync(expectedLock)).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.3  Lock deleted even when prompt rejects (finally clause)
+  //      backlog L136: "deleted in finally after client.session.prompt returns"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.3 [backlog L136] lock file deleted after prompt rejects (finally clause — cleanup on failure)", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q3-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q3-lockfail"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const expectedLock = lockFilePath(tmpDir, slug)
+
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => {
+            throw new Error("simulated prompt failure")
+          },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      // Must not throw (outer catch swallows)
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Lock must be gone even though prompt threw
+      expect(existsSync(expectedLock)).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.4  Fresh lock → second idle short-circuits (no prompt)
+  //      backlog L141: "two consecutive idle events within TTL → exactly one nudge"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.4 [backlog L141] fresh lock present → second idle event does NOT call client.session.prompt", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q4-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q4-freshlock"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Pre-write a fresh lock (started 30 seconds ago — well within 5-min TTL)
+      writeLockFile(tmpDir, slug, secondsAgo(30))
+
+      const promptCallCount = { n: 0 }
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => { promptCallCount.n++ },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Prompt must NOT have been called — lock was fresh
+      expect(promptCallCount.n).toBe(0)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.5  Stale lock (> 5 min TTL) → ignored, nudge fires
+  //      backlog L138: "stale locks (> TTL) are ignored, not deleted on detection"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.5 [backlog L138] stale lock (> 5 min old) is ignored — nudge fires normally", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q5-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q5-stalelock"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Pre-write a stale lock (started 10 minutes ago — beyond 5-min TTL)
+      writeLockFile(tmpDir, slug, minutesAgo(10))
+
+      const promptCallCount = { n: 0 }
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => { promptCallCount.n++ },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Stale lock ignored → nudge fires
+      expect(promptCallCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.6  Stale lock NOT deleted on detection (match remember-session behavior)
+  //      backlog L138
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.6 [backlog L138] stale lock is NOT deleted when detected — only the new lock (written before prompt) is cleaned up in finally", async () => {
+    const { mkdirSync, rmSync, existsSync, readFileSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q6-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q6-stalekept"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const lockPath = lockFilePath(tmpDir, slug)
+
+      // Pre-write a stale lock with a known started timestamp
+      const staleStarted = minutesAgo(10)
+      writeLockFile(tmpDir, slug, staleStarted)
+
+      // Capture lock content at prompt time
+      let lockContentAtPrompt: string | null = null
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => {
+            // At prompt time, a NEW fresh lock should have been written (overwriting stale)
+            if (existsSync(lockPath)) {
+              lockContentAtPrompt = readFileSync(lockPath, "utf8")
+            }
+          },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // The plugin should have written a NEW lock (not the stale one) before prompt
+      // and deleted it in finally. Lock must be gone after handler.
+      expect(existsSync(lockPath)).toBe(false)
+
+      // The lock content at prompt time must be a fresh lock (started ≠ staleStarted)
+      // This proves the plugin wrote a new lock rather than reusing the stale one.
+      if (lockContentAtPrompt !== null) {
+        const parsed = JSON.parse(lockContentAtPrompt)
+        expect(parsed.started).not.toBe(staleStarted)
+        // Fresh lock must be recent (within last 5 seconds)
+        const age = Date.now() - new Date(parsed.started).getTime()
+        expect(age).toBeLessThan(5_000)
+      }
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.7  Two consecutive idles within TTL → exactly one nudge
+  //      backlog L141
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.7 [backlog L141] two consecutive idle events within TTL → exactly one client.session.prompt call", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q7-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q7-twoidles"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      const promptCallCount = { n: 0 }
+      // First prompt: write a fresh lock that persists (simulate in-flight nudge)
+      // We do this by writing the lock ourselves after the first call returns
+      // Actually: the plugin writes+deletes the lock atomically per call.
+      // To simulate two rapid idles where the second sees a fresh lock,
+      // we intercept the first prompt to write a fresh lock before it returns,
+      // so the second idle (fired synchronously after) sees it.
+      //
+      // Simpler approach: fire first idle (lock written+deleted), then manually
+      // write a fresh lock, then fire second idle — second must short-circuit.
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => {
+            promptCallCount.n++
+            // After first prompt, write a fresh lock to simulate overlap
+            writeLockFile(tmpDir, slug, new Date().toISOString())
+          },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+
+      // First idle — fires nudge, prompt writes fresh lock, finally deletes it
+      // But our prompt mock writes the lock AFTER incrementing, and finally deletes it.
+      // So after first idle completes, lock is gone.
+      // We need the lock to persist between the two calls.
+      // Better: use a separate client that does NOT delete the lock (we control it).
+      // Simplest: fire first idle normally, then manually write fresh lock, fire second.
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+      expect(promptCallCount.n).toBe(1) // first idle fired nudge
+
+      // Simulate: second idle arrives while first nudge is still "in flight"
+      // (lock written by first nudge hasn't been deleted yet)
+      writeLockFile(tmpDir, slug, secondsAgo(10)) // fresh lock, 10s old < 300s TTL
+
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+      // Second idle must short-circuit due to fresh lock
+      expect(promptCallCount.n).toBe(1) // still 1 — no second nudge
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.8  Lock TTL is 5 minutes (300_000 ms), not 10 minutes
+  //      backlog L135: "5-minute TTL (shorter than remember-session's 10 min)"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.8 [backlog L135] lock TTL is 5 minutes — lock 4 min 59 s old is still fresh (blocks nudge)", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q8-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q8-ttl"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Lock started 4 min 59 s ago — within 5-min TTL
+      writeLockFile(tmpDir, slug, secondsAgo(4 * 60 + 59))
+
+      const promptCallCount = { n: 0 }
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => { promptCallCount.n++ },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Lock is fresh (< 300s) → nudge must NOT fire
+      expect(promptCallCount.n).toBe(0)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Q.9  Lock filename differs from remember-session lock
+  //      backlog L144: "different filenames, different concerns"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("Q.9 [backlog L144] status-enforcer lock filename differs from remember-session lock — creating remember-session lock does NOT block status-enforcer nudge", async () => {
+    const { mkdirSync, rmSync, writeFileSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-q9-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-q9-coexist"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Write a fresh remember-session lock (different filename)
+      const rememberLockPath = join(tmpDir, `.ai/telamon/memory/thinking/.capture-lock-${slug}`)
+      mkdirSync(require("path").dirname(rememberLockPath), { recursive: true })
+      writeFileSync(rememberLockPath, JSON.stringify({ started: new Date().toISOString() }), "utf8")
+
+      const promptCallCount = { n: 0 }
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working.")],
+          }),
+          prompt: async (_args: any) => { promptCallCount.n++ },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // remember-session lock must NOT block status-enforcer nudge
+      expect(promptCallCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+})
+
+// ─── Suite R — Last-message tag check ────────────────────────────────────────
+
+describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", () => {
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.1  Last user message contains [Telamon-StatusEnforcer] → skip nudge
+  //      backlog L137, L142
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.1 [backlog L137, L142] last user message contains [Telamon-StatusEnforcer] → client.session.prompt NOT called", async () => {
+    const promptCallCount = { n: 0 }
+    const client = {
+      session: {
+        messages: async (_args: any) => ({
+          data: [
+            makeMsg("assistant", "Working."),
+            // Last user message is our own nudge (tagged)
+            makeMsg("user", "[Telamon-StatusEnforcer] Your last response did not end with a required status marker."),
+          ],
+        }),
+        prompt: async (_args: any) => { promptCallCount.n++ },
+      },
+    }
+    const hooks = await StatusMarkerEnforcerPlugin({
+      directory: repoRoot,
+      worktree: undefined,
+      client,
+    })
+    await hooks["event"]!({ event: makeIdleEvent("sess-r1-tagged") })
+
+    expect(promptCallCount.n).toBe(0)
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.2  Tag check: no counter increment when skipped
+  //      backlog L137: "no counter increment"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.2 [backlog L137] tag-matched skip does NOT increment the attempt counter", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-r2-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-r2-nocounter"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [
+              makeMsg("assistant", "Working."),
+              makeMsg("user", "[Telamon-StatusEnforcer] Please end with a marker."),
+            ],
+          }),
+          prompt: async (_args: any) => {},
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Counter file must NOT have been written (or if it exists, no entry for this session)
+      const raw = readRawCounter(tmpDir, slug)
+      if (raw !== null) {
+        expect(raw[sessionId]).toBeUndefined()
+      }
+      // If raw is null, counter file was never written — also correct
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.3  Tag check: no lock written when skipped
+  //      backlog L137: "no lock written"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.3 [backlog L137] tag-matched skip does NOT write a lock file", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t5-r3-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-r3-nolock"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const expectedLock = lockFilePath(tmpDir, slug)
+
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [
+              makeMsg("assistant", "Working."),
+              makeMsg("user", "[Telamon-StatusEnforcer] Please end with a marker."),
+            ],
+          }),
+          prompt: async (_args: any) => {},
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({
+        directory: tmpDir,
+        worktree: undefined,
+        client,
+      })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Lock must NOT have been written
+      expect(existsSync(expectedLock)).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.4  Tag check uses canonical SDK shape: m.info.role, not m.role
+  //      backlog L139 (gotchas.md L1022); requirement 7
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.4 [backlog L139, gotchas L1022] tag check uses m.info.role (canonical SDK shape) — wrong-shape user message (role at top level) is NOT recognized as user → nudge fires", async () => {
+    // If plugin mistakenly uses m.role instead of m.info.role, it would
+    // find the wrong-shape user message and skip the nudge.
+    // Correct behavior: wrong-shape message is invisible → nudge fires.
+    const promptCallCount = { n: 0 }
+    const client = {
+      session: {
+        messages: async (_args: any) => ({
+          data: [
+            makeMsg("assistant", "Working."),
+            // Wrong shape: role at top level, no info wrapper
+            { role: "user", parts: [{ type: "text", text: "[Telamon-StatusEnforcer] Please end with a marker." }] },
+          ],
+        }),
+        prompt: async (_args: any) => { promptCallCount.n++ },
+      },
+    }
+    const hooks = await StatusMarkerEnforcerPlugin({
+      directory: repoRoot,
+      worktree: undefined,
+      client,
+    })
+    await hooks["event"]!({ event: makeIdleEvent("sess-r4-wrongshape") })
+
+    // Wrong-shape user message not recognized → nudge fires (prompt called)
+    expect(promptCallCount.n).toBe(1)
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.5  Tag check uses m.parts[*].text, not m.content?.parts (dead fallback)
+  //      backlog L139; requirement 7
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.5 [backlog L139] tag check reads text from m.parts (canonical), not m.content?.parts (dead fallback) — tag in parts[0].text is detected", async () => {
+    // Verify the canonical path works: tag in parts[0].text → skip
+    const promptCallCount = { n: 0 }
+    const client = {
+      session: {
+        messages: async (_args: any) => ({
+          data: [
+            makeMsg("assistant", "Working."),
+            // Canonical shape: info.role + parts
+            {
+              info: { role: "user" },
+              parts: [{ type: "text", text: "[Telamon-StatusEnforcer] nudge" }],
+            },
+          ],
+        }),
+        prompt: async (_args: any) => { promptCallCount.n++ },
+      },
+    }
+    const hooks = await StatusMarkerEnforcerPlugin({
+      directory: repoRoot,
+      worktree: undefined,
+      client,
+    })
+    await hooks["event"]!({ event: makeIdleEvent("sess-r5-canonical") })
+
+    // Tag found via parts → skip nudge
+    expect(promptCallCount.n).toBe(0)
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.6  Tag substring match — partial tag text does NOT trigger skip
+  //      Requirement: literal substring [Telamon-StatusEnforcer]
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.6 last user message contains similar but not exact tag → nudge fires (substring match is exact)", async () => {
+    const promptCallCount = { n: 0 }
+    const client = {
+      session: {
+        messages: async (_args: any) => ({
+          data: [
+            makeMsg("assistant", "Working."),
+            // Similar tag but not exact
+            makeMsg("user", "[Telamon-StatusEnforcer2] different tag"),
+          ],
+        }),
+        prompt: async (_args: any) => { promptCallCount.n++ },
+      },
+    }
+    const hooks = await StatusMarkerEnforcerPlugin({
+      directory: repoRoot,
+      worktree: undefined,
+      client,
+    })
+    await hooks["event"]!({ event: makeIdleEvent("sess-r6-wrongtag") })
+
+    // Tag doesn't match → nudge fires
+    expect(promptCallCount.n).toBe(1)
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R.7  Tag check: last message is assistant (not user) → tag check skipped → nudge fires
+  //      Requirement: check applies only to last USER message
+  // ══════════════════════════════════════════════════════════════════════════
+  test("R.7 last message is assistant (no marker) with [Telamon-StatusEnforcer] in text → nudge fires (tag check only applies to last user message)", async () => {
+    const promptCallCount = { n: 0 }
+    const client = {
+      session: {
+        messages: async (_args: any) => ({
+          data: [
+            // Last message is assistant with the tag in text but no marker
+            makeMsg("assistant", "[Telamon-StatusEnforcer] I should have ended with a marker."),
+          ],
+        }),
+        prompt: async (_args: any) => { promptCallCount.n++ },
+      },
+    }
+    const hooks = await StatusMarkerEnforcerPlugin({
+      directory: repoRoot,
+      worktree: undefined,
+      client,
+    })
+    await hooks["event"]!({ event: makeIdleEvent("sess-r7-assistanttag") })
+
+    // Tag in assistant message doesn't trigger skip — nudge fires
+    expect(promptCallCount.n).toBe(1)
+  })
+})
+
+// ─── Helpers for Suite S ──────────────────────────────────────────────────────
+
+/** Canonical stall-flag path for a given directory + slug. */
+function stallFlagPath(directory: string, slug: string): string {
+  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`)
+}
+
+/** Write a stall-flag JSON directly (bypasses plugin logic). */
+function writeStallFlagRaw(
+  directory: string,
+  slug: string,
+  data: { sessionId: string; started: string; attempt: number },
+) {
+  const { writeFileSync, mkdirSync } = require("fs")
+  const path = stallFlagPath(directory, slug)
+  mkdirSync(require("path").dirname(path), { recursive: true })
+  writeFileSync(path, JSON.stringify(data), "utf8")
+}
+
+/** Read stall-flag JSON directly. Returns null if missing or corrupt. */
+function readStallFlagRaw(directory: string, slug: string): any {
+  const { readFileSync, existsSync } = require("fs")
+  const path = stallFlagPath(directory, slug)
+  if (!existsSync(path)) return null
+  try { return JSON.parse(readFileSync(path, "utf8")) } catch { return null }
+}
+
+// ─── Suite S — Stall-flag coordination (Task 6) ───────────────────────────────
+
+describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination", () => {
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.1  STALL_FLAG_TTL_MS and GRACE_MS exported with correct values
+  //      PLAN §4.4: STALL_FLAG_TTL_MS = LOCK_TTL_MS + GRACE_MS = 6 * 60 * 1000
+  //                 GRACE_MS = 60_000
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.1 [PLAN §4.4] STALL_FLAG_TTL_MS exported = 360_000 ms (6 min) and GRACE_MS exported = 60_000 ms", async () => {
+    const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+    if (mod.STALL_FLAG_TTL_MS === undefined)
+      throw new Error("Task 6 developer requirement: export STALL_FLAG_TTL_MS from status-marker-enforcer.js")
+    if (mod.GRACE_MS === undefined)
+      throw new Error("Task 6 developer requirement: export GRACE_MS from status-marker-enforcer.js")
+    expect(mod.GRACE_MS).toBe(60_000)
+    expect(mod.STALL_FLAG_TTL_MS).toBe(6 * 60 * 1000) // = 360_000
+    // Derivation check: STALL_FLAG_TTL_MS = LOCK_TTL_MS + GRACE_MS
+    expect(mod.STALL_FLAG_TTL_MS).toBe(mod.LOCK_TTL_MS + mod.GRACE_MS)
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.2  writeStallFlag exported — writes correct path and shape
+  //      PLAN §4.4: path = .ai/telamon/memory/thinking/.status-enforcer-stall-<slug>.json
+  //                 shape = { sessionId, started, attempt }
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.2 [PLAN §4.4] writeStallFlag() writes flag at canonical path with correct JSON shape", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s2-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      if (!mod.writeStallFlag)
+        throw new Error("Task 6 developer requirement: export writeStallFlag() from status-marker-enforcer.js")
+
+      const slug = worktreeSlug(undefined, tmpDir)
+      const before = Date.now()
+      mod.writeStallFlag(tmpDir, "sess-s2", 1)
+      const after = Date.now()
+
+      const flagPath = stallFlagPath(tmpDir, slug)
+      expect(existsSync(flagPath)).toBe(true)
+
+      const data = readStallFlagRaw(tmpDir, slug)
+      expect(data).not.toBeNull()
+      expect(data.sessionId).toBe("sess-s2")
+      expect(data.attempt).toBe(1)
+      // started must be a valid ISO string within the test window
+      const started = new Date(data.started).getTime()
+      expect(started).toBeGreaterThanOrEqual(before)
+      expect(started).toBeLessThanOrEqual(after)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.3  clearStallFlag exported — deletes existing flag
+  //      PLAN §4.4: clearStallFlag(directory) deletes the flag file
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.3 [PLAN §4.4] clearStallFlag() deletes an existing stall-flag file", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s3-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      if (!mod.clearStallFlag)
+        throw new Error("Task 6 developer requirement: export clearStallFlag() from status-marker-enforcer.js")
+
+      const slug = worktreeSlug(undefined, tmpDir)
+      writeStallFlagRaw(tmpDir, slug, { sessionId: "sess-s3", started: new Date().toISOString(), attempt: 1 })
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(true)
+
+      mod.clearStallFlag(tmpDir)
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.4  clearStallFlag is a no-op when flag does not exist
+  //      PLAN §4.4: "No-op if file does not exist"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.4 [PLAN §4.4] clearStallFlag() is a no-op when stall-flag does not exist — no error thrown", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s4-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      if (!mod.clearStallFlag)
+        throw new Error("Task 6 developer requirement: export clearStallFlag() from status-marker-enforcer.js")
+      // Must not throw
+      expect(() => mod.clearStallFlag(tmpDir)).not.toThrow()
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.5  Stall-flag filename does NOT collide with lock or counter filenames
+  //      Requirement 9: distinct filename patterns
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.5 stall-flag filename pattern is distinct from lock and counter filenames", () => {
+    const slug = "myrepo"
+    const stall   = `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`
+    const lock    = `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`
+    const counter = `.ai/telamon/memory/thinking/.status-enforcer-counter-${slug}.json`
+    expect(stall).not.toBe(lock)
+    expect(stall).not.toBe(counter)
+    expect(lock).not.toBe(counter)
+    // Verify the distinguishing segment
+    expect(stall).toContain("-stall-")
+    expect(lock).toContain("-lock-")
+    expect(counter).toContain("-counter-")
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.6  Stall-flag written BEFORE client.session.prompt on nudge path
+  //      PLAN §4.4: "write stall-flag BEFORE client.session.prompt"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.6 [PLAN §4.4] stall-flag is written before client.session.prompt fires on nudge path", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s6-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-s6-flagbefore"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const flagPath = stallFlagPath(tmpDir, slug)
+
+      let flagExistedAtPromptTime = false
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working on it.")],
+          }),
+          prompt: async (_args: any) => {
+            flagExistedAtPromptTime = existsSync(flagPath)
+          },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      expect(flagExistedAtPromptTime).toBe(true)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.7  Stall-flag NOT cleared after prompt — left for next idle
+  //      PLAN §4.4: "do NOT clear it after the prompt"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.7 [PLAN §4.4] stall-flag persists after nudge prompt completes — not cleared by enforcer", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s7-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-s7-flagpersists"
+      const slug = worktreeSlug(undefined, tmpDir)
+      const flagPath = stallFlagPath(tmpDir, slug)
+
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Working on it.")],
+          }),
+          prompt: async (_args: any) => {},
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Flag must still exist after the idle handler completes
+      expect(existsSync(flagPath)).toBe(true)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.8  Stall-flag cleared when marker detected AND flag exists
+  //      PLAN §4.4 req 7: "when detectTerminalMarker returns true … clear the stall-flag"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.8 [PLAN §4.4] stall-flag cleared when terminal marker detected on latest assistant message", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s8-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      const sessionId = "sess-s8-markerclears"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Pre-write a stall-flag as if a previous nudge was sent
+      writeStallFlagRaw(tmpDir, slug, { sessionId, started: new Date().toISOString(), attempt: 1 })
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(true)
+
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            // Agent has now recovered and ends with a marker
+            data: [makeMsg("assistant", "All done.\nFINISHED!")],
+          }),
+          prompt: async (_args: any) => {},
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // Stall-flag must be cleared
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.9  Stall-flag cleared when ceiling reached (attempt >= max_attempts)
+  //      PLAN §4.4 req 8: "clear the stall-flag so remember-session is allowed to capture"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.9 [PLAN §4.4] stall-flag cleared when nudge ceiling reached — allows remember-session to capture stalled session", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s9-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const maxAttempts = 2
+      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: maxAttempts } })
+      const sessionId = "sess-s9-ceiling"
+      const slug = worktreeSlug(undefined, tmpDir)
+
+      // Pre-write counter at ceiling
+      writeRawCounter(tmpDir, slug, {
+        [sessionId]: { attempts: maxAttempts, lastNudge: new Date().toISOString() },
+      })
+
+      // Pre-write stall-flag
+      writeStallFlagRaw(tmpDir, slug, { sessionId, started: new Date().toISOString(), attempt: maxAttempts })
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(true)
+
+      const promptCallCount = { n: 0 }
+      const client = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Still working.")],
+          }),
+          prompt: async (_args: any) => { promptCallCount.n++ },
+        },
+      }
+      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      await hooks["event"]!({ event: makeIdleEvent(sessionId) })
+
+      // No nudge sent (ceiling)
+      expect(promptCallCount.n).toBe(0)
+      // Stall-flag must be cleared so remember-session can capture
+      expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(false)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.10  writeStallFlag content: attempt field matches argument
+  //       PLAN §4.4 shape: { sessionId, started, attempt }
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.10 [PLAN §4.4] writeStallFlag() stores attempt number matching the argument passed", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s10-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      if (!mod.writeStallFlag)
+        throw new Error("Task 6 developer requirement: export writeStallFlag() from status-marker-enforcer.js")
+
+      const slug = worktreeSlug(undefined, tmpDir)
+      mod.writeStallFlag(tmpDir, "sess-s10", 2)
+      const data = readStallFlagRaw(tmpDir, slug)
+      expect(data?.attempt).toBe(2)
+      expect(data?.sessionId).toBe("sess-s10")
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+})

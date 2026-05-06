@@ -41,6 +41,10 @@ export const COUNTER_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 // ─── Lock file constants ───────────────────────────────────────────────────────
 export const LOCK_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+// ─── Stall-flag constants ─────────────────────────────────────────────────────
+export const GRACE_MS = 60_000; // 60 seconds
+export const STALL_FLAG_TTL_MS = LOCK_TTL_MS + GRACE_MS; // = 360_000 ms (6 min)
+
 // ─── worktreeSlug ─────────────────────────────────────────────────────────────
 // Duplicated from src/plugins/remember-session.js per ADR "Duplicate worktreeSlug function".
 // Do NOT import — each plugin is self-contained.
@@ -52,6 +56,34 @@ export function worktreeSlug(worktree, directory) {
 // ─── Lock file path ───────────────────────────────────────────────────────────
 export function lockPath(slug, directory) {
   return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`);
+}
+
+// ─── Stall-flag path ──────────────────────────────────────────────────────────
+export function stallFlagPath(slug, directory) {
+  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`);
+}
+
+// ─── writeStallFlag ───────────────────────────────────────────────────────────
+export function writeStallFlag(directory, sessionId, attempt) {
+  const slug = worktreeSlug(null, directory);
+  const filePath = stallFlagPath(slug, directory);
+  try {
+    mkdirSync(dirname(filePath), { recursive: true });
+    writeFileSync(filePath, JSON.stringify({ sessionId, started: new Date().toISOString(), attempt }), "utf8");
+  } catch (err) {
+    process.stderr.write(`[status-marker-enforcer] Failed to write stall-flag: ${err?.message ?? err}\n`);
+  }
+}
+
+// ─── clearStallFlag ───────────────────────────────────────────────────────────
+export function clearStallFlag(directory) {
+  const slug = worktreeSlug(null, directory);
+  const filePath = stallFlagPath(slug, directory);
+  try {
+    if (existsSync(filePath)) unlinkSync(filePath);
+  } catch (err) {
+    process.stderr.write(`[status-marker-enforcer] Failed to clear stall-flag: ${err?.message ?? err}\n`);
+  }
 }
 
 // ─── isLockFresh ──────────────────────────────────────────────────────────────
@@ -262,6 +294,8 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
             delete counter[sessionId];
             writeCounter(directory, worktree, counter);
           }
+          // Clear stall-flag — recovery confirmed, remember-session may capture
+          clearStallFlag(directory);
           return;
         }
 
@@ -281,6 +315,8 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           process.stderr.write(
             `[status-marker-enforcer] Session ${sessionId} exceeded max nudge attempts (${entry.attempts}) — stopping. Human review needed.\n`
           );
+          // Clear stall-flag so remember-session can capture the stalled session for human review
+          clearStallFlag(directory);
           return;
         }
 
@@ -294,6 +330,8 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
 
         // 13. Send nudge; release lock in finally (Task 5)
         try {
+          // Write stall-flag before prompt so remember-session defers capture (Task 6)
+          writeStallFlag(directory, sessionId, entry.attempts + 1);
           await client.session.prompt({
             path: { id: sessionId },
             body: {

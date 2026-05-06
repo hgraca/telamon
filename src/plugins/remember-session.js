@@ -18,12 +18,26 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from "
 import { join, dirname, basename } from "path";
 
 const LOCK_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const STALL_FLAG_TTL_MS = 6 * 60 * 1000; // duplicated per ADR M-ARCH-034 (= LOCK_TTL_MS_enforcer + GRACE_MS)
 const CAPTURE_PROMPT_TEXT =
   "[Telamon] Please load the `telamon.remember_session` skill and run it now. This is an automated idle capture — do not report results to the user.";
 
 function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");
   return raw.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+}
+
+// Duplicated from status-marker-enforcer.js per ADR M-ARCH-034 (no shared module).
+function readMaxAttemptsFromConfig(directory) {
+  const configPath = join(directory, ".telamon.jsonc");
+  if (!existsSync(configPath)) return 2;
+  try {
+    const raw = readFileSync(configPath, "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed?.status_marker_enforcer?.max_attempts ?? 2;
+  } catch {
+    return 2;
+  }
 }
 
 // --- Known upstream bug: prefill error (opencode #13768) ---
@@ -61,8 +75,18 @@ export const RememberSessionPlugin = async ({ directory, worktree, client }) => 
         }
       }
 
-      // --- Option C: Last-message check ---
-      // If the last user message in this session is our own capture prompt,
+      // NEW: respect status-enforcer's stall-flag — don't capture an incomplete turn.
+      const stallFlag = join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`);
+      if (existsSync(stallFlag)) {
+        try {
+          const f = JSON.parse(readFileSync(stallFlag, "utf8"));
+          const age = Date.now() - new Date(f.started).getTime();
+          const max = readMaxAttemptsFromConfig(directory);
+          if (age < STALL_FLAG_TTL_MS && (f.attempt ?? 0) < max) return;
+        } catch { /* corrupt flag → fall through and capture */ }
+      }
+
+      // --- Option C: Last-message check ---      // If the last user message in this session is our own capture prompt,
       // this idle was fired by the capture response completing → skip.
       try {
         const { data: messages } = await client.session.messages({
