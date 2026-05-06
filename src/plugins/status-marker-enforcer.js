@@ -106,7 +106,7 @@ export function writeCounter(directory, worktree, counter) {
     mkdirSync(dirname(filePath), { recursive: true });
     writeFileSync(filePath, JSON.stringify(counter, null, 2), "utf8");
   } catch (err) {
-    console.error("[status-marker-enforcer] Failed to write counter file:", err);
+    process.stderr.write(`[status-marker-enforcer] Failed to write counter file: ${err?.message ?? err}\n`);
   }
 }
 
@@ -275,7 +275,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
         }
         // TODO(Task 5): lock file + last-message check
       } catch (err) {
-        console.error("[status-marker-enforcer] Error in event handler:", err);
+        process.stderr.write(`[status-marker-enforcer] Error in event handler: ${err?.message ?? err}\n`);
       }
     },
   };
