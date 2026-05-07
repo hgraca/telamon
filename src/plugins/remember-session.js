@@ -20,7 +20,10 @@ import { join, dirname, basename } from "path";
 const LOCK_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const STALL_FLAG_TTL_MS = 6 * 60 * 1000; // duplicated per ADR M-ARCH-034 (= LOCK_TTL_MS_enforcer + GRACE_MS)
 const CAPTURE_PROMPT_TEXT =
-  "[Telamon] Please load the `telamon.remember_session` skill and run it now. This is an automated idle capture — do not report results to the user.";
+  "[Telamon] Please load the `telamon.remember_session` skill and run it now. " +
+  "This is an automated idle capture — do not report results to the user. " +
+  "After the capture finishes: if you were in the middle of a multi-step task or workflow when this prompt arrived, silently resume the next step without announcing the capture. " +
+  "If there is no pending work, simply stop — produce no output, no farewell, no summary.";
 
 function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");

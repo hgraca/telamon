@@ -82,3 +82,14 @@ When triggered by user ("wrap up"), present:
 - **Captured**: what was added to brain notes and where
 - **Promoted**: what was promoted from thinking/ to brain/
 - **Remaining**: anything left for next session (with thinking/ note)
+
+## 7. Resume after automated capture
+
+**Applies only to automated idle capture** (the synthetic prompt sent by the remember-session plugin, identifiable by the `[Telamon]` prefix). Skip this step on manual "wrap up".
+
+After completing steps 0–5, decide what to do next:
+
+- **If a multi-step task or workflow was in progress when the capture prompt arrived** (e.g. mid-iteration of `telamon.implement_story`, awaiting a subagent, between steps of `telamon.epic`, addressing review feedback, or any other workflow with an obvious next step): **silently resume the next step**. Do not announce the capture. Do not summarise. Do not ask the user what to do — just continue the work.
+- **If there is no pending work** (the prior turn already concluded with a final report to the user, an answered question, or a delivered artifact): **stop without output**. No farewell, no "capture done", no summary. Going silent is the correct behavior.
+
+The default is "resume if there is something to resume". Treat the capture as a transparent interruption: after it ends, the agent state should be exactly as it was before the prompt arrived, minus the entries now persisted to brain/.

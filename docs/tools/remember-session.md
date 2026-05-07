@@ -13,6 +13,7 @@ Captures session learnings to the vault's `brain/` notes automatically.
 - Fires on idle — only when the agent has finished all work and the session goes quiet
 - Loop prevention: lock file (10-min TTL) + last-message check (skips if last user message was a capture prompt)
 - Watermark-based — only captures learnings since last watermark
+- Silent by default — auto-captures produce no user-facing output; if work was paused mid-workflow the agent silently resumes the next step after capturing
 - Say *"wrap up"* for a manual capture with a visible report
 
 **Type:** Built-in OpenCode plugin (`src/plugins/remember-session.js`)
