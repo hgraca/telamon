@@ -54,11 +54,11 @@ Method names describe the scenario, not the implementation:
 - Integration test (boots framework): `tests/Integration/`, mirroring source paths
 - Unit test (no framework): `tests/Unit/`, mirroring source paths
 
-| Source | Test |
-|---|---|
+| Source                                                                 | Test                                                                          |
+|------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | `<src-root>/Core/Component/Invoice/Application/UseCase/CreateInvoice/` | `tests/Integration/Core/Component/Invoice/Application/UseCase/CreateInvoice/` |
-| `<src-root>/Presentation/Api/Invoice/` | `tests/Integration/Presentation/Api/Invoice/` |
-| `<src-root>/Infrastructure/Database/Invoice/` | `tests/Integration/Infrastructure/Database/Invoice/` |
+| `<src-root>/Presentation/Api/Invoice/`                                 | `tests/Integration/Presentation/Api/Invoice/`                                 |
+| `<src-root>/Infrastructure/Database/Invoice/`                          | `tests/Integration/Infrastructure/Database/Invoice/`                          |
 
 `<src-root>` is `src` or `app`.
 `/` is the namespace separator, it might be different depending on the programming language.
@@ -92,6 +92,7 @@ Method names describe the scenario, not the implementation:
 
 - Run `make static` before adding or fixing automated tests
 - Test all use cases with an integration test
+- For every parameter of an exported function, ensure at least one test passes a non-default (non-`undefined`, non-empty, non-zero) value. A 100%-passing suite where every call site uses the same default for a parameter cannot detect that parameter being silently ignored.
 
 ## MUST NOT
 
@@ -99,6 +100,7 @@ Method names describe the scenario, not the implementation:
 - Allow warnings, notices, or deprecation notices — use `make ut-debug` to diagnose and fix
 - Use mocks unless strictly necessary
 - Use anonymous classes for test doubles — extract named fakes (e.g. `InMemoryFooRepository`) in `tests/Support/`
+- Pass a real project path (repository root, source tree, or any directory under version control) as a `directory`, `cwd`, `path`, or equivalent argument to code under test that writes files. Use `fs.mkdtempSync` (or the language equivalent) to create a per-test temporary directory and pass that. Tests that point at real paths pollute working state and cause cross-test interference.
 
 ## See also
 

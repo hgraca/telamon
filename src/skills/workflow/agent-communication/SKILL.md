@@ -77,6 +77,16 @@ When delegating work (typically the orchestrator delegating to a specialist), in
 - When re-delegating after a `BLOCKED` signal, resolve the blocker first — then re-delegate with the resolution.
 - Never delegate to multiple roles in a single message — one delegation per agent.
 
+### Trust-calibration prompt (developer delegations)
+
+When delegating to @developer (or `telamon.implement_story`) AND the agent has previously self-reported tests-green on failing tests in this iteration, include all three elements in the delegation prompt:
+
+1. **Name the past mis-claim** — quote the prior FINISHED message and the actual test failure that contradicted it. One sentence is enough.
+2. **Require dual test runs** — instruct the agent to run the full relevant test suite TWICE consecutively and report both runs verbatim (pass/fail counts from each run).
+3. **State independent re-verification** — declare that the orchestrator WILL re-run the tests after FINISHED and that a stall-ceiling escalation per `telamon.exception-handling` follows on the second false-positive.
+
+Apply this only after the first false-FINISHED in an iteration. Default delegations should not carry this overhead.
+
 ## Artifact Handoff Contracts
 
 Each transition between agents has a defined set of artifacts that must be passed:
