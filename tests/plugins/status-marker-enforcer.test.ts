@@ -579,6 +579,10 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
   describe("H. Nudge delivery — synthetic + hidden", () => {
 
     test("H.8 [backlog L100] no marker detected → client.session.prompt called with synthetic:true and metadata:{hidden:true, source:'status-marker-enforcer'}", async () => {
+      const { mkdirSync, rmSync } = require("fs")
+      const tmpDir = join("/tmp", `sme-h8-${process.pid}`)
+      mkdirSync(tmpDir, { recursive: true })
+      try {
       const promptCalls: any[] = []
       const client = {
         session: {
@@ -591,7 +595,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
         },
       }
       const hooks = await StatusMarkerEnforcerPlugin({
-        directory: repoRoot,
+        directory: tmpDir,
         worktree: undefined,
         client,
       })
@@ -617,9 +621,16 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
       // Part text must be the nudge prompt (non-empty)
       expect(typeof part.text).toBe("string")
       expect(part.text.length).toBeGreaterThan(0)
+      } finally {
+        rmSync(tmpDir, { recursive: true, force: true })
+      }
     })
 
     test("H.9 [backlog L100] nudge part text contains all four markers verbatim (delivery integration check)", async () => {
+      const { mkdirSync, rmSync } = require("fs")
+      const tmpDir = join("/tmp", `sme-h9-${process.pid}`)
+      mkdirSync(tmpDir, { recursive: true })
+      try {
       const promptCalls: any[] = []
       const client = {
         session: {
@@ -632,7 +643,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
         },
       }
       const hooks = await StatusMarkerEnforcerPlugin({
-        directory: repoRoot,
+        directory: tmpDir,
         worktree: undefined,
         client,
       })
@@ -644,6 +655,9 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
       expect(text).toContain("BLOCKED:")
       expect(text).toContain("NEEDS_INPUT:")
       expect(text).toContain("PARTIAL:")
+      } finally {
+        rmSync(tmpDir, { recursive: true, force: true })
+      }
     })
   })
 
@@ -1946,6 +1960,10 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
     // If plugin mistakenly uses m.role instead of m.info.role, it would
     // find the wrong-shape user message and skip the nudge.
     // Correct behavior: wrong-shape message is invisible → nudge fires.
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-r4-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
     const promptCallCount = { n: 0 }
     const client = {
       session: {
@@ -1960,7 +1978,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
       },
     }
     const hooks = await StatusMarkerEnforcerPlugin({
-      directory: repoRoot,
+      directory: tmpDir,
       worktree: undefined,
       client,
     })
@@ -1968,6 +1986,9 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
 
     // Wrong-shape user message not recognized → nudge fires (prompt called)
     expect(promptCallCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
   })
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -2008,6 +2029,10 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
   //      Requirement: literal substring [Telamon-StatusEnforcer]
   // ══════════════════════════════════════════════════════════════════════════
   test("R.6 last user message contains similar but not exact tag → nudge fires (substring match is exact)", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-r6-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
     const promptCallCount = { n: 0 }
     const client = {
       session: {
@@ -2022,7 +2047,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
       },
     }
     const hooks = await StatusMarkerEnforcerPlugin({
-      directory: repoRoot,
+      directory: tmpDir,
       worktree: undefined,
       client,
     })
@@ -2030,6 +2055,9 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
 
     // Tag doesn't match → nudge fires
     expect(promptCallCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
   })
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -2037,6 +2065,10 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
   //      Requirement: check applies only to last USER message
   // ══════════════════════════════════════════════════════════════════════════
   test("R.7 last message is assistant (no marker) with [Telamon-StatusEnforcer] in text → nudge fires (tag check only applies to last user message)", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-r7-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
     const promptCallCount = { n: 0 }
     const client = {
       session: {
@@ -2050,7 +2082,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
       },
     }
     const hooks = await StatusMarkerEnforcerPlugin({
-      directory: repoRoot,
+      directory: tmpDir,
       worktree: undefined,
       client,
     })
@@ -2058,6 +2090,9 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
 
     // Tag in assistant message doesn't trigger skip — nudge fires
     expect(promptCallCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
   })
 })
 

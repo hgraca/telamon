@@ -32,7 +32,7 @@ function makeIdleEvent(sessionId = "test-session-123") {
   return { type: "session.idle", properties: { info: { id: sessionId } } }
 }
 
-type Message = { role: "user" | "assistant"; parts: { type: string; text: string }[] }
+type Message = { info: { role: "user" | "assistant" }; parts: { type: string; text: string }[] }
 
 function makeClient(opts: {
   messages?: Message[]
@@ -132,8 +132,8 @@ describe("RememberSessionPlugin", () => {
       const dir = makeTmpDir()
       try {
         const messages: Message[] = [
-          { role: "user", parts: [{ type: "text", text: "[Telamon] Please load the `telamon.remember_session` skill and run it now." }] },
-          { role: "assistant", parts: [{ type: "text", text: "Done." }] },
+          { info: { role: "user" }, parts: [{ type: "text", text: "[Telamon] Please load the `telamon.remember_session` skill and run it now." }] },
+          { info: { role: "assistant" }, parts: [{ type: "text", text: "Done." }] },
         ]
         const client = makeClient({ messages })
         const hooks = await RememberSessionPlugin({ directory: dir, worktree: undefined, client })
@@ -148,8 +148,8 @@ describe("RememberSessionPlugin", () => {
       const dir = makeTmpDir()
       try {
         const messages: Message[] = [
-          { role: "user", parts: [{ type: "text", text: "Can you help me with something?" }] },
-          { role: "assistant", parts: [{ type: "text", text: "Sure." }] },
+          { info: { role: "user" }, parts: [{ type: "text", text: "Can you help me with something?" }] },
+          { info: { role: "assistant" }, parts: [{ type: "text", text: "Sure." }] },
         ]
         const client = makeClient({ messages })
         const hooks = await RememberSessionPlugin({ directory: dir, worktree: undefined, client })
