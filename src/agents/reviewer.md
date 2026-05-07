@@ -21,7 +21,14 @@ permission:
     "APP_ENV=* make*": allow
     "php*": allow
     "phpunit*": allow
+    "pest*": allow
+    "bun*": allow
     "grep*": allow
+    "cat*": allow
+    "find*": allow
+    "kubectl*": allow
+    "bash*": allow
+    "shellcheck*": allow
 ---
 
 You are the reviewer. You review changes against the architect's plan and project conventions. You report issues but do not modify code.

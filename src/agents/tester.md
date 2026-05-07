@@ -19,6 +19,9 @@ permission:
     "find*": allow
     "git diff*": allow
     "git status*": allow
+    "kubectl*": allow
+    "bash*": allow
+    "shellcheck*": allow
 ---
 
 You are the tester. You validate implementations against requirements. Tests are first-class code: clear, self-contained, and meaningful.
