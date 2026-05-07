@@ -105,6 +105,8 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 >
 > For each acceptance criterion: test type (unit, integration, acceptance), file path, what is asserted.
 >
+> **Note on AC↔Test mapping**: The Test Plan table maps acceptance criteria → test methods (one-way). A reverse `Test → AC` column is intentionally not required: acceptance test names are coarse by nature ("approval test in `tests/Acceptance/`") and forcing a per-test AC reference produces churn without catching defects. If a developer needs reverse traceability, the AC text in the table's AC column already provides it. This deferral was reviewed in iterations 2, 3, and 4 of the planning improvement loop with no defect ever linked to the gap.
+>
 > ## ADR Impact
 >
 > List new or updated ADR entries, or "None."
@@ -140,3 +142,16 @@ When responding to Critic feedback on a plan:
 
 > - **Changes Made**: List of updates to the plan.
 > - **Unaddressed Feedback**: Justification for each omission.
+> - **Backlog Deltas**: List every backlog task whose contract has changed as a result of this revision (return type, method signature, included VOs/DTOs, acceptance-criteria text). For each delta, state:
+>   - Backlog task number and short title.
+>   - Old contract (one line, quoted from current backlog).
+>   - New contract (one line, matching the revised plan).
+>   - Classification: `contract-shape` (signature/return-type/structural) or `documentation-only` (wording, typos, references).
+>   - If no backlog tasks are affected, write: "No backlog deltas — plan revision is internal to the plan document."
+
+The orchestrator routes Backlog Deltas as follows:
+
+- Any `contract-shape` delta → re-delegate to PO to update the backlog.
+- All deltas `documentation-only` → orchestrator may self-fix per the existing critic-finding routing rule.
+
+A FINISHED signal that omits the `Backlog Deltas` line is invalid. The orchestrator MUST treat it as `PARTIAL` and re-delegate with the missing item called out.

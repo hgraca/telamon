@@ -60,6 +60,7 @@ If a previous review with the same date+number already exists, do not overwrite 
 > - **Problem found**:
 > - **Why it matters**:
 > - **Recommendation**:
+> - **Workflow gap** _(optional)_: If this finding represents a *class* of failure not prevented by the workflow (cross-artefact drift, recurring type leak, repeated rule violation across artefacts, same defect category across multiple findings in this review), name the rule that should exist and which file should host it. Leave blank if the finding is a one-off.
 
 ### Category and Severity
 
