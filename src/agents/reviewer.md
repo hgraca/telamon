@@ -5,12 +5,6 @@ temperature: 0.2
 model: github-copilot/claude-opus-4.7
 permission:
   task: deny
-  write:
-    "./.ai/telamon/memory/work/active/**": allow
-    "./.ai/telamon/memory/thinking/**": allow
-  edit:
-    "./.ai/telamon/memory/work/active/**": allow
-    "./.ai/telamon/memory/thinking/**": allow
   bash:
     "*": deny
     "git diff*": allow
