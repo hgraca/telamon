@@ -2443,3 +2443,129 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     }
   })
 })
+
+// ─── Helpers for Suite U ──────────────────────────────────────────────────────
+
+// Suite U is placed here (in status-marker-enforcer.test.ts) rather than
+// remember-session.test.ts because the integration path starts with the SME
+// plugin writing the stall-flag, and this file already owns all SME-side
+// helpers (worktreeSlug, stallFlagPath, writeStallFlagRaw, etc.).
+
+import { RememberSessionPlugin } from "../../src/plugins/remember-session.js"
+
+// ─── Suite U — Cross-plugin stall-flag ordering integration (Task 8) ─────────
+
+describe("status-marker-enforcer + remember-session / Task 8 — Suite U: Cross-plugin stall-flag ordering", () => {
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // U.1  Positive: SME writes stall-flag → remember-session skips capture
+  //      PLAN §4.4: "stall-flag write happens BEFORE remember-session captures"
+  //      backlog L190 — last open Task 8 acceptance criterion
+  // ══════════════════════════════════════════════════════════════════════════
+  test("U.1 [PLAN §4.4] SME writes stall-flag on session.idle → remember-session skips capture (flag fresh, attempt 1 < max 2)", async () => {
+    const { mkdirSync, rmSync, existsSync, readFileSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-u1-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const SESSION_ID = "sess-u-integration"
+
+      // --- Build SME client: messages has last assistant msg with NO terminal marker ---
+      const smePromptCount = { n: 0 }
+      const smeClient = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("assistant", "Still working on it.")],
+          }),
+          prompt: async (_args: any) => {
+            smePromptCount.n++
+          },
+        },
+      }
+
+      // --- Build remember-session client: separate prompt counter ---
+      const rsPromptCount = { n: 0 }
+      const rsClient = {
+        session: {
+          messages: async (_args: any) => ({
+            // No [Telamon] in last user message → RS would normally fire
+            data: [makeMsg("user", "Can you help?"), makeMsg("assistant", "Still working on it.")],
+          }),
+          prompt: async (_args: any) => {
+            rsPromptCount.n++
+          },
+        },
+      }
+
+      const event = makeIdleEvent(SESSION_ID)
+
+      // 1. Trigger SME handler first
+      const smeHooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client: smeClient })
+      await smeHooks["event"]!({ event })
+
+      // Assert: stall-flag written with correct shape
+      const slug = worktreeSlug(undefined, tmpDir)
+      const flagPath = stallFlagPath(tmpDir, slug)
+      expect(existsSync(flagPath)).toBe(true)
+      const flagData = JSON.parse(readFileSync(flagPath, "utf8"))
+      expect(flagData.sessionId).toBe(SESSION_ID)
+      expect(flagData.attempt).toBe(1)
+      expect(typeof flagData.started).toBe("string")
+      // started must be a valid ISO date within the last 5 seconds
+      const age = Date.now() - new Date(flagData.started).getTime()
+      expect(age).toBeGreaterThanOrEqual(0)
+      expect(age).toBeLessThan(5000)
+
+      // Assert: SME sent the nudge prompt
+      expect(smePromptCount.n).toBe(1)
+
+      // 2. Trigger remember-session handler with same event
+      const rsHooks = await RememberSessionPlugin({ directory: tmpDir, worktree: undefined, client: rsClient })
+      await rsHooks["event"]!({ event })
+
+      // Assert: remember-session did NOT call its capture prompt (stall-flag is fresh, attempt 1 < max 2)
+      expect(rsPromptCount.n).toBe(0)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // U.2  Negative: stale stall-flag → remember-session proceeds with capture
+  //      PLAN §4.4: "stale flag (> STALL_FLAG_TTL_MS) does not block capture"
+  // ══════════════════════════════════════════════════════════════════════════
+  test("U.2 [PLAN §4.4] stale stall-flag (> 6 min old) → remember-session fires capture prompt", async () => {
+    const { mkdirSync, rmSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-u2-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const SESSION_ID = "sess-u-integration-stale"
+
+      // Pre-write a STALE stall-flag (started 7 minutes ago)
+      const slug = worktreeSlug(undefined, tmpDir)
+      const staleStarted = new Date(Date.now() - 7 * 60 * 1000).toISOString()
+      writeStallFlagRaw(tmpDir, slug, { sessionId: SESSION_ID, started: staleStarted, attempt: 1 })
+
+      // Build remember-session client
+      const rsPromptCount = { n: 0 }
+      const rsClient = {
+        session: {
+          messages: async (_args: any) => ({
+            data: [makeMsg("user", "Can you help?"), makeMsg("assistant", "Done.")],
+          }),
+          prompt: async (_args: any) => {
+            rsPromptCount.n++
+          },
+        },
+      }
+
+      const event = makeIdleEvent(SESSION_ID)
+      const rsHooks = await RememberSessionPlugin({ directory: tmpDir, worktree: undefined, client: rsClient })
+      await rsHooks["event"]!({ event })
+
+      // Stale flag → remember-session SHOULD fire capture
+      expect(rsPromptCount.n).toBe(1)
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+})
