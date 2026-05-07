@@ -4,6 +4,8 @@ import { Database } from "bun:sqlite";
 import { readFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 
+const AGENT_CACHE_TTL_MS = 60_000;
+
 /**
  * Find the nearest ancestor of `dir` that contains `.telamon.jsonc`.
  * Falls back to `dir` itself if not found.
@@ -44,11 +46,15 @@ function readProjectName(telamonRoot) {
   }
 }
 
-export const ToolStatsPlugin = async ({ directory }) => {
+export const ToolStatsPlugin = async ({ directory, client, _now }) => {
   let db = null;
   let insertStmt = null;
   let projectName = null;
   let telamonRoot = null;
+
+  const agentCache = new Map();
+  const skillBySession = new Map();
+  const now = _now ?? (() => Date.now());
 
   function getDb() {
     if (db) return db;
@@ -88,9 +94,58 @@ export const ToolStatsPlugin = async ({ directory }) => {
         getDb();
 
         const tool = input.tool ?? "unknown";
-        const agent = input.agent ?? input.metadata?.agent ?? null;
-        const skill = input.skill ?? input.metadata?.skill ?? null;
         const timestamp = new Date().toISOString();
+
+        // Skill tracking: update active skill if this is a skill tool call
+        try {
+          if (input.tool === "skill") {
+            const name = input.args?.name;
+            if (typeof name === "string" && name.length > 0) {
+              skillBySession.set(input.sessionID, name);
+            }
+          }
+        } catch {}
+
+        // Agent derivation
+        let agent;
+        if (client && input.sessionID) {
+          const sessionID = input.sessionID;
+          const cached = agentCache.get(sessionID);
+          if (cached && (now() - cached.fetchedAt) < AGENT_CACHE_TTL_MS) {
+            agent = cached.agent;
+          } else {
+            try {
+              const result = await client.session.messages({ path: { id: sessionID } });
+              const messages = result.data ?? [];
+              let lastAgent = null;
+              for (const m of messages) {
+                if (m.info?.role === "assistant") {
+                  lastAgent = m.info?.agent ?? null;
+                }
+              }
+              agent = lastAgent;
+              agentCache.set(sessionID, { agent, fetchedAt: now() });
+            } catch (err) {
+              process.stderr.write(`[tool-stats] Failed to fetch agent for session ${sessionID}: ${err}\n`);
+              agentCache.set(sessionID, { agent: null, fetchedAt: now() });
+              agent = null;
+            }
+          }
+        } else {
+          agent = input.agent ?? input.metadata?.agent ?? null;
+        }
+
+        // Skill derivation
+        let skill;
+        try {
+          if (client && input.sessionID) {
+            skill = skillBySession.get(input.sessionID) ?? null;
+          } else {
+            skill = input.skill ?? input.metadata?.skill ?? null;
+          }
+        } catch {
+          skill = null;
+        }
 
         insertStmt.run(tool, agent, skill, projectName, timestamp);
       } catch (err) {
