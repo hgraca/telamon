@@ -64,8 +64,8 @@ export function stallFlagPath(slug, directory) {
 }
 
 // ─── writeStallFlag ───────────────────────────────────────────────────────────
-export function writeStallFlag(directory, sessionId, attempt) {
-  const slug = worktreeSlug(null, directory);
+export function writeStallFlag(worktree, directory, sessionId, attempt) {
+  const slug = worktreeSlug(worktree, directory);
   const filePath = stallFlagPath(slug, directory);
   try {
     mkdirSync(dirname(filePath), { recursive: true });
@@ -76,8 +76,8 @@ export function writeStallFlag(directory, sessionId, attempt) {
 }
 
 // ─── clearStallFlag ───────────────────────────────────────────────────────────
-export function clearStallFlag(directory) {
-  const slug = worktreeSlug(null, directory);
+export function clearStallFlag(worktree, directory) {
+  const slug = worktreeSlug(worktree, directory);
   const filePath = stallFlagPath(slug, directory);
   try {
     if (existsSync(filePath)) unlinkSync(filePath);
@@ -295,7 +295,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
             writeCounter(directory, worktree, counter);
           }
           // Clear stall-flag — recovery confirmed, remember-session may capture
-          clearStallFlag(directory);
+          clearStallFlag(worktree, directory);
           return;
         }
 
@@ -316,7 +316,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
             `[status-marker-enforcer] Session ${sessionId} exceeded max nudge attempts (${entry.attempts}) — stopping. Human review needed.\n`
           );
           // Clear stall-flag so remember-session can capture the stalled session for human review
-          clearStallFlag(directory);
+          clearStallFlag(worktree, directory);
           return;
         }
 
@@ -331,7 +331,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
         // 13. Send nudge; release lock in finally (Task 5)
         try {
           // Write stall-flag before prompt so remember-session defers capture (Task 6)
-          writeStallFlag(directory, sessionId, entry.attempts + 1);
+          writeStallFlag(worktree, directory, sessionId, entry.attempts + 1);
           await client.session.prompt({
             path: { id: sessionId },
             body: {

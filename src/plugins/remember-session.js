@@ -86,7 +86,8 @@ export const RememberSessionPlugin = async ({ directory, worktree, client }) => 
         } catch { /* corrupt flag → fall through and capture */ }
       }
 
-      // --- Option C: Last-message check ---      // If the last user message in this session is our own capture prompt,
+      // --- Option C: Last-message check ---
+      // If the last user message in this session is our own capture prompt,
       // this idle was fired by the capture response completing → skip.
       try {
         const { data: messages } = await client.session.messages({

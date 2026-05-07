@@ -2160,7 +2160,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
 
       const slug = worktreeSlug(undefined, tmpDir)
       const before = Date.now()
-      mod.writeStallFlag(tmpDir, "sess-s2", 1)
+      mod.writeStallFlag(undefined, tmpDir, "sess-s2", 1)
       const after = Date.now()
 
       const flagPath = stallFlagPath(tmpDir, slug)
@@ -2196,7 +2196,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
       writeStallFlagRaw(tmpDir, slug, { sessionId: "sess-s3", started: new Date().toISOString(), attempt: 1 })
       expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(true)
 
-      mod.clearStallFlag(tmpDir)
+      mod.clearStallFlag(undefined, tmpDir)
       expect(existsSync(stallFlagPath(tmpDir, slug))).toBe(false)
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
@@ -2216,7 +2216,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
       if (!mod.clearStallFlag)
         throw new Error("Task 6 developer requirement: export clearStallFlag() from status-marker-enforcer.js")
       // Must not throw
-      expect(() => mod.clearStallFlag(tmpDir)).not.toThrow()
+      expect(() => mod.clearStallFlag(undefined, tmpDir)).not.toThrow()
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
     }
@@ -2400,10 +2400,44 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
         throw new Error("Task 6 developer requirement: export writeStallFlag() from status-marker-enforcer.js")
 
       const slug = worktreeSlug(undefined, tmpDir)
-      mod.writeStallFlag(tmpDir, "sess-s10", 2)
+      mod.writeStallFlag(undefined, tmpDir, "sess-s10", 2)
       const data = readStallFlagRaw(tmpDir, slug)
       expect(data?.attempt).toBe(2)
       expect(data?.sessionId).toBe("sess-s10")
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // S.11  writeStallFlag uses worktree-aware path when worktree is provided
+  //       Regression: previously passed null instead of worktree to worktreeSlug
+  // ══════════════════════════════════════════════════════════════════════════
+  test("S.11 writeStallFlag() writes to the worktree-aware path when worktree is provided", async () => {
+    const { mkdirSync, rmSync, existsSync } = require("fs")
+    const tmpDir = join("/tmp", `sme-t6-s11-${process.pid}`)
+    mkdirSync(tmpDir, { recursive: true })
+    try {
+      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      if (!mod.writeStallFlag || !mod.stallFlagPath)
+        throw new Error("Task 6 developer requirement: export writeStallFlag() and stallFlagPath() from status-marker-enforcer.js")
+
+      const worktree = "my-worktree"
+      const slug = worktreeSlug(worktree, tmpDir)
+      const expectedPath = mod.stallFlagPath(slug, tmpDir)
+
+      // The path WITHOUT worktree would use a different slug
+      const slugNoWorktree = worktreeSlug(undefined, tmpDir)
+      const wrongPath = mod.stallFlagPath(slugNoWorktree, tmpDir)
+
+      mod.writeStallFlag(worktree, tmpDir, "sess-x", 1)
+
+      // Flag must exist at the worktree-aware path
+      expect(existsSync(expectedPath)).toBe(true)
+      // Flag must NOT exist at the directory-only path (different slug)
+      if (expectedPath !== wrongPath) {
+        expect(existsSync(wrongPath)).toBe(false)
+      }
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
     }
