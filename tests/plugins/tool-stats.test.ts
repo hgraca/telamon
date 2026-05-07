@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test"
+import { describe, test, expect, mock, beforeEach, afterEach } from "bun:test"
 import { mkdirSync, writeFileSync, rmSync } from "fs"
 import { join } from "path"
 import { Database } from "bun:sqlite"
@@ -228,6 +228,247 @@ describe("ToolStatsPlugin", () => {
         const before = hooks["tool.execute.before"]!
         // Should not throw
         await expect(before({ tool: undefined as any })).resolves.toBeUndefined()
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+  })
+
+  // ─── New tests: agent/skill derived from session messages ─────────────────
+
+  describe("agent derivation from session messages", () => {
+
+    function makeClient(messages: any[]) {
+      return {
+        session: {
+          messages: mock(async (_opts: any) => ({ data: messages })),
+        },
+      }
+    }
+
+    function makeAssistantMessage(agent: string) {
+      return { info: { role: "assistant", agent } }
+    }
+
+    test("agent cache hit: uses cached agent without re-fetching", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient([makeAssistantMessage("developer")])
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        // First call — populates cache
+        await before({ tool: "bash", sessionID: "sess-1" })
+        // Second call — should hit cache, not re-fetch
+        await before({ tool: "edit", sessionID: "sess-1" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls ORDER BY id").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(2)
+        expect(rows[0].agent).toBe("developer")
+        expect(rows[1].agent).toBe("developer")
+        // messages fetched only once (cache hit on second call)
+        expect((client.session.messages as ReturnType<typeof mock>).mock.calls.length).toBe(1)
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("agent cache miss: fetches messages, extracts agent from last assistant message, caches it", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient([
+          { info: { role: "user" } },
+          makeAssistantMessage("tester"),
+        ])
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        await before({ tool: "bash", sessionID: "sess-fresh" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(1)
+        expect(rows[0].agent).toBe("tester")
+        expect((client.session.messages as ReturnType<typeof mock>).mock.calls.length).toBe(1)
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("agent cache TTL expiry: refetches after 60s", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient([makeAssistantMessage("developer")])
+        // Inject a clock that starts at 0 and can be advanced
+        let now = 0
+        const hooks = await ToolStatsPlugin({ directory: dir, client, _now: () => now })
+        const before = hooks["tool.execute.before"]!
+
+        // First call at t=0 — fetches and caches
+        await before({ tool: "bash", sessionID: "sess-ttl" })
+        expect((client.session.messages as ReturnType<typeof mock>).mock.calls.length).toBe(1)
+
+        // Second call at t=30s — still within TTL, no re-fetch
+        now = 30_000
+        await before({ tool: "edit", sessionID: "sess-ttl" })
+        expect((client.session.messages as ReturnType<typeof mock>).mock.calls.length).toBe(1)
+
+        // Third call at t=61s — TTL expired, re-fetch
+        now = 61_000
+        await before({ tool: "read", sessionID: "sess-ttl" })
+        expect((client.session.messages as ReturnType<typeof mock>).mock.calls.length).toBe(2)
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls ORDER BY id").all() as any[]
+        db.close()
+        expect(rows.length).toBe(3)
+        expect(rows[2].agent).toBe("developer")
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("agent fetch failure: row inserted with agent=null, error does not propagate", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = {
+          session: {
+            messages: mock(async (_opts: any) => { throw new Error("network error") }),
+          },
+        }
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        // Must not throw
+        await expect(before({ tool: "bash", sessionID: "sess-fail" })).resolves.toBeUndefined()
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(1)
+        expect(rows[0].agent).toBeNull()
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+  })
+
+  describe("skill derivation from skill tool calls", () => {
+
+    function makeClient() {
+      return {
+        session: {
+          messages: mock(async (_opts: any) => ({ data: [] })),
+        },
+      }
+    }
+
+    test("skill tool call sets active skill; subsequent calls in same session use that skill", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient()
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        // skill tool call — should record skill="telamon.example" for THIS row too
+        await before({ tool: "skill", sessionID: "sess-skill", args: { name: "telamon.example" } })
+        // subsequent tool call — should inherit skill
+        await before({ tool: "bash", sessionID: "sess-skill" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls ORDER BY id").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(2)
+        expect(rows[0].skill).toBe("telamon.example")
+        expect(rows[1].skill).toBe("telamon.example")
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("no skill loaded yet: row inserted with skill=null", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient()
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        await before({ tool: "bash", sessionID: "sess-noskill" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(1)
+        expect(rows[0].skill).toBeNull()
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("new skill tool call replaces old active skill", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient()
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        await before({ tool: "skill", sessionID: "sess-replace", args: { name: "skill-one" } })
+        await before({ tool: "bash", sessionID: "sess-replace" })
+        await before({ tool: "skill", sessionID: "sess-replace", args: { name: "skill-two" } })
+        await before({ tool: "edit", sessionID: "sess-replace" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls ORDER BY id").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(4)
+        expect(rows[0].skill).toBe("skill-one")
+        expect(rows[1].skill).toBe("skill-one")
+        expect(rows[2].skill).toBe("skill-two")
+        expect(rows[3].skill).toBe("skill-two")
+      } finally {
+        cleanTmpDir(dir)
+      }
+    })
+
+    test("skill is per-session: skill loaded in session A does not leak into session B", async () => {
+      const dir = makeTmpDir()
+      try {
+        writeTelamonJsonc(dir, "test")
+        const client = makeClient()
+        const hooks = await ToolStatsPlugin({ directory: dir, client })
+        const before = hooks["tool.execute.before"]!
+
+        // Load skill in session A
+        await before({ tool: "skill", sessionID: "sess-A", args: { name: "skill-a" } })
+        await before({ tool: "bash", sessionID: "sess-A" })
+
+        // Session B — no skill loaded
+        await before({ tool: "bash", sessionID: "sess-B" })
+
+        const db = new Database(join(dir, "storage", "stats", "stats.sqlite"))
+        const rows = db.query("SELECT * FROM tool_calls ORDER BY id").all() as any[]
+        db.close()
+
+        expect(rows.length).toBe(3)
+        expect(rows[0].skill).toBe("skill-a")  // sess-A skill call
+        expect(rows[1].skill).toBe("skill-a")  // sess-A bash call
+        expect(rows[2].skill).toBeNull()        // sess-B — no skill
       } finally {
         cleanTmpDir(dir)
       }
