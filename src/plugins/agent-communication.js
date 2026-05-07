@@ -1,4 +1,4 @@
-// status-marker-enforcer plugin
+// agent-communication plugin
 // Detects whether the last assistant message ends with a canonical terminal
 // status marker on session.idle. Nudges the agent if no marker is found.
 //
@@ -55,12 +55,12 @@ export function worktreeSlug(worktree, directory) {
 
 // ─── Lock file path ───────────────────────────────────────────────────────────
 export function lockPath(slug, directory) {
-  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`);
+  return join(directory, `.ai/telamon/memory/thinking/.agent-communication-lock-${slug}`);
 }
 
 // ─── Stall-flag path ──────────────────────────────────────────────────────────
 export function stallFlagPath(slug, directory) {
-  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`);
+  return join(directory, `.ai/telamon/memory/thinking/.agent-communication-stall-${slug}.json`);
 }
 
 // ─── writeStallFlag ───────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ export function writeStallFlag(worktree, directory, sessionId, attempt) {
     mkdirSync(dirname(filePath), { recursive: true });
     writeFileSync(filePath, JSON.stringify({ sessionId, started: new Date().toISOString(), attempt }), "utf8");
   } catch (err) {
-    process.stderr.write(`[status-marker-enforcer] Failed to write stall-flag: ${err?.message ?? err}\n`);
+    process.stderr.write(`[agent-communication] Failed to write stall-flag: ${err?.message ?? err}\n`);
   }
 }
 
@@ -82,7 +82,7 @@ export function clearStallFlag(worktree, directory) {
   try {
     if (existsSync(filePath)) unlinkSync(filePath);
   } catch (err) {
-    process.stderr.write(`[status-marker-enforcer] Failed to clear stall-flag: ${err?.message ?? err}\n`);
+    process.stderr.write(`[agent-communication] Failed to clear stall-flag: ${err?.message ?? err}\n`);
   }
 }
 
@@ -116,7 +116,7 @@ export function hasEnforcerTag(messages) {
 
 // ─── Counter file path ────────────────────────────────────────────────────────
 function counterFilePath(directory, slug) {
-  return join(directory, ".ai/telamon/memory/thinking", `.status-enforcer-counter-${slug}.json`);
+  return join(directory, ".ai/telamon/memory/thinking", `.agent-communication-counter-${slug}.json`);
 }
 
 // ─── pruneCounter ─────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ export function writeCounter(directory, worktree, counter) {
     mkdirSync(dirname(filePath), { recursive: true });
     writeFileSync(filePath, JSON.stringify(counter, null, 2), "utf8");
   } catch (err) {
-    process.stderr.write(`[status-marker-enforcer] Failed to write counter file: ${err?.message ?? err}\n`);
+    process.stderr.write(`[agent-communication] Failed to write counter file: ${err?.message ?? err}\n`);
   }
 }
 
@@ -187,7 +187,7 @@ function loadConfig(directory) {
   try {
     const raw = readFileSync(configPath, "utf8");
     const parsed = JSON.parse(raw);
-    const sme = parsed?.status_marker_enforcer ?? {};
+    const sme = parsed?.agent_communication ?? {};
     return {
       enabled: sme.enabled !== false,
       exempt_agents: sme.exempt_agents ?? DEFAULT_EXEMPT_AGENTS,
@@ -246,10 +246,10 @@ export function detectTerminalMarker(msg) {
   return MARKER_RE.test(lastLine);
 }
 
-// ─── StatusMarkerEnforcerPlugin ───────────────────────────────────────────────
+// ─── AgentCommunicationPlugin ───────────────────────────────────────────────
 // Plugin factory. Returns { event: async ({ event }) => ... }.
 // PLAN-ARCH-2026-05-06-001.md §2, §6, §8.
-export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }) => {
+export const AgentCommunicationPlugin = async ({ directory, worktree, client }) => {
   return {
     event: async ({ event }) => {
       try {
@@ -313,7 +313,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
 
         if (entry.attempts >= config.max_attempts) {
           process.stderr.write(
-            `[status-marker-enforcer] Session ${sessionId} exceeded max nudge attempts (${entry.attempts}) — stopping. Human review needed.\n`
+            `[agent-communication] Session ${sessionId} exceeded max nudge attempts (${entry.attempts}) — stopping. Human review needed.\n`
           );
           // Clear stall-flag so remember-session can capture the stalled session for human review
           clearStallFlag(worktree, directory);
@@ -325,7 +325,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           mkdirSync(dirname(lock), { recursive: true });
           writeFileSync(lock, JSON.stringify({ started: new Date().toISOString() }), "utf8");
         } catch (lockErr) {
-          process.stderr.write(`[status-marker-enforcer] Failed to write lock file: ${lockErr?.message ?? lockErr}\n`);
+          process.stderr.write(`[agent-communication] Failed to write lock file: ${lockErr?.message ?? lockErr}\n`);
         }
 
         // 13. Send nudge; release lock in finally (Task 5)
@@ -340,7 +340,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
                   type: "text",
                   text: NUDGE_PROMPT,
                   synthetic: true,
-                  metadata: { hidden: true, source: "status-marker-enforcer" },
+                  metadata: { hidden: true, source: "agent-communication" },
                 },
               ],
             },
@@ -349,7 +349,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           try {
             if (existsSync(lock)) unlinkSync(lock);
           } catch (unlinkErr) {
-            process.stderr.write(`[status-marker-enforcer] Failed to delete lock file: ${unlinkErr?.message ?? unlinkErr}\n`);
+            process.stderr.write(`[agent-communication] Failed to delete lock file: ${unlinkErr?.message ?? unlinkErr}\n`);
           }
         }
 
@@ -372,7 +372,7 @@ export const StatusMarkerEnforcerPlugin = async ({ directory, worktree, client }
           writeCounter(directory, worktree, counter);
         }
       } catch (err) {
-        process.stderr.write(`[status-marker-enforcer] Error in event handler: ${err?.message ?? err}\n`);
+        process.stderr.write(`[agent-communication] Error in event handler: ${err?.message ?? err}\n`);
       }
     },
   };

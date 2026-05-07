@@ -27,14 +27,14 @@ function worktreeSlug(worktree, directory) {
   return raw.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
 }
 
-// Duplicated from status-marker-enforcer.js per ADR M-ARCH-034 (no shared module).
+// Duplicated from agent-communication.js per ADR M-ARCH-034 (no shared module).
 function readMaxAttemptsFromConfig(directory) {
   const configPath = join(directory, ".telamon.jsonc");
   if (!existsSync(configPath)) return 2;
   try {
     const raw = readFileSync(configPath, "utf8");
     const parsed = JSON.parse(raw);
-    return parsed?.status_marker_enforcer?.max_attempts ?? 2;
+    return parsed?.agent_communication?.max_attempts ?? 2;
   } catch {
     return 2;
   }
@@ -75,8 +75,8 @@ export const RememberSessionPlugin = async ({ directory, worktree, client }) => 
         }
       }
 
-      // NEW: respect status-enforcer's stall-flag — don't capture an incomplete turn.
-      const stallFlag = join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`);
+      // NEW: respect agent-communication's stall-flag — don't capture an incomplete turn.
+      const stallFlag = join(directory, `.ai/telamon/memory/thinking/.agent-communication-stall-${slug}.json`);
       if (existsSync(stallFlag)) {
         try {
           const f = JSON.parse(readFileSync(stallFlag, "utf8"));

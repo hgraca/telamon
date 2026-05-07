@@ -50,7 +50,7 @@ cd path/to/your-project && opencode
 
 - [Developer Workflow](docs/developer-workflow.md) — Day-to-day usage: install, init, session lifecycle, wrap-up
 - [Tools](docs/tools/) — Every tool, how it works, priority guide
-  - [Session Capture](docs/tools/remember-session.md), [Status Marker Enforcer](docs/tools/status-marker-enforcer.md), [Diff Context](docs/tools/diff-context.md), [Active Work Context](docs/tools/active-work-context.md), [Compaction Save](docs/tools/compaction-save.md) — Memory & session
+  - [Session Capture](docs/tools/remember-session.md), [Status Marker Enforcer](docs/tools/agent-communication.md), [Diff Context](docs/tools/diff-context.md), [Active Work Context](docs/tools/active-work-context.md), [Compaction Save](docs/tools/compaction-save.md) — Memory & session
   - [Graphify](docs/tools/graphify.md), [Codebase Index](docs/tools/codebase-index.md), [Repomix](docs/tools/repomix.md) — Codebase understanding
   - [QMD](docs/tools/qmd.md) — Knowledge vault
   - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality

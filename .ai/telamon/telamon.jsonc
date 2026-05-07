@@ -7,7 +7,7 @@
   "gpu_enabled": null,
   "docker_gpu_enabled": null,
   "ogham_db": "telamon",
-  "status_marker_enforcer": {
+  "agent_communication": {
     "enabled": true,
     "max_attempts": 2,
     "exempt_agents": ["repomix-agent", "qmd"]

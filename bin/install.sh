@@ -229,7 +229,7 @@ PRE_DOCKER_APPS=(homebrew docker)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make install` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd cli langfuse graphiti diff-context status-marker-enforcer)
+POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd cli langfuse graphiti diff-context agent-communication)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do

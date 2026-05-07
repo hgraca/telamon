@@ -1,7 +1,7 @@
-// tests/plugins/status-marker-enforcer.test.ts
+// tests/plugins/agent-communication.test.ts
 //
-// Failing tests for Task 2 of the status-marker-enforcer backlog.
-// All tests MUST fail until src/plugins/status-marker-enforcer.js is implemented.
+// Failing tests for Task 2 of the agent-communication backlog.
+// All tests MUST fail until src/plugins/agent-communication.js is implemented.
 //
 // Spec references:
 //   PLAN-ARCH-2026-05-06-001.md §2, §3.5, §5, §6, §8, §9
@@ -16,25 +16,25 @@ import { join } from "path"
 // This import MUST fail until the developer creates the file.
 // @ts-ignore — intentionally importing a file that does not yet exist
 import {
-  StatusMarkerEnforcerPlugin,
+  AgentCommunicationPlugin,
   detectTerminalMarker,
   MARKER_RE,
-} from "../../src/plugins/status-marker-enforcer.js"
+} from "../../src/plugins/agent-communication.js"
 
 // ─── Task 4 exports — loaded dynamically so missing exports fail only Task 4 tests ───
-// Developer must add these exports to status-marker-enforcer.js:
+// Developer must add these exports to agent-communication.js:
 //   readCounter(directory: string, slug: string): Record<string, { attempts: number; lastNudge: string }>
 //   writeCounter(directory: string, slug: string, counter: Record<string, ...>): void
 //   pruneCounter(counter: Record<string, ...>, now?: Date): Record<string, ...>
 //   MAX_COUNTER_ENTRIES: number  (= 100)
 //   COUNTER_TTL_MS: number       (= 24 * 60 * 60 * 1000)
 async function getCounterExports() {
-  const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
-  if (!mod.readCounter) throw new Error("Task 4 developer requirement: export readCounter() from status-marker-enforcer.js")
-  if (!mod.writeCounter) throw new Error("Task 4 developer requirement: export writeCounter() from status-marker-enforcer.js")
-  if (!mod.pruneCounter) throw new Error("Task 4 developer requirement: export pruneCounter() from status-marker-enforcer.js")
-  if (mod.MAX_COUNTER_ENTRIES === undefined) throw new Error("Task 4 developer requirement: export MAX_COUNTER_ENTRIES from status-marker-enforcer.js")
-  if (mod.COUNTER_TTL_MS === undefined) throw new Error("Task 4 developer requirement: export COUNTER_TTL_MS from status-marker-enforcer.js")
+  const mod = await import("../../src/plugins/agent-communication.js") as any
+  if (!mod.readCounter) throw new Error("Task 4 developer requirement: export readCounter() from agent-communication.js")
+  if (!mod.writeCounter) throw new Error("Task 4 developer requirement: export writeCounter() from agent-communication.js")
+  if (!mod.pruneCounter) throw new Error("Task 4 developer requirement: export pruneCounter() from agent-communication.js")
+  if (mod.MAX_COUNTER_ENTRIES === undefined) throw new Error("Task 4 developer requirement: export MAX_COUNTER_ENTRIES from agent-communication.js")
+  if (mod.COUNTER_TTL_MS === undefined) throw new Error("Task 4 developer requirement: export COUNTER_TTL_MS from agent-communication.js")
   return {
     readCounter: mod.readCounter as (directory: string, slug: string) => Record<string, { attempts: number; lastNudge: string }>,
     writeCounter: mod.writeCounter as (directory: string, slug: string, counter: Record<string, { attempts: number; lastNudge: string }>) => void,
@@ -160,7 +160,7 @@ function parseMarkersFromSkill(skillPath: string): string[] {
 
 // ─── Suite ────────────────────────────────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 2 core", () => {
+describe("agent-communication / Task 2 core", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // A. Marker detection — positive cases
@@ -275,7 +275,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
         promptCallCount: { n: 0 },
       }
       // Invoke the plugin's event handler; it should NOT call prompt (marker found).
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: repoRoot,
         worktree: undefined,
         client,
@@ -303,7 +303,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
         },
         promptCallCount,
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: repoRoot,
         worktree: undefined,
         client,
@@ -330,13 +330,13 @@ describe("status-marker-enforcer / Task 2 core", () => {
       mkdirSync(tmpDir, { recursive: true })
       try {
         writeTelamon(tmpDir, {
-          status_marker_enforcer: {
+          agent_communication: {
             enabled: true,
             exempt_agents: ["repomix-agent"],
           },
         })
         const client = makeClient({ messages: [] })
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -355,7 +355,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
       mkdirSync(tmpDir, { recursive: true })
       try {
         writeTelamon(tmpDir, {
-          status_marker_enforcer: {
+          agent_communication: {
             enabled: true,
             exempt_agents: ["repomix-agent"],
           },
@@ -363,7 +363,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
         const client = makeClient({
           messages: [makeMsg("assistant", "FINISHED!")],
         })
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -375,16 +375,16 @@ describe("status-marker-enforcer / Task 2 core", () => {
       }
     })
 
-    test("D.18 [PLAN §2 step 2, backlog L84] plugin globally disabled (status_marker_enforcer.enabled = false) → handler short-circuits regardless of agent", async () => {
+    test("D.18 [PLAN §2 step 2, backlog L84] plugin globally disabled (agent_communication.enabled = false) → handler short-circuits regardless of agent", async () => {
       const { mkdirSync, rmSync } = require("fs")
       const tmpDir = join("/tmp", `sme-test-disabled-${process.pid}`)
       mkdirSync(tmpDir, { recursive: true })
       try {
         writeTelamon(tmpDir, {
-          status_marker_enforcer: { enabled: false },
+          agent_communication: { enabled: false },
         })
         const client = makeClient({ messages: [] })
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -403,7 +403,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
   // ══════════════════════════════════════════════════════════════════════════
   describe("E. Header comment & structural conformance (static-grep tests)", () => {
 
-    const pluginPath = join(repoRoot, "src/plugins/status-marker-enforcer.js")
+    const pluginPath = join(repoRoot, "src/plugins/agent-communication.js")
 
     test("E.19 [backlog L74, L82] plugin source contains comment citing agent-communication/SKILL.md lines 19–24", () => {
       const source = readFileSync(pluginPath, "utf8")
@@ -473,7 +473,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: repoRoot,
         worktree: undefined,
         client,
@@ -488,7 +488,7 @@ describe("status-marker-enforcer / Task 2 core", () => {
 //
 // Developer note: to make these tests pass you must:
 //   1. Export `NUDGE_PROMPT` (string constant) OR `buildNudgePrompt` (zero-arg
-//      function returning string) from status-marker-enforcer.js.
+//      function returning string) from agent-communication.js.
 //   2. Implement the nudge delivery at the TODO(Task 3) line using
 //      client.session.prompt with the shape shown in test G.5.
 //
@@ -501,22 +501,22 @@ describe("status-marker-enforcer / Task 2 core", () => {
 /** Resolve the nudge prompt text from whichever export the developer provides.
  *
  * Developer note: export NUDGE_PROMPT (string constant) OR buildNudgePrompt()
- * (zero-arg function returning string) from status-marker-enforcer.js.
+ * (zero-arg function returning string) from agent-communication.js.
  * Either export satisfies these tests.
  */
 async function getNudgePrompt(): Promise<string> {
   // Dynamic import avoids hard named-export failure at module load time.
   // Once the developer adds the export, this resolves correctly.
-  const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+  const mod = await import("../../src/plugins/agent-communication.js") as any
   if (typeof mod.NUDGE_PROMPT === "string") return mod.NUDGE_PROMPT
   if (typeof mod.buildNudgePrompt === "function") return mod.buildNudgePrompt()
   throw new Error(
     "Task 3 developer requirement: export NUDGE_PROMPT (string) or buildNudgePrompt() " +
-    "from status-marker-enforcer.js so nudge-content tests can assert against the prompt text.",
+    "from agent-communication.js so nudge-content tests can assert against the prompt text.",
   )
 }
 
-describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape valve", () => {
+describe("agent-communication / Task 3 — nudge prompt with PARTIAL escape valve", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // G. Nudge prompt content
@@ -578,7 +578,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
   // ══════════════════════════════════════════════════════════════════════════
   describe("H. Nudge delivery — synthetic + hidden", () => {
 
-    test("H.8 [backlog L100] no marker detected → client.session.prompt called with synthetic:true and metadata:{hidden:true, source:'status-marker-enforcer'}", async () => {
+    test("H.8 [backlog L100] no marker detected → client.session.prompt called with synthetic:true and metadata:{hidden:true, source:'agent-communication'}", async () => {
       const { mkdirSync, rmSync } = require("fs")
       const tmpDir = join("/tmp", `sme-h8-${process.pid}`)
       mkdirSync(tmpDir, { recursive: true })
@@ -594,7 +594,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -616,7 +616,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
       // Part must have hidden metadata with correct source
       expect(part.metadata).toEqual({
         hidden: true,
-        source: "status-marker-enforcer",
+        source: "agent-communication",
       })
       // Part text must be the nudge prompt (non-empty)
       expect(typeof part.text).toBe("string")
@@ -642,7 +642,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -677,7 +677,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: repoRoot,
         worktree: undefined,
         client,
@@ -696,7 +696,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: repoRoot,
         worktree: undefined,
         client,
@@ -717,7 +717,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
       const tmpDir = join("/tmp", `sme-t3-disabled-${process.pid}`)
       mkdirSync(tmpDir, { recursive: true })
       try {
-        writeTelamon(tmpDir, { status_marker_enforcer: { enabled: false } })
+        writeTelamon(tmpDir, { agent_communication: { enabled: false } })
         const promptCallCount = { n: 0 }
         const client = {
           session: {
@@ -727,7 +727,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
             prompt: async (_args: any) => { promptCallCount.n++ },
           },
         }
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -745,7 +745,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
       mkdirSync(tmpDir, { recursive: true })
       try {
         writeTelamon(tmpDir, {
-          status_marker_enforcer: {
+          agent_communication: {
             enabled: true,
             exempt_agents: ["repomix-agent"],
           },
@@ -759,7 +759,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
             prompt: async (_args: any) => { promptCallCount.n++ },
           },
         }
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -776,14 +776,14 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
 // ─── Task 4 — Attempt counter + max-attempts ceiling ─────────────────────────
 //
 // Developer note: to make these tests pass you must add the following exports
-// to status-marker-enforcer.js:
+// to agent-communication.js:
 //
 //   export const MAX_COUNTER_ENTRIES = 100
 //   export const COUNTER_TTL_MS = 24 * 60 * 60 * 1000
 //
 //   export function readCounter(directory, slug):
 //     Record<string, { attempts: number; lastNudge: string }>
-//     — reads .ai/telamon/memory/thinking/.status-enforcer-counter-<slug>.json
+//     — reads .ai/telamon/memory/thinking/.agent-communication-counter-<slug>.json
 //     — returns {} if missing or malformed
 //     — calls pruneCounter() before returning (lazy GC)
 //
@@ -797,7 +797,7 @@ describe("status-marker-enforcer / Task 3 — nudge prompt with PARTIAL escape v
 //     — evicts oldest-lastNudge entries when count > MAX_COUNTER_ENTRIES
 //     — mutates and returns counter
 //
-//   Also update StatusMarkerEnforcerPlugin to:
+//   Also update AgentCommunicationPlugin to:
 //     - Read max_attempts from config (default 2)
 //     - On stall: read counter, increment, write back, then nudge (or stop if >= max)
 //     - On recovery (marker present): delete sessionId entry from counter, write back
@@ -818,7 +818,7 @@ function worktreeSlug(worktree: string | undefined, directory: string): string {
 
 /** Return the counter file path for a given directory + slug. */
 function counterFilePath(directory: string, slug: string): string {
-  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-counter-${slug}.json`)
+  return join(directory, `.ai/telamon/memory/thinking/.agent-communication-counter-${slug}.json`)
 }
 
 /** Write a raw counter JSON to the expected path (bypasses plugin logic). */
@@ -853,7 +853,7 @@ function minutesAgo(n: number): string {
 
 // ─── K. Counter increments per stall ─────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", () => {
+describe("agent-communication / Task 4 — K. Counter increments per stall", () => {
 
   test("K.1 [backlog L124] first stall on fresh session writes { <id>: { attempts: 1, lastNudge: <ISO> } } to counter file", async () => {
     const { mkdirSync, rmSync } = require("fs")
@@ -861,12 +861,12 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
     mkdirSync(tmpDir, { recursive: true })
     try {
       // max_attempts: 3 so nudge fires on attempt 1
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-k1-fresh"
       const client = makeClient({
         messages: [makeMsg("assistant", "Working on it.")], // no marker → stall
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -896,7 +896,7 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
     const tmpDir = join("/tmp", `sme-t4-k2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-k2-second"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -908,7 +908,7 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
       const client = makeClient({
         messages: [makeMsg("assistant", "Still working.")], // no marker
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -923,12 +923,12 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
     }
   })
 
-  test("K.3 [backlog L127, PLAN §3.3] counter file path is .ai/telamon/memory/thinking/.status-enforcer-counter-<slug>.json", async () => {
+  test("K.3 [backlog L127, PLAN §3.3] counter file path is .ai/telamon/memory/thinking/.agent-communication-counter-<slug>.json", async () => {
     const { mkdirSync, rmSync, existsSync } = require("fs")
     const tmpDir = join("/tmp", `sme-t4-k3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-k3-path"
       const slug = worktreeSlug(undefined, tmpDir)
       const expectedPath = counterFilePath(tmpDir, slug)
@@ -936,7 +936,7 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
       const client = makeClient({
         messages: [makeMsg("assistant", "Working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -953,7 +953,7 @@ describe("status-marker-enforcer / Task 4 — K. Counter increments per stall", 
 
 // ─── L. Max attempts ceiling ──────────────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
+describe("agent-communication / Task 4 — L. Max attempts ceiling", () => {
 
   test("L.1 [backlog L125] when attempts >= max_attempts (default 2), client.session.prompt is NOT called", async () => {
     const { mkdirSync, rmSync } = require("fs")
@@ -961,7 +961,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
     mkdirSync(tmpDir, { recursive: true })
     try {
       // Default max_attempts = 2; pre-seed with attempts: 2 (already at ceiling)
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true } })
       const sessionId = "sess-l1-ceiling"
       const slug = worktreeSlug(undefined, tmpDir)
       writeRawCounter(tmpDir, slug, {
@@ -977,7 +977,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -990,12 +990,12 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
     }
   })
 
-  test("L.2 [backlog L120] ceiling hit → exactly one stderr line matching /\\[status-marker-enforcer\\] Session .+ exceeded max nudge attempts \\(\\d+\\) — stopping\\. Human review needed\\./", async () => {
+  test("L.2 [backlog L120] ceiling hit → exactly one stderr line matching /\\[agent-communication\\] Session .+ exceeded max nudge attempts \\(\\d+\\) — stopping\\. Human review needed\\./", async () => {
     const { mkdirSync, rmSync } = require("fs")
     const tmpDir = join("/tmp", `sme-t4-l2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true } })
       const sessionId = "sess-l2-stderr"
       const slug = worktreeSlug(undefined, tmpDir)
       writeRawCounter(tmpDir, slug, {
@@ -1014,7 +1014,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
         const client = makeClient({
           messages: [makeMsg("assistant", "Still working.")],
         })
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -1025,7 +1025,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
       }
 
       const stderrOutput = stderrLines.join("")
-      const pattern = /\[status-marker-enforcer\] Session .+ exceeded max nudge attempts \(\d+\) — stopping\. Human review needed\./
+      const pattern = /\[agent-communication\] Session .+ exceeded max nudge attempts \(\d+\) — stopping\. Human review needed\./
       expect(stderrOutput).toMatch(pattern)
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
@@ -1037,7 +1037,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
     const tmpDir = join("/tmp", `sme-t4-l3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 5 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 5 } })
       const slug = worktreeSlug(undefined, tmpDir)
 
       // Attempt 5: attempts pre-seeded at 4 → after increment = 5 → still < max? No: 5 >= 5 → ceiling
@@ -1065,7 +1065,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
           prompt: async (_args: any) => { promptCount5.n++ },
         },
       }
-      const hooks5 = await StatusMarkerEnforcerPlugin({
+      const hooks5 = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client: client5,
@@ -1090,7 +1090,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
           prompt: async (_args: any) => { promptCount6.n++ },
         },
       }
-      const hooks6 = await StatusMarkerEnforcerPlugin({
+      const hooks6 = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client: client6,
@@ -1108,7 +1108,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
     const tmpDir = join("/tmp", `sme-t4-l4-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true } }) // max_attempts: 2
+      writeTelamon(tmpDir, { agent_communication: { enabled: true } }) // max_attempts: 2
       const sessionId = "sess-l4-no-increment"
       const slug = worktreeSlug(undefined, tmpDir)
       writeRawCounter(tmpDir, slug, {
@@ -1118,7 +1118,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
       const client = makeClient({
         messages: [makeMsg("assistant", "Still working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1136,7 +1136,7 @@ describe("status-marker-enforcer / Task 4 — L. Max attempts ceiling", () => {
 
 // ─── M. Reset on marker recovery ─────────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () => {
+describe("agent-communication / Task 4 — M. Reset on marker recovery", () => {
 
   const MARKERS = ["FINISHED!", "BLOCKED: reason", "NEEDS_INPUT: question", "PARTIAL: summary"]
 
@@ -1146,7 +1146,7 @@ describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () =
       const tmpDir = join("/tmp", `sme-t4-m1-${process.pid}-${markerText.slice(0, 8).replace(/\W/g, "")}`)
       mkdirSync(tmpDir, { recursive: true })
       try {
-        writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true } })
+        writeTelamon(tmpDir, { agent_communication: { enabled: true } })
         const sessionId = `sess-m1-${markerText.slice(0, 8).replace(/\W/g, "")}`
         const otherSessionId = "sess-m1-other"
         const slug = worktreeSlug(undefined, tmpDir)
@@ -1161,7 +1161,7 @@ describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () =
         const client = makeClient({
           messages: [makeMsg("assistant", `Work done.\n\n${markerText}`)],
         })
-        const hooks = await StatusMarkerEnforcerPlugin({
+        const hooks = await AgentCommunicationPlugin({
           directory: tmpDir,
           worktree: undefined,
           client,
@@ -1182,7 +1182,7 @@ describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () =
     const tmpDir = join("/tmp", `sme-t4-m2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true } })
       const recoveredId = "sess-m2-recovered"
       const otherIdA = "sess-m2-other-a"
       const otherIdB = "sess-m2-other-b"
@@ -1197,7 +1197,7 @@ describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () =
       const client = makeClient({
         messages: [makeMsg("assistant", "All done.\n\nFINISHED!")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1220,7 +1220,7 @@ describe("status-marker-enforcer / Task 4 — M. Reset on marker recovery", () =
 
 // ─── N. Eviction (MAX_COUNTER_ENTRIES = 100) ──────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — N. Eviction (MAX_COUNTER_ENTRIES = 100)", () => {
+describe("agent-communication / Task 4 — N. Eviction (MAX_COUNTER_ENTRIES = 100)", () => {
 
   test("N.0 [PLAN §3.3] MAX_COUNTER_ENTRIES exported constant equals 100", async () => {
     const { MAX_COUNTER_ENTRIES } = await getCounterExports()
@@ -1232,7 +1232,7 @@ describe("status-marker-enforcer / Task 4 — N. Eviction (MAX_COUNTER_ENTRIES =
     const tmpDir = join("/tmp", `sme-t4-n1-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const slug = worktreeSlug(undefined, tmpDir)
 
       // Build 100 entries with monotonically increasing lastNudge (oldest = entry-0)
@@ -1250,7 +1250,7 @@ describe("status-marker-enforcer / Task 4 — N. Eviction (MAX_COUNTER_ENTRIES =
       const client = makeClient({
         messages: [makeMsg("assistant", "Working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1300,7 +1300,7 @@ describe("status-marker-enforcer / Task 4 — N. Eviction (MAX_COUNTER_ENTRIES =
 
 // ─── O. Lazy GC (24h prune) ───────────────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — O. Lazy GC (24h prune)", () => {
+describe("agent-communication / Task 4 — O. Lazy GC (24h prune)", () => {
 
   test("O.0 [PLAN §3.3] COUNTER_TTL_MS exported constant equals 24 * 60 * 60 * 1000", async () => {
     const { COUNTER_TTL_MS } = await getCounterExports()
@@ -1352,14 +1352,14 @@ describe("status-marker-enforcer / Task 4 — O. Lazy GC (24h prune)", () => {
 
 // ─── P. File-level robustness ─────────────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
+describe("agent-communication / Task 4 — P. File-level robustness", () => {
 
   test("P.1 [backlog L124] counter file does not exist → treated as empty, first idle creates it", async () => {
     const { mkdirSync, rmSync, existsSync } = require("fs")
     const tmpDir = join("/tmp", `sme-t4-p1-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-p1-nocounterfile"
       const slug = worktreeSlug(undefined, tmpDir)
       const counterPath = counterFilePath(tmpDir, slug)
@@ -1370,7 +1370,7 @@ describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
       const client = makeClient({
         messages: [makeMsg("assistant", "Working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1393,7 +1393,7 @@ describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
     const tmpDir = join("/tmp", `sme-t4-p2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-p2-malformed"
       const slug = worktreeSlug(undefined, tmpDir)
       const counterPath = counterFilePath(tmpDir, slug)
@@ -1405,7 +1405,7 @@ describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
       const client = makeClient({
         messages: [makeMsg("assistant", "Working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1429,7 +1429,7 @@ describe("status-marker-enforcer / Task 4 — P. File-level robustness", () => {
 
 /** Return the lock file path for a given directory + slug (mirrors backlog L135). */
 function lockFilePath(directory: string, slug: string): string {
-  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`)
+  return join(directory, `.ai/telamon/memory/thinking/.agent-communication-lock-${slug}`)
 }
 
 /** Write a lock file with a given `started` timestamp (bypasses plugin logic). */
@@ -1447,18 +1447,18 @@ function secondsAgo(n: number): string {
 
 // ─── Suite Q — Lock file loop prevention ─────────────────────────────────────
 
-describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention", () => {
+describe("agent-communication / Task 5 — Suite Q: Lock file loop prevention", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // Q.1  Lock file path
-  //      backlog L135: .ai/telamon/memory/thinking/.status-enforcer-lock-<slug>
+  //      backlog L135: .ai/telamon/memory/thinking/.agent-communication-lock-<slug>
   // ══════════════════════════════════════════════════════════════════════════
-  test("Q.1 [backlog L135] lock file created at .ai/telamon/memory/thinking/.status-enforcer-lock-<slug> before prompt", async () => {
+  test("Q.1 [backlog L135] lock file created at .ai/telamon/memory/thinking/.agent-communication-lock-<slug> before prompt", async () => {
     const { mkdirSync, rmSync, existsSync } = require("fs")
     const tmpDir = join("/tmp", `sme-t5-q1-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q1-lockpath"
       const slug = worktreeSlug(undefined, tmpDir)
       const expectedLock = lockFilePath(tmpDir, slug)
@@ -1476,7 +1476,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
         },
       }
 
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1499,7 +1499,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q2-lockclean"
       const slug = worktreeSlug(undefined, tmpDir)
       const expectedLock = lockFilePath(tmpDir, slug)
@@ -1507,7 +1507,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
       const client = makeClient({
         messages: [makeMsg("assistant", "Working.")],
       })
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1530,7 +1530,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q3-lockfail"
       const slug = worktreeSlug(undefined, tmpDir)
       const expectedLock = lockFilePath(tmpDir, slug)
@@ -1545,7 +1545,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1569,7 +1569,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q4-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q4-freshlock"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1585,7 +1585,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1608,7 +1608,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q5-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q5-stalelock"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1624,7 +1624,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1647,7 +1647,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q6-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q6-stalekept"
       const slug = worktreeSlug(undefined, tmpDir)
       const lockPath = lockFilePath(tmpDir, slug)
@@ -1671,7 +1671,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1705,7 +1705,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q7-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q7-twoidles"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1731,7 +1731,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1767,7 +1767,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
     const tmpDir = join("/tmp", `sme-t5-q8-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q8-ttl"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1783,7 +1783,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1801,12 +1801,12 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
   // Q.9  Lock filename differs from remember-session lock
   //      backlog L144: "different filenames, different concerns"
   // ══════════════════════════════════════════════════════════════════════════
-  test("Q.9 [backlog L144] status-enforcer lock filename differs from remember-session lock — creating remember-session lock does NOT block status-enforcer nudge", async () => {
+  test("Q.9 [backlog L144] agent-communication lock filename differs from remember-session lock — creating remember-session lock does NOT block agent-communication nudge", async () => {
     const { mkdirSync, rmSync, writeFileSync } = require("fs")
     const tmpDir = join("/tmp", `sme-t5-q9-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-q9-coexist"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1824,14 +1824,14 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
       })
       await hooks["event"]!({ event: makeIdleEvent(sessionId) })
 
-      // remember-session lock must NOT block status-enforcer nudge
+      // remember-session lock must NOT block agent-communication nudge
       expect(promptCallCount.n).toBe(1)
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
@@ -1841,7 +1841,7 @@ describe("status-marker-enforcer / Task 5 — Suite Q: Lock file loop prevention
 
 // ─── Suite R — Last-message tag check ────────────────────────────────────────
 
-describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", () => {
+describe("agent-communication / Task 5 — Suite R: Last-message tag check", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // R.1  Last user message contains [Telamon-StatusEnforcer] → skip nudge
@@ -1861,7 +1861,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
         prompt: async (_args: any) => { promptCallCount.n++ },
       },
     }
-    const hooks = await StatusMarkerEnforcerPlugin({
+    const hooks = await AgentCommunicationPlugin({
       directory: repoRoot,
       worktree: undefined,
       client,
@@ -1880,7 +1880,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
     const tmpDir = join("/tmp", `sme-t5-r2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-r2-nocounter"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -1895,7 +1895,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
           prompt: async (_args: any) => {},
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1922,7 +1922,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
     const tmpDir = join("/tmp", `sme-t5-r3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-r3-nolock"
       const slug = worktreeSlug(undefined, tmpDir)
       const expectedLock = lockFilePath(tmpDir, slug)
@@ -1938,7 +1938,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
           prompt: async (_args: any) => {},
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({
+      const hooks = await AgentCommunicationPlugin({
         directory: tmpDir,
         worktree: undefined,
         client,
@@ -1977,7 +1977,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
         prompt: async (_args: any) => { promptCallCount.n++ },
       },
     }
-    const hooks = await StatusMarkerEnforcerPlugin({
+    const hooks = await AgentCommunicationPlugin({
       directory: tmpDir,
       worktree: undefined,
       client,
@@ -2013,7 +2013,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
         prompt: async (_args: any) => { promptCallCount.n++ },
       },
     }
-    const hooks = await StatusMarkerEnforcerPlugin({
+    const hooks = await AgentCommunicationPlugin({
       directory: repoRoot,
       worktree: undefined,
       client,
@@ -2046,7 +2046,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
         prompt: async (_args: any) => { promptCallCount.n++ },
       },
     }
-    const hooks = await StatusMarkerEnforcerPlugin({
+    const hooks = await AgentCommunicationPlugin({
       directory: tmpDir,
       worktree: undefined,
       client,
@@ -2081,7 +2081,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
         prompt: async (_args: any) => { promptCallCount.n++ },
       },
     }
-    const hooks = await StatusMarkerEnforcerPlugin({
+    const hooks = await AgentCommunicationPlugin({
       directory: tmpDir,
       worktree: undefined,
       client,
@@ -2100,7 +2100,7 @@ describe("status-marker-enforcer / Task 5 — Suite R: Last-message tag check", 
 
 /** Canonical stall-flag path for a given directory + slug. */
 function stallFlagPath(directory: string, slug: string): string {
-  return join(directory, `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`)
+  return join(directory, `.ai/telamon/memory/thinking/.agent-communication-stall-${slug}.json`)
 }
 
 /** Write a stall-flag JSON directly (bypasses plugin logic). */
@@ -2125,7 +2125,7 @@ function readStallFlagRaw(directory: string, slug: string): any {
 
 // ─── Suite S — Stall-flag coordination (Task 6) ───────────────────────────────
 
-describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination", () => {
+describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // S.1  STALL_FLAG_TTL_MS and GRACE_MS exported with correct values
@@ -2133,11 +2133,11 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
   //                 GRACE_MS = 60_000
   // ══════════════════════════════════════════════════════════════════════════
   test("S.1 [PLAN §4.4] STALL_FLAG_TTL_MS exported = 360_000 ms (6 min) and GRACE_MS exported = 60_000 ms", async () => {
-    const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+    const mod = await import("../../src/plugins/agent-communication.js") as any
     if (mod.STALL_FLAG_TTL_MS === undefined)
-      throw new Error("Task 6 developer requirement: export STALL_FLAG_TTL_MS from status-marker-enforcer.js")
+      throw new Error("Task 6 developer requirement: export STALL_FLAG_TTL_MS from agent-communication.js")
     if (mod.GRACE_MS === undefined)
-      throw new Error("Task 6 developer requirement: export GRACE_MS from status-marker-enforcer.js")
+      throw new Error("Task 6 developer requirement: export GRACE_MS from agent-communication.js")
     expect(mod.GRACE_MS).toBe(60_000)
     expect(mod.STALL_FLAG_TTL_MS).toBe(6 * 60 * 1000) // = 360_000
     // Derivation check: STALL_FLAG_TTL_MS = LOCK_TTL_MS + GRACE_MS
@@ -2146,7 +2146,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
 
   // ══════════════════════════════════════════════════════════════════════════
   // S.2  writeStallFlag exported — writes correct path and shape
-  //      PLAN §4.4: path = .ai/telamon/memory/thinking/.status-enforcer-stall-<slug>.json
+  //      PLAN §4.4: path = .ai/telamon/memory/thinking/.agent-communication-stall-<slug>.json
   //                 shape = { sessionId, started, attempt }
   // ══════════════════════════════════════════════════════════════════════════
   test("S.2 [PLAN §4.4] writeStallFlag() writes flag at canonical path with correct JSON shape", async () => {
@@ -2154,9 +2154,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      const mod = await import("../../src/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag)
-        throw new Error("Task 6 developer requirement: export writeStallFlag() from status-marker-enforcer.js")
+        throw new Error("Task 6 developer requirement: export writeStallFlag() from agent-communication.js")
 
       const slug = worktreeSlug(undefined, tmpDir)
       const before = Date.now()
@@ -2188,9 +2188,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      const mod = await import("../../src/plugins/agent-communication.js") as any
       if (!mod.clearStallFlag)
-        throw new Error("Task 6 developer requirement: export clearStallFlag() from status-marker-enforcer.js")
+        throw new Error("Task 6 developer requirement: export clearStallFlag() from agent-communication.js")
 
       const slug = worktreeSlug(undefined, tmpDir)
       writeStallFlagRaw(tmpDir, slug, { sessionId: "sess-s3", started: new Date().toISOString(), attempt: 1 })
@@ -2212,9 +2212,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s4-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      const mod = await import("../../src/plugins/agent-communication.js") as any
       if (!mod.clearStallFlag)
-        throw new Error("Task 6 developer requirement: export clearStallFlag() from status-marker-enforcer.js")
+        throw new Error("Task 6 developer requirement: export clearStallFlag() from agent-communication.js")
       // Must not throw
       expect(() => mod.clearStallFlag(undefined, tmpDir)).not.toThrow()
     } finally {
@@ -2228,9 +2228,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
   // ══════════════════════════════════════════════════════════════════════════
   test("S.5 stall-flag filename pattern is distinct from lock and counter filenames", () => {
     const slug = "myrepo"
-    const stall   = `.ai/telamon/memory/thinking/.status-enforcer-stall-${slug}.json`
-    const lock    = `.ai/telamon/memory/thinking/.status-enforcer-lock-${slug}`
-    const counter = `.ai/telamon/memory/thinking/.status-enforcer-counter-${slug}.json`
+    const stall   = `.ai/telamon/memory/thinking/.agent-communication-stall-${slug}.json`
+    const lock    = `.ai/telamon/memory/thinking/.agent-communication-lock-${slug}`
+    const counter = `.ai/telamon/memory/thinking/.agent-communication-counter-${slug}.json`
     expect(stall).not.toBe(lock)
     expect(stall).not.toBe(counter)
     expect(lock).not.toBe(counter)
@@ -2249,7 +2249,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s6-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-s6-flagbefore"
       const slug = worktreeSlug(undefined, tmpDir)
       const flagPath = stallFlagPath(tmpDir, slug)
@@ -2265,7 +2265,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
           },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      const hooks = await AgentCommunicationPlugin({ directory: tmpDir, worktree: undefined, client })
       await hooks["event"]!({ event: makeIdleEvent(sessionId) })
 
       expect(flagExistedAtPromptTime).toBe(true)
@@ -2283,7 +2283,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s7-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-s7-flagpersists"
       const slug = worktreeSlug(undefined, tmpDir)
       const flagPath = stallFlagPath(tmpDir, slug)
@@ -2296,7 +2296,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
           prompt: async (_args: any) => {},
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      const hooks = await AgentCommunicationPlugin({ directory: tmpDir, worktree: undefined, client })
       await hooks["event"]!({ event: makeIdleEvent(sessionId) })
 
       // Flag must still exist after the idle handler completes
@@ -2315,7 +2315,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s8-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: 3 } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: 3 } })
       const sessionId = "sess-s8-markerclears"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -2332,7 +2332,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
           prompt: async (_args: any) => {},
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      const hooks = await AgentCommunicationPlugin({ directory: tmpDir, worktree: undefined, client })
       await hooks["event"]!({ event: makeIdleEvent(sessionId) })
 
       // Stall-flag must be cleared
@@ -2352,7 +2352,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     mkdirSync(tmpDir, { recursive: true })
     try {
       const maxAttempts = 2
-      writeTelamon(tmpDir, { status_marker_enforcer: { enabled: true, max_attempts: maxAttempts } })
+      writeTelamon(tmpDir, { agent_communication: { enabled: true, max_attempts: maxAttempts } })
       const sessionId = "sess-s9-ceiling"
       const slug = worktreeSlug(undefined, tmpDir)
 
@@ -2374,7 +2374,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
           prompt: async (_args: any) => { promptCallCount.n++ },
         },
       }
-      const hooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client })
+      const hooks = await AgentCommunicationPlugin({ directory: tmpDir, worktree: undefined, client })
       await hooks["event"]!({ event: makeIdleEvent(sessionId) })
 
       // No nudge sent (ceiling)
@@ -2395,9 +2395,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s10-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      const mod = await import("../../src/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag)
-        throw new Error("Task 6 developer requirement: export writeStallFlag() from status-marker-enforcer.js")
+        throw new Error("Task 6 developer requirement: export writeStallFlag() from agent-communication.js")
 
       const slug = worktreeSlug(undefined, tmpDir)
       mod.writeStallFlag(undefined, tmpDir, "sess-s10", 2)
@@ -2418,9 +2418,9 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
     const tmpDir = join("/tmp", `sme-t6-s11-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/status-marker-enforcer.js") as any
+      const mod = await import("../../src/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag || !mod.stallFlagPath)
-        throw new Error("Task 6 developer requirement: export writeStallFlag() and stallFlagPath() from status-marker-enforcer.js")
+        throw new Error("Task 6 developer requirement: export writeStallFlag() and stallFlagPath() from agent-communication.js")
 
       const worktree = "my-worktree"
       const slug = worktreeSlug(worktree, tmpDir)
@@ -2446,7 +2446,7 @@ describe("status-marker-enforcer / Task 6 — Suite S: Stall-flag coordination",
 
 // ─── Helpers for Suite U ──────────────────────────────────────────────────────
 
-// Suite U is placed here (in status-marker-enforcer.test.ts) rather than
+// Suite U is placed here (in agent-communication.test.ts) rather than
 // remember-session.test.ts because the integration path starts with the SME
 // plugin writing the stall-flag, and this file already owns all SME-side
 // helpers (worktreeSlug, stallFlagPath, writeStallFlagRaw, etc.).
@@ -2455,7 +2455,7 @@ import { RememberSessionPlugin } from "../../src/plugins/remember-session.js"
 
 // ─── Suite U — Cross-plugin stall-flag ordering integration (Task 8) ─────────
 
-describe("status-marker-enforcer + remember-session / Task 8 — Suite U: Cross-plugin stall-flag ordering", () => {
+describe("agent-communication + remember-session / Task 8 — Suite U: Cross-plugin stall-flag ordering", () => {
 
   // ══════════════════════════════════════════════════════════════════════════
   // U.1  Positive: SME writes stall-flag → remember-session skips capture
@@ -2499,7 +2499,7 @@ describe("status-marker-enforcer + remember-session / Task 8 — Suite U: Cross-
       const event = makeIdleEvent(SESSION_ID)
 
       // 1. Trigger SME handler first
-      const smeHooks = await StatusMarkerEnforcerPlugin({ directory: tmpDir, worktree: undefined, client: smeClient })
+      const smeHooks = await AgentCommunicationPlugin({ directory: tmpDir, worktree: undefined, client: smeClient })
       await smeHooks["event"]!({ event })
 
       // Assert: stall-flag written with correct shape

@@ -7,4 +7,4 @@ TOOLS_PATH="${TOOLS_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 header "Status Marker Enforcer"
 
-opencode.upsert_plugin ".opencode/plugins/telamon/status-marker-enforcer.js"
+opencode.upsert_plugin ".opencode/plugins/telamon/agent-communication.js"

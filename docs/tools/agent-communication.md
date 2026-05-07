@@ -24,28 +24,28 @@ Agents sometimes end a turn with narration ("Now I will write the file…") inst
 
 Three layers, all worktree-scoped:
 
-| Layer                  | Mechanism                                                                                    | TTL    |
-|------------------------|----------------------------------------------------------------------------------------------|--------|
-| Lock file              | `.ai/telamon/memory/thinking/.status-enforcer-lock-<slug>` skips re-entry within window      | 5 min  |
-| Last-message tag check | Skips when the previous user message was already a `[Telamon-StatusEnforcer]` nudge          | n/a    |
-| Attempt counter        | `.ai/telamon/memory/thinking/.status-enforcer-counter-<slug>.json` caps attempts per session | 24h GC |
+| Layer                  | Mechanism                                                                                        | TTL    |
+|------------------------|--------------------------------------------------------------------------------------------------|--------|
+| Lock file              | `.ai/telamon/memory/thinking/.agent-communication-lock-<slug>` skips re-entry within window      | 5 min  |
+| Last-message tag check | Skips when the previous user message was already a `[Telamon-StatusEnforcer]` nudge              | n/a    |
+| Attempt counter        | `.ai/telamon/memory/thinking/.agent-communication-counter-<slug>.json` caps attempts per session | 24h GC |
 
 When the per-session attempt count hits `max_attempts` (default `2`), the plugin writes a stderr line and stops nudging that session:
 
 ```
-[status-marker-enforcer] Session <id> exceeded max nudge attempts (<N>) — stopping. Human review needed.
+[agent-communication] Session <id> exceeded max nudge attempts (<N>) — stopping. Human review needed.
 ```
 
 ## Coordination with Session Capture
 
-This plugin coexists with [Session Capture](remember-session). On a stalled idle, Status Marker Enforcer writes a stall-flag file (`.ai/telamon/memory/thinking/.status-enforcer-stall-<slug>.json`, 6-min TTL). Session Capture reads that flag and skips its capture pass while the flag is fresh and `attempt < max_attempts`. Once the agent emits a marker — or the attempt ceiling is reached — the flag clears and Session Capture proceeds normally.
+This plugin coexists with [Session Capture](remember-session). On a stalled idle, Status Marker Enforcer writes a stall-flag file (`.ai/telamon/memory/thinking/.agent-communication-stall-<slug>.json`, 6-min TTL). Session Capture reads that flag and skips its capture pass while the flag is fresh and `attempt < max_attempts`. Once the agent emits a marker — or the attempt ceiling is reached — the flag clears and Session Capture proceeds normally.
 
 ## Configuration
 
 In `.ai/telamon/telamon.jsonc`:
 
 ```jsonc
-"status_marker_enforcer": {
+"agent_communication": {
   "enabled": true,
   "max_attempts": 2,
   "exempt_agents": ["repomix-agent", "qmd"]
@@ -64,4 +64,4 @@ To disable globally, set `enabled: false` in the config block above.
 
 To exempt a specific agent, add its name to `exempt_agents`.
 
-**Type:** Built-in OpenCode plugin (`src/plugins/status-marker-enforcer.js`)
+**Type:** Built-in OpenCode plugin (`src/plugins/agent-communication.js`)

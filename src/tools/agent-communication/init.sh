@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Status-marker-enforcer project setup.
 #
-# The plugin entry (".opencode/plugins/telamon/status-marker-enforcer.js") is already
+# The plugin entry (".opencode/plugins/telamon/agent-communication.js") is already
 # present in storage/opencode.jsonc (added during `make install`). Projects receive
 # the plugin JS via the .opencode/plugins/telamon symlink created by `make init`.
 # No per-project copying or configuration is required.
 #
 # This script is intentionally empty; it exists as a placeholder in case
-# future per-project setup steps are added for the status-marker-enforcer plugin.
+# future per-project setup steps are added for the agent-communication plugin.
 
 set -euo pipefail
 
