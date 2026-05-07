@@ -66,7 +66,8 @@
     ".opencode/plugins/telamon/rtk-dedupe.ts",
     ".opencode/plugins/telamon/diff-context.js",
     ".opencode/plugins/telamon/script-runner.js",
-    ".opencode/plugins/telamon/opencode-patches.js"
+    ".opencode/plugins/telamon/opencode-patches.js",
+    ".opencode/plugins/telamon/compaction-save.js"
   ],
   "permission": {
     "edit": "allow",
