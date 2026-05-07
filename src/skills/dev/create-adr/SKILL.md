@@ -91,6 +91,20 @@ Last updated time: {Month DD, YYYY H:MM AM/PM}
 ### Date: {YYYY-MM-DD}
 ```
 
+#### Required section: Convention deviation justification
+
+If this ADR deviates from an established project convention (Explicit Architecture, naming, layering, testing, etc), it MUST include a section before `Consequences and Follow-Up Work`:
+
+> ## Why the existing convention is insufficient
+>
+> - **Existing convention**: <one-line summary of what the convention says>.
+> - **Where it falls short for this case**: concrete failure mode the convention does not address. Cite a file, a test scenario, or a pattern in the codebase.
+> - **What was tried first**: at least one attempt to comply with the convention before deciding to deviate. If no attempt was made, the deviation is premature — comply first, then write the ADR if compliance fails.
+
+If you cannot complete the three bullets above, do not deviate. The convention exists because someone considered alternatives; you must engage with their reasoning, not bypass it.
+
+ADRs that document a *conformance* (not deviation) do not need this section.
+
 ### Step 5 — Save
 
 Write to `.ai/local/ADRs/{filename}.md`. Confirm file path and title to the user.

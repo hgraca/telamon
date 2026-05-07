@@ -126,6 +126,16 @@ Before signalling `FINISHED!` for a plan deliverable, the architect MUST run thi
 1. **Self-revision residue grep** — search the plan for: `Wait`, `Actually`, `let me re-`, `let me fix`, `let me redo`, `simplest approach`, `On reflection`, `Hmm`. Report match count. **Must be 0** outside fenced code blocks. If matches found, edit them out before signalling FINISHED.
 2. **Single-version check** — confirm no Step or section appears twice with conflicting content (e.g., "Step 7 (revised)" alongside "Step 7"). Report yes/no.
 3. **Trade-offs format** — alternatives appear only inside `Trade-offs considered` subsections, never as inline "but actually X is better" passages. Report yes/no.
+4. **Algorithm ↔ test traceability** — for every Test Plan row that references an algorithm or value-object behaviour defined elsewhere in the plan (or in the original source code being refactored), trace at least one expected value back to the algorithm sketch or original script line. If the test expectation does not match what the algorithm/script would produce for that input, the test is wrong (the plan must preserve the behaviour being refactored). Either:
+   - correct the test expectation to match the algorithm, OR
+   - explicitly mark the test as a *behaviour change* with rationale (e.g. "the original script crashed on empty input; we explicitly change this to return early").
+
+   If you cannot trace a test expectation to a deterministic source (algorithm sketch line, original code line, AC text), the test is under-specified and must not ship in the plan. Report `traced` / `behaviour-change marked` / `under-specified` count.
+5. **Plan-size check** — count lines (`wc -l`). If the plan exceeds 900 lines for a single-component scope, identify all code sketches over 30 lines. For each:
+   - either summarise as `### Behaviour` (bulleted list) + `### Contract` (signatures only) + `### Implementation file` (path reference), removing the full body, OR
+   - justify the verbatim inclusion in the Step's `**Notes**` section with a one-line reason (e.g. "complex sort algorithm where prose is ambiguous", "exact test class shape required for byte-identical comparison").
+
+   Inline implementations are a smell — the developer's workspace is the place for full implementations, not the plan. The plan describes contracts and behaviour; the developer writes the implementation. Threshold rationale: 900 lines is the warning threshold calibrated on observed kata-scope plans (clean ≈800, bloated ≥1000). Report line count and any verbatim-justified blocks.
 
 Format in FINISHED message:
 
@@ -133,6 +143,8 @@ Format in FINISHED message:
 > 1. Residue grep: 0 matches
 > 2. Single-version: yes
 > 3. Trade-offs format: yes
+> 4. Algorithm↔test traceability: N traced, M behaviour-change marked, 0 under-specified
+> 5. Plan-size check: NNN lines (≤900: pass | >900: list verbatim-justified blocks)
 
 A FINISHED signal that omits this block, or that reports any failure without an accompanying fix, is invalid. The orchestrator MUST treat it as `PARTIAL` and re-delegate with the failing items called out.
 
