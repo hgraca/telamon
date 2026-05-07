@@ -255,27 +255,28 @@ To prevent unbounded approval loops:
 
 There is no `defer` option. Every proposal must resolve to approved/rejected/modified in the iteration that produced it. Undecided proposals at end-of-batch are treated as rejected (with reason "no decision before batch close").
 
-Record decisions:
+Record decisions in two places:
 
-- **Approved** → write to `iteration-<n>/approved-changes.md`.
+- **Approved** → write a row in `iteration-<n>/approved-changes.md` (see Step 7.5 sub-step 1 below — this file MUST be created before any edits are applied).
 - **Rejected** → append to `storage/self-improvement/improve-planning/rejected-proposals.md` with target file, target section, full text, user's reason, iteration number. Future iterations match by **file + section** (not exact text), see RCA "Previously rejected?" check.
 - **Modified** → record the modified text in `approved-changes.md`. Also log in `rejected-proposals.md` referencing the original (file + section + "modified — see iteration N approved-changes.md").
 
 #### Apply and commit (end of Step 7)
 
-After all decisions are captured, the orchestrator MUST apply the approved/modified edits to the source files in this same session, then commit them in a single commit:
+After all decisions are captured, the orchestrator MUST execute the following sequence in order. **Each numbered step is mandatory and non-skippable.** Skipping the `approved-changes.md` write step (sub-step 1 below) is the iter-5 audit-trail defect this sequence is designed to prevent.
 
-1. **Audit cross-cutting impact** — when an approved change renames a file or symbol referenced elsewhere (e.g., changing `PLAN.md` to `PLAN-ARCH-*.md`), grep the entire `src/` tree for stale references and update them in the same edit pass. Consistency across the codebase is a hard requirement; the "scope of edits" table is a suggestion for *where defects originate*, not a fence around *where fixes go*.
-2. **Apply the edits** in the order recorded in `approved-changes.md` (foundational rules first; rules that depend on them after; renames last because they have the widest blast radius).
-3. **Verify the working tree** — `git status` should show only files in scope. If anything unexpected appears, abort the commit and resolve before continuing.
-4. **Single commit** — stage exactly the files touched by the approved edits and commit with message:
+1. **Write `iteration-<n>/approved-changes.md` BEFORE touching any source file.** Use the format established by prior iterations (header, "Applied edits" table with `# / File / Change / Verified` columns, "Modifications from proposed text" section, "Hypothesis carried into iter-<n+1>" section, "Next" section, and an "Applied" footer block left empty for now). The file is the source of truth for *what was approved*; the commit is the source of truth for *that it was applied*. Both must exist independently. If you find yourself about to apply edits without this file written, stop and write it first.
+2. **Audit cross-cutting impact** — when an approved change renames a file or symbol referenced elsewhere (e.g., changing `PLAN.md` to `PLAN-ARCH-*.md`), grep the entire `src/` tree for stale references and update them in the same edit pass. Consistency across the codebase is a hard requirement; the "scope of edits" table is a suggestion for *where defects originate*, not a fence around *where fixes go*.
+3. **Apply the edits** in the order recorded in `approved-changes.md` (foundational rules first; rules that depend on them after; renames last because they have the widest blast radius).
+4. **Verify the working tree** — `git status` should show `approved-changes.md` plus the files touched by approved edits, and nothing else. If anything unexpected appears, abort the commit and resolve before continuing.
+5. **Single commit** — stage exactly the files touched by the approved edits AND `approved-changes.md`, then commit with message:
    ```
    chore(planning): apply iteration-<n> approved planning improvements
 
    <one-line summary per approved change, referencing iteration-<n>/approved-changes.md>
    ```
    Do NOT amend a previous commit. Do NOT push. The user pushes when they choose to.
-5. **Update `approved-changes.md`** — append an "Applied" footer with the commit SHA and the list of files actually touched (which may exceed the proposals' enumerated targets due to the cross-cutting audit in step 1).
+6. **Append the "Applied" footer to `approved-changes.md`** with the commit SHA and the list of files actually touched (which may exceed the proposals' enumerated targets due to the cross-cutting audit in step 2). Then make a second tiny commit `chore(planning): record iteration-<n> applied footer`, OR amend the previous commit ONLY IF nothing has been pushed and the previous commit is the one you just made in sub-step 5. The "Applied" footer is what Step 0 of the next iteration verifies; without it, the next iteration's Step 0 gate will halt.
 
 ### Step 8: Decide Whether to Continue
 
@@ -474,5 +475,7 @@ This checklist is a **mandatory gate**. Before declaring iteration N complete an
 - [ ] Each proposal has before/after, rationale, regression risk, linked RCA
 - [ ] Proposals presented in batches of ≤5
 - [ ] User decisions recorded: approved → `approved-changes.md`, rejected → `rejected-proposals.md`
+- [ ] `iteration-<n>/approved-changes.md` was written **before** any source-file edits were applied (Step 7.5 sub-step 1 — non-skippable)
+- [ ] `iteration-<n>/approved-changes.md` has an "Applied" footer with commit SHA and the full list of files touched (Step 7.5 sub-step 6)
 - [ ] Stopping criteria evaluated and reported
 - [ ] If iteration is multiple-of-5: rubric review prompt offered AND lessons consolidated into `lessons.md`
