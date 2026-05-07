@@ -161,7 +161,12 @@ else
   "caveman_enabled": true,
   "medium_model": "",
   "memory_owner": "${MEMORY_OWNER:-telamon}",
-  "ogham_db": "${OGHAM_DB:-telamon}"
+  "ogham_db": "${OGHAM_DB:-telamon}",
+  "status_marker_enforcer": {
+    "enabled": true,
+    "max_attempts": 2,
+    "exempt_agents": ["repomix-agent", "qmd"]
+  }
 }
 JSONEOF
   log "Written .ai/telamon/telamon.jsonc"

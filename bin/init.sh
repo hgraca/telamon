@@ -109,7 +109,7 @@ export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME MEMORY_OWNER WIT
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd remember-session)
+INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd remember-session status-marker-enforcer)
 
 for _app in "${INIT_APPS[@]}"; do
   _script="${TOOLS_PATH}/${_app}/init.sh"
