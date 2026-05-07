@@ -105,7 +105,7 @@ See [Commands → recover-memories](cli.md#recover-memories) for all flags, opti
 The curl script clones the repository to `~/.telamon` and runs `make install`, which:
 
 1. Copies `.env.dist` → `.env` (if not present)
-2. Installs prerequisite host tools (Homebrew, Docker) — pre-docker phase
+2. Installs prerequisite host tools (Homebrew, sqlite3, Docker) — pre-docker phase
 3. Starts Docker services (Ollama)
 4. Installs remaining tools (opencode, Graphify, RTK, codebase-index) — post-docker phase
 5. Installs the global `telamon` CLI (symlink at `~/.local/bin/telamon`) and a desktop menu entry

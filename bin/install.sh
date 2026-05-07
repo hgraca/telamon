@@ -225,7 +225,7 @@ print_summary() {
 # ── Installation phases ────────────────────────────────────────────────────────
 # Phase 1: tools that must exist BEFORE docker compose up (package managers,
 #           docker itself). Called by `make install` before booting containers.
-PRE_DOCKER_APPS=(homebrew docker)
+PRE_DOCKER_APPS=(homebrew sqlite3 docker)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make install` after docker compose up.
