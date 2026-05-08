@@ -157,9 +157,25 @@ Before signalling `FINISHED!` for a plan deliverable, the architect MUST run thi
    If you cannot trace a test expectation to a deterministic source (algorithm sketch line, original code line, AC text), the test is under-specified and must not ship in the plan. Report `traced` / `behaviour-change marked` / `under-specified` count.
 5. **Plan-size check** — count lines (`wc -l`). If the plan exceeds 900 lines for a single-component scope, identify all code sketches over 30 lines. For each:
    - either summarise as `### Behaviour` (bulleted list) + `### Contract` (signatures only) + `### Implementation file` (path reference), removing the full body, OR
-   - justify the verbatim inclusion in the Step's `**Notes**` section with a one-line reason (e.g. "complex sort algorithm where prose is ambiguous", "exact test class shape required for byte-identical comparison").
+   - justify the verbatim inclusion with a **discriminating** one-line reason in the Step's `**Notes**` section. A discriminating justification cites a property that does NOT generalise to other verbatim blocks in the same plan. Generic phrases such as "exact assertion values required for algorithm traceability", "shown in full because the contract must be precise", or "needed for clarity" do NOT discriminate and are invalid — every block in a verbose plan can claim them. Examples of valid discriminating justifications:
+     - "complex sort algorithm with non-obvious pivot selection — prose is ambiguous"
+     - "byte-identical approval test fixture — any whitespace change breaks the test"
+     - "regex with 4 lookarounds — escaping rules differ across PHP versions"
+     - "exact exception class hierarchy required because PHPUnit's `expectException` checks `instanceof`, and the inheritance chain is contested in the backlog"
 
-   Inline implementations are a smell — the developer's workspace is the place for full implementations, not the plan. The plan describes contracts and behaviour; the developer writes the implementation. Threshold rationale: 900 lines is the warning threshold calibrated on observed kata-scope plans (clean ≈800, bloated ≥1000). Report line count and any verbatim-justified blocks.
+     A justification that could be copy-pasted onto a different block in the same plan is, by definition, not discriminating.
+
+   In addition, when the plan exceeds 900 lines, the architect MUST add a **Verbatim Inventory** section near the top of the plan (immediately after the Technology Choice section) listing every verbatim block ≥30 lines:
+
+   | Step    | Block                 | Lines | Discriminating justification                       |
+   |---------|-----------------------|-------|----------------------------------------------------|
+   | Step 1  | `GrowthRate` enum     | 32    | exact case-name strings used as DB column values   |
+   | Step 8  | `LevelCalculatorTest` | 84    | byte-identical approval-test fixture               |
+   | …       | …                     | …     | …                                                  |
+
+   The Verbatim Inventory exists to make verbose plans **auditable at a glance**: a reviewer can verify that each block earns its inclusion without reading the whole plan.
+
+   Inline implementations are a smell — the developer's workspace is the place for full implementations, not the plan. The plan describes contracts and behaviour; the developer writes the implementation. Threshold rationale: 900 lines is the warning threshold calibrated on observed kata-scope plans (clean ≈800, bloated ≥1000). Report line count, Verbatim Inventory presence, and any blocks whose justifications fail the discriminating bar.
 
 Format in FINISHED message:
 
@@ -168,7 +184,7 @@ Format in FINISHED message:
 > 2. Single-version: yes
 > 3. Trade-offs format: yes
 > 4. Algorithm↔test traceability: N traced, M behaviour-change marked, 0 under-specified
-> 5. Plan-size check: NNN lines (≤900: pass | >900: list verbatim-justified blocks)
+> 5. Plan-size check: NNN lines (≤900: pass | >900: Verbatim Inventory present? yes/no; discriminating-justification audit: M blocks total, K passed, 0 must remain failed)
 
 A FINISHED signal that omits this block, or that reports any failure without an accompanying fix, is invalid. The orchestrator MUST treat it as `PARTIAL` and re-delegate with the failing items called out.
 

@@ -88,30 +88,49 @@ Delegate to @critic for feedback on all documents produced so far.
 1. Create `<issue-folder>/summary.md` by following the `telamon.summarize_plan` skill.
 2. Format all markdown files in the issue folder: `.ai/telamon/scripts/format-md.py <issue-folder>`.
 3. Output the summary to the human stakeholder and ask for final approval.
-4. Write `<issue-folder>/planning-complete.md` as the final closing-checklist artifact, listing each required artifact with its existence-verified status. This file MUST be the orchestrator's last write before reporting completion to the human stakeholder. Required artifacts:
-   - `backlog.md` — refined, every task has acceptance criteria and priority.
-   - `PLAN-ARCH-YYYY-MM-DD-NNN.md` — `Status: FINAL`, set by orchestrator only after critic round APPROVED.
-   - At least one `PLAN-REVIEW-YYYY-MM-DD-NNN.md` with verdict APPROVED dated after the latest architect revision.
-   - `summary.md` — written by the `telamon.summarize_plan` skill.
-   - `retrospective/planning.md` — written by the `telamon.retrospective` skill.
+4. Write `<issue-folder>/planning-complete.md` as the final closing-checklist artifact, listing each required artifact with its **existence-verified AND canonical-path-verified** status. This file MUST be the orchestrator's last write before reporting completion to the human stakeholder.
 
-   For each artifact, the orchestrator MUST `read` it (or `ls` the directory and confirm a non-empty file exists) BEFORE listing it as `[x]` in `planning-complete.md`. Listing without verification is forbidden — the proof is the tool call, not the assertion. Example body:
+   Each `[x]` line MUST cite the **canonical SKILL-prescribed path** under `<issue-folder>` (resolved to the absolute path of the issue folder created in Step 1) AND the **verifying tool call** that confirms the file is at that path. An existence-only check that does not bind the file to its canonical path is invalid — the line MUST remain `[ ]` until the file is at the correct path.
+
+   Required artifacts and their canonical paths:
+   - `<issue-folder>/backlog.md` — refined, every task has acceptance criteria and priority.
+   - `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md` — `Status: FINAL`, set by orchestrator only after critic round APPROVED.
+   - `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md` — at least one with verdict APPROVED dated after the latest architect revision.
+   - `<issue-folder>/summary.md` — written by the `telamon.summarize_plan` skill.
+   - `<issue-folder>/retrospective/planning.md` — written by the `telamon.retrospective` skill.
+
+   For each artifact, the orchestrator MUST `read` it at its canonical path (or `ls` the directory and confirm a non-empty file exists at that path) BEFORE listing it as `[x]`. Listing without verification, or verification at a non-canonical path, is forbidden — the proof is the tool call against the canonical path, not the assertion.
+
+   Verification format — each `[x]` line MUST take this shape:
+
+   - [x] `<absolute-or-workspace-relative-canonical-path>` (verified by `<tool>` at `<ISO-8601 timestamp>` — `<evidence>`)
+
+   Example body:
 
    ```markdown
-   # Planning complete — <issue-folder>
+   # Planning complete — 20260508-143000-01-pokeapi-bus-refactor
 
-   - [x] backlog.md (verified by read at <ISO timestamp>)
-   - [x] PLAN-ARCH-2026-05-08-001.md (Status: FINAL, verified by read)
-   - [x] PLAN-REVIEW-2026-05-08-002.md (verdict: APPROVED, verified by read)
-   - [x] summary.md (verified by read)
-   - [x] retrospective/planning.md (verified by read)
+   Issue folder: `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/`
+
+   Verified at: 2026-05-08T15:30:00Z
+
+   - [x] `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/backlog.md`
+         (verified by `read` — 257 lines, 10 tasks across 5 phases)
+   - [x] `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/PLAN-ARCH-2026-05-08-001.md`
+         (verified by `read` — Status: FINAL on line 4)
+   - [x] `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/PLAN-REVIEW-2026-05-08-002.md`
+         (verified by `read` — verdict: APPROVED on line 3)
+   - [x] `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/summary.md`
+         (verified by `read` — 87 lines)
+   - [x] `.ai/telamon/memory/work/active/20260508-143000-01-pokeapi-bus-refactor/retrospective/planning.md`
+         (verified by `read` — 43 lines)
    ```
 
-   If any artifact cannot be verified, the orchestrator writes `[ ] <artifact> — MISSING` and treats the planning stage as PARTIAL per the closing gate below. This is the planning equivalent of the @tester gate: the planning stage is complete only when this file exists and lists every required artifact as `[x]` with a verifying tool call.
+   If any artifact is NOT at its canonical path, the line is `[ ] <canonical-path> — NOT AT CANONICAL PATH (found at <actual-path>)` or `[ ] <canonical-path> — MISSING`, and the orchestrator treats the planning stage as PARTIAL per the closing gate below. Move the file to the canonical path and re-verify before marking `[x]`. This is the planning equivalent of the @tester gate: the planning stage is complete only when this file exists and lists every required artifact as `[x]` at its canonical path with a verifying tool call.
 
 #### Planning Stage completion gate — MUST
 
-The Planning Stage is NOT complete — and the orchestrator MUST NOT proceed to Step 6 (Transition) — until `<issue-folder>/planning-complete.md` exists, was written by the orchestrator as the final action of Step 5, and lists every required artifact as `[x]` with a verifying tool call (read or ls). This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and the verification must be a tool call, not narration. If `planning-complete.md` is missing or any item is `[ ]`, treat the planning stage as PARTIAL and complete the missing step(s) before proceeding.
+The Planning Stage is NOT complete — and the orchestrator MUST NOT proceed to Step 6 (Transition) — until `<issue-folder>/planning-complete.md` exists, was written by the orchestrator as the final action of Step 5, and lists every required artifact as `[x]` with a verifying tool call (read or ls). This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and the verification must be a tool call, not narration. If `planning-complete.md` is missing or any item is `[ ]`, treat the planning stage as PARTIAL and complete the missing step(s) before proceeding. **Each `[x]` line must cite the canonical SKILL-prescribed path under `<issue-folder>`; an existence-only verification that does not bind the file to its canonical path is invalid and the line MUST remain `[ ]` until the file is at the correct path.**
 
 ### Step 6: Transition
 
