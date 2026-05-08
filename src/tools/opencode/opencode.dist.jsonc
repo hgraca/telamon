@@ -7,11 +7,14 @@
   // Provider-level timeouts to make MidStreamFallbackError less frequent.
   // chunkTimeout aborts the request if no streamed chunk arrives within the window,
   // letting the auto-recover plugin retry instead of waiting on a dead stream.
+  // 5 min tolerates Opus extended-thinking pauses (which can exceed 60s) while
+  // still catching genuinely dead streams. See upstream opencode #17578, #25172
+  // and PR #18264 — 60s is too aggressive for Claude on github-copilot.
   "provider": {
     "github-copilot": {
       "options": {
         "timeout": 600000,
-        "chunkTimeout": 60000
+        "chunkTimeout": 300000
       }
     }
   },
