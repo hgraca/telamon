@@ -38,8 +38,12 @@ const RECOVERY_PROMPT_TEXT =
 // ─── Error pattern (case-insensitive) ─────────────────────────────────────────
 // These are the substrings we treat as transient and recoverable.
 // Anything else is left alone (the human should see it).
+// Includes upstream opencode bug #13768 (assistant message prefill / must end
+// with a user message) — see brain/gotchas.md L140. Treated as transient so
+// the synthetic user-message recovery prompt naturally satisfies the
+// "conversation must end with a user message" constraint.
 const TRANSIENT_RE =
-  /(MidStreamFallbackError|APIConnectionError|OpenAIException|ECONNRESET|ETIMEDOUT|socket hang up|stream (?:closed|aborted)|fetch failed|503 |502 |504 |overloaded)/i;
+  /(MidStreamFallbackError|APIConnectionError|OpenAIException|ECONNRESET|ETIMEDOUT|socket hang up|stream (?:closed|aborted)|fetch failed|503 |502 |504 |overloaded|assistant message prefill|must end with a user message)/i;
 
 // ─── worktreeSlug ─────────────────────────────────────────────────────────────
 // Duplicated from remember-session.js per ADR M-ARCH-034 (no shared module).
