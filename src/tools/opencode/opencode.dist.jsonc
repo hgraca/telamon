@@ -4,6 +4,18 @@
   "small_model": "github-copilot/claude-haiku-4.5",
   //  "coding_model": "github-copilot/claude-sonnet-4.6", // just for documentation purposes
 
+  // Provider-level timeouts to make MidStreamFallbackError less frequent.
+  // chunkTimeout aborts the request if no streamed chunk arrives within the window,
+  // letting the auto-recover plugin retry instead of waiting on a dead stream.
+  "provider": {
+    "github-copilot": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000
+      }
+    }
+  },
+
   //  "model": "opencode/minimax-m2.5-free", // opencode/nemotron-3-super-free
   //  "small_model": "opencode/gpt-5-nano", // opencode/big-pickle
   //  "coding_model": "opencode/qwen3.6-plus-free", // opencode/nemotron-3-super-free
@@ -67,7 +79,8 @@
     ".opencode/plugins/telamon/diff-context.js",
     ".opencode/plugins/telamon/script-runner.js",
     ".opencode/plugins/telamon/opencode-patches.js",
-    ".opencode/plugins/telamon/compaction-save.js"
+    ".opencode/plugins/telamon/compaction-save.js",
+    ".opencode/plugins/telamon/auto-recover.js"
   ],
   "permission": {
     "edit": "allow",
