@@ -89,6 +89,10 @@ Delegate to @critic for feedback on all documents produced so far.
 2. Format all markdown files in the issue folder: `.ai/telamon/scripts/format-md.py <issue-folder>`.
 3. Output the summary to the human stakeholder and ask for final approval.
 
+#### Planning Stage completion gate — MUST
+
+The Planning Stage is NOT complete — and the orchestrator MUST NOT proceed to Step 6 (Transition) — until `<issue-folder>/summary.md` exists, was written by the `telamon.summarize_plan` skill, and has been shown to the human stakeholder. This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and be verified by reading it back. If `summary.md` is missing or empty, treat the planning stage as PARTIAL and complete the missing step before proceeding.
+
 ### Step 6: Transition
 
 On approval:

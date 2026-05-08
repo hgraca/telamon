@@ -157,6 +157,7 @@ Wait for the human stakeholder's decision before continuing. Doing the subagent'
   - **Self-fix allowed** only when ALL findings are `SUGGESTION` severity AND touch a single plan Step AND are limited to wording, formatting, or table fixes.
   - When self-fixing, the orchestrator MUST also re-run the Pre-FINISHED Hygiene Gate (see `plan_implementation` SKILL) on the edited plan before re-submitting to critic.
   - Document the routing decision in the interactions log: "Routing: re-delegated to architect because <reason>" or "Routing: self-fixed because <reason>".
+- **FINAL-promotion gate — MUST**: After ANY architect revision that addresses one or more `BLOCKER` findings, the orchestrator MUST re-delegate to @critic for a confirming review BEFORE the plan can be marked `Status: FINAL`. Only the orchestrator may transition the plan's `Status` field to `FINAL`, and only after a critic round whose verdict is `APPROVED` or whose findings contain zero `BLOCKER`s. If the architect has set `Status: FINAL` directly, the orchestrator MUST revert it to `IN REVIEW` and run the confirming critic round. The cost (one extra critic round per BLOCKER cycle) is proportional to defect severity, which is the desired property.
 
 ### Planning Stage completion gate — MUST
 

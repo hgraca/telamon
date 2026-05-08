@@ -69,3 +69,15 @@ If a previous review with the same date+number already exists, do not overwrite 
 - **Suggestion** — IMPORTANT or MINOR. Improvement opportunity.
 
 When in doubt between severities, choose the higher one.
+
+### Third-party library citation in recommendations — MUST
+
+When a recommendation involves a third-party library — namespace, class name, method signature, configuration option — the critic MUST cite the source-of-truth for the API in the recommendation itself. Acceptable cites are the same as in `telamon.plan_implementation` SKILL's "Third-party library integration" section:
+
+- the library's `composer.json` autoload section with file path + line reference, OR
+- a specific class file in the vendor tree with file path + class name, OR
+- the library's official README or documentation URL with the symbol name visible at that URL.
+
+Hypothetical recommendations are forbidden — if you cannot verify the API surface, the finding should describe the problem and require the architect to verify, NOT propose a specific replacement (e.g., "the cited namespace is unverified — architect must verify against vendor's `composer.json` before re-submission" rather than "use `Approve\Approvals` instead").
+
+This rule is symmetric with the architect-side rule in `telamon.plan_implementation` SKILL. Together they form a closed loop: architect must cite when proposing; critic must cite when recommending.

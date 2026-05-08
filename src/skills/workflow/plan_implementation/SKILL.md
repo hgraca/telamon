@@ -27,6 +27,22 @@ Follow these principles when designing the plan:
 - Every schema change needs a migration plan with rollback strategy.
 - When proposing to inline or remove an interface whose concrete is declared `readonly class`, the plan MUST include an explicit test-double strategy. Mockery cannot subclass readonly classes (engine fatal: `Cannot declare class ... because the parent class is readonly`). Acceptable strategies: (a) keep the interface and mock the interface; (b) drop the `readonly` modifier from the concrete; (c) provide a hand-written fake under `tests/Support/`. See `brain/gotchas.md` — "Mockery cannot mock `readonly class`".
 
+## Third-party library integration — MUST
+
+When the plan introduces a use of a third-party library (any namespace not under the project's own root namespace), the architect MUST cite the source-of-truth for the namespace and any API symbol used. Acceptable cites are:
+
+- the library's `composer.json` autoload section with file path + line reference, OR
+- a specific class file in the vendor tree with file path + class name, OR
+- the library's official README or documentation URL with the symbol name visible at that URL.
+
+Hypothetical, recalled, or AI-completed API surfaces are forbidden — verify before writing. The cite belongs in the Step's `**Notes**` section. Cites are required for:
+
+- namespace + class name (e.g., `ApprovalTests\Approvals` — NOT `Approve\Approvals`),
+- method signatures the plan calls,
+- configuration options the plan sets.
+
+A plan that introduces a third-party library without source-of-truth cites is a defect — the critic will raise it as a BLOCKER and force a re-spin.
+
 ## Plan Output
 
 Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH the architecture specification and the implementation plan in one document — see the architect's Deliverables section in `src/agents/architect.md` for the rationale and filename rules.
