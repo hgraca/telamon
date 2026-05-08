@@ -88,10 +88,30 @@ Delegate to @critic for feedback on all documents produced so far.
 1. Create `<issue-folder>/summary.md` by following the `telamon.summarize_plan` skill.
 2. Format all markdown files in the issue folder: `.ai/telamon/scripts/format-md.py <issue-folder>`.
 3. Output the summary to the human stakeholder and ask for final approval.
+4. Write `<issue-folder>/planning-complete.md` as the final closing-checklist artifact, listing each required artifact with its existence-verified status. This file MUST be the orchestrator's last write before reporting completion to the human stakeholder. Required artifacts:
+   - `backlog.md` — refined, every task has acceptance criteria and priority.
+   - `PLAN-ARCH-YYYY-MM-DD-NNN.md` — `Status: FINAL`, set by orchestrator only after critic round APPROVED.
+   - At least one `PLAN-REVIEW-YYYY-MM-DD-NNN.md` with verdict APPROVED dated after the latest architect revision.
+   - `summary.md` — written by the `telamon.summarize_plan` skill.
+   - `retrospective/planning.md` — written by the `telamon.retrospective` skill.
+
+   For each artifact, the orchestrator MUST `read` it (or `ls` the directory and confirm a non-empty file exists) BEFORE listing it as `[x]` in `planning-complete.md`. Listing without verification is forbidden — the proof is the tool call, not the assertion. Example body:
+
+   ```markdown
+   # Planning complete — <issue-folder>
+
+   - [x] backlog.md (verified by read at <ISO timestamp>)
+   - [x] PLAN-ARCH-2026-05-08-001.md (Status: FINAL, verified by read)
+   - [x] PLAN-REVIEW-2026-05-08-002.md (verdict: APPROVED, verified by read)
+   - [x] summary.md (verified by read)
+   - [x] retrospective/planning.md (verified by read)
+   ```
+
+   If any artifact cannot be verified, the orchestrator writes `[ ] <artifact> — MISSING` and treats the planning stage as PARTIAL per the closing gate below. This is the planning equivalent of the @tester gate: the planning stage is complete only when this file exists and lists every required artifact as `[x]` with a verifying tool call.
 
 #### Planning Stage completion gate — MUST
 
-The Planning Stage is NOT complete — and the orchestrator MUST NOT proceed to Step 6 (Transition) — until `<issue-folder>/summary.md` exists, was written by the `telamon.summarize_plan` skill, and has been shown to the human stakeholder. This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and be verified by reading it back. If `summary.md` is missing or empty, treat the planning stage as PARTIAL and complete the missing step before proceeding.
+The Planning Stage is NOT complete — and the orchestrator MUST NOT proceed to Step 6 (Transition) — until `<issue-folder>/planning-complete.md` exists, was written by the orchestrator as the final action of Step 5, and lists every required artifact as `[x]` with a verifying tool call (read or ls). This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and the verification must be a tool call, not narration. If `planning-complete.md` is missing or any item is `[ ]`, treat the planning stage as PARTIAL and complete the missing step(s) before proceeding.
 
 ### Step 6: Transition
 

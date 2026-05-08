@@ -135,6 +135,14 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH th
 > ### MCP tools
 > List MCP tools used by the agent while creating the report, or "None."
 
+## Verification-gate cross-referencing — MUST
+
+When the plan introduces a verification gate between steps (a concrete process the developer must execute before proceeding — e.g. a "scratch note" mandate, a tooling-version check, a third-party API surface confirmation), every downstream step whose correctness depends on the gate's outcome MUST reference the gate from its top-line description, not just via inline warnings. Top-line means: the first sentence of the step's body, before any code blocks, file paths, or sub-headings. The reference must be phrased as a precondition, e.g.:
+
+> **Precondition**: Bus API verification gate (between Step 0 and Step 1) has been executed and the scratch note exists.
+
+Inline warnings later in the step are acceptable as reinforcement but not as the sole reference. Rationale: a developer reading the plan non-linearly (jumping to a specific step) must encounter the gate dependency at the same visual prominence as the step's title; advisory-feeling warnings deeper in the step body are bypassable. This rule applies to verification gates the architect introduces; the architect retains discretion over whether to introduce a gate at all.
+
 ## Pre-FINISHED Hygiene Gate
 
 Before signalling `FINISHED!` for a plan deliverable, the architect MUST run this checklist against the plan file and report each result in the FINISHED message:

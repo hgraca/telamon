@@ -113,6 +113,8 @@ When delegating, follow the `telamon.agent-communication` skill Delegation Forma
 
 Craft prompts that give the subagent enough context to work autonomously. Include relevant file paths, existing patterns, and constraints. Do NOT dump the entire project context.
 
+**First-sentence imperative — MUST**: When delegating any deliverable that requires a file write, the FIRST sentence of the delegation prompt MUST be an imperative file-write instruction with the exact path. Example: `Write <issue-folder>/backlog.md containing …` — NOT "Plan the …" or "Help me with …" or "I need a …". This shapes the subagent's first action toward the file write, mitigating the narrate-without-write stall class. The 5-item Delegation Format above remains the body of the prompt; this rule governs only the opening sentence. Rationale: the action-before-narration gate in `agent-communication` SKILL operates at the subagent level, but by then the prompt's framing already shapes the response — leading with the imperative is the prompt-level mitigation.
+
 ## Post-Delegation
 
 When a subagent returns:
@@ -161,7 +163,7 @@ Wait for the human stakeholder's decision before continuing. Doing the subagent'
 
 ### Planning Stage completion gate — MUST
 
-The Planning Stage is NOT complete — and the orchestrator MUST NOT transition to the Implementation Stage — until `<issue-folder>/summary.md` exists, was written by the `telamon.summarize_plan` skill, and has been shown to the human stakeholder. This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and be verified by reading it back. If `summary.md` is missing or empty, treat the planning stage as PARTIAL and complete the missing step before proceeding.
+The Planning Stage is NOT complete — and the orchestrator MUST NOT transition to the Implementation Stage — until `<issue-folder>/planning-complete.md` exists, was written by the orchestrator as the final action of Step 5, and lists every required artifact (backlog, plan, latest APPROVED review, summary, retrospective) as `[x]` with a verifying tool call (read or ls). This mirrors the @tester gate pattern: claims of completion are not trusted; the artifact must exist on disk and the verification must be a tool call, not narration. If `planning-complete.md` is missing or any item is `[ ]`, treat the planning stage as PARTIAL and complete the missing step(s) before proceeding. See `plan_story` SKILL Step 5 for the artifact format.
 
 ## Implementation Stage
 
