@@ -76,6 +76,8 @@ The Tester writes acceptance-criteria tests before the Developer implements. The
 
 When you need to create a temporary file, use the `telamon.thinking` skill.
 
+When tests need a working directory at runtime (SQLite DBs, fixture dirs, generated files, mock filesystems), point the test at `<proj>/.ai/telamon/memory/thinking/<unique-subdir>/` instead of `/tmp` or `os.tmpdir()`. Use a per-test unique subdir (timestamp + random suffix or `process.pid`-based) and remove it in the test's teardown hook (`afterAll` / `afterEach`). This avoids `/tmp`-permission and SQLite-on-tmpfs failures and keeps test artifacts inside the project for inspection when a test fails.
+
 ## MUST
 
 - Before writing tests, explicitly list assumptions about expected behavior and edge case boundaries. If acceptance criteria are ambiguous or untestable, signal NEEDS_INPUT before proceeding — do not guess at intent.
@@ -83,6 +85,7 @@ When you need to create a temporary file, use the `telamon.thinking` skill.
 - Thin wiring layers (composition roots, entry-point scripts) do not need automated tests — code review is sufficient.
 - Verify test directory structure follows conventions (unit vs integration split).
 - Run the test suite before declaring completion.
+- Place runtime test working directories under `<proj>/.ai/telamon/memory/thinking/` with a unique subdir per test, and clean them up in teardown. Do not write to `/tmp` or `os.tmpdir()` from test code.
 
 ## MUST NOT
 
