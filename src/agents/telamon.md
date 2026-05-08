@@ -113,7 +113,23 @@ When delegating, follow the `telamon.agent-communication` skill Delegation Forma
 
 Craft prompts that give the subagent enough context to work autonomously. Include relevant file paths, existing patterns, and constraints. Do NOT dump the entire project context.
 
-**First-sentence imperative — MUST**: When delegating any deliverable that requires a file write, the FIRST sentence of the delegation prompt MUST be an imperative file-write instruction with the exact path. Example: `Write <issue-folder>/backlog.md containing …` — NOT "Plan the …" or "Help me with …" or "I need a …". This shapes the subagent's first action toward the file write, mitigating the narrate-without-write stall class. The 5-item Delegation Format above remains the body of the prompt; this rule governs only the opening sentence. Rationale: the action-before-narration gate in `agent-communication` SKILL operates at the subagent level, but by then the prompt's framing already shapes the response — leading with the imperative is the prompt-level mitigation.
+**First-sentence imperative — MUST**: When delegating to ANY subagent (PO, architect, critic, developer, reviewer, tester, designer) for ANY task that produces or modifies a file, the FIRST sentence of the delegation prompt MUST be an imperative file-write instruction with the exact canonical path. Example: `Write <issue-folder>/backlog.md containing …` — NOT "Plan the …" or "Help me with …" or "I need a …". This applies to:
+- First delegations and re-delegations equally.
+- Roles where the file-write is implicit in the role (PO → `backlog.md`, critic → `PLAN-REVIEW-…md`, architect → `PLAN-ARCH-…md`, etc.) — the canonical path MUST still be cited explicitly in the first sentence.
+- Tasks that update an existing file (e.g. backlog deltas) — the rule applies; phrase as `Update <path> to …`.
+
+The only exemption is research-only tasks (no file output) — for those, the first sentence MUST instead be an imperative observation instruction (e.g. `Read X and report Y`).
+
+This shapes the subagent's first action toward the file write, mitigating the narrate-without-write stall class. The 5-item Delegation Format above remains the body of the prompt; this rule governs only the opening sentence. Rationale: the action-before-narration gate in `agent-communication` SKILL operates at the subagent level, but by then the prompt's framing already shapes the response — leading with the imperative is the prompt-level mitigation.
+
+**Audit-log honesty — MUST**: Every claim in `interactions.md` (or any orchestrator-owned narrative log) about a subagent deliverable MUST cite either:
+
+1. The artefact's path (e.g. `PLAN-REVIEW-2026-05-08-001.md`) AND a verifying observation (line count, finding count, status field) that the orchestrator obtained via `read`, OR
+2. The exact tool call output observed (e.g. `read` returned …, `glob` matched …, `ls` listed …).
+
+The orchestrator MUST NOT record claimed-state of a subagent deliverable based solely on the subagent's narrative report. If the subagent claims to have executed a skill-mandated step (e.g. Pre-FINISHED Hygiene Gate, third-party API verification, hygiene checklist), the orchestrator MUST verify by reading the produced report file before recording the claim. If the file is absent, the orchestrator MUST record `<step> NOT EXECUTED — no report file at <expected path>` and treat this as an exception per `telamon.exception-handling`.
+
+Rationale: An audit log that records claimed-state rather than observed-state corrupts the project's source of truth and compounds downstream gate decisions (notably the FINAL-promotion gate, which depends on accurate critic-finding counts and precondition states). This is the same principle as the `@tester` "verifying tool call" gate and the `planning-complete.md` canonical-path-binding — extended to the orchestrator's own narrative artefact.
 
 ## Post-Delegation
 
@@ -159,7 +175,7 @@ Wait for the human stakeholder's decision before continuing. Doing the subagent'
   - **Self-fix allowed** only when ALL findings are `SUGGESTION` severity AND touch a single plan Step AND are limited to wording, formatting, or table fixes.
   - When self-fixing, the orchestrator MUST also re-run the Pre-FINISHED Hygiene Gate (see `plan_implementation` SKILL) on the edited plan before re-submitting to critic.
   - Document the routing decision in the interactions log: "Routing: re-delegated to architect because <reason>" or "Routing: self-fixed because <reason>".
-- **FINAL-promotion gate — MUST**: After ANY architect revision that addresses one or more `BLOCKER` findings, the orchestrator MUST re-delegate to @critic for a confirming review BEFORE the plan can be marked `Status: FINAL`. Only the orchestrator may transition the plan's `Status` field to `FINAL`, and only after a critic round whose verdict is `APPROVED` or whose findings contain zero `BLOCKER`s. If the architect has set `Status: FINAL` directly, the orchestrator MUST revert it to `IN REVIEW` and run the confirming critic round. The cost (one extra critic round per BLOCKER cycle) is proportional to defect severity, which is the desired property.
+- **FINAL-promotion gate — MUST**: After ANY architect revision that addresses one or more `BLOCKER` findings, the orchestrator MUST re-delegate to @critic for a confirming review BEFORE the plan can be marked `Status: FINAL`. Only the orchestrator may transition the plan's `Status` field to `FINAL`, and only after a critic round whose verdict is `APPROVED` AND whose findings contain zero `BLOCKER`s AND zero unmet preconditions. A "precondition finding" is any finding (regardless of severity label) that the critic explicitly marks as a precondition for FINISHED — including but not limited to hygiene gate execution, third-party API verification, and skill-mandated reports. If a confirming review verdict is `CONDITIONALLY APPROVED` with any unmet precondition, the orchestrator MUST resolve the precondition before promotion (re-delegate to architect to execute the precondition, then re-delegate to critic for confirmation), NOT promote conditionally. Verdict `APPROVED` alone permits promotion only when no precondition findings are present. If the architect has set `Status: FINAL` directly, the orchestrator MUST revert it to `IN REVIEW` and run the confirming critic round. The cost (one extra critic round per BLOCKER or precondition cycle) is proportional to defect severity, which is the desired property.
 
 ### Planning Stage completion gate — MUST
 

@@ -113,6 +113,7 @@ Fast file path matching by pattern.
 **Tips:**
 - Use `**/*.php` for recursive, `*.php` for current directory only
 - Results sorted by modification time (newest first)
+- **Gitignored paths are not surfaced** by `Glob` (or by `find` from repo root in shell pipelines that respect `.gitignore`). Files under `storage/`, `vendor/`, and other gitignored areas return zero matches even when they exist. To search gitignored areas, use `Read` with the known canonical path, or `bash` with an explicit absolute path (`ls /abs/path` or `find /abs/path -type f`), or `rg --no-ignore` for content search. See [[gotchas]] entry "Glob and find miss gitignored paths".
 
 ### Grep
 
