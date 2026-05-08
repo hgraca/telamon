@@ -92,7 +92,7 @@ title: Telamon
       </li>
       <li>
         <span class="check">&#x2713;</span>
-        <span><strong>Rich MCP integrations</strong> &mdash; GitHub, browser DevTools, Playwright, AST search, library docs, web search.</span>
+        <span><strong>Rich MCP integrations</strong> &mdash; browser DevTools, Playwright, AST search, library docs, web search; GitHub via the <code>gh</code> CLI.</span>
       </li>
       <li>
         <span class="check">&#x2713;</span>

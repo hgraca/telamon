@@ -159,14 +159,6 @@
       "command": ["uvx", "mcp-server-git"],
       "enabled": true
     },
-    "github": {
-      "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "mcp/github"],
-      "enabled": true,
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "CREATE_A_PAT_AS_IN_IMAGE-GH_PAT_FOR_AGENT.png"
-      }
-    },
     "ast-grep": {
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],

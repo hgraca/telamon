@@ -381,19 +381,23 @@ if command -v npm &>/dev/null; then
   fi
 fi
 
-# c) GitHub MCP authentication
+# c) GitHub (gh CLI) authentication
 GH_PAT_FILE="${TELAMON_ROOT}/storage/secrets/gh_pat"
-if [[ -f "${GH_PAT_FILE}" ]]; then
+if ! command -v gh &>/dev/null; then
+  _fail "GitHub (gh CLI): not installed — run bin/install.sh to install gh"
+elif gh auth status &>/dev/null; then
+  _pass "GitHub (gh CLI): authenticated as $(gh api user --jq .login 2>/dev/null || echo '<unknown>')"
+elif [[ -f "${GH_PAT_FILE}" ]]; then
   GH_PAT="$(cat "${GH_PAT_FILE}" 2>/dev/null)"
   if [[ -z "${GH_PAT}" || "${GH_PAT}" == CREATE_A_PAT_AS_IN_IMAGE* ]]; then
-    _fail "GitHub MCP: PAT not configured — replace placeholder in storage/secrets/gh_pat with a valid token"
+    _fail "GitHub (gh CLI): PAT not configured — replace placeholder in storage/secrets/gh_pat with a valid token, then re-run bin/install.sh"
   elif curl -sf --max-time 5 -H "Authorization: token ${GH_PAT}" https://api.github.com/user &>/dev/null 2>&1; then
-    _pass "GitHub MCP: PAT authenticated"
+    _warn "GitHub (gh CLI): PAT valid but gh CLI not logged in — run: printf '%s' \"\$(cat ${GH_PAT_FILE})\" | gh auth login --with-token"
   else
-    _fail "GitHub MCP: PAT authentication failed — token may be expired or revoked"
+    _fail "GitHub (gh CLI): PAT authentication failed — token may be expired or revoked"
   fi
 else
-  _fail "GitHub MCP: PAT file missing — create storage/secrets/gh_pat with a valid GitHub token"
+  _fail "GitHub (gh CLI): not authenticated and no PAT file found — run bin/install.sh and provide a token"
 fi
 
 # ── 8. Scheduled jobs ─────────────────────────────────────────────────────────

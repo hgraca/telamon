@@ -40,7 +40,7 @@ cd path/to/your-project && opencode
 | **Automatic session capture** | OpenCode plugin — promotes learnings before compaction                                      |
 | **Codebase understanding**    | Graphify (knowledge graph) + Codebase Index (semantic search)                               |
 | **Token efficiency**          | RTK (output compression) + Caveman (terse communication mode)                               |
-| **MCP integrations**          | GitHub, Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app                      |
+| **MCP integrations**          | Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app (GitHub via `gh` CLI)         |
 | **Optional observability**    | Langfuse for token tracking (opt-in)                                                        |
 | **Optional temporal graph**   | Graphiti + Neo4j for architectural evolution (opt-in)                                       |
 

@@ -195,21 +195,27 @@ else
   echo -e "  ${TEXT_DIM}(npm not found — skipping cache check)${TEXT_CLEAR}"
 fi
 
-# GitHub MCP authentication
+# GitHub (gh CLI) authentication
 _gh_pat_file="${TELAMON_ROOT}/storage/secrets/gh_pat"
-if [[ -f "${_gh_pat_file}" ]]; then
+if ! command -v gh &>/dev/null; then
+  _no "GitHub (gh CLI): not installed"
+  _mcp_issues=$((_mcp_issues + 1))
+elif gh auth status &>/dev/null; then
+  _ok "GitHub (gh CLI): authenticated as $(gh api user --jq .login 2>/dev/null || echo '<unknown>')"
+elif [[ -f "${_gh_pat_file}" ]]; then
   _gh_pat="$(cat "${_gh_pat_file}" 2>/dev/null)"
   if [[ -z "${_gh_pat}" || "${_gh_pat}" == CREATE_A_PAT_AS_IN_IMAGE* ]]; then
-    _no "GitHub MCP: PAT not configured (placeholder or empty)"
+    _no "GitHub (gh CLI): PAT not configured (placeholder or empty)"
     _mcp_issues=$((_mcp_issues + 1))
   elif curl -sf --max-time 5 -H "Authorization: token ${_gh_pat}" https://api.github.com/user &>/dev/null 2>&1; then
-    _ok "GitHub MCP: PAT authenticated"
+    _no "GitHub (gh CLI): PAT valid but gh not logged in (re-run installer)"
+    _mcp_issues=$((_mcp_issues + 1))
   else
-    _no "GitHub MCP: PAT authentication failed (expired or invalid)"
+    _no "GitHub (gh CLI): PAT authentication failed (expired or invalid)"
     _mcp_issues=$((_mcp_issues + 1))
   fi
 else
-  _no "GitHub MCP: PAT file missing (storage/secrets/gh_pat)"
+  _no "GitHub (gh CLI): not authenticated and no PAT file found"
   _mcp_issues=$((_mcp_issues + 1))
 fi
 

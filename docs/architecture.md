@@ -6,7 +6,7 @@ nav_section: docs
 ---
 
 Telamon runs entirely on the developer's machine. An MCP layer connects the coding agent to local services
-(Ollama) and external integrations (GitHub, browser DevTools).
+(Ollama) and external integrations (browser DevTools). GitHub access is provided by the `gh` CLI, not an MCP.
 OpenCode plugins inject context at session start, and host CLI tools handle indexing, search, and compression.
 
 ## System flow
@@ -22,7 +22,6 @@ flowchart TB
             cbi["codebase-index"]
             gf_m["graphify"]
             qmd_m["qmd"]
-            gh_m["github"]
             cd_m["chromdev"]
             pw_m["playwright"]
             git_m["git"]
@@ -39,6 +38,7 @@ flowchart TB
             cli_g["graphify"]
             cli_r["rtk"]
             cli_q["qmd"]
+            cli_gh["gh"]
         end
 
         subgraph plugins["OpenCode Plugins (always-on)"]
@@ -84,7 +84,7 @@ flowchart TB
 | **Looking up docs**           | Context7            | Queries library/framework documentation                           |
 | **Browser debugging**         | Chrome DevTools     | Inspects DOM, console, network, performance                       |
 | **Browser testing**           | Playwright          | Automates browser interactions and assertions                     |
-| **GitHub integration**        | GitHub MCP          | Manages issues, PRs, code search, reviews                         |
+| **GitHub integration**        | `gh` CLI            | Manages issues, PRs, code search, reviews                         |
 | **Writing code**              | RTK                 | Compresses bash output to save tokens                             |
 | **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                         |
 | **After significant work**    | `brain/` notes      | Stores new decisions, patterns, bug fixes                         |
@@ -108,7 +108,7 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 |----------------------|---------------------------------------|
 | `graphify-python`    | Path to graphify's Python interpreter |
 | `telamon-root`       | Path to the Telamon root directory    |
-| `gh_pat`             | GitHub personal access token          |
+| `gh_pat`             | GitHub personal access token (used by `gh` CLI) |
 | `qmd-cache-home`     | XDG_CACHE_HOME override for QMD       |
 
 ### Docker services

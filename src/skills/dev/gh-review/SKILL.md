@@ -20,8 +20,11 @@ PR number (`$1`).
 
 ### Step 1: Read PR comments
 
-Use the `github` MCP to read all review comments on PR `$1`.
-Only use the `gh` CLI if the `github` MCP is not available and not working as expected.
+Use the `gh` CLI to read all review comments on PR `$1`. Prefer `--json` output and pipe through `cat` to avoid shell-piping truncation:
+
+- `gh pr view $1 --json title,body,state,comments`
+- `gh api repos/{owner}/{repo}/pulls/$1/comments` — line-anchored review comments (the most relevant ones)
+- `gh api repos/{owner}/{repo}/pulls/$1/reviews` — top-level review summaries
 
 ### Step 2: Ensure correct branch
 

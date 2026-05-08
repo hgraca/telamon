@@ -47,7 +47,6 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 | MCP Server          | Purpose                                       | Website                                                            |
 |---------------------|-----------------------------------------------|--------------------------------------------------------------------|
-| **GitHub**          | Issues, PRs, code search, reviews             | [github.com](https://github.com)                                   |
 | **Chrome DevTools** | Browser inspection and debugging              | [developer.chrome.com](https://developer.chrome.com/docs/devtools) |
 | **Playwright**      | Browser automation and testing                | [playwright.dev](https://playwright.dev)                           |
 | **ast-grep**        | Structural code search using AST patterns     | [ast-grep.github.io](https://ast-grep.github.io)                   |
@@ -55,6 +54,8 @@ Every tool Telamon installs and manages — all local, all automatic.
 | **grep.app**        | Code search across public GitHub repositories | [grep.app](https://grep.app)                                       |
 | **Exa**             | Web search                                    | [exa.ai](https://exa.ai)                                           |
 | **git**             | Git operations (status, diff, commit, branch) | [git-scm.com](https://git-scm.com)                                 |
+
+> **GitHub** is not an MCP — agents drive GitHub through the `gh` CLI (PRs, reviews, issues, repo operations). The installer prompts for a Personal Access Token and runs `gh auth login --with-token` automatically.
 
 ## Plugins
 
