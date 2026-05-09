@@ -1,11 +1,11 @@
 ---
 name: telamon.improve-planning
-description: "Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says "improve planning", "improve planning instructions", "planning quality", or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly."
+description: "Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly."
 ---
 
 # Improve Planning Instructions
 
-Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says "improve planning", "improve planning instructions", "planning quality", or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly.
+Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly.
 
 ## Architecture: Two Sessions
 
