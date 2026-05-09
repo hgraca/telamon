@@ -30,6 +30,8 @@ Do not attempt to infer the deliverable path. Do not begin work. The orchestrato
 
 **Exemption — research-only tasks** (no file output): the first sentence MUST instead be an imperative observation verb (`Read`, `Inspect`, `Report`, `Analyse`). If neither file-write nor research-observation form is present, return BLOCKED with reason `prompt_opener_missing — neither write-imperative nor observation-imperative present`.
 
+**First-tool-call invariant (MUST)**: Once the prompt-opener gate passes, the agent's first tool call MUST be the file write declared in the opener (`write` or `edit` targeting the canonical path cited in the opener's first sentence). No `read`, `glob`, `grep`, or `bash` calls before the first `write` or `edit`. Context-gathering must happen BEFORE the gate passes — captured in the prompt's Context section by the orchestrator. If you find you need additional context to write the file, return BLOCKED with reason `context_insufficient — need: <list>` rather than gathering it yourself; the orchestrator will re-delegate with the missing context. This is the receiver-side analogue of the `@tester` "verifying tool call" gate that has held since iter-8: the agent's structural incentive to comply is strong because narrating before writing produces unbounded work whereas a fast BLOCKED return is low-cost.
+
 ## Skills
 
 - When reporting completion, signalling blockers, or responding to feedback, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
@@ -96,6 +98,19 @@ The exact internal structure (sections, templates, what each layer contains) is 
 ## Scratch Files
 
 When you need to create a temporary file, use the `telamon.thinking` skill.
+
+## Third-party API draft-time precondition (MUST)
+
+Before writing any Step >0 reference to a class, method, function, namespace, or file path under `vendor/` (or any namespace not under the project's own root namespace), the architect MUST do ONE of the following:
+
+1. **Execute the verification gate inline** — read the vendor file (`vendor/<pkg>/<file>`), capture the FQCN/method signature/file path, and write the citation in the form `// per vendor/<pkg>/<file>:<line>` adjacent to the reference. The reference is then "verified at draft time."
+2. **Mark as deferred-to-developer** — place a `[VERIFY: <gate-id>]` marker at the reference site AND ensure the corresponding Step 0 verification gate is declared with the deliverable that will produce the citation (e.g. a scratch note `vendor-<pkg>-api.md` enumerating the available classes). The reference is then "deferred but tracked."
+
+The marker is NOT a backstop applied at revision time. It is a draft-time signal of unverified content. Writing a third-party reference without applying option 1 or option 2 at draft time is a precondition violation.
+
+**Scope**: PHP core globals (`\Throwable`, `\Stringable`, `\DateTimeImmutable`, etc.) are exempt — they are part of the language, not third-party. The rule applies to any namespace whose top-level segment matches a `composer.json` `require` entry (excluding `php` and `ext-*`).
+
+**Self-check before FINISHED**: count the third-party references in the plan and the corresponding citation/marker count. The two MUST match. Report both numbers in the FINISHED message (per `plan_implementation` SKILL Pre-FINISHED Hygiene Gate output enumeration rule). A mismatch means the precondition was violated and the architect MUST revise before signalling FINISHED.
 
 ## Plan-document hygiene
 

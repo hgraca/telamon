@@ -156,6 +156,36 @@ Inline warnings later in the step are acceptable as reinforcement but not as the
 
 ## Pre-FINISHED Hygiene Gate
 
+### Hygiene Gate output enumeration — MUST
+
+The architect's FINISHED message for a plan MUST enumerate per-item evidence for each Hygiene Gate check, not summary counts. Specifically:
+
+- **Item 4 (algorithm↔test traceability)**: enumerate per traced/behaviour-change/under-specified row.
+- **Item 5 (verbatim-bar)**: instead of "N lines, M blocks", produce a table:
+
+  ```
+  | Line range | Block type      | Length | Justification (verbatim because …) |
+  |------------|-----------------|--------|------------------------------------|
+  | 102–161    | directory-tree  | 60     | navigability for implementer       |
+  | 686–748    | code-sketch     | 63     | Step 13 wiring, three-way trace    |
+  ```
+
+- **Item 6 (third-party API references)**: instead of "N refs, M markers", produce a table:
+
+  ```
+  | Line | Reference            | Status                                     |
+  |------|----------------------|--------------------------------------------|
+  | 614  | \GetE\Bus\MessageBus | [VERIFY: gate-bus-api]                     |
+  | 632  | \Approvals\Approver  | inline cite: vendor/approvals/.../A.php:42 |
+  | 845  | \GetE\PhpOverlay     | [VERIFY: gate-overlay-purpose]             |
+  ```
+
+  Empty table = explicit "no third-party references" claim.
+
+- **Item 7 (ADR Impact)**: enumerate the ADR identifiers found and the section's per-ADR rows.
+
+The orchestrator MUST verify the FINISHED-message tables against the plan file (one `grep` per claimed line range) before accepting the FINISHED signal. A FINISHED message with summary counts instead of enumerated tables is invalid; the orchestrator MUST return the architect a `BLOCKED: hygiene_gate_output_unverifiable — enumerate per-item evidence per plan_implementation SKILL Hygiene Gate output enumeration rule` and re-delegate.
+
 Before signalling `FINISHED!` for a plan deliverable, the architect MUST run this checklist against the plan file and report each result in the FINISHED message:
 
 1. **Self-revision residue grep** — search the plan for: `Wait`, `Actually`, `let me re-`, `let me fix`, `let me redo`, `simplest approach`, `On reflection`, `Hmm`. Report match count. **Must be 0** outside fenced code blocks. If matches found, edit them out before signalling FINISHED.
@@ -195,6 +225,19 @@ Before signalling `FINISHED!` for a plan deliverable, the architect MUST run thi
    The Verbatim Inventory exists to make verbose plans **auditable at a glance**: a reviewer can verify that each block earns its inclusion without reading the whole plan.
 
    Inline implementations are a smell — the developer's workspace is the place for full implementations, not the plan. The plan describes contracts and behaviour; the developer writes the implementation. Threshold rationale: 900 lines is the warning threshold calibrated on observed kata-scope plans (clean ≈800, bloated ≥1000). Report line count, Verbatim Inventory presence, and any blocks whose justifications fail the discriminating bar.
+
+   **Revision-time verbatim-bar re-check (MUST)**: If the plan being signalled FINISHED is a **revision** (the plan file has prior `## Review Response` sections and the current line count exceeds the most recent prior FINISHED line count by >25%), the architect MUST re-run the verbatim-bar discriminating-bar check on every code block, directory tree, configuration excerpt, and namespace listing in the plan. For each block ≥30 lines (code) or ≥5 lines (tree/config/listing), the architect MUST either:
+
+   1. **Re-justify** with an inline `# Verbatim because <reason citing block-type-specific bar>` comment if the block was added or grew during revision, OR
+   2. **Remove** the block in favour of a citation or summary if the bar is no longer met (e.g. directory tree reducible to PSR-4 summary + new-file list).
+
+   The revision-time re-check is in addition to the draft-time check. The architect MUST report the re-check outcome in the FINISHED message:
+
+   ```
+   Verbatim-bar revision re-check: <N> blocks evaluated, <M> re-justified, <K> removed. Plan size: <prior> → <current> lines (Δ +X%).
+   ```
+
+   If the plan size growth is ≤25%, the revision-time re-check is OPTIONAL but recommended. If >25%, MANDATORY. If the revised plan exceeds the 900-line soft ceiling AND the growth is >25%, the re-check is a precondition for FINISHED — the architect MUST execute it before signalling.
 6. **Third-party API reference verification** — every Step >0 reference to a third-party namespace (per the `## Third-party API reference marker — MUST` rule above) must carry either an inline `// per …` citation OR a `[VERIFY: <gate-id>]` marker. Run the mechanical check:
 
    ```

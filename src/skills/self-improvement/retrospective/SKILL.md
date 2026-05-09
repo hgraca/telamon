@@ -28,6 +28,10 @@ The retrospective MUST NOT make causal claims about subagent behaviour ("the cri
 
 **Validation**: a retrospective entry without supporting citation is invalid. The retrospective author (orchestrator) MUST either support the claim with a citation or remove it before filing the retrospective. The orchestrator MUST NOT defer this check to a later iteration's quality-report — the gate fires at retrospective-write time.
 
+### Per-Agent count claims (MUST)
+
+Every "total invocations" or per-agent count claim in the retrospective MUST cite the source of the count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with the underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. The retrospective author MUST run the Per-Agent reconciliation procedure (per `plan_story` SKILL Step 5 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
+
 ## Post-Task Quality Rubric
 
 After each task is implemented, reviewed, and committed, the orchestrator evaluates it against this rubric:

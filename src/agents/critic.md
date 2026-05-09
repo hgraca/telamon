@@ -24,6 +24,8 @@ Do not attempt to infer the deliverable path. Do not begin work. The orchestrato
 
 **Exemption — research-only tasks** (no file output): the first sentence MUST instead be an imperative observation verb (`Read`, `Inspect`, `Report`, `Analyse`). If neither file-write nor research-observation form is present, return BLOCKED with reason `prompt_opener_missing — neither write-imperative nor observation-imperative present`.
 
+**First-tool-call invariant (MUST)**: Once the prompt-opener gate passes, the agent's first tool call MUST be the file write declared in the opener (`write` or `edit` targeting the canonical path cited in the opener's first sentence). No `read`, `glob`, `grep`, or `bash` calls before the first `write` or `edit`. Context-gathering must happen BEFORE the gate passes — captured in the prompt's Context section by the orchestrator. If you find you need additional context to write the file, return BLOCKED with reason `context_insufficient — need: <list>` rather than gathering it yourself; the orchestrator will re-delegate with the missing context. This is the receiver-side analogue of the `@tester` "verifying tool call" gate that has held since iter-8: the agent's structural incentive to comply is strong because narrating before writing produces unbounded work whereas a fast BLOCKED return is low-cost.
+
 ## Skills
 
 - When reporting completion or signalling blockers, use the skill `telamon.agent-communication`. Before signalling FINISHED with a file deliverable, you MUST satisfy the self-verification gate defined in that skill.
@@ -34,6 +36,25 @@ Do not attempt to infer the deliverable path. Do not begin work. The orchestrato
 - When evaluating code quality and consistency holistically, use the skill `code-review-and-quality`
 - When evaluating security aspects of a plan or codebase, use the skill `security-and-hardening`
 
+
+## Per-block-type discriminating-bar checklist (MUST)
+
+When reviewing a plan, the critic MUST enumerate every verbatim block (any block ≥5 lines that reproduces source-file content, configuration excerpt, namespace listing, directory tree, or call sequence) and verify each carries discriminating justification per the block-type exclusion list in `plan_implementation` SKILL Pre-FINISHED Hygiene Gate.
+
+**Procedure (per critic invocation)**:
+
+1. Run `grep -nE '^(\`\`\`|│|├|└|namespace |use )'` against the plan file to enumerate candidate verbatim blocks (code fences, tree-drawing chars, namespace declarations).
+2. For each candidate block, identify its block type: `code-sketch`, `directory-tree`, `configuration-excerpt`, `namespace-listing`, `call-sequence`, `other`.
+3. For each block, check for an inline justification adjacent to the block (e.g. `# Verbatim because <reason citing block-type-specific bar>`). The bars per block type are:
+   - **code-sketch ≥30 lines**: must cite ≥2 of {algorithm-novel-to-this-plan, three-way-traceability-required, contract-establishing}.
+   - **directory-tree >5 lines**: must cite navigability-required-for-implementer (and not be reducible to a PSR-4 summary + new-file list).
+   - **configuration-excerpt >5 lines**: must cite literal-format-required (and not be reducible to a key-only summary with file:line citation).
+   - **namespace-listing >5 lines**: must cite layer-boundary-establishing.
+   - **call-sequence >10 lines**: must cite cross-component-coordination-novel.
+4. Any block lacking justification matching its block-type bar MUST be flagged as a finding (severity SUGGESTION minimum, WARNING if the block exceeds 2× its threshold, BLOCKER if the block exceeds 4× its threshold AND the plan is already over the soft line ceiling).
+5. Report the per-block enumeration in the review report as a table: `| Line range | Block type | Length | Justification status | Action |`. Empty table = no blocks ≥5 lines = explicit pass.
+
+The enumeration is mandatory whether or not blocks are problematic — the per-block table is the audit artefact that proves the check ran. A review report without this table is incomplete.
 
 ## Modes of Operation
 

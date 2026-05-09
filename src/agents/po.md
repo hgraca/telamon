@@ -36,6 +36,8 @@ Do not attempt to infer the deliverable path. Do not begin work. The orchestrato
 
 **Exemption — research-only tasks** (no file output): the first sentence MUST instead be an imperative observation verb (`Read`, `Inspect`, `Report`, `Analyse`). If neither file-write nor research-observation form is present, return BLOCKED with reason `prompt_opener_missing — neither write-imperative nor observation-imperative present`.
 
+**First-tool-call invariant (MUST)**: Once the prompt-opener gate passes, the agent's first tool call MUST be the file write declared in the opener (`write` or `edit` targeting the canonical path cited in the opener's first sentence). No `read`, `glob`, `grep`, or `bash` calls before the first `write` or `edit`. Context-gathering must happen BEFORE the gate passes — captured in the prompt's Context section by the orchestrator. If you find you need additional context to write the file, return BLOCKED with reason `context_insufficient — need: <list>` rather than gathering it yourself; the orchestrator will re-delegate with the missing context. This is the receiver-side analogue of the `@tester` "verifying tool call" gate that has held since iter-8: the agent's structural incentive to comply is strong because narrating before writing produces unbounded work whereas a fast BLOCKED return is low-cost.
+
 ## Activation
 
 ### Backlog Grooming
