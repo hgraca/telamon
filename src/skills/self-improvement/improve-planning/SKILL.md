@@ -172,17 +172,17 @@ Write `iteration-<n>/root-cause-analysis.md`. For each weakness in the quality r
 ```markdown
 ### RCA-<n>: <Weakness title from quality report>
 
-| Field                    | Value                                                                                       |
-|--------------------------|---------------------------------------------------------------------------------------------|
-| **Quality report ref**   | Section 2.X                                                                                 |
-| **Dimensions affected**  | One or more of the rubric dimensions                                                        |
-| **Responsible agent**    | Which agent should have caught/prevented this (must be telamon/po/architect/critic)         |
-| **Instruction file**     | Exact path to the file with the gap                                                         |
-| **Gap type**             | Missing rule / Ambiguous rule / Contradictory rule / Rule in wrong location                 |
-| **Current text**         | Quote the relevant section (or "absent")                                                    |
-| **Required text**        | What the instruction should say                                                             |
-| **Consistency check**    | List any other files/skills that already cover this topic. Confirm the required text does NOT contradict them; if it would, the fix must update those files too. |
-| **Regression risk**      | Could fixing this break something else? What?                                               |
+| Field                    | Value                                                                                                                                                                                                                                                                           |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Quality report ref**   | Section 2.X                                                                                                                                                                                                                                                                     |
+| **Dimensions affected**  | One or more of the rubric dimensions                                                                                                                                                                                                                                            |
+| **Responsible agent**    | Which agent should have caught/prevented this (must be telamon/po/architect/critic)                                                                                                                                                                                             |
+| **Instruction file**     | Exact path to the file with the gap                                                                                                                                                                                                                                             |
+| **Gap type**             | Missing rule / Ambiguous rule / Contradictory rule / Rule in wrong location                                                                                                                                                                                                     |
+| **Current text**         | Quote the relevant section (or "absent")                                                                                                                                                                                                                                        |
+| **Required text**        | What the instruction should say                                                                                                                                                                                                                                                 |
+| **Consistency check**    | List any other files/skills that already cover this topic. Confirm the required text does NOT contradict them; if it would, the fix must update those files too.                                                                                                                |
+| **Regression risk**      | Could fixing this break something else? What?                                                                                                                                                                                                                                   |
 | **Previously rejected?** | Search `rejected-proposals.md` by **target file + section** (not by exact text). If a prior rejection covers the same file+section AND the rejection reason still applies, mark "skip" and explain. Otherwise mark "no" or "supersedes prior rejection because <new evidence>". |
 ```
 
@@ -214,16 +214,20 @@ The tracker file `storage/self-improvement/improve-planning/iterations_quality.m
 
 #### Part A — Append a row to the summary table at the top
 
-Use this exact header (initialise the file with this header if it doesn't exist):
+Use this exact header (initialise the file with this header if it doesn't exist). The table records each rubric dimension's raw score (0–100) so per-dimension trends are visible without opening every quality report. Immediately under the header row, the file MUST keep a `Weights` reference row showing the current rubric weights (this row is data, not just a comment, so the per-dim columns are meaningful at a glance):
 
 ```markdown
-| Iter | Status | Model | Rubric | Grade | Δ Grade | Issues addressed | Issues remaining | Regressions | Effective fixes | Stalls | Critic rounds |
-|------|--------|-------|--------|-------|---------|------------------|------------------|-------------|-----------------|--------|---------------|
+| Iter | Status | Model | Rubric | Spec | plan_story | Arch | Clar | Proc | Def | Solv | Grade | Δ Grade | Issues addressed | Issues remaining | Regressions | Effective fixes | Stalls | Critic rounds |
+|------|--------|-------|--------|------|------------|------|------|------|------|------|-------|---------|------------------|------------------|-------------|-----------------|--------|---------------|
+| —    | weights | —    | v3     | 35%  | 21%        | 21%  | 10%  | 5%   | 5%   | 3%   | 100%  | —       | —                | —                | —           | —               | —      | —             |
 ```
 
 - Status: `success` | `failed` | `model-change` | `rubric-change`
 - Model and Rubric flagged with ⚠️ if changed from prior iteration
+- Spec / plan_story / Arch / Clar / Proc / Def / Solv: raw 0–100 score for each rubric dimension (same numbers as the per-iteration quality report's Grade table, before weighting)
+- Grade: weighted total, rounded to nearest integer
 - Δ Grade: blank for iteration 1 and for iterations following any flagged change
+- When the rubric version changes, append a new `weights` reference row with the updated weights immediately below the previous one and tag the iteration row `rubric-change`
 
 The new row goes immediately after the previous iteration's row (preserving Iter ascending order), BEFORE the `---` separator that introduces per-iteration sections.
 
@@ -342,7 +346,7 @@ Update the rubric only with explicit user approval. When changed:
 
 Use this guide to produce comparable quality reports for implementation plans.
 
-**Rubric version**: `v2`
+**Rubric version**: `v3`
 
 ### Report Structure
 
@@ -385,17 +389,19 @@ Every report MUST use this exact structure:
 
 Score each dimension 0–100, then compute the weighted total.
 
-| Dimension                           | Weight | What to evaluate                                                                                                                                                             |
-|-------------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Specificity & completeness**      | 25%    | Does every task have testable ACs? Are file paths, class names, field types, and behaviors explicit? Would a lower-reasoning LLM need to guess anything?                     |
-| **`plan_story` / `plan_implementation` compliance** | 15%    | Does the plan satisfy every rule in the `plan_story` and `plan_implementation` skills? Check each bullet point with line references. |
-| **Architecture correctness**        | 15%    | Does the plan match the architecture rules? Directory structure, dependency rules, naming conventions. Is there an architect review confirming this?                         |
-| **Clarity for lower-reasoning LLM** | 20%    | Are rules centralized or scattered? Are implicit assumptions made? Would a model with limited context window find all necessary information within the task it's working on? |
-| **Process guidance**                | 10%    | Does the plan address: reviewer frequency, commit strategy, stall recovery, delegation batch size, error escalation?                                                         |
-| **Defensive completeness**          | 10%    | Does the plan account for all coding-standard rules? Are edge cases and known pitfalls addressed?                                                                            |
-| **Solver execution**                | 5%     | Objective metrics from Section 0: low stall count, low critic rounds, no NEEDS_INPUT, no required-artifact gaps. Score 100 if all metrics are at their best; deduct for stalls, missing artifacts, excessive critic rounds (>3), any NEEDS_INPUT signal. |
+| Dimension                           | Weight | What to evaluate                                                                                                                                                                                                                                         |
+|-------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Specificity & completeness**      | 35%    | Does every task have testable ACs? Are file paths, class names, field types, and behaviors explicit? Would a lower-reasoning LLM need to guess anything?                                                                                                 |
+| **`plan_story` compliance**         | 21%    | Does the plan satisfy every rule in the `plan_story` and `plan_implementation` skills? Check each bullet point with line references.                                                                                                                     |
+| **Architecture correctness**        | 21%    | Does the plan match the architecture rules? Directory structure, dependency rules, naming conventions. Is there an architect review confirming this?                                                                                                     |
+| **Clarity for lower-reasoning LLM** | 10%    | Are rules centralized or scattered? Are implicit assumptions made? Would a model with limited context window find all necessary information within the task it's working on?                                                                             |
+| **Process guidance**                | 5%     | Does the plan address: reviewer frequency, commit strategy, stall recovery, delegation batch size, error escalation?                                                                                                                                     |
+| **Defensive completeness**          | 5%     | Does the plan account for all coding-standard rules? Are edge cases and known pitfalls addressed?                                                                                                                                                        |
+| **Solver execution**                | 3%     | Objective metrics from Section 0: low stall count, low critic rounds, no NEEDS_INPUT, no required-artifact gaps. Score 100 if all metrics are at their best; deduct for stalls, missing artifacts, excessive critic rounds (>3), any NEEDS_INPUT signal. |
 
 Weights sum to 100%.
+
+**v3 rationale**: weights were rebalanced from v2 (25/15/15/20/10/10/5) by halving the bottom four dimensions and redistributing the freed 20 percentage points proportionally to the top three (Specificity, `plan_story` compliance, Architecture correctness). Rationale: the bottom four dimensions were either non-discriminating across iterations (Architecture, Defensive — most plans clear them) or weighted disproportionately to their information value (Clarity, Process). Concentrating weight on the top three sharpens the signal on the dimensions where iterations actually move.
 
 ### Computing the Final Grade
 
