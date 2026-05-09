@@ -71,6 +71,8 @@ The CRITIC document identifies real weaknesses (W1: ambiguous field naming) and 
 
 ## 2. Negatives
 
+> Per-finding deduction estimates below ("-3 points", "-2 points") are illustrative weights from a prior rubric (v2) showing relative severity. The authoritative score lives in §5 (rubric v3), where each finding's impact is reflected through its dimension's score, not through standalone subtractions.
+
 ### 2.1 Missing FQN Import Rule in Backlog (-3 points)
 
 **Problem:** ARCHITECTURE.md line 119 states: "We import classes whenever possible, as opposed to using fully qualified names within the code. This applies to both production and test code."
@@ -244,36 +246,37 @@ lower-reasoning LLMs may not reference external documents during implementation.
 
 ## 5. Grade
 
+> Rubric v3 (weights rebalanced 2026-05-09 — see `SKILL.md` §"Rubric"). Dimensions ordered by weight, descending.
+
 | Dimension | Weight | Score | Notes |
 |-----------|--------|-------|-------|
-| Specificity & completeness | 25% | 95/100 | Excellent — nearly every class, field, and behavior specified |
-| PLANNING.md compliance | 15% | 100/100 | All rules satisfied with evidence |
-| Architecture correctness | 15% | 100/100 | Confirmed by Architect review; matches ARCHITECTURE.md |
-| Clarity for lower-reasoning LLM | 20% | 85/100 | Good but some rules are scattered/implicit |
-| Process guidance | 10% | 70/100 | Missing reviewer mandate, stall recovery, Critic response loop |
-| Defensive completeness | 10% | 80/100 | FQN rule buried, test `final` missing, entry point gaps |
-| Proven effectiveness | 5% | 98/100 | Produced 98.85–99.75/100 across 3 LLM runs |
+| Specificity & completeness | 35% | 95/100 | Excellent — nearly every class, field, and behavior specified |
+| `plan_story` workflow compliance | 21% | 100/100 | All rules satisfied with evidence |
+| Architecture correctness | 21% | 100/100 | Confirmed by Architect review; matches ARCHITECTURE.md |
+| Clarity for lower-reasoning LLM | 10% | 85/100 | Good but some rules are scattered/implicit |
+| Process guidance | 5% | 70/100 | Missing reviewer mandate, stall recovery, Critic response loop |
+| Defensive completeness | 5% | 80/100 | FQN rule buried, test `final` missing, entry point gaps |
+| Solver effectiveness (proven) | 3% | 98/100 | Produced 98.85–99.75/100 across 3 LLM runs |
 
-**Weighted total: 90.85 → rounded to 91/100**
+**Weighted total: 94.19 → rounded to 94/100**
 
 ---
 
 ## 6. Grade Justification
 
-The plan scores 91/100 because it is **highly effective** (proven by 3 implementations scoring 98.85–99.75) but has **gaps in explicitness** that caused predictable failures in lower-reasoning LLMs:
+The plan scores 94/100 because it is **highly effective** (proven by 3 implementations scoring 98.85–99.75) but has **gaps in explicitness** that caused predictable failures in lower-reasoning LLMs:
 
 **Why not higher:**
-- The FQN import rule is mentioned once in Task 7 but not reinforced globally (-3). V12 lost 0.5 points directly from this gap.
-- No explicit `final` requirement for test classes (-2). V12 lost 0.1 points from this.
-- No reviewer frequency mandate (-2). V12 lost 0.25 points from skipped reviews.
-- No stall-recovery guidance (-1.5). V12 lost time to 3 stalls.
-- Entry point testing gap (-1). Not graded but represents incomplete specification.
+- The FQN import rule is mentioned once in Task 7 but not reinforced globally — drags Specificity (−5pt × 35% weight ≈ −1.75 to total). V12 lost 0.5 points directly from this gap.
+- Clarity penalised for scattered rules (−15pt × 10% ≈ −1.5 to total).
+- No reviewer frequency mandate, no stall-recovery guidance, missing Critic response loop — Process at 70 (−30pt × 5% = −1.5 to total).
+- Test `final` not enforced, entry point coverage gap, FQN rule placement — Defensive at 80 (−20pt × 5% = −1.0 to total).
 
 **Why not lower:**
-- The plan's core architecture is flawless — no implementation deviated from the directory tree or namespace mapping.
+- The plan's core architecture is flawless — no implementation deviated from the directory tree or namespace mapping (Architecture 100, weight 21%).
+- `plan_story` workflow compliance is total (100, weight 21%) — every required artefact present with line-anchored evidence.
 - Acceptance criteria are precise enough that all 3 implementations achieved 100% test coverage and PHPStan max level.
 - The Lessons section prevents the most common V1–V9 failure modes.
-- The bug analysis prevents incorrect behavior interpretation.
-- The data flow diagram eliminates wiring confusion.
+- Solver effectiveness is near-perfect (98, weight 3%) — but its tiny weight under v3 means even a perfect proven score would only add ~0.06 to total.
 
-**Grade: 91 / 100**
+**Grade: 94 / 100**
