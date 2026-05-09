@@ -13,6 +13,21 @@ Structured quality evaluation of completed work and post-iteration retrospective
 - After completing all tasks in a backlog (post-iteration retrospective)
 - When the orchestrator needs to assess whether delivered work meets quality standards
 
+## Honesty gate (MUST)
+
+Every claim in the retrospective about a deliverable, agent action, or workflow event MUST cite either:
+
+1. **The artefact's path AND a verifying observation** (line number, content excerpt) the author obtained via `read`, OR
+2. **The absence of an expected artefact**, confirmed via `glob` or `ls` (cite the empty-result tool call).
+
+The retrospective MUST NOT make causal claims about subagent behaviour ("the critic hallucinated", "the architect skipped X", "the PO over-scoped Y") without citing the artefact that demonstrates the behaviour. If a behaviour is asserted to be missing, the assertion MUST cite a tool call (`grep`, `glob`, `read`) whose result is consistent with the absence claim.
+
+**Format requirement**: each "what went wrong" claim in the retrospective MUST include a parenthetical citation in the form `(per <path>:<line> | per <tool-call-result>)`. Example:
+
+> "Architect skipped the Pre-FINISHED Hygiene Gate (per `interactions.md:42` showing FINISHED signal without prior hygiene-report file; per `glob 'storage/.../iteration-N/.ai/.../hygiene-*.md'` returning no matches)."
+
+**Validation**: a retrospective entry without supporting citation is invalid. The retrospective author (orchestrator) MUST either support the claim with a citation or remove it before filing the retrospective. The orchestrator MUST NOT defer this check to a later iteration's quality-report — the gate fires at retrospective-write time.
+
 ## Post-Task Quality Rubric
 
 After each task is implemented, reviewed, and committed, the orchestrator evaluates it against this rubric:

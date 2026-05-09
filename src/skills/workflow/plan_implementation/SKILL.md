@@ -43,6 +43,17 @@ Hypothetical, recalled, or AI-completed API surfaces are forbidden — verify be
 
 A plan that introduces a third-party library without source-of-truth cites is a defect — the critic will raise it as a BLOCKER and force a re-spin.
 
+## Third-party API reference marker — MUST
+
+Every reference at Step >0 to a class, method, function, namespace, or file path under `vendor/` (or any namespace not under the project's own root namespace) MUST be either:
+
+1. **Accompanied by an inline source citation** in the form `// per vendor/<pkg>/<file>:<line>` or `// per <official-doc-url>`, OR
+2. **Preceded by a `[VERIFY: <gate-id>]` marker** referencing a Step 0 verification gate that produces the citation as its deliverable. Example: `[VERIFY: gate-B] $approver = new \Approvals\ApprovalRunner();` where Step 0 gate-B is specified to produce a scratch note `vendor-approvals-api.md` enumerating the available classes.
+
+**Scope**: PHP core globals (`\Throwable`, `\Stringable`, `\DateTimeImmutable`, etc.) are exempt — they are part of the language, not third-party. The rule applies to any namespace whose top-level segment matches a `composer.json` `require` entry (excluding `php` and `ext-*`).
+
+The Pre-FINISHED Hygiene Gate (below) executes the mechanical check that enforces this rule. The architect MUST either add an inline citation, add a `[VERIFY: <gate-id>]` marker, or remove the reference; an unverified third-party reference is a hygiene-gate failure.
+
 ## Plan Output
 
 Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH the architecture specification and the implementation plan in one document — see the architect's Deliverables section in `src/agents/architect.md` for the rationale and filename rules.
@@ -184,6 +195,33 @@ Before signalling `FINISHED!` for a plan deliverable, the architect MUST run thi
    The Verbatim Inventory exists to make verbose plans **auditable at a glance**: a reviewer can verify that each block earns its inclusion without reading the whole plan.
 
    Inline implementations are a smell — the developer's workspace is the place for full implementations, not the plan. The plan describes contracts and behaviour; the developer writes the implementation. Threshold rationale: 900 lines is the warning threshold calibrated on observed kata-scope plans (clean ≈800, bloated ≥1000). Report line count, Verbatim Inventory presence, and any blocks whose justifications fail the discriminating bar.
+6. **Third-party API reference verification** — every Step >0 reference to a third-party namespace (per the `## Third-party API reference marker — MUST` rule above) must carry either an inline `// per …` citation OR a `[VERIFY: <gate-id>]` marker. Run the mechanical check:
+
+   ```
+   grep -nE '(\\\\[A-Z][a-zA-Z0-9_]+\\\\|new \\\\?[A-Z])' <plan-file> \
+     | grep -v '^[^:]*:[^/]*//' \
+     | grep -v '\[VERIFY:'
+   ```
+
+   Any line in the output is an unverified third-party reference. The check FAILS if any such line is found and is not exempt (PHP core globals — `\Throwable`, `\Stringable`, `\DateTimeImmutable`, etc. — are exempt). Report match count and exempt-line count separately.
+
+7. **ADR Impact section presence** — the gate FAILS if the plan body satisfies any of the following triggers AND does not contain an `## ADR Impact` section:
+
+   1. The Key Architect Decisions table has ≥3 rows.
+   2. Any step body contains a reference to an ADR identifier matching the regex `\bADR-\d{3,}\b`.
+   3. The plan introduces a new architectural pattern (port interface, new layer, new bounded context) — detectable via the Constraints or Glossary section.
+
+   The §ADR Impact section MUST enumerate each affected ADR with a one-line impact statement using one of: `new` (this plan creates ADR-NNN), `superseded` (this plan supersedes ADR-NNN), `extended` (this plan extends ADR-NNN scope), `unchanged-but-cited` (this plan references ADR-NNN without modification).
+
+   Mechanical check:
+
+   ```
+   if grep -qE '(\bADR-[0-9]{3,}\b)' <plan-file> && ! grep -q '^## ADR Impact' <plan-file>; then
+     FAIL: ADR identifier referenced but no ADR Impact section
+   fi
+   ```
+
+   Report: ADR identifiers found / ADR Impact section present / pass/fail.
 
 Format in FINISHED message:
 
@@ -193,6 +231,8 @@ Format in FINISHED message:
 > 3. Trade-offs format: yes
 > 4. Algorithm↔test traceability: N traced, M behaviour-change marked, 0 under-specified
 > 5. Plan-size check: NNN lines (≤900: pass | >900: Verbatim Inventory present? yes/no; discriminating-justification audit: M blocks total, K passed, 0 must remain failed)
+> 6. Third-party API references: K matches, J exempt, 0 unverified
+> 7. ADR Impact: T identifiers found, section present? yes/no, pass/fail
 
 A FINISHED signal that omits this block, or that reports any failure without an accompanying fix, is invalid. The orchestrator MUST treat it as `PARTIAL` and re-delegate with the failing items called out.
 

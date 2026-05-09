@@ -83,6 +83,19 @@ Delegate to @critic for feedback on all documents produced so far.
 - Terminate the loop if progress stalls or goals shift — ask human stakeholder for direction.
 - Iterate from step 3 until no remaining issues to address.
 
+#### Review/revision state-transition table — MUST
+
+The planning state machine has exactly four legal transitions out of any critic verdict. The orchestrator MUST consult this table after every critic round and select the unique matching row. Any other transition is invalid.
+
+| Critic verdict      | Has unresolved findings? | Next state | Next delegation                              |
+|---------------------|--------------------------|------------|----------------------------------------------|
+| APPROVED            | No                       | FINAL      | (none — orchestrator promotes per `telamon.md` FINAL-promotion gate) |
+| APPROVED            | Yes (any severity)       | IN REVIEW  | architect (revision cycle for new findings)  |
+| CHANGES REQUESTED   | (always)                 | IN REVIEW  | architect (revision cycle for all findings)  |
+| CONDITIONALLY APPROVED | (always)              | IN REVIEW  | architect (revision cycle for unmet conditions) |
+
+**Forbidden transition (MUST NOT)**: Consecutive critic rounds without an intervening architect revision. If the previous critic round returned CHANGES REQUESTED, CONDITIONALLY APPROVED, or APPROVED-with-findings, the orchestrator MUST delegate revision to the architect before any further critic delegation. A critic invocation that violates this rule is invalid; its output MUST NOT be merged into the audit log without a corresponding architect-revision Delegation entry preceding it. If the orchestrator believes a "second opinion" review is warranted, the architect MUST first produce a Review Response section explaining why no changes are needed (this counts as the intervening revision step) before the next critic round.
+
 **Confirming-review feedback handling — MUST**: A confirming critic round (the round following an architect revision that addressed prior BLOCKERs) may return verdict `APPROVED` while still surfacing one or more new findings (any severity, including MINOR). When this happens, do NOT transition the plan to `Status: FINAL`. Re-delegate to the architect for one resolution pass. The architect's deliverable is an updated `PLAN-ARCH-*.md` plus an addition to the Review Response section that, for each new finding, records either:
 
 - the fix applied (citing the line range or section), OR
@@ -134,6 +147,38 @@ After the architect's pass, the orchestrator verifies the Review Response covers
    ```
 
    If any artifact is NOT at its canonical path, the line is `[ ] <canonical-path> — NOT AT CANONICAL PATH (found at <actual-path>)` or `[ ] <canonical-path> — MISSING`, and the orchestrator treats the planning stage as PARTIAL per the closing gate below. Move the file to the canonical path and re-verify before marking `[x]`. This is the planning equivalent of the @tester gate: the planning stage is complete only when this file exists and lists every required artifact as `[x]` at its canonical path with a verifying tool call.
+
+#### Complete-side enumeration — MUST
+
+The closing checklist and the closing summary are sound-side AND complete-side. Sound-side (already established by the canonical-path verification above): every listed artefact must exist on disk with a verifying tool call. Complete-side (this rule): every produced artefact in the issue folder must appear in the listing.
+
+**Step 5 procedure addendum**:
+
+1. Run `glob` for `PLAN-REVIEW-*.md` in `<issue-folder>`. For each match, the closing checklist (`planning-complete.md`) and the summary (`summary.md` Artifacts Produced table) MUST contain one entry naming the file, its verdict (APPROVED / CHANGES REQUESTED / CONDITIONALLY APPROVED), and a one-line role (e.g. `superseded`, `latest-approved`, `confirming`, `orphan-investigation-required`).
+2. Run `glob` for `PLAN-ARCH-*.md` in `<issue-folder>`. Same enumeration rule (each file listed with status and role).
+3. Run `glob` for any other `*.md` artefact in `<issue-folder>` (backlog, summary, retrospective, scratch). Each must appear in the closing checklist either as a required artefact or as `not required by skill — present for context`.
+4. If any glob match is unlisted in `planning-complete.md` after step 1–3, the gate FAILS. The orchestrator MUST add the missing entry (with role + verifying tool call) before proceeding.
+
+**Audit-log enumeration (MUST)**: `interactions.md` MUST contain one Delegation entry per producing subagent invocation. Specifically:
+
+- For each `PLAN-REVIEW-*.md` file in the issue folder, `interactions.md` MUST have ≥1 critic Delegation entry whose deliverable matches that file's path.
+- For each `PLAN-ARCH-*.md` file (and each architect-revision recorded in a Review Response section), `interactions.md` MUST have ≥1 architect Delegation entry.
+- For each backlog file, `interactions.md` MUST have ≥1 PO Delegation entry.
+
+If a produced deliverable has no corresponding Delegation entry, the orchestrator MUST add the missing Delegation entry before the closing-checklist gate passes. The added entry MUST cite the deliverable path as evidence and may use `RECONSTRUCTED FROM ARTEFACT` as the recovery-method tag.
+
+#### Per-Agent Totals reconciliation — MUST
+
+Before declaring the closing checklist complete, the orchestrator MUST:
+
+1. Compute the count of Delegation entries per subagent in `interactions.md` (call this `delegation_count[agent]`).
+2. Compute the count of produced deliverables per subagent (call this `deliverable_count[agent]`):
+   - critic: `glob` for `PLAN-REVIEW-*.md` in `<issue-folder>`.
+   - architect: `glob` for `PLAN-ARCH-*.md` in `<issue-folder>` PLUS the count of architect-revision entries in any `Review Response` section.
+   - PO: `glob` for `backlog.md` and any `backlog-delta-*.md` in `<issue-folder>`.
+   - Other agents: `glob` for the agent's expected deliverable filename pattern.
+3. Confirm `delegation_count[agent] >= deliverable_count[agent]` for each subagent. If any agent's `delegation_count < deliverable_count`, the orchestrator MUST add the missing Delegation entries — citing the produced deliverable as evidence — before the gate passes.
+4. Update the Per-Agent Totals table in `interactions.md` to reflect the reconciled counts. Annotate any reconstructed entries with `RECONSTRUCTED FROM ARTEFACT` and the deliverable path.
 
 #### Planning Stage completion gate — MUST
 
