@@ -32,6 +32,12 @@ The retrospective MUST NOT make causal claims about subagent behaviour ("the cri
 
 Every "total invocations" or per-agent count claim in the retrospective MUST cite the source of the count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with the underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. The retrospective author MUST run the Per-Agent reconciliation procedure (per `plan_story` SKILL Step 5 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
 
+**Prose-vs-table cross-check (MUST)**: Every numeric claim in retrospective free-prose (paragraphs, bullets, "What Went Well" / "What Needs Improvement" / "Process Observations") about an agent count, invocation count, stall count, critic-round count, re-delegation count, or task count MUST match the corresponding cell in the reconciliation table or be flagged with an inline `[reconciliation-note: <one-line rationale>]` tag explaining the discrepancy (e.g. `[reconciliation-note: prose excludes the rejected critic R1 first attempt; table includes it per Per-Agent Totals procedure]`).
+
+The retrospective author MUST run a prose-vs-table cross-check before filing the retrospective: for each numeric claim in free-prose that names a count category (agent, invocation, stall, critic-round, re-delegation, task), look up the same category in the reconciliation table and confirm the values match (or that an inline `[reconciliation-note:]` tag explains the divergence). Counts in free-prose without either match or tag are invalid.
+
+**Validation**: a retrospective with prose count `K` and table count `K' ≠ K` for the same category, without a `[reconciliation-note:]` tag bridging the two, is invalid. Either the prose number must be corrected to match the table, or the divergence must be explained inline. The orchestrator MUST NOT defer this check to a later iteration's quality-report — the gate fires at retrospective-write time.
+
 ## Post-Task Quality Rubric
 
 After each task is implemented, reviewed, and committed, the orchestrator evaluates it against this rubric:
