@@ -210,7 +210,11 @@ Add a `## Regressions and Fix Effectiveness` section to the quality report. If s
 
 **Skip the delta column for iteration 1** (no prior to subtract from). All other columns apply.
 
-In `storage/self-improvement/improve-planning/iterations_quality.md`, append to the summary table. Use this exact header (initialise the file with this header if it doesn't exist):
+The tracker file `storage/self-improvement/improve-planning/iterations_quality.md` has TWO sections — both MUST be updated in the same step. Skipping either part leaves the iteration in a PARTIAL state.
+
+#### Part A — Append a row to the summary table at the top
+
+Use this exact header (initialise the file with this header if it doesn't exist):
 
 ```markdown
 | Iter | Status | Model | Rubric | Grade | Δ Grade | Issues addressed | Issues remaining | Regressions | Effective fixes | Stalls | Critic rounds |
@@ -221,14 +225,30 @@ In `storage/self-improvement/improve-planning/iterations_quality.md`, append to 
 - Model and Rubric flagged with ⚠️ if changed from prior iteration
 - Δ Grade: blank for iteration 1 and for iterations following any flagged change
 
-Per-iteration narrative below the table:
+The new row goes immediately after the previous iteration's row (preserving Iter ascending order), BEFORE the `---` separator that introduces per-iteration sections.
+
+#### Part B — Append a per-iteration narrative section below the table
+
+Under a new `## Iteration <n>` heading at the bottom of the file (after the last existing `## Iteration <n-1>` section), include:
 
 - Grade
-- Reflection (link to `interactions.md`, RCA, quality report)
-- Issues addressed
-- Issues remaining
+- Reflection (link to `interactions.md`, RCA, quality report, and all artefacts produced in `iteration-<n>/`)
+- Issues addressed (with PARTIAL / HELD / CONFIRMED markers)
+- Issues remaining (numbered N<n>.<i>, with severity)
 - Regressions and root-cause-of-regression
-- Lessons about which kinds of instruction edits work
+- Effective fixes (mechanism land rate)
+- Stalls and critic rounds
+- Hypothesis for next iteration
+- Lessons about which kinds of instruction edits work (cite `M-FLOW-NNN` IDs from `brain/memories.md` if applicable)
+
+#### Verification gate (MUST run before declaring Step 6 complete)
+
+After writing both parts, run these two checks:
+
+1. `grep -c "^| ${n} " storage/self-improvement/improve-planning/iterations_quality.md` — MUST return `1` (exactly one table row for the current iteration).
+2. `grep -c "^## Iteration ${n}$" storage/self-improvement/improve-planning/iterations_quality.md` — MUST return `1` (exactly one narrative section).
+
+If either check returns `0`, the part is missing — write it before continuing. If either returns `>1`, a duplicate exists — remove the duplicate before continuing. Step 6 is NOT complete until both checks return `1`.
 
 ### Step 7: Propose Instruction Improvements
 
