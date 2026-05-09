@@ -165,6 +165,14 @@ Before signalling `FINISHED!` for a plan deliverable, the architect MUST run thi
 
      A justification that could be copy-pasted onto a different block in the same plan is, by definition, not discriminating.
 
+     Specific block types that do NOT pass the discriminating bar by default and MUST be summarised rather than included verbatim, unless the architect can cite an additional contract-bearing property the standard binding does not capture:
+
+     - **Directory trees** — the contract is in PSR-4/namespace declarations + Step file paths; the tree is convenience. Default to a textual summary (e.g. "Component groups: X, Y, Z; ports under `Core/Port/<Component>/`; see PSR-4 autoload at line N") plus the PSR-4 block. A directory tree passes the bar only if the architect cites a property the standard binding does not capture, e.g. "non-standard layout deviates from PSR-4 in module M and the deviation must be reviewed line-by-line".
+     - **Configuration scaffolds** (e.g., `composer.json`, `phpunit.xml`, framework config files) — the contract is the version-pinned dependency or the named extension; the surrounding YAML/JSON structure is boilerplate. Pass the bar only if a specific non-default key requires byte-identical reproduction (cite the key by name).
+     - **Generated boilerplate** (e.g., autoload classmaps, full migration up/down stubs) — never pass the bar.
+
+     When a tree or config block is the only convenient way to communicate a component grouping, prefer adding a small **Component Index** table (component name → directory path → kind) rather than the full tree.
+
    In addition, when the plan exceeds 900 lines, the architect MUST add a **Verbatim Inventory** section near the top of the plan (immediately after the Technology Choice section) listing every verbatim block ≥30 lines:
 
    | Step    | Block                 | Lines | Discriminating justification                       |

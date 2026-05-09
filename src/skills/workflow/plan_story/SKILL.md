@@ -83,6 +83,13 @@ Delegate to @critic for feedback on all documents produced so far.
 - Terminate the loop if progress stalls or goals shift — ask human stakeholder for direction.
 - Iterate from step 3 until no remaining issues to address.
 
+**Confirming-review feedback handling — MUST**: A confirming critic round (the round following an architect revision that addressed prior BLOCKERs) may return verdict `APPROVED` while still surfacing one or more new findings (any severity, including MINOR). When this happens, do NOT transition the plan to `Status: FINAL`. Re-delegate to the architect for one resolution pass. The architect's deliverable is an updated `PLAN-ARCH-*.md` plus an addition to the Review Response section that, for each new finding, records either:
+
+- the fix applied (citing the line range or section), OR
+- an explicit dispensation (citing the finding's identifier and severity, with a one-line rationale).
+
+After the architect's pass, the orchestrator verifies the Review Response covers every new finding from the confirming review, then transitions the plan to `Status: FINAL` without an additional critic round (the verdict is already `APPROVED`; the cycle exists only to close the per-finding ledger). If the confirming review returns `APPROVED` with zero new findings, transition directly to `Status: FINAL`. Rationale: a confirming review whose new feedback receives no architect cycle is decorative; the per-finding ledger is the FINAL gate, and the gate is meaningless if findings are silently dropped.
+
 ### Step 5: Planning summary and approval
 
 1. Create `<issue-folder>/summary.md` by following the `telamon.summarize_plan` skill.
