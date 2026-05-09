@@ -266,14 +266,23 @@ Write `iteration-<n>/proposals.md`. For each proposal:
 
 #### Presenting proposals to the user
 
-To prevent unbounded approval loops:
-
-1. **Total proposals per iteration**: cap at **3-5 highest-impact items**. The evaluator selects them by expected lift (estimated rubric-point gain × confidence). Proposals beyond the cap are dropped, not deferred — if a low-impact gap matters, it will resurface in a future iteration's evidence. Document dropped proposals in the RCA file (so future iterations can see they were considered) but do not present them to the user.
-2. **Batch size**: present proposals in a single batch of at most 5 (the cap above ensures this is always feasible). Capture decisions before closing.
-3. **Per-proposal decision**: each proposal gets one of `approved`, `rejected (<reason>)`, or `modified (<new text>)`.
-4. **Override**: the user may say "approve all" or "reject all" as a shortcut.
+1. **Coverage**: every finding from the iteration's evaluation (every negative N<n>.<i> in `quality-report.md`, every RCA item, every regression) MUST produce a corresponding proposal in `proposals.md`. There is no cap on total proposals. The evaluator does not select a subset by "expected lift" or "highest impact" — every finding is addressed in the iteration that surfaced it. Silently dropping low-impact findings was the prior behaviour (capped at 3-5); it is now forbidden because dropped findings recur indefinitely without an audit trail and inflate the next iteration's defect count.
+2. **Ordering**: order proposals in `proposals.md` by descending expected impact (rubric-point gain × confidence). This shapes the user's reading order but does NOT filter the set — low-impact items appear at the bottom but are still present and still require a decision.
+3. **Single batch**: present all proposals to the user in a single batch. Do not paginate, summarise, or omit. The user may need to scroll; that is acceptable. Multi-batch presentation is the failure mode this rule prevents — once a proposal moves to "batch 2" there is pressure to drop it.
+4. **Per-proposal decision**: each proposal gets one of `approved`, `rejected (<reason>)`, or `modified (<new text>)`.
+5. **Override shortcuts**: the user may say "approve all", "reject all", or "approve all except <list>". These shortcuts apply across the full set, not just a visible subset.
 
 There is no `defer` option. Every proposal must resolve to approved/rejected/modified in the iteration that produced it. Undecided proposals at end-of-batch are treated as rejected (with reason "no decision before batch close").
+
+##### Verification gate (MUST run before presenting proposals)
+
+Before presenting `proposals.md` to the user, verify coverage:
+
+1. Count negatives in `quality-report.md`: `grep -c "^### N${n}\." iteration-${n}/quality-report.md` — call this `F` (findings).
+2. Count proposals in `proposals.md`: `grep -c "^### P[0-9]" iteration-${n}/proposals.md` — call this `P`.
+3. `P` MUST be `>= F`. If `P < F`, at least one finding has no proposal — return to Step 7 and write the missing proposals before presenting.
+
+A proposal may address multiple findings (record all linked findings under "Linked RCA"); a finding may produce multiple proposals (split when a single fix would change too much at once). The `P >= F` gate ensures coverage; it does not require strict 1:1 mapping.
 
 Record decisions in two places:
 
