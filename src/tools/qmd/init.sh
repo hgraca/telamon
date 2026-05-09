@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
-# Register QMD collections for the current project's memory vault and run
-# the initial embedding pass.
+# Register a single QMD collection for the current project's memory vault and
+# run the initial embedding pass.
 #
-# The vault lives at <telamon-root>/storage/projects-memory/<project-name>/ and is
-# symlinked into the project at <project>/.ai/telamon/memory/.
-# The bootstrap/ subfolder is intentionally excluded from QMD — it is loaded
-# via AGENTS.md and does not benefit from semantic search.
+# The vault lives at <telamon-root>/storage/projects-memory/<project-name>/ and
+# is symlinked into the project at <project>/.ai/telamon/memory/. The collection
+# is registered using the symlink path so it works uniformly across both
+# memory-owner modes (telamon and project).
 #
-# One collection is registered per vault section so the agent can query a
-# specific area without noise from unrelated content:
+# A SINGLE collection is registered per project, named after the project:
 #
-#   <project>-brain          brain/         — memories, decisions, patterns, gotchas
-#   <project>-work           work/          — active tasks, archive, incidents
-#   <project>-project-rules  project-rules/ — project specific rules and instructions, created and curated by the project owner.
-#   <project>-reference      reference/     — architecture maps, flow docs
-#   <project>-thinking       thinking/      — scratchpad drafts
+#   <project>   <project>/.ai/telamon/memory   — entire vault (all .md files)
 #
 # Collections are registered in Telamon-managed index at
 # <telamon-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
-# Re-running this script is safe (collection add is idempotent).
+# Re-running this script is safe (registration is checked first).
 #
 # The initial `qmd embed` can take a few minutes the first time because QMD
 # downloads its local GGUF models (~2 GB) on first use.
@@ -30,7 +25,7 @@ TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
 
-header "QMD vault collections"
+header "QMD vault collection"
 
 # ── Redirect QMD cache to Telamon storage ─────────────────────────────────────────
 # All qmd commands in this script run with XDG_CACHE_HOME set so the index and
@@ -60,47 +55,33 @@ if [[ -z "${PROJECT_NAME}" ]]; then
   return 0 2>/dev/null || exit 0
 fi
 
-VAULT="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
+# Register against the symlink path inside the project so it works in both
+# memory-owner modes (telamon and project) without branching.
+VAULT="${PWD}/.ai/telamon/memory"
 
 if [[ ! -d "${VAULT}" ]]; then
   warn "Vault not found at ${VAULT} — run 'make init PROJ=<path>' first"
   return 0 2>/dev/null || exit 0
 fi
 
-# ── Register collections ───────────────────────────────────────────────────────
+# ── Register the single project collection ────────────────────────────────────
 # `qmd collection add` is NOT idempotent: it fails if the collection already
 # exists. We check first and skip if already registered.
 
-declare -A COLLECTIONS=(
-  ["brain"]="memories, key decisions, patterns, and recurring gotchas for ${PROJECT_NAME}"
-  ["work"]="active tasks, archived work, and incidents for ${PROJECT_NAME}"
-  ["project-rules"]="coding rules, architecture standards, and conventions for ${PROJECT_NAME}"
-  ["reference"]="architecture maps, flow docs, and reference material for ${PROJECT_NAME}"
-  ["thinking"]="scratchpad drafts and exploratory notes for ${PROJECT_NAME}"
-)
+NAME="${PROJECT_NAME}"
+DESCRIPTION="memory vault for ${PROJECT_NAME} — brain, work, project-rules, reference, thinking, bootstrap"
 
-for section in brain work project-rules reference thinking; do
-  dir="${VAULT}/${section}"
-  name="${PROJECT_NAME}-${section}"
-  description="${COLLECTIONS[$section]}"
+if qmd collection list 2>/dev/null | grep -q "^${NAME} "; then
+  skip "QMD collection already registered: ${NAME}"
+else
+  step "Registering QMD collection: ${NAME} ..."
+  qmd collection add "${VAULT}" --name "${NAME}" --mask "**/*.md" 2>/dev/null \
+    && log "Collection registered: ${NAME}" \
+    || warn "qmd collection add failed for ${NAME} — retry: qmd collection add ${VAULT} --name ${NAME} --mask '**/*.md'"
+fi
 
-  if [[ ! -d "${dir}" ]]; then
-    info "Skipping ${name} (${dir} does not exist yet)"
-    continue
-  fi
-
-  if qmd collection list 2>/dev/null | grep -q "^${name} "; then
-    skip "QMD collection already registered: ${name}"
-  else
-    step "Registering QMD collection: ${name} ..."
-    qmd collection add "${dir}" --name "${name}" --mask "**/*.md" 2>/dev/null \
-      && log "Collection registered: ${name}" \
-      || warn "qmd collection add failed for ${name} — retry: qmd collection add ${dir} --name ${name} --mask '**/*.md'"
-  fi
-
-  step "Adding QMD context for ${name} ..."
-  qmd context add "qmd://${name}" "${description}" 2>/dev/null || true
-done
+step "Adding QMD context for ${NAME} ..."
+qmd context add "qmd://${NAME}" "${DESCRIPTION}" 2>/dev/null || true
 
 # ── Initial index + embed ─────────────────────────────────────────────────────
 # `qmd update` scans collections for new/changed files and enqueues them.
@@ -118,6 +99,6 @@ else
   warn "This is normal if the models are still downloading."
 fi
 
-info "Vault collections registered for '${PROJECT_NAME}'."
+info "Vault collection registered for '${PROJECT_NAME}'."
 info "Query: qmd query '<question>' -n 10"
 info "Search: qmd search '<keywords>'"

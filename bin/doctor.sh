@@ -176,11 +176,11 @@ if command -v qmd &>/dev/null; then
     _warn "QMD index directory missing — run: bin/init.sh <project>"
   fi
 
-  # Check QMD collections exist
-  for collection_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/brain; do
-    if [[ -d "${collection_dir}" ]]; then
-      collection_name="$(basename "$(dirname "${collection_dir}")")-brain"
-      doc_count=$(find "${collection_dir}" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+  # Check QMD collections exist (one per project, named after the project)
+  for vault_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/; do
+    if [[ -d "${vault_dir}" ]]; then
+      collection_name="$(basename "${vault_dir%/}")"
+      doc_count=$(find "${vault_dir}" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
       _pass "QMD collection source: ${collection_name} (${doc_count} docs)"
     fi
   done

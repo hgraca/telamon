@@ -9,8 +9,7 @@
 # What it removes (in addition to reset):
 #   - storage/projects-memory/<proj>/   (vault directory tree)
 #   - storage/graphify/<proj>/   (graph data)
-#   - QMD collections: <proj>-brain, <proj>-work, <proj>-project-rules,
-#                      <proj>-reference, <proj>-thinking
+#   - QMD collection: <proj>
 # =============================================================================
 
 set -euo pipefail
@@ -86,25 +85,23 @@ else
   skip "storage/graphify/${PROJECT_NAME}/ (not found)"
 fi
 
-# ── Step 4: remove QMD collections ────────────────────────────────────────────
-step "Removing QMD collections..."
+# ── Step 4: remove QMD collection ─────────────────────────────────────────────
+step "Removing QMD collection..."
 export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
 
 if ! command -v qmd &>/dev/null; then
   warn "qmd not found — skipping QMD collection removal"
 else
-  for section in brain work project-rules reference thinking; do
-    name="${PROJECT_NAME}-${section}"
-    if qmd collection list 2>/dev/null | grep -q "^${name} "; then
-      if qmd collection remove "${name}" 2>/dev/null; then
-        log "Removed QMD collection: ${name}"
-      else
-        warn "Failed to remove QMD collection: ${name} — remove manually: qmd collection remove ${name}"
-      fi
+  name="${PROJECT_NAME}"
+  if qmd collection list 2>/dev/null | grep -q "^${name} "; then
+    if qmd collection remove "${name}" 2>/dev/null; then
+      log "Removed QMD collection: ${name}"
     else
-      skip "QMD collection ${name} (not found)"
+      warn "Failed to remove QMD collection: ${name} — remove manually: qmd collection remove ${name}"
     fi
-  done
+  else
+    skip "QMD collection ${name} (not found)"
+  fi
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────

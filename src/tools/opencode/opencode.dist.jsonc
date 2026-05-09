@@ -166,6 +166,14 @@
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],
       "enabled": true
+    },
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true,
+      "environment": {
+        "QMD_LLAMA_GPU": "true"
+      }
     }
   }
 }

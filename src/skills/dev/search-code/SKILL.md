@@ -29,6 +29,7 @@ Selects the right search tool for the question. Different tools excel at differe
 | AST structural pattern matching                        | `ast-grep`              | Matches code by AST structure, not text                |
 | Cross-file relationships, architecture                 | `graphify` (MCP)        | Knowledge graph with communities, god nodes, paths     |
 | Full directory context for audit/analysis              | `repomix` (MCP)         | Packs files into single structured dump                |
+| Markdown notes/docs in the memory vault                | `qmd_*` (MCP)           | Hybrid lex+vec+rerank over indexed `.md` collections   |
 
 ## Detailed Guidance
 
@@ -129,6 +130,33 @@ Regex content search across files.
 - Use `include` to narrow: `"*.php"`, `"*.{ts,tsx}"`
 - Returns file paths + line numbers, sorted by modification time
 
+### qmd (MCP)
+
+Hybrid markdown search over the memory vault — combines BM25 keyword (`lex`), semantic vector (`vec`), and hypothetical-document (`hyde`) search with LLM reranking.
+
+**Use when:**
+- Searching `.md` content under `.ai/telamon/memory/` (brain notes, ADRs, PDRs, gotchas, patterns, work artefacts, decisions, retrospectives)
+- Looking up past lessons, decisions, or context from the vault
+- Reading vault files by canonical path (`qmd_get` works on gitignored `.ai/` paths where `Glob` does not)
+- Concept search across notes ("how did we decide X?", "what's the auth pattern?")
+
+**Tools:**
+- `qmd_query` — hybrid lex+vec+hyde search across collections
+- `qmd_get` — read a single document by path or docid
+- `qmd_multi_get` — batch fetch by glob or comma-separated paths
+- `qmd_status` — list indexed collections and health
+
+**Indexed collections:**
+- `telamon` — entire memory vault (brain, work, project-rules, reference, thinking, bootstrap)
+- Root: `<project>/.ai/telamon/memory` (symlink into `storage/projects-memory/<project>/`)
+
+**Tips:**
+- For exact term/path lookup, use `lex` only: `[{ "type": "lex", "query": "PDRs gotcha" }]`
+- For concept search, combine `lex` + `vec` for best recall
+- Filter by `collections: ["telamon"]` to scope to this project's vault
+- Prefer `qmd_*` over `Glob`/`Grep` for ANY `.md` content search inside `.ai/telamon/memory/` — qmd's index is the canonical view of the vault, and `Glob`/`Grep` may miss gitignored vault paths
+- For non-vault markdown (e.g. project-root `README.md`, `docs/**/*.md`), `Glob`/`Grep`/`Read` are still the right tools — qmd does not index those
+
 ### ast-grep
 
 AST-based structural pattern matching.
@@ -145,12 +173,13 @@ AST-based structural pattern matching.
 
 ## Decision Flowchart
 
-1. **Know the exact file path?** → `Read`
-2. **Know a file name pattern?** → `Glob`
-3. **Know an exact string to find?** → `Grep`
-4. **Need structural code pattern?** → `ast-grep`
-5. **Need to find code by meaning?** → `codebase_search` / `codebase_peek`
-6. **Need to find a definition?** → `implementation_lookup`
-7. **Need callers/callees?** → `call_graph`
-8. **Need cross-file architecture?** → `graphify`
-9. **Need full directory context?** → `repomix`
+1. **Searching `.md` content under `.ai/telamon/memory/`?** → `qmd_query` / `qmd_get`
+2. **Know the exact file path?** → `Read`
+3. **Know a file name pattern?** → `Glob`
+4. **Know an exact string to find?** → `Grep`
+5. **Need structural code pattern?** → `ast-grep`
+6. **Need to find code by meaning?** → `codebase_search` / `codebase_peek`
+7. **Need to find a definition?** → `implementation_lookup`
+8. **Need callers/callees?** → `call_graph`
+9. **Need cross-file architecture?** → `graphify`
+10. **Need full directory context?** → `repomix`
