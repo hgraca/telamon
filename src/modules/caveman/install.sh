@@ -14,7 +14,7 @@ TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
 
 header "caveman (token-efficient communication skill)"
 
-SKILL_URL="https://raw.githubusercontent.com/JuliusBrussee/caveman/main/caveman/SKILL.md"
+SKILL_URL="https://raw.githubusercontent.com/JuliusBrussee/caveman/main/skills/caveman/SKILL.md"
 SKILL_DIR="${TELAMON_ROOT}/src/instructions/skills/workflow/caveman"
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
@@ -24,6 +24,27 @@ if curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null; then
   log "caveman skill downloaded → src/instructions/skills/workflow/caveman/SKILL.md"
 else
   warn "caveman skill download failed — run manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
+fi
+
+# Ensure opencode-compatible frontmatter is present so the skill is registered.
+# Upstream may ship the file without frontmatter; if missing, prepend it.
+if [ -f "${SKILL_FILE}" ] && ! head -n 1 "${SKILL_FILE}" | grep -qx -- '---'; then
+  step "Prepending frontmatter to caveman SKILL.md ..."
+  TMP_FILE="$(mktemp)"
+  cat > "${TMP_FILE}" <<'EOF'
+---
+name: caveman
+description: >
+  Ultra-compressed communication mode. Cuts token usage ~75% by speaking like caveman
+  while keeping full technical accuracy. Supports intensity levels: lite, full (default), ultra,
+  wenyan-lite, wenyan-full, wenyan-ultra.
+  Use when user says "caveman mode", "talk like caveman", "use caveman", "less tokens",
+  "be brief", or invokes /caveman. Also auto-triggers when token efficiency is requested.
+---
+
+EOF
+  cat "${SKILL_FILE}" >> "${TMP_FILE}"
+  mv "${TMP_FILE}" "${SKILL_FILE}"
 fi
 
 info "Activate caveman mode by saying 'caveman mode' or '/caveman' to the agent."
