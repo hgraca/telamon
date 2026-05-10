@@ -58,7 +58,7 @@ mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/
 // ---------------------------------------------------------------------------
 let _rtkEnabled: boolean | "missing" = true
 
-function _makeFactory(realFs: typeof _realFsNode, realRead: typeof _realReadNode) {
+function _makeFsFactory(realFs: typeof _realFsNode, realRead: typeof _realReadNode) {
   return () => ({
     ...realFs,
     readFileSync: (path: string, enc?: any) => {
@@ -72,8 +72,8 @@ function _makeFactory(realFs: typeof _realFsNode, realRead: typeof _realReadNode
   })
 }
 
-mock.module("node:fs", _makeFactory(_realFsNode, _realReadNode))
-mock.module("fs",      _makeFactory(_realFsBare, _realReadBare))
+mock.module("node:fs", _makeFsFactory(_realFsNode, _realReadNode))
+mock.module("fs",      _makeFsFactory(_realFsBare, _realReadBare))
 
 // ---------------------------------------------------------------------------
 // Now import the plugin under test (after mocks are in place)
@@ -150,8 +150,8 @@ describe("RtkDedupePlugin", () => {
     })
 
     test("JSONC line comments are stripped before parsing config", async () => {
-      mock.module("node:fs", () => ({
-        ..._realFsNode,
+      const jsoncFactory = (realFs: typeof _realFsNode, realRead: typeof _realReadNode) => () => ({
+        ...realFs,
         readFileSync: (path: string, enc?: any) => {
           if (path === _PLUGIN_CONFIG_PATH) {
             return `{
@@ -159,27 +159,16 @@ describe("RtkDedupePlugin", () => {
               "rtk_enabled": true // inline comment
             }`
           }
-          return _realReadNode(path as any, enc as any)
+          return realRead(path as any, enc as any)
         },
-      }))
-      mock.module("fs", () => ({
-        ..._realFsBare,
-        readFileSync: (path: string, enc?: any) => {
-          if (path === _PLUGIN_CONFIG_PATH) {
-            return `{
-              // This is a comment
-              "rtk_enabled": true // inline comment
-            }`
-          }
-          return _realReadBare(path as any, enc as any)
-        },
-      }))
+      })
+      mock.module("node:fs", jsoncFactory(_realFsNode, _realReadNode))
+      mock.module("fs", jsoncFactory(_realFsBare, _realReadBare))
       const hooks = await RtkDedupePlugin(makeCtx())
-      // If JSONC parsing works, rtk_enabled=true → hooks are returned
       expect(hooks["tool.execute.before"]).toBeTypeOf("function")
       // Restore the standard mock
-      mock.module("node:fs", _makeFactory(_realFsNode, _realReadNode))
-      mock.module("fs",      _makeFactory(_realFsBare, _realReadBare))
+      mock.module("node:fs", _makeFsFactory(_realFsNode, _realReadNode))
+      mock.module("fs", _makeFsFactory(_realFsBare, _realReadBare))
     })
   })
 
