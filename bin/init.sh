@@ -22,7 +22,8 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 
 # shellcheck disable=SC1091
@@ -104,15 +105,19 @@ else
   fi
 fi
 
-export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
+export TELAMON_ROOT PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH PROJ PROJECT_NAME MEMORY_OWNER WITH_TESTS
 
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd remember-session agent-communication)
+INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd)
 
 for _app in "${INIT_APPS[@]}"; do
-  _script="${TOOLS_PATH}/${_app}/init.sh"
+  _dir=$(_resolve_app_path "${_app}") || {
+    warn "App '${_app}' not found in prerequisites/ or modules/ — skipping"
+    continue
+  }
+  _script="${_dir}/init.sh"
   if [[ ! -f "${_script}" ]]; then
     warn "No init.sh for ${_app} — skipping"
     continue

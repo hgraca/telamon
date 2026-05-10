@@ -13,4 +13,4 @@ An OpenCode plugin that injects a summary of recent git changes (commits + diffs
 - Reads the remember-session watermark to know which changes are new since the last session
 - Budget-capped: max 30 commit lines + 20 diffstat lines
 
-**Type:** Built-in OpenCode plugin (`src/plugins/diff-context.js`)
+**Type:** Built-in OpenCode plugin (`src/instructions/plugins/diff-context.js`)

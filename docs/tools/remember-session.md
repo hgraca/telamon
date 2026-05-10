@@ -16,4 +16,4 @@ Captures session learnings to the vault's `brain/` notes automatically.
 - Silent by default — auto-captures produce no user-facing output; if work was paused mid-workflow the agent silently resumes the next step after capturing
 - Say *"wrap up"* for a manual capture with a visible report
 
-**Type:** Built-in OpenCode plugin (`src/plugins/remember-session.js`)
+**Type:** Built-in OpenCode plugin (`src/instructions/plugins/remember-session.js`)

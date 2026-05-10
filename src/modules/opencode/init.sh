@@ -16,7 +16,7 @@
 #   PROJ          — absolute path to the project root
 #   PROJECT_NAME  — basename of the project
 #   TELAMON_ROOT      — absolute path to Telamon repository
-#   TOOLS_PATH  — absolute path to src/tools/
+#   TOOLS_PATH  — absolute path to src/modules/ (parent dir of this tool)
 
 set -euo pipefail
 

@@ -14,4 +14,4 @@ Installed as an opencode plugin that auto-patches shell commands.
 - Highest ROI for token efficiency — immediate, compounds with all other tools
 - Companion plugin (`rtk-dedupe.ts`) deduplicates repeated output chunks
 
-**Type:** Built-in OpenCode plugin (`src/plugins/rtk.ts`, `src/plugins/rtk-dedupe.ts`)
+**Type:** Built-in OpenCode plugin (`src/instructions/plugins/rtk.ts`, `src/instructions/plugins/rtk-dedupe.ts`)

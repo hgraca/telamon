@@ -9,11 +9,10 @@
 
 set -euo pipefail
 
-TOOLS_PATH="${TOOLS_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+FUNCTIONS_PATH="${FUNCTIONS_PATH:-${TELAMON_ROOT}/src/functions}"
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
-
-TELAMON_ROOT="$(cd "${TOOLS_PATH}/../.." && pwd)"
 
 header "Shell Environment"
 

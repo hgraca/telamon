@@ -31,13 +31,15 @@
 set -euo pipefail
 
 # ── Resolve paths ─────────────────────────────────────────────────────────────
-# bin/ lives one level above src/tools/
+# bin/ lives one level above src/
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
-export TOOLS_PATH FUNCTIONS_PATH
+export PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH
 
 # ── Load shared functions ─────────────────────────────────────────────────────
+# (loads _resolve_app_path among others)
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
 
@@ -220,13 +222,23 @@ POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphi
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
-    timed_run "${_app}" bash "${TOOLS_PATH}/${_app}/install.sh"
+    local _dir
+    _dir=$(_resolve_app_path "${_app}") || {
+      echo "ERROR: app '${_app}' not found in prerequisites/ or modules/" >&2
+      return 1
+    }
+    timed_run "${_app}" bash "${_dir}/install.sh"
   done
 }
 
 post_docker() {
   for _app in "${POST_DOCKER_APPS[@]}"; do
-    timed_run "${_app}" bash "${TOOLS_PATH}/${_app}/install.sh"
+    local _dir
+    _dir=$(_resolve_app_path "${_app}") || {
+      echo "ERROR: app '${_app}' not found in prerequisites/ or modules/" >&2
+      return 1
+    }
+    timed_run "${_app}" bash "${_dir}/install.sh"
   done
   timed_run "telamon-cli" bash "${TELAMON_ROOT}/src/telamon-cli/install.sh"
 }

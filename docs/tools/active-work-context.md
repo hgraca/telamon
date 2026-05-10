@@ -14,7 +14,7 @@ An OpenCode plugin that injects a summary of active work items into the first ba
 - Extracts task name, title, and short description from each `README.md`
 - Injects context via the same echo-prefix pattern as [Diff Context](diff-context)
 
-**Type:** Built-in OpenCode plugin (`src/plugins/active-work-context.js`)
+**Type:** Built-in OpenCode plugin (`src/instructions/plugins/active-work-context.js`)
 
 ## How it works
 

@@ -64,4 +64,4 @@ To disable globally, set `enabled: false` in the config block above.
 
 To exempt a specific agent, add its name to `exempt_agents`.
 
-**Type:** Built-in OpenCode plugin (`src/plugins/agent-communication.js`)
+**Type:** Built-in OpenCode plugin (`src/instructions/plugins/agent-communication.js`)

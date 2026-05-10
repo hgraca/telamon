@@ -24,4 +24,4 @@ Slash commands trigger specific workflows. Type them in the opencode chat.
 | `/address-retro <path>` | Implement improvements from a retrospective                      |
 | `/format-md <path>`     | Align markdown tables in a file or directory                     |
 
-Command definitions live in [`src/commands/`](https://github.com/hgraca/telamon/tree/main/src/commands).
+Command definitions live in [`src/instructions/commands/`](https://github.com/hgraca/telamon/tree/main/src/commands).

@@ -111,7 +111,7 @@ config.resolve_medium_model() {
   if [[ -z "${opencode_jsonc}" || ! -f "${opencode_jsonc}" ]]; then
     # Fall back to Telamon's own storage copy
     local telamon_root
-    telamon_root="$(cd "${TOOLS_PATH}/../.." && pwd)"
+    telamon_root="${TELAMON_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
     opencode_jsonc="${telamon_root}/storage/opencode.jsonc"
   fi
   if [[ ! -f "${opencode_jsonc}" ]]; then

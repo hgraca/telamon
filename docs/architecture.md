@@ -49,7 +49,7 @@ flowchart TB
             p_aw["active-work-context"]
         end
 
-        subgraph agents["Agent Roles (src/agents/)"]
+        subgraph agents["Agent Roles (src/instructions/agents/)"]
             a1["telamon · architect · developer · tester · reviewer"]
             a2["critic · po · security · ui-designer · ux-designer"]
         end

@@ -10,3 +10,4 @@
 . "${FUNCTIONS_PATH}/secrets.sh"
 . "${FUNCTIONS_PATH}/env.sh"
 . "${FUNCTIONS_PATH}/config.sh"
+. "${FUNCTIONS_PATH}/resolve.sh"

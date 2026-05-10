@@ -12,9 +12,10 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
-export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
+export PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
@@ -350,14 +351,18 @@ with open(sys.argv[1], 'w') as f:
 done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 
 # ── Per-app updates ────────────────────────────────────────────────────────────
-# Each src/tools/<app>/update.sh exits:
+# Each <app>/update.sh exits:
 #   0 — success
 #   1 — failure
 #   2 — tool not installed → fall through to install.sh
 UPDATE_APPS=(homebrew docker opencode graphify codebase-index caveman rtk nodejs qmd repomix promptfoo)
 
 for _app in "${UPDATE_APPS[@]}"; do
-  _script="${TOOLS_PATH}/${_app}/update.sh"
+  _dir=$(_resolve_app_path "${_app}") || {
+    warn "App '${_app}' not found in prerequisites/ or modules/ — skipping"
+    continue
+  }
+  _script="${_dir}/update.sh"
   if [[ ! -f "${_script}" ]]; then
     warn "No update.sh for ${_app} — skipping"
     continue
@@ -367,7 +372,7 @@ for _app in "${UPDATE_APPS[@]}"; do
   case "${_rc}" in
     0) : ;;                               # success — nothing to tally
     2)                                     # not installed — attempt install
-      _install_script="${TOOLS_PATH}/${_app}/install.sh"
+      _install_script="${_dir}/install.sh"
       if [[ -f "${_install_script}" ]]; then
         step "Installing missing tool: ${_app} ..."
         timed_run "${_app}" bash "${_install_script}" && true
@@ -395,8 +400,8 @@ if command -v cass &>/dev/null; then
   read -r _cass_confirm
   if [[ ! "${_cass_confirm}" =~ ^[Nn] ]]; then
     step "Removing cass-index scheduled jobs..."
-    if [[ -f "${TOOLS_PATH}/cass/schedule.sh" ]]; then
-      bash "${TOOLS_PATH}/cass/schedule.sh" --remove 2>/dev/null || true
+    if [[ -f "${MODULES_PATH}/cass/schedule.sh" ]]; then
+      bash "${MODULES_PATH}/cass/schedule.sh" --remove 2>/dev/null || true
     fi
     _cass_os="$(uname -s)"
     if [[ "${_cass_os}" == "Linux" ]]; then

@@ -22,12 +22,12 @@ Telamon ships two primary agents. Pick the one that matches how you want to work
 
 | Sub-agent                                                                            | Role                                               | Permissions          |
 |--------------------------------------------------------------------------------------|----------------------------------------------------|----------------------|
-| [architect](https://github.com/hgraca/telamon/blob/main/src/agents/architect.md)     | Designs technical plans and ADRs                   | Read-only            |
-| [developer](https://github.com/hgraca/telamon/blob/main/src/agents/developer.md)     | Implements plans into production code              | Full file + shell    |
-| [tester](https://github.com/hgraca/telamon/blob/main/src/agents/tester.md)           | Writes and runs tests, validates implementations   | Shell (tests) + file |
-| [reviewer](https://github.com/hgraca/telamon/blob/main/src/agents/reviewer.md)       | Reviews changesets against plan and conventions    | Read-only + tests    |
-| [critic](https://github.com/hgraca/telamon/blob/main/src/agents/critic.md)           | Audits codebase for inconsistencies and drift      | Read-only            |
-| [po](https://github.com/hgraca/telamon/blob/main/src/agents/po.md)                   | Domain expert, backlog grooming, requirements      | Read-only            |
-| [security](https://github.com/hgraca/telamon/blob/main/src/agents/security.md)       | Security audits, threat modelling, vulnerabilities | Read-only + audit    |
-| [ui-designer](https://github.com/hgraca/telamon/blob/main/src/agents/ui-designer.md) | Visual specs, design tokens, screen layouts        | Read-only            |
-| [ux-designer](https://github.com/hgraca/telamon/blob/main/src/agents/ux-designer.md) | User flows, interaction specs, state definitions   | Read-only            |
+| [architect](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/architect.md)     | Designs technical plans and ADRs                   | Read-only            |
+| [developer](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/developer.md)     | Implements plans into production code              | Full file + shell    |
+| [tester](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/tester.md)           | Writes and runs tests, validates implementations   | Shell (tests) + file |
+| [reviewer](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/reviewer.md)       | Reviews changesets against plan and conventions    | Read-only + tests    |
+| [critic](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/critic.md)           | Audits codebase for inconsistencies and drift      | Read-only            |
+| [po](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/po.md)                   | Domain expert, backlog grooming, requirements      | Read-only            |
+| [security](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/security.md)       | Security audits, threat modelling, vulnerabilities | Read-only + audit    |
+| [ui-designer](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/ui-designer.md) | Visual specs, design tokens, screen layouts        | Read-only            |
+| [ux-designer](https://github.com/hgraca/telamon/blob/main/src/instructions/agents/ux-designer.md) | User flows, interaction specs, state definitions   | Read-only            |
