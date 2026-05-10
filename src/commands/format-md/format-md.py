@@ -2,10 +2,10 @@
 # Formats markdown tables so all columns are padded to equal width per column.
 #
 # Usage:
-#   scripts/format-md.py path/to/directory    # format all .md files recursively
-#   scripts/format-md.py file1.md file2.md    # format specific files in-place
-#   cat file.md | scripts/format-md.py        # pipe mode: stdin -> stdout
-#   scripts/format-md.py --help               # show this help
+#   format-md.py path/to/directory    # format all .md files recursively
+#   format-md.py file1.md file2.md    # format specific files in-place
+#   cat file.md | format-md.py        # pipe mode: stdin -> stdout
+#   format-md.py --help               # show this help
 
 import sys
 import os

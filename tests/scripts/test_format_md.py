@@ -1,16 +1,19 @@
-"""Tests for scripts/format-md.py — pure logic functions."""
+"""Tests for src/commands/format-md/format-md.py — pure logic functions."""
 
 import sys
 import os
 
-# Make the scripts directory importable
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
+# Make the script directory importable
+_SCRIPT_DIR = os.path.join(
+    os.path.dirname(__file__), "..", "..", "src", "commands", "format-md"
+)
+sys.path.insert(0, _SCRIPT_DIR)
 
 import importlib.util
 
 spec = importlib.util.spec_from_file_location(
     "format_md",
-    os.path.join(os.path.dirname(__file__), "..", "..", "scripts", "format-md.py"),
+    os.path.join(_SCRIPT_DIR, "format-md.py"),
 )
 format_md = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(format_md)

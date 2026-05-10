@@ -46,7 +46,6 @@ flowchart TB
             p_gf["graphify"]
             p_rd["rtk-dedupe"]
             p_dc["diff-context"]
-            p_sr["script-runner"]
             p_aw["active-work-context"]
             p_cs["compaction-save"]
         end

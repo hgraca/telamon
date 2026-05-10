@@ -23,6 +23,5 @@ Slash commands trigger specific workflows. Type them in the opencode chat.
 | `/vault-audit`          | Deep structural audit of the knowledge vault                     |
 | `/address-retro <path>` | Implement improvements from a retrospective                      |
 | `/format-md <path>`     | Align markdown tables in a file or directory                     |
-| `/script <path>`        | Run a shell script and pass output to the LLM                    |
 
 Command definitions live in [`src/commands/`](https://github.com/hgraca/telamon/tree/main/src/commands).

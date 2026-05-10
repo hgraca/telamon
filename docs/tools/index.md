@@ -68,7 +68,6 @@ Plugins are OpenCode extensions that run automatically. They fire on specific ev
 | [Graphify](graphify)                       | Injects god nodes and communities at session start                                     | [`graphify.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/graphify.js)                       |
 | [RTK](rtk)                                 | Compresses bash output before it reaches the LLM                                       | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk.ts)                                 |
 | RTK Dedupe                                 | Deduplicates repeated output chunks from RTK                                           | [`rtk-dedupe.ts`](https://github.com/hgraca/telamon/blob/main/src/plugins/rtk-dedupe.ts)                   |
-| [Script Runner](script-runner)             | Runs shell scripts and passes output to the LLM                                        | [`script-runner.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/script-runner.js)             |
 | [Active Work Context](active-work-context) | Injects active work items at session start, prompts user to continue/archive/start new | [`active-work-context.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/active-work-context.js) |
 | [Compaction Save](compaction-save)         | Saves compaction timestamps to active work items                                       | [`compaction-save.js`](https://github.com/hgraca/telamon/blob/main/src/plugins/compaction-save.js)         |
 
@@ -93,12 +92,13 @@ Some tools run models locally — no cloud API calls for these operations:
 
 ## Retired (evaluated and removed)
 
-| Tool                   | Description                                        |
-|------------------------|----------------------------------------------------|
-| [Cass](cass)           | Conversation History Search                        |
-| [Discord](discord)     | Discord bot (remote-opencode) — couldn't stabilize |
-| [Ogham](ogham)         | Semantic memory store (pgvector) — replaced by QMD |
-| [Obsidian](obsidian)   | Knowledge vault via MCP — replaced by QMD          |
+| Tool                           | Description                                                            |
+|--------------------------------|------------------------------------------------------------------------|
+| [Cass](cass)                   | Conversation History Search                                            |
+| [Discord](discord)             | Discord bot (remote-opencode) — couldn't stabilize                     |
+| [Ogham](ogham)                 | Semantic memory store (pgvector) — replaced by QMD                     |
+| [Obsidian](obsidian)           | Knowledge vault via MCP — replaced by QMD                              |
+| [Script Runner](script-runner) | Generic `/script` runner — replaced by thin `/command` script wrappers |
 
 ## More
 
