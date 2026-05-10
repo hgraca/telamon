@@ -15,10 +15,12 @@ The **primary memory storage mechanism**. All session learnings flow through thi
 
 # MUST
 
-- Be silent, the user should see minimal output from this skill.
+- **Silent execution**: Emit ZERO narrative text on automatic (idle-plugin) captures. No "Watermark check", "Nothing since watermark", "Captured X", "Update watermark, exit", or any other status narration. Tool calls only. The only exception is the manual "wrap up" trigger, which produces the report described at the end of this skill.
 - **Single-pass per turn**: Run steps 0-5 exactly ONCE per response. Write the watermark file at most ONCE per response.
 - **Idempotence guard**: If you have already written the watermark file in the current response (i.e. you have already executed step 5), exit immediately. Do not re-execute steps 0-5.
 - **No skill-tag echoes**: Do not emit `<skill>telamon.remember_session</skill>` markers as narrative text. Either invoke the `skill` tool once (which loads the skill content) or run the steps directly — never both.
+- **No headers, no preambles, no recaps**: Do not write a heading like "## Capture" or a closing line like "Captured 1 gotcha, watermark advanced". The watermark file write IS the audit trail.
+- **End response immediately after the watermark write**: After tool result of the write step returns, end the response with NO additional text. The user should see only tool execution outputs, not commentary.
 
 ## 0. Check watermark
 

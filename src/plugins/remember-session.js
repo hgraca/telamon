@@ -28,7 +28,14 @@ const CAPTURE_PROMPT_TEXT =
   "Do NOT emit `<skill>...</skill>` text markers. " +
   "Do NOT re-invoke the skill tool a second time. " +
   "Do NOT write the watermark file more than once per turn. " +
-  "If the watermark file has already been written in this response, exit immediately.";
+  "If the watermark file has already been written in this response, exit immediately.\n" +
+  "\n" +
+  "SILENCE RULES (this is an automated background capture — the user does not want commentary):\n" +
+  "- Emit ZERO narrative text. Tool calls only.\n" +
+  "- No status lines (\"Nothing since watermark\", \"Captured X\", \"Watermark advanced\").\n" +
+  "- No headers, no preambles, no recaps, no closing summary.\n" +
+  "- End the response immediately after the watermark write tool returns. " +
+  "Do not add any text after the tool result.";
 
 function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");
