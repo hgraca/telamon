@@ -189,10 +189,12 @@ APPLIED_PRS=()
 SKIPPED_PRS=()
 CONFLICT_PR=""
 CONFLICT_FILES=""
+REMAINING_PRS=()
 
-# On --resume: restore APPLIED_PRS / SKIPPED_PRS from the conflict file so the
-# final summary reports the correct counts. The currently-conflicting PR is
-# treated as applied (the LLM resolved it manually before resuming).
+# On --resume: restore APPLIED_PRS / SKIPPED_PRS / REMAINING_PRS from the conflict
+# file so the final summary reports the correct counts AND so PRs queued behind
+# the resolved one are still applied. The currently-conflicting PR is treated
+# as applied (the LLM resolved it manually before resuming).
 if [[ "${RESUME}" -eq 1 && -f "${CONFLICT_FILE}" ]]; then
   mapfile -t APPLIED_PRS < <(python3 -c "
 import json, sys
@@ -210,16 +212,32 @@ with open(sys.argv[1]) as f:
 for p in d.get('skipped_prs', []):
     print(p)
 " "${CONFLICT_FILE}")
-  log "Resumed: ${#APPLIED_PRS[@]} PR(s) applied (incl. resolved), ${#SKIPPED_PRS[@]} skipped"
+  mapfile -t REMAINING_PRS < <(python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+for p in d.get('remaining_prs', []):
+    print(p)
+" "${CONFLICT_FILE}")
+  log "Resumed: ${#APPLIED_PRS[@]} PR(s) applied (incl. resolved), ${#SKIPPED_PRS[@]} skipped, ${#REMAINING_PRS[@]} queued"
 fi
 
 if [[ "${RESUME}" -eq 0 ]]; then
   step "Applying ${PATCH_COUNT} patch(es)..."
+  mapfile -t WORK_QUEUE < <(python3 -c "import json,sys; [print(x) for x in json.loads(sys.argv[1])]" "${PATCHES_JSON}")
+else
+  # Resume → continue with the queue persisted at conflict time. May be empty
+  # if the conflicting PR was the last one in the original list.
+  WORK_QUEUE=("${REMAINING_PRS[@]}")
+  if [[ ${#WORK_QUEUE[@]} -gt 0 ]]; then
+    step "Continuing with ${#WORK_QUEUE[@]} queued patch(es) after resolved conflict..."
+  fi
+fi
 
-  # Read patch URLs into bash array
-  mapfile -t PATCH_URLS < <(python3 -c "import json,sys; [print(x) for x in json.loads(sys.argv[1])]" "${PATCHES_JSON}")
-
-  for pr_url in "${PATCH_URLS[@]}"; do
+REMAINING_PRS=()  # reset; populated only if a NEW conflict happens below
+_idx=0
+for pr_url in "${WORK_QUEUE[@]}"; do
+    _idx=$((_idx + 1))
     pr_num="$(echo "${pr_url}" | grep -oE '/pull/[0-9]+' | grep -oE '[0-9]+$' || true)"
     if [[ -z "${pr_num}" ]]; then
       warn "Cannot extract PR number from ${pr_url} — skipping"
@@ -257,9 +275,10 @@ if [[ "${RESUME}" -eq 0 ]]; then
         rm -f "${patch_file}"
         continue
       fi
-      # Conflicts present → bail to LLM
+      # Conflicts present → bail to LLM, queueing PRs after this one.
       CONFLICT_PR="${pr_url}"
       CONFLICT_FILES="${conflicting}"
+      REMAINING_PRS=("${WORK_QUEUE[@]:${_idx}}")
       break
     fi
 
@@ -274,16 +293,18 @@ if [[ "${RESUME}" -eq 0 ]]; then
       # No conflicts detected anywhere → leave the patch file so LLM can inspect
       CONFLICT_FILES="(patch did not apply; see ${patch_file} and .pr-${pr_num}.err)"
     fi
+    REMAINING_PRS=("${WORK_QUEUE[@]:${_idx}}")
     break
-  done
+done
 
-  # ── 6a. Conflict path → write CONFLICT.json and exit 3 ─────────────────────
-  if [[ -n "${CONFLICT_PR}" ]]; then
+# ── 6a. Conflict path → write CONFLICT.json and exit 3 ─────────────────────
+if [[ -n "${CONFLICT_PR}" ]]; then
     pr_num="$(echo "${CONFLICT_PR}" | grep -oE '[0-9]+$')"
     python3 - "${CONFLICT_FILE}" "${CONFLICT_PR}" "${TARGET_REF}" "${SRC_DIR}" "${CONFLICT_FILES}" \
-      "$(printf '%s\n' "${APPLIED_PRS[@]}")" "$(printf '%s\n' "${SKIPPED_PRS[@]}")" <<'PYEOF'
+      "$(printf '%s\n' "${APPLIED_PRS[@]}")" "$(printf '%s\n' "${SKIPPED_PRS[@]}")" \
+      "$(printf '%s\n' "${REMAINING_PRS[@]}")" <<'PYEOF'
 import json, sys
-state_file, pr, target, src, files, applied, skipped = sys.argv[1:8]
+state_file, pr, target, src, files, applied, skipped, remaining = sys.argv[1:9]
 data = {
   "conflict_pr": pr,
   "target_ref": target,
@@ -291,6 +312,7 @@ data = {
   "conflicting_files": [f for f in files.split("\n") if f.strip()],
   "applied_prs": [p for p in applied.split("\n") if p.strip()],
   "skipped_prs": [p for p in skipped.split("\n") if p.strip()],
+  "remaining_prs": [p for p in remaining.split("\n") if p.strip()],
 }
 with open(state_file, "w") as f:
   json.dump(data, f, indent=2)
@@ -299,6 +321,9 @@ PYEOF
     warn "Merge conflict in ${CONFLICT_PR}"
     warn "Conflicting files:"
     echo "${CONFLICT_FILES}" | sed 's/^/       /'
+    if [[ ${#REMAINING_PRS[@]} -gt 0 ]]; then
+      warn "${#REMAINING_PRS[@]} PR(s) queued behind this conflict; will apply on resume"
+    fi
     _resume_extra=""
     [[ "${DRY_RUN}" -eq 1 ]] && _resume_extra=" --dry-run"
     echo
@@ -310,7 +335,6 @@ PYEOF
     echo
     echo "  Conflict context written to: ${CONFLICT_FILE}"
     exit 3
-  fi
 fi
 
 # ── 7. Sanity check: ensure no leftover conflicts before building ────────────
