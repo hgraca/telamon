@@ -19,6 +19,9 @@ mcp.json
 tests/agents/.promptfoo/
 tests/agents/node_modules/
 
+# ── Telamon tools deps (installed by init.sh on first project init) ──────────
+src/instructions/tools/node_modules/
+
 # ── Vendor submodules ─────────────────────────────────────────────────────────
 vendor/
 vendor/**

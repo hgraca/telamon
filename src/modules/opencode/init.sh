@@ -6,11 +6,12 @@
 #   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/instructions/plugins
 #   3. Symlink .opencode/agents/telamon → <telamon-root>/src/instructions/agents
 #   4. Symlink .opencode/commands/telamon → <telamon-root>/src/instructions/commands
-#   5. Write   .ai/telamon/telamon.jsonc with the project name
-#   6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
-#   7. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
+#   5. Per-file flat symlinks .opencode/tools/<name>.ts → <telamon-root>/src/instructions/tools/<name>/<name>.ts
+#   6. Write   .ai/telamon/telamon.jsonc with the project name
+#   7. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
+#   8. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
 #      (or merge Telamon settings into an existing project config)
-#   8. AGENTS.md — copy dist to storage, symlink from project root
+#   9. AGENTS.md — copy dist to storage, symlink from project root
 #
 # Expected environment (exported by bin/init.sh):
 #   PROJ          — absolute path to the project root
@@ -75,7 +76,59 @@ else
   log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/instructions/commands"
 fi
 
-# ── 5. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
+# ── 5. Per-file flat symlinks .opencode/tools/<name>.ts → src/instructions/tools/<name>/<name>.ts ─
+# Custom tools have two strict location requirements (see brain/gotchas.md
+# "Opencode custom tools require flat layout AND co-located node_modules"):
+#
+#   1. Tool .ts files must be discovered as flat files directly under
+#      .opencode/tools/ — opencode does NOT walk into nested subdirs (so the
+#      .opencode/tools/telamon/ → src/instructions/tools/ dir-symlink convention
+#      that works for skills/plugins/agents/commands does NOT carry over here).
+#
+#   2. The `import { tool } from "@opencode-ai/plugin"` resolves relative to the
+#      file's REAL path. Bun walks up from the symlink target. We therefore
+#      install @opencode-ai/plugin once at src/instructions/tools/node_modules/
+#      so every tool .ts file under that tree can resolve the package without
+#      duplication.
+#
+# Layout convention: src/instructions/tools/<name>/<name>.ts (+ optional sibling
+# script). The flat symlink at .opencode/tools/<name>.ts resolves to that file.
+
+TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
+TOOLS_DIR="${PROJ}/.opencode/tools"
+mkdir -p "${TOOLS_DIR}"
+
+# 5a. Ensure node_modules is installed at the tool source root so plugin resolution works.
+if [[ -f "${TOOLS_SRC}/package.json" && ! -d "${TOOLS_SRC}/node_modules/@opencode-ai/plugin" ]]; then
+  if command -v bun >/dev/null 2>&1; then
+    step "Installing @opencode-ai/plugin in ${TOOLS_SRC} ..."
+    (cd "${TOOLS_SRC}" && bun install) >/dev/null 2>&1 || warn "bun install failed in ${TOOLS_SRC} — custom tools will not load"
+    log "Installed tool deps in src/instructions/tools/"
+  else
+    warn "bun not found — cannot install @opencode-ai/plugin for custom tools"
+  fi
+fi
+
+# 5b. Symlink each src/instructions/tools/<name>/<name>.ts as a flat file.
+_tools_linked=0
+if [[ -d "${TOOLS_SRC}" ]]; then
+  for _tool_dir in "${TOOLS_SRC}"/*/; do
+    [[ -d "${_tool_dir}" ]] || continue
+    _tool_name="$(basename "${_tool_dir}")"
+    _tool_src="${_tool_dir}${_tool_name}.ts"
+    [[ -f "${_tool_src}" ]] || continue
+    _tool_link="${TOOLS_DIR}/${_tool_name}.ts"
+    if [[ -L "${_tool_link}" ]]; then
+      skip ".opencode/tools/${_tool_name}.ts symlink (already exists)"
+    else
+      ln -s "${_tool_src}" "${_tool_link}"
+      log "Symlinked .opencode/tools/${_tool_name}.ts → ${_tool_src}"
+      _tools_linked=$((_tools_linked + 1))
+    fi
+  done
+fi
+
+# ── 6. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
 TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 
 # Migrate old INI format if present

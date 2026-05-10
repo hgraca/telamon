@@ -1,0 +1,8 @@
+{
+  "name": "telamon-tools",
+  "private": true,
+  "description": "Telamon opencode custom tools — co-located node_modules so @opencode-ai/plugin resolves from any tool .ts file under this tree (Bun walks up from the file's real path).",
+  "dependencies": {
+    "@opencode-ai/plugin": "1.4.8"
+  }
+}

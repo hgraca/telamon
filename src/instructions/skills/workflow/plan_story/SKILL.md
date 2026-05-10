@@ -106,7 +106,7 @@ After the architect's pass, the orchestrator verifies the Review Response covers
 ### Step 5: Planning summary and approval
 
 1. Create `<issue-folder>/summary.md` by following the `telamon.summarize_plan` skill.
-2. Format all markdown files in the issue folder: `.opencode/commands/telamon/format-md/format-md.py <issue-folder>`.
+2. Format all markdown files in the issue folder by invoking the `format-md` tool with `path: <issue-folder>`.
 3. Output the summary to the human stakeholder and ask for final approval.
 4. Write `<issue-folder>/planning-complete.md` as the final closing-checklist artifact, listing each required artifact with its **existence-verified AND canonical-path-verified** status. This file MUST be the orchestrator's last write before reporting completion to the human stakeholder.
 
