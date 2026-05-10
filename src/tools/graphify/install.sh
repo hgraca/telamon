@@ -35,7 +35,7 @@ echo -n "${TELAMON_ROOT}" > "${TELAMON_ROOT}/storage/secrets/telamon-root"
 log "Stored TELAMON_ROOT: ${TELAMON_ROOT}"
 
 # ── Register OpenCode plugin in storage/opencode.jsonc ────────────────────────
-# The plugin JS lives in src/plugins/graphify.js (Telamon source of truth).
+# The plugin JS lives in src/instructions/plugins/graphify.js (Telamon source of truth).
 # Projects receive it via the .opencode/plugins/telamon symlink created by `make init`.
 opencode.upsert_plugin ".opencode/plugins/telamon/graphify.js"
 

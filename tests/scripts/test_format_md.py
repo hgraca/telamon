@@ -1,4 +1,4 @@
-"""Tests for src/commands/format-md/format-md.py — pure logic functions."""
+"""Tests for src/instructions/commands/format-md/format-md.py — pure logic functions."""
 
 import sys
 import os

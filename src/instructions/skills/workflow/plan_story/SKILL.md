@@ -54,7 +54,7 @@ Delegate to @po to create `<issue-folder>/backlog.md` with prioritized tasks, re
 Delegate to @architect to review the backlog and produce a combined architecture-and-implementation plan.
 
 - Architect must produce a concrete directory tree mapping every source file to an assigned path.
-- Architect produces a **single** `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md` file containing BOTH the architecture spec and the implementation plan. Do NOT instruct the architect to split these into separate `ARCH-*.md` and `PLAN-*.md` files. The exact internal structure is defined in the `telamon.plan_implementation` skill; the architect's deliverable contract is in `src/agents/architect.md`.
+- Architect produces a **single** `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md` file containing BOTH the architecture spec and the implementation plan. Do NOT instruct the architect to split these into separate `ARCH-*.md` and `PLAN-*.md` files. The exact internal structure is defined in the `telamon.plan_implementation` skill; the architect's deliverable contract is in `src/instructions/agents/architect.md`.
 - Architect signals FINISHED with the file path. The orchestrator routes it to @critic in Step 4.
 
 #### Spike-during-planning rule

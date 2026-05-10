@@ -37,8 +37,8 @@ For each gap, determine which file(s) need changes:
 
 | Target | When |
 |--------|------|
-| `src/skills/workflow/review_changeset/SKILL.md` | New review check, modified check, new finding pattern |
-| `src/agents/reviewer.md` | New responsibility, new MUST/MUST NOT rule, new skill reference |
+| `src/instructions/skills/workflow/review_changeset/SKILL.md` | New review check, modified check, new finding pattern |
+| `src/instructions/agents/reviewer.md` | New responsibility, new MUST/MUST NOT rule, new skill reference |
 | Other reviewer-referenced skills | If gap falls within an existing skill's scope |
 
 Read target files before proposing changes.
@@ -96,8 +96,8 @@ For each approved suggestion:
 
 ### In scope
 
-- Changes to `src/agents/reviewer.md` (rules, skills, responsibilities)
-- Changes to `src/skills/workflow/review_changeset/SKILL.md` (review checks, report template)
+- Changes to `src/instructions/agents/reviewer.md` (rules, skills, responsibilities)
+- Changes to `src/instructions/skills/workflow/review_changeset/SKILL.md` (review checks, report template)
 - Changes to other skills referenced by the reviewer agent
 - Adding new skills if a review capability is entirely missing
 

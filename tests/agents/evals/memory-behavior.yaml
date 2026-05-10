@@ -4,7 +4,7 @@ providers:
   - id: "opencode:sdk"
     config:
       working_dir: "../fixtures/developer-skill-routing"
-      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/developer.md"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/instructions/agents/developer.md"
       tools: [read, grep, glob, skill, write, edit]
       permission:
         read: "allow"

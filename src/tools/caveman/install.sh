@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Download the caveman skill (token-efficient communication mode) into
-# src/skills/workflow/caveman/ so it is available to all initialized projects
+# src/instructions/skills/workflow/caveman/ so it is available to all initialized projects
 # via the .opencode/skills/telamon symlink created by bin/init.sh.
 #
 # caveman has no binary — it is a skill-only tool.
@@ -15,13 +15,13 @@ TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
 header "caveman (token-efficient communication skill)"
 
 SKILL_URL="https://raw.githubusercontent.com/JuliusBrussee/caveman/main/caveman/SKILL.md"
-SKILL_DIR="${TELAMON_ROOT}/src/skills/workflow/caveman"
+SKILL_DIR="${TELAMON_ROOT}/src/instructions/skills/workflow/caveman"
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
-step "Downloading caveman skill → src/skills/workflow/caveman/SKILL.md ..."
+step "Downloading caveman skill → src/instructions/skills/workflow/caveman/SKILL.md ..."
 mkdir -p "${SKILL_DIR}"
 if curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null; then
-  log "caveman skill downloaded → src/skills/workflow/caveman/SKILL.md"
+  log "caveman skill downloaded → src/instructions/skills/workflow/caveman/SKILL.md"
 else
   warn "caveman skill download failed — run manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"
 fi

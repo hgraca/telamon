@@ -23,7 +23,7 @@ providers:
         read: "allow"
         write: "deny"
         bash: "deny"
-      # custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      # custom_agent: "{{env.TELAMON_ROOT}}/src/instructions/agents/telamon.md"
       # mcp: [] (add MCP servers if needed)
 
 # Individual eval configs live in evals/ — one YAML per eval.
@@ -36,7 +36,7 @@ providers:
 #     - id: "opencode:sdk"
 #       config:
 #         working_dir: "../fixtures/my-eval"
-#         custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+#         custom_agent: "{{env.TELAMON_ROOT}}/src/instructions/agents/telamon.md"
 #         tools: [read, grep, glob, skill]
 #         permission:
 #           read: "allow"

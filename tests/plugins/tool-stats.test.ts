@@ -2,7 +2,7 @@ import { describe, test, expect, mock, beforeEach, afterEach } from "bun:test"
 import { mkdirSync, writeFileSync, rmSync } from "fs"
 import { join } from "path"
 import { Database } from "bun:sqlite"
-import { ToolStatsPlugin } from "../../src/plugins/tool-stats.js"
+import { ToolStatsPlugin } from "../../src/instructions/plugins/tool-stats.js"
 
 let _tmpCounter = 0
 function makeTmpDir(): string {

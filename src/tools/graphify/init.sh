@@ -13,7 +13,7 @@
 # For projects with their own opencode config it flows in via merge-config.py
 # in bin/init.sh.
 #
-# The graphify skill is shipped as a static file in src/skills/memory/_tools/graphify/SKILL.md
+# The graphify skill is shipped as a static file in src/instructions/skills/memory/_tools/graphify/SKILL.md
 # and is made available to projects via the .opencode/skills/telamon symlink created
 # by `make init`. No download or copying is needed.
 

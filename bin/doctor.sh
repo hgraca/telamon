@@ -520,10 +520,10 @@ fi
 # ── 12. Telamon skills & context ──────────────────────────────────────────────
 header "Skills & context"
 
-[[ -d "${TELAMON_ROOT}/src/skills" ]]   && _pass "src/skills/ present"  || _fail "src/skills/ missing"
+[[ -d "${TELAMON_ROOT}/src/instructions/skills" ]]   && _pass "src/instructions/skills/ present"  || _fail "src/instructions/skills/ missing"
 
-skill_count=$(find "${TELAMON_ROOT}/src/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
-_info "${skill_count} skill(s) in src/skills/"
+skill_count=$(find "${TELAMON_ROOT}/src/instructions/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
+_info "${skill_count} skill(s) in src/instructions/skills/"
 
 # ── 13. .env ──────────────────────────────────────────────────────────────────
 header ".env configuration"

@@ -1,5 +1,5 @@
 /**
- * Unit tests for src/plugins/graphify.js — GraphifyPlugin
+ * Unit tests for src/instructions/plugins/graphify.js — GraphifyPlugin
  *
  * Strategy: graphify.js uses `import { readFileSync, existsSync } from "fs"` —
  * ESM static named imports are bound at module load time in Bun, making
@@ -15,7 +15,7 @@
 import { describe, test, expect } from "bun:test"
 import { mkdirSync, writeFileSync, rmSync } from "fs"
 import { join } from "path"
-import { GraphifyPlugin } from "../../src/plugins/graphify.js"
+import { GraphifyPlugin } from "../../src/instructions/plugins/graphify.js"
 
 // ---------------------------------------------------------------------------
 // Temp directory helpers

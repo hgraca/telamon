@@ -2,10 +2,10 @@
 # Wire up a project to use Telamon's opencode configuration.
 #
 # Steps:
-#   1. Symlink .opencode/skills/telamon → <telamon-root>/src/skills
-#   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/plugins
-#   3. Symlink .opencode/agents/telamon → <telamon-root>/src/agents
-#   4. Symlink .opencode/commands/telamon → <telamon-root>/src/commands
+#   1. Symlink .opencode/skills/telamon → <telamon-root>/src/instructions/skills
+#   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/instructions/plugins
+#   3. Symlink .opencode/agents/telamon → <telamon-root>/src/instructions/agents
+#   4. Symlink .opencode/commands/telamon → <telamon-root>/src/instructions/commands
 #   5. Write   .ai/telamon/telamon.jsonc with the project name
 #   6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
 #   7. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
@@ -31,48 +31,48 @@ PROJECT_NAME="${PROJECT_NAME:-$(basename "${PROJ}")}"
 
 header "opencode"
 
-# ── 1. Symlink .opencode/skills/telamon → <telamon-root>/src/skills ─────────────────
+# ── 1. Symlink .opencode/skills/telamon → <telamon-root>/src/instructions/skills ─────────────────
 SKILLS_DIR="${PROJ}/.opencode/skills"
 mkdir -p "${SKILLS_DIR}"
 SKILLS_LINK="${SKILLS_DIR}/telamon"
 if [[ -L "${SKILLS_LINK}" ]]; then
   skip ".opencode/skills/telamon symlink (already exists)"
 else
-  ln -s "${TELAMON_ROOT}/src/skills" "${SKILLS_LINK}"
-  log "Symlinked .opencode/skills/telamon → ${TELAMON_ROOT}/src/skills"
+  ln -s "${TELAMON_ROOT}/src/instructions/skills" "${SKILLS_LINK}"
+  log "Symlinked .opencode/skills/telamon → ${TELAMON_ROOT}/src/instructions/skills"
 fi
 
-# ── 2. Symlink .opencode/plugins/telamon → <telamon-root>/src/plugins ───────────────
+# ── 2. Symlink .opencode/plugins/telamon → <telamon-root>/src/instructions/plugins ───────────────
 PLUGINS_DIR="${PROJ}/.opencode/plugins"
 mkdir -p "${PLUGINS_DIR}"
 PLUGINS_LINK="${PLUGINS_DIR}/telamon"
 if [[ -L "${PLUGINS_LINK}" ]]; then
   skip ".opencode/plugins/telamon symlink (already exists)"
 else
-  ln -s "${TELAMON_ROOT}/src/plugins" "${PLUGINS_LINK}"
-  log "Symlinked .opencode/plugins/telamon → ${TELAMON_ROOT}/src/plugins"
+  ln -s "${TELAMON_ROOT}/src/instructions/plugins" "${PLUGINS_LINK}"
+  log "Symlinked .opencode/plugins/telamon → ${TELAMON_ROOT}/src/instructions/plugins"
 fi
 
-# ── 3. Symlink .opencode/agents/telamon → <telamon-root>/src/agents ─────────────────
+# ── 3. Symlink .opencode/agents/telamon → <telamon-root>/src/instructions/agents ─────────────────
 AGENTS_DIR="${PROJ}/.opencode/agents"
 mkdir -p "${AGENTS_DIR}"
 AGENTS_LINK="${AGENTS_DIR}/telamon"
 if [[ -L "${AGENTS_LINK}" ]]; then
   skip ".opencode/agents/telamon symlink (already exists)"
 else
-  ln -s "${TELAMON_ROOT}/src/agents" "${AGENTS_LINK}"
-  log "Symlinked .opencode/agents/telamon → ${TELAMON_ROOT}/src/agents"
+  ln -s "${TELAMON_ROOT}/src/instructions/agents" "${AGENTS_LINK}"
+  log "Symlinked .opencode/agents/telamon → ${TELAMON_ROOT}/src/instructions/agents"
 fi
 
-# ── 4. Symlink .opencode/commands/telamon → <telamon-root>/src/commands ─────────────
+# ── 4. Symlink .opencode/commands/telamon → <telamon-root>/src/instructions/commands ─────────────
 COMMANDS_DIR="${PROJ}/.opencode/commands"
 mkdir -p "${COMMANDS_DIR}"
 COMMANDS_LINK="${COMMANDS_DIR}/telamon"
 if [[ -L "${COMMANDS_LINK}" ]]; then
   skip ".opencode/commands/telamon symlink (already exists)"
 else
-  ln -s "${TELAMON_ROOT}/src/commands" "${COMMANDS_LINK}"
-  log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/commands"
+  ln -s "${TELAMON_ROOT}/src/instructions/commands" "${COMMANDS_LINK}"
+  log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/instructions/commands"
 fi
 
 # ── 5. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 // tests/plugins/agent-communication.test.ts
 //
 // Failing tests for Task 2 of the agent-communication backlog.
-// All tests MUST fail until src/plugins/agent-communication.js is implemented.
+// All tests MUST fail until src/instructions/plugins/agent-communication.js is implemented.
 //
 // Spec references:
 //   PLAN-ARCH-2026-05-06-001.md §2, §3.5, §5, §6, §8, §9
@@ -19,7 +19,7 @@ import {
   AgentCommunicationPlugin,
   detectTerminalMarker,
   MARKER_RE,
-} from "../../src/plugins/agent-communication.js"
+} from "../../src/instructions/plugins/agent-communication.js"
 
 // ─── Task 4 exports — loaded dynamically so missing exports fail only Task 4 tests ───
 // Developer must add these exports to agent-communication.js:
@@ -29,7 +29,7 @@ import {
 //   MAX_COUNTER_ENTRIES: number  (= 100)
 //   COUNTER_TTL_MS: number       (= 24 * 60 * 60 * 1000)
 async function getCounterExports() {
-  const mod = await import("../../src/plugins/agent-communication.js") as any
+  const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
   if (!mod.readCounter) throw new Error("Task 4 developer requirement: export readCounter() from agent-communication.js")
   if (!mod.writeCounter) throw new Error("Task 4 developer requirement: export writeCounter() from agent-communication.js")
   if (!mod.pruneCounter) throw new Error("Task 4 developer requirement: export pruneCounter() from agent-communication.js")
@@ -403,7 +403,7 @@ describe("agent-communication / Task 2 core", () => {
   // ══════════════════════════════════════════════════════════════════════════
   describe("E. Header comment & structural conformance (static-grep tests)", () => {
 
-    const pluginPath = join(repoRoot, "src/plugins/agent-communication.js")
+    const pluginPath = join(repoRoot, "src/instructions/plugins/agent-communication.js")
 
     test("E.19 [backlog L74, L82] plugin source contains comment citing agent-communication/SKILL.md lines 19–24", () => {
       const source = readFileSync(pluginPath, "utf8")
@@ -507,7 +507,7 @@ describe("agent-communication / Task 2 core", () => {
 async function getNudgePrompt(): Promise<string> {
   // Dynamic import avoids hard named-export failure at module load time.
   // Once the developer adds the export, this resolves correctly.
-  const mod = await import("../../src/plugins/agent-communication.js") as any
+  const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
   if (typeof mod.NUDGE_PROMPT === "string") return mod.NUDGE_PROMPT
   if (typeof mod.buildNudgePrompt === "function") return mod.buildNudgePrompt()
   throw new Error(
@@ -2133,7 +2133,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
   //                 GRACE_MS = 60_000
   // ══════════════════════════════════════════════════════════════════════════
   test("S.1 [PLAN §4.4] STALL_FLAG_TTL_MS exported = 360_000 ms (6 min) and GRACE_MS exported = 60_000 ms", async () => {
-    const mod = await import("../../src/plugins/agent-communication.js") as any
+    const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
     if (mod.STALL_FLAG_TTL_MS === undefined)
       throw new Error("Task 6 developer requirement: export STALL_FLAG_TTL_MS from agent-communication.js")
     if (mod.GRACE_MS === undefined)
@@ -2154,7 +2154,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
     const tmpDir = join("/tmp", `sme-t6-s2-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/agent-communication.js") as any
+      const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag)
         throw new Error("Task 6 developer requirement: export writeStallFlag() from agent-communication.js")
 
@@ -2188,7 +2188,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
     const tmpDir = join("/tmp", `sme-t6-s3-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/agent-communication.js") as any
+      const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
       if (!mod.clearStallFlag)
         throw new Error("Task 6 developer requirement: export clearStallFlag() from agent-communication.js")
 
@@ -2212,7 +2212,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
     const tmpDir = join("/tmp", `sme-t6-s4-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/agent-communication.js") as any
+      const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
       if (!mod.clearStallFlag)
         throw new Error("Task 6 developer requirement: export clearStallFlag() from agent-communication.js")
       // Must not throw
@@ -2395,7 +2395,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
     const tmpDir = join("/tmp", `sme-t6-s10-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/agent-communication.js") as any
+      const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag)
         throw new Error("Task 6 developer requirement: export writeStallFlag() from agent-communication.js")
 
@@ -2418,7 +2418,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
     const tmpDir = join("/tmp", `sme-t6-s11-${process.pid}`)
     mkdirSync(tmpDir, { recursive: true })
     try {
-      const mod = await import("../../src/plugins/agent-communication.js") as any
+      const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
       if (!mod.writeStallFlag || !mod.stallFlagPath)
         throw new Error("Task 6 developer requirement: export writeStallFlag() and stallFlagPath() from agent-communication.js")
 
@@ -2451,7 +2451,7 @@ describe("agent-communication / Task 6 — Suite S: Stall-flag coordination", ()
 // plugin writing the stall-flag, and this file already owns all SME-side
 // helpers (worktreeSlug, stallFlagPath, writeStallFlagRaw, etc.).
 
-import { RememberSessionPlugin } from "../../src/plugins/remember-session.js"
+import { RememberSessionPlugin } from "../../src/instructions/plugins/remember-session.js"
 
 // ─── Suite U — Cross-plugin stall-flag ordering integration (Task 8) ─────────
 

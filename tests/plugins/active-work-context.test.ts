@@ -63,7 +63,7 @@ mock.module("fs", () => ({
 // ---------------------------------------------------------------------------
 // Now import the plugin under test (after mocks are in place)
 // ---------------------------------------------------------------------------
-import { ActiveWorkContextPlugin } from "../../src/plugins/active-work-context.js"
+import { ActiveWorkContextPlugin } from "../../src/instructions/plugins/active-work-context.js"
 
 // ---------------------------------------------------------------------------
 // Helpers

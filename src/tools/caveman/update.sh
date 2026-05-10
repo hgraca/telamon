@@ -14,9 +14,9 @@ TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
 header "caveman"
 
 SKILL_URL="https://raw.githubusercontent.com/JuliusBrussee/caveman/main/caveman/SKILL.md"
-SKILL_FILE="${TELAMON_ROOT}/src/skills/workflow/caveman/SKILL.md"
+SKILL_FILE="${TELAMON_ROOT}/src/instructions/skills/workflow/caveman/SKILL.md"
 
-step "Updating caveman skill → src/skills/workflow/caveman/SKILL.md ..."
+step "Updating caveman skill → src/instructions/skills/workflow/caveman/SKILL.md ..."
 mkdir -p "$(dirname "${SKILL_FILE}")"
 curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null \
   && log "caveman skill updated" \

@@ -18,7 +18,7 @@ set -euo pipefail
 
 header "Memory vault scaffold"
 
-VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/memory-management/_tmpl"
+VAULT_TMPL="${TELAMON_ROOT}/src/instructions/skills/memory/memory-management/_tmpl"
 
 # ── Resolve vault root and symlink target ─────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then

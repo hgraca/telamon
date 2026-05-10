@@ -2,7 +2,7 @@ import { describe, test, expect } from "bun:test"
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from "fs"
 import { join } from "path"
 import { execSync } from "child_process"
-import { DiffContextPlugin } from "../../src/plugins/diff-context.js"
+import { DiffContextPlugin } from "../../src/instructions/plugins/diff-context.js"
 
 let _tmpCounter = 0
 function makeTmpDir(): string {

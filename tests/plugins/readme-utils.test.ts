@@ -1,10 +1,10 @@
 /**
- * Unit tests for src/plugins/lib/readme-utils.js — extractTitle()
+ * Unit tests for src/instructions/plugins/lib/readme-utils.js — extractTitle()
  * Pure string function: no filesystem, no mocks needed.
  */
 
 import { describe, test, expect } from "bun:test"
-import { extractTitle } from "../../src/plugins/lib/readme-utils.js"
+import { extractTitle } from "../../src/instructions/plugins/lib/readme-utils.js"
 
 describe("extractTitle", () => {
 

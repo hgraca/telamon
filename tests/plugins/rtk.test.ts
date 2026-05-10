@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test"
 import { $ } from "bun"
-import { RtkOpenCodePlugin } from "../../src/plugins/rtk.js"
+import { RtkOpenCodePlugin } from "../../src/instructions/plugins/rtk.js"
 
 // ---------------------------------------------------------------------------
 // Mock $ factory for "rtk not in PATH" scenario

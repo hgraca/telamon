@@ -9,8 +9,8 @@ description: "Agent evaluation with promptfoo: running evals, interpreting resul
 
 | Trigger                                             | Action                                      |
 |-----------------------------------------------------|---------------------------------------------|
-| After changing agent instructions (src/agents/*.md) | Run affected evals to check for regressions |
-| After adding or modifying skills (src/skills/)      | Run evals that exercise the changed skill   |
+| After changing agent instructions (src/instructions/agents/*.md) | Run affected evals to check for regressions |
+| After adding or modifying skills (src/instructions/skills/)      | Run evals that exercise the changed skill   |
 | Before merging agent behavior changes               | Run full eval suite                         |
 | After adding a new agent role                       | Create a new eval config for it             |
 | Debugging unexpected agent routing                  | Run request-classification eval             |
@@ -57,7 +57,7 @@ providers:
   - id: "opencode:sdk"
     config:
       working_dir: "../fixtures/<eval-name>"
-      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/instructions/agents/telamon.md"
       tools: [read, grep, glob, skill]
       permission:
         read: "allow"

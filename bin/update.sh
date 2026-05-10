@@ -424,7 +424,7 @@ if command -v cass &>/dev/null; then
     log "cass uninstalled"
 
     # Remove skill file if still present
-    _cass_skill="${TELAMON_ROOT}/src/skills/memory/_tools/cass"
+    _cass_skill="${TELAMON_ROOT}/src/instructions/skills/memory/_tools/cass"
     if [[ -d "${_cass_skill}" ]]; then
       rm -rf "${_cass_skill}"
       log "Removed cass skill"

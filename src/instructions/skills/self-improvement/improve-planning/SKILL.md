@@ -18,7 +18,7 @@ To avoid context contamination between solver and evaluator, this skill runs acr
 
 The main session is responsible for: setup, evaluation, root-cause analysis, proposing changes, applying approved changes, and looping. The task-solver session is responsible for: producing the plan exactly as a normal user request would.
 
-The task-solver session runs in a regular folder (not a git repository). No git operations occur inside the iteration folder. The orchestrator's commit and "verify @tester gate" rules from `src/agents/telamon.md` are explicitly suspended in the solver session via PROMPT.md.
+The task-solver session runs in a regular folder (not a git repository). No git operations occur inside the iteration folder. The orchestrator's commit and "verify @tester gate" rules from `src/instructions/agents/telamon.md` are explicitly suspended in the solver session via PROMPT.md.
 
 The grader is the **main-session telamon agent itself**. It evaluates the solver's artifacts using the absolute rubric defined below. There is no separate grading subagent.
 
@@ -63,7 +63,7 @@ If everything checks out, proceed to Step 1.
 Once the user picks a model, invoke the setup script with the model as the first argument — the script owns iteration-folder creation, project init, and applying the model to the planning agents:
 
 ```bash
-bash src/skills/self-improvement/improve-planning/scripts/setup-iteration.sh "<chosen-model-id>"
+bash src/instructions/skills/self-improvement/improve-planning/scripts/setup-iteration.sh "<chosen-model-id>"
 ```
 
 The script will:
@@ -74,7 +74,7 @@ The script will:
 4. Run `telamon init` against the iteration folder with project-side memory ownership (`TELAMON_MEMORY_OWNER=project`).
 5. Materialise `iteration-<n>/opencode.jsonc` (replace the symlink with a real file).
 6. Apply the model passed as `$1` to the four planning agents (`telamon`, `po`, `architect`, `critic`) in the iteration's `opencode.jsonc`. (If no argument is given AND stdin is a TTY, the script falls back to prompting the user; if no argument AND no TTY, the script fails loudly.)
-7. **Materialise the symlinked `.opencode/agents/telamon/` directory into a real directory of copies, then rewrite the `model:` frontmatter on the four planning agents to the chosen model.** This is required because the agent-file frontmatter `model:` overrides the `agent.<name>.model` setting in `opencode.jsonc`, and the symlink target lives in the shared `src/agents/` tree (we must not edit it globally).
+7. **Materialise the symlinked `.opencode/agents/telamon/` directory into a real directory of copies, then rewrite the `model:` frontmatter on the four planning agents to the chosen model.** This is required because the agent-file frontmatter `model:` overrides the `agent.<name>.model` setting in `opencode.jsonc`, and the symlink target lives in the shared `src/instructions/agents/` tree (we must not edit it globally).
 8. Print instructions for the user to start a new opencode session inside the iteration folder.
 
 #### Setup script failure recovery
@@ -137,7 +137,7 @@ Back in the main session:
 
 Write `iteration-<n>/quality-report.md` following the Plan Quality Report Guide below. Grades are **absolute** — measured against the reference standards (architecture rules, the `plan_story` and `plan_implementation` skills, coding standards), not relative to any prior iteration.
 
-The grader is the **main-session telamon agent**. Read the plan artifacts, the reference standards, this skill's grading rubric, and the example report at `src/skills/self-improvement/improve-planning/references/report-example.md` (used as a *format* reference only, not as a scoring anchor).
+The grader is the **main-session telamon agent**. Read the plan artifacts, the reference standards, this skill's grading rubric, and the example report at `src/instructions/skills/self-improvement/improve-planning/references/report-example.md` (used as a *format* reference only, not as a scoring anchor).
 
 #### Solver-execution metrics
 
@@ -258,7 +258,7 @@ If either check returns `0`, the part is missing — write it before continuing.
 
 Write `iteration-<n>/proposals.md`. For each proposal:
 
-- **File**: exact path (must be one of: `src/agents/{telamon,po,architect,critic}.md`, `src/skills/workflow/plan_story/SKILL.md`, `src/skills/workflow/plan_implementation/SKILL.md`, `src/skills/workflow/review_plan/SKILL.md`)
+- **File**: exact path (must be one of: `src/instructions/agents/{telamon,po,architect,critic}.md`, `src/instructions/skills/workflow/plan_story/SKILL.md`, `src/instructions/skills/workflow/plan_implementation/SKILL.md`, `src/instructions/skills/workflow/review_plan/SKILL.md`)
 - **Location**: section name or line reference
 - **Before**: quote current text (or "absent")
 - **After**: proposed text

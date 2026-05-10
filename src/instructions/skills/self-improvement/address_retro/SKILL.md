@@ -34,11 +34,11 @@ Ignore items that are about specific code changes, bugs, or feature work — tho
 For each extracted improvement:
 
 1. **Identify target files** — determine which skill, agent, or workflow file(s) need changes. Common targets:
-   - `src/skills/workflow/*.md` — workflow skills
-   - `src/skills/dev/**/*.md` — development convention skills
-   - `src/skills/memory/**/*.md` — memory management skills
-   - `src/agents/*.md` — agent role definitions
-   - `src/commands/*.md` — command definitions
+   - `src/instructions/skills/workflow/*.md` — workflow skills
+   - `src/instructions/skills/dev/**/*.md` — development convention skills
+   - `src/instructions/skills/memory/**/*.md` — memory management skills
+   - `src/instructions/agents/*.md` — agent role definitions
+   - `src/instructions/commands/*.md` — command definitions
    - `.ai/telamon/memory/bootstrap/*.md` — bootstrap files
 
 2. **Read target files** — understand current content before proposing changes.

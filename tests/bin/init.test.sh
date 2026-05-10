@@ -180,7 +180,7 @@ print(d.get('memory_owner', ''))
   [[ -n "${_mo_val}" ]] && MEMORY_OWNER="${_mo_val}"
 fi
 
-VAULT_TMPL="${TELAMON_ROOT}/src/skills/memory/memory-management/_tmpl"
+VAULT_TMPL="${TELAMON_ROOT}/src/instructions/skills/memory/memory-management/_tmpl"
 
 # ── 1. Vault scaffold ─────────────────────────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
@@ -255,8 +255,8 @@ fi
 # ── 2. .opencode/skills/telamon symlink ──────────────────────────────────────────
 _section "2. .opencode/skills/telamon symlink"
 assert_dir  "${PROJ}/.opencode/skills" ".opencode/skills/ directory"
-assert_symlink "${PROJ}/.opencode/skills/telamon" "src/skills" \
-  ".opencode/skills/telamon → <telamon-root>/src/skills"
+assert_symlink "${PROJ}/.opencode/skills/telamon" "src/instructions/skills" \
+  ".opencode/skills/telamon → <telamon-root>/src/instructions/skills"
 
 # ── 3. .ai/telamon/telamon.jsonc ──────────────────────────────────────────────────────
 _section "3. .ai/telamon/telamon.jsonc"

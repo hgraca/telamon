@@ -12,7 +12,7 @@ providers:
   - id: "opencode:sdk"
     config:
       working_dir: "./fixtures"
-      custom_agent: "{{env.TELAMON_ROOT}}/src/agents/telamon.md"
+      custom_agent: "{{env.TELAMON_ROOT}}/src/instructions/agents/telamon.md"
       tools: [read, grep, glob, skill]
       permission:
         read: "allow"

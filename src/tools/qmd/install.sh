@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install QMD (Query Markup Documents — semantic search for Markdown vaults)
 # via npm, and download the upstream QMD skill into
-# src/skills/memory/_tools/qmd/SKILL.md so it is available to all initialized projects
+# src/instructions/skills/memory/_tools/qmd/SKILL.md so it is available to all initialized projects
 # via the .opencode/skills/telamon symlink.
 #
 # QMD's cache location is controlled by XDG_CACHE_HOME.  Telamon redirects it
@@ -50,19 +50,19 @@ else
   log "Written storage/secrets/qmd-cache-home → ${TELAMON_ROOT}/storage"
 fi
 
-# ── Download QMD agent skill into src/skills/memory/_tools/qmd/ ──────────────────────
+# ── Download QMD agent skill into src/instructions/skills/memory/_tools/qmd/ ──────────────────────
 # The skill teaches agents to use QMD proactively before reading vault files,
 # before creating notes (duplicate check), and after creating notes (find related).
-# It reaches all initialized projects via the .opencode/skills/telamon → src/skills
+# It reaches all initialized projects via the .opencode/skills/telamon → src/instructions/skills
 # symlink created by bin/init.sh.
 SKILL_URL="https://raw.githubusercontent.com/tobi/qmd/main/skills/qmd/SKILL.md"
-SKILL_DIR="${TELAMON_ROOT}/src/skills/memory/_tools/qmd"
+SKILL_DIR="${TELAMON_ROOT}/src/instructions/skills/memory/_tools/qmd"
 SKILL_FILE="${SKILL_DIR}/SKILL.md"
 
-step "Downloading QMD skill → src/skills/memory/_tools/qmd/SKILL.md ..."
+step "Downloading QMD skill → src/instructions/skills/memory/_tools/qmd/SKILL.md ..."
 mkdir -p "${SKILL_DIR}"
 if curl -fsSL "${SKILL_URL}" -o "${SKILL_FILE}" 2>/dev/null; then
-  log "QMD skill downloaded → src/skills/memory/_tools/qmd/SKILL.md"
+  log "QMD skill downloaded → src/instructions/skills/memory/_tools/qmd/SKILL.md"
 else
   warn "QMD skill download failed — will use bundled Telamon skill at ${SKILL_FILE}"
   warn "To retry manually: curl -fsSL ${SKILL_URL} -o ${SKILL_FILE}"

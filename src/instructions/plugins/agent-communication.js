@@ -46,7 +46,7 @@ export const GRACE_MS = 60_000; // 60 seconds
 export const STALL_FLAG_TTL_MS = LOCK_TTL_MS + GRACE_MS; // = 360_000 ms (6 min)
 
 // ─── worktreeSlug ─────────────────────────────────────────────────────────────
-// Duplicated from src/plugins/remember-session.js per ADR "Duplicate worktreeSlug function".
+// Duplicated from src/instructions/plugins/remember-session.js per ADR "Duplicate worktreeSlug function".
 // Do NOT import — each plugin is self-contained.
 export function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");

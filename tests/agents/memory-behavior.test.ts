@@ -2,7 +2,7 @@ import { describe, test, expect } from "bun:test"
 import { readFileSync, readdirSync } from "fs"
 import { join, basename } from "path"
 
-const AGENTS_DIR = join(import.meta.dir, "../../src/agents")
+const AGENTS_DIR = join(import.meta.dir, "../../src/instructions/agents")
 
 // Memory skills that subagents should NOT proactively trigger
 const BANNED_PROACTIVE_MEMORY_SKILLS = [

@@ -1,7 +1,7 @@
 import { describe, test, expect } from "bun:test"
 import { mkdirSync, writeFileSync, rmSync, existsSync } from "fs"
 import { join, basename } from "path"
-import { RememberSessionPlugin } from "../../src/plugins/remember-session.js"
+import { RememberSessionPlugin } from "../../src/instructions/plugins/remember-session.js"
 
 let _tmpCounter = 0
 function makeTmpDir(): string {

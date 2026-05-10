@@ -139,7 +139,7 @@ Reasoning narrative is welcome in the response that accompanies the plan, but th
 - Assume domain semantics — signal NEEDS_INPUT when uncertain about domain concepts
 - Delegate work to a subagent — you ARE the Architect; produce the plan yourself in this session
 - Perform tasks outside your role scope — escalate per the Escalation section
-- **Promote `Status: FINAL` directly.** When revising a plan in response to critic findings, keep `Status: IN REVIEW` and signal FINISHED. Only the orchestrator may transition the `Status` field to `FINAL`, and only after a critic-approved round (see `src/agents/telamon.md` "FINAL-promotion gate"). Your job ends at producing a revised plan with the BLOCKERs addressed; the loop closure is the orchestrator's responsibility.
+- **Promote `Status: FINAL` directly.** When revising a plan in response to critic findings, keep `Status: IN REVIEW` and signal FINISHED. Only the orchestrator may transition the `Status` field to `FINAL`, and only after a critic-approved round (see `src/instructions/agents/telamon.md` "FINAL-promotion gate"). Your job ends at producing a revised plan with the BLOCKERs addressed; the loop closure is the orchestrator's responsibility.
 
 ## Collaboration
 

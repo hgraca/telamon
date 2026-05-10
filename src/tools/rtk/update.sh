@@ -31,10 +31,10 @@ rtk init -g --opencode --auto-patch 2>/dev/null \
 # Copy refreshed plugin into Telamon plugin source tree, then remove the global
 # copy to prevent opencode from auto-loading it alongside our rtk-dedupe.ts wrapper.
 RTK_GLOBAL_PLUGIN="${HOME}/.config/opencode/plugins/rtk.ts"
-RTK_TELAMON_PLUGIN="${TELAMON_ROOT}/src/plugins/rtk.ts"
+RTK_TELAMON_PLUGIN="${TELAMON_ROOT}/src/instructions/plugins/rtk.ts"
 if [[ -f "${RTK_GLOBAL_PLUGIN}" ]]; then
   cp "${RTK_GLOBAL_PLUGIN}" "${RTK_TELAMON_PLUGIN}"
-  log "Updated src/plugins/rtk.ts from global plugin"
+  log "Updated src/instructions/plugins/rtk.ts from global plugin"
   rm -f "${RTK_GLOBAL_PLUGIN}"
   log "Removed global rtk.ts to prevent duplicate plugin registration"
 else

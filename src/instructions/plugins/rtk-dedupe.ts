@@ -20,7 +20,7 @@ import { RtkOpenCodePlugin } from "./rtk.ts"
 // retries (A, B, C, A, B, C) — not just immediate consecutive duplicates.
 //
 // rtk.ts is NOT registered in opencode.jsonc — only this wrapper is.
-// rtk.ts is kept in src/plugins/ as an import dependency.
+// rtk.ts is kept in src/instructions/plugins/ as an import dependency.
 
 export const RtkDedupePlugin: Plugin = async (ctx) => {
   // Read telamon.jsonc and check rtk_enabled flag.

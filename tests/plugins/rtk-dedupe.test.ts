@@ -23,7 +23,7 @@ import { describe, test, expect, mock } from "bun:test"
 // ---------------------------------------------------------------------------
 // This mock rewrites commands by prepending "rtk run ".
 // It is fixed for the entire test file due to Bun module caching.
-mock.module("/home/herberto/Development/hgraca/telamon/src/plugins/rtk.ts", () => ({
+mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/rtk.ts", () => ({
   RtkOpenCodePlugin: async (_ctx: unknown) => ({
     "tool.execute.before": async (_input: unknown, output: unknown) => {
       const args = (output as Record<string, unknown>).args as Record<string, unknown>
@@ -48,7 +48,7 @@ mock.module("node:fs", () => ({
 // ---------------------------------------------------------------------------
 // Now import the plugin under test (after mocks are in place)
 // ---------------------------------------------------------------------------
-import { RtkDedupePlugin } from "../../src/plugins/rtk-dedupe.ts"
+import { RtkDedupePlugin } from "../../src/instructions/plugins/rtk-dedupe.ts"
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -157,7 +157,7 @@ describe("RtkDedupePlugin", () => {
 
     test("leaves command unchanged when RTK plugin has no before hook (rtk missing)", async () => {
       // Temporarily override RTK mock to return no hooks
-      mock.module("/home/herberto/Development/hgraca/telamon/src/plugins/rtk.ts", () => ({
+      mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/rtk.ts", () => ({
         RtkOpenCodePlugin: async (_ctx: unknown) => ({}),
       }))
       _rtkEnabled = true
@@ -170,7 +170,7 @@ describe("RtkDedupePlugin", () => {
       expect((output.args as Record<string, unknown>).command).toBe("ls -la")
 
       // Restore RTK mock
-      mock.module("/home/herberto/Development/hgraca/telamon/src/plugins/rtk.ts", () => ({
+      mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/rtk.ts", () => ({
         RtkOpenCodePlugin: async (_ctx: unknown) => ({
           "tool.execute.before": async (_input: unknown, output: unknown) => {
             const args = (output as Record<string, unknown>).args as Record<string, unknown>
