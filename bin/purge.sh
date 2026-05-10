@@ -15,7 +15,8 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 
 # shellcheck disable=SC1091
@@ -36,7 +37,7 @@ fi
 PROJ="$(cd "${PROJ}" && pwd)"
 PROJECT_NAME="$(basename "${PROJ}")"
 
-export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME
+export TELAMON_ROOT PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH PROJ PROJECT_NAME
 
 header "Telamon purge — ${PROJECT_NAME}"
 

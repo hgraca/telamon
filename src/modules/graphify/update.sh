@@ -24,8 +24,8 @@ uv tool upgrade graphifyy 2>/dev/null \
 step "Restoring MCP dependency..."
 uv tool install graphifyy --with mcp --force 2>/dev/null || true
 
-# ── Fix stale graphify-serve.sh symlinks (src/install → src/tools migration) ──
-TELAMON_ROOT="${TELAMON_ROOT:-$(cd "${TOOLS_PATH}/../.." && pwd)}"
+# ── Fix stale graphify-serve.sh symlinks (legacy install/tools/modules path migration) ──
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
 CORRECT_TARGET="${TELAMON_ROOT}/src/modules/graphify/serve-wrapper.sh"
 STALE_PATTERN="src/install/graphify/serve-wrapper.sh"
 

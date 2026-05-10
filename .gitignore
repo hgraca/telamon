@@ -42,8 +42,8 @@ graphify-out/
 *junie*
 !opencode.dist.json
 !opencode.dist.jsonc
-!src/commands/patch-opencode/
-!src/commands/patch-opencode/**
+!src/instructions/commands/patch-opencode/
+!src/instructions/commands/patch-opencode/**
 !src/modules/opencode/
 !src/modules/opencode/**
 src/modules/opencode/__pycache__/

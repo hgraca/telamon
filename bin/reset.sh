@@ -30,7 +30,8 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 
 # shellcheck disable=SC1091
@@ -51,7 +52,7 @@ fi
 PROJ="$(cd "${PROJ}" && pwd)"
 PROJECT_NAME="$(basename "${PROJ}")"
 
-export TELAMON_ROOT TOOLS_PATH FUNCTIONS_PATH PROJ PROJECT_NAME
+export TELAMON_ROOT PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH PROJ PROJECT_NAME
 
 header "Telamon reset — ${PROJECT_NAME}"
 
@@ -168,7 +169,7 @@ remove_file "${PROJ}/repomix.config.json"            "repomix.config.json"
 
 # ── 7. Remove graphify scheduled job for this project ─────────────────────────
 step "Removing graphify scheduled job..."
-if bash "${TOOLS_PATH}/graphify/schedule.sh" --remove "${PROJECT_NAME}" 2>/dev/null; then
+if bash "${MODULES_PATH}/graphify/schedule.sh" --remove "${PROJECT_NAME}" 2>/dev/null; then
   : # logged inside schedule.sh
 else
   skip "graphify-update-${PROJECT_NAME} (not found or already removed)"

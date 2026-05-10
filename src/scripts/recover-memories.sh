@@ -16,7 +16,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TELAMON_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 
 # shellcheck disable=SC1091

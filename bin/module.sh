@@ -13,9 +13,10 @@
 set -euo pipefail
 
 TELAMON_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TOOLS_PATH="${TELAMON_ROOT}/src/tools"
+PREREQUISITES_PATH="${TELAMON_ROOT}/src/prerequisites"
+MODULES_PATH="${TELAMON_ROOT}/src/modules"
 FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
-export TOOLS_PATH FUNCTIONS_PATH TELAMON_ROOT
+export PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH TELAMON_ROOT
 
 # shellcheck disable=SC1091
 . "${FUNCTIONS_PATH}/autoload.sh"
