@@ -14,9 +14,22 @@
  *     - Set up the RTK mock once at the top (rewrites "cmd" → "rtk run cmd").
  *     - Control rtk_enabled via fs mock before each test.
  *     - ctx.$ is mocked per-test to control fallback execution results.
+ *
+ * Cross-test contamination guard (see brain/gotchas.md, "fs mock cache leak"):
+ *   `mock.module("node:fs", …)` installs a process-wide override that bun does
+ *   NOT tear down between test files. To prevent this file's mock from breaking
+ *   sibling test files, the factory forwards to the REAL node:fs methods
+ *   (captured before the mock is installed) for any path other than the
+ *   telamon.jsonc config path that the plugin itself reads.
  */
 
 import { describe, test, expect, mock } from "bun:test"
+
+// ---------------------------------------------------------------------------
+// Capture REAL node:fs methods before installing the mock.
+// ---------------------------------------------------------------------------
+import * as _realFs from "node:fs"
+const _realRead = _realFs.readFileSync
 
 // ---------------------------------------------------------------------------
 // RTK mock — must be set up BEFORE the first import of rtk-dedupe.ts
@@ -39,9 +52,15 @@ mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/
 let _rtkEnabled: boolean | "missing" = true
 
 mock.module("node:fs", () => ({
-  readFileSync: (_path: string, _enc: string) => {
-    if (_rtkEnabled === "missing") throw new Error("ENOENT")
-    return JSON.stringify({ rtk_enabled: _rtkEnabled })
+  ..._realFs,
+  readFileSync: (path: string, enc?: any) => {
+    // The plugin reads exactly one path: <cwd>/.ai/telamon/telamon.jsonc.
+    // Mock that path; forward all others to real fs.
+    if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
+      if (_rtkEnabled === "missing") throw new Error("ENOENT")
+      return JSON.stringify({ rtk_enabled: _rtkEnabled })
+    }
+    return _realRead(path as any, enc as any)
   },
 }))
 
@@ -121,20 +140,29 @@ describe("RtkDedupePlugin", () => {
 
     test("JSONC line comments are stripped before parsing config", async () => {
       mock.module("node:fs", () => ({
-        readFileSync: (_path: string, _enc: string) =>
-          `{
-            // This is a comment
-            "rtk_enabled": true // inline comment
-          }`,
+        ..._realFs,
+        readFileSync: (path: string, enc?: any) => {
+          if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
+            return `{
+              // This is a comment
+              "rtk_enabled": true // inline comment
+            }`
+          }
+          return _realRead(path as any, enc as any)
+        },
       }))
       const hooks = await RtkDedupePlugin(makeCtx())
       // If JSONC parsing works, rtk_enabled=true → hooks are returned
       expect(hooks["tool.execute.before"]).toBeTypeOf("function")
       // Restore the standard mock
       mock.module("node:fs", () => ({
-        readFileSync: (_path: string, _enc: string) => {
-          if (_rtkEnabled === "missing") throw new Error("ENOENT")
-          return JSON.stringify({ rtk_enabled: _rtkEnabled })
+        ..._realFs,
+        readFileSync: (path: string, enc?: any) => {
+          if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
+            if (_rtkEnabled === "missing") throw new Error("ENOENT")
+            return JSON.stringify({ rtk_enabled: _rtkEnabled })
+          }
+          return _realRead(path as any, enc as any)
         },
       }))
     })

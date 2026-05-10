@@ -15,9 +15,47 @@
  *   The `injected` flag lives inside the plugin factory closure. A fresh
  *   plugin instance is created in each test via `ActiveWorkContextPlugin(makeCtx())`
  *   so the flag always starts as false.
+ *
+ * Cross-test contamination guard (see brain/gotchas.md, "fs mock cache leak"):
+ *   `mock.module("fs", …)` installs a process-wide override that bun does NOT
+ *   tear down between test files. To prevent this file's mock from breaking
+ *   sibling test files (which import real `fs` for fixture setup), the factory
+ *   forwards to the REAL fs methods (captured before the mock is installed)
+ *   for any path that has NOT been explicitly seeded in the spy maps below.
+ *   Tests inside this file always seed the maps via `registerWorkItem*`, so
+ *   their semantics are unchanged.
  */
 
 import { describe, test, expect, mock, beforeEach } from "bun:test"
+
+// ---------------------------------------------------------------------------
+// Capture REAL fs methods before installing the mock (see header comment).
+// ---------------------------------------------------------------------------
+import * as _realFs from "fs"
+const _real = {
+  readdirSync: _realFs.readdirSync,
+  existsSync: _realFs.existsSync,
+  readFileSync: _realFs.readFileSync,
+  writeFileSync: _realFs.writeFileSync,
+  mkdirSync: _realFs.mkdirSync,
+  rmSync: _realFs.rmSync,
+  unlinkSync: _realFs.unlinkSync,
+  mkdtempSync: _realFs.mkdtempSync,
+  statSync: _realFs.statSync,
+  realpathSync: _realFs.realpathSync,
+  copyFileSync: _realFs.copyFileSync,
+  renameSync: _realFs.renameSync,
+  chmodSync: _realFs.chmodSync,
+  utimesSync: _realFs.utimesSync,
+  appendFileSync: _realFs.appendFileSync,
+  accessSync: _realFs.accessSync,
+  lstatSync: _realFs.lstatSync,
+  readlinkSync: _realFs.readlinkSync,
+  symlinkSync: _realFs.symlinkSync,
+  rmdirSync: _realFs.rmdirSync,
+  promises: _realFs.promises,
+  constants: _realFs.constants,
+}
 
 // ---------------------------------------------------------------------------
 // fs mock — must be set up BEFORE the first import of active-work-context.js
@@ -36,27 +74,30 @@ const _readMap: Map<string, string> = new Map()
 let _readdirThrows = false
 
 mock.module("fs", () => ({
+  // Real-fs pass-throughs for unmocked methods (prevents cross-test leakage).
+  ..._real,
+  // Mocked methods: consult spy maps first, fall through to real fs otherwise.
   readdirSync: (path: string, options?: { withFileTypes?: boolean }) => {
     if (_readdirThrows && path === ACTIVE_DIR) {
       throw new Error("EACCES: permission denied")
     }
-    const entries = _readdirMap.get(path) ?? []
-    if (options?.withFileTypes) {
-      // Return dirent-like objects with isDirectory()
-      return entries.map((name) => ({
-        name,
-        isDirectory: () => true,
-      }))
+    if (_readdirMap.has(path)) {
+      const entries = _readdirMap.get(path)!
+      if (options?.withFileTypes) {
+        return entries.map((name) => ({ name, isDirectory: () => true }))
+      }
+      return entries
     }
-    return entries
+    return _real.readdirSync(path as any, options as any)
   },
   existsSync: (path: string) => {
-    return _existsMap.get(path) ?? false
+    if (_existsMap.has(path)) return _existsMap.get(path)!
+    return _real.existsSync(path)
   },
-  readFileSync: (path: string, _enc: string) => {
-    const content = _readMap.get(path)
-    if (content === undefined) throw new Error(`ENOENT: no such file: ${path}`)
-    return content
+  readFileSync: (path: string, enc?: any) => {
+    if (_readMap.has(path)) return _readMap.get(path)!
+    // If the test file under contamination didn't seed this path, defer to real fs.
+    return _real.readFileSync(path as any, enc as any)
   },
 }))
 
