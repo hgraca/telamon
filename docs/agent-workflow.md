@@ -566,10 +566,6 @@ These fire at specific moments during any workflow above — they are cross-cutt
    | Step 2: Promote learnings     |
    |         from thinking/ drafts |
    | Step 3: Compact context       |
-   | Step 4: Recall after          |
-   |         compaction            |
-   |         (recall_memories +    |
-   |          recall_active_task)  |
    +-------------------------------+
 
   WHEN SESSION ENDS ("wrap up" / going idle):
@@ -626,8 +622,9 @@ These fire at specific moments during any workflow above — they are cross-cutt
   | - Validate impl   |  | - Fix bugs        |  | - Check quality   |
   | - Run test suite  |  | - Address review  |  | - Verify plan     |
   | - Coverage check  |  |   findings        |  |   compliance      |
-  |                   |  | - recall_gotchas  |  |                   |
-  |                   |  |   at bootstrap    |  |                   |
+  |                   |  | - Read gotchas    |  |                   |
+  |                   |  |   via QMD at      |  |                   |
+  |                   |  |   bootstrap       |  |                   |
   |                   |  | - remember_gotcha |  |                   |
   |                   |  |   when traps hit  |  |                   |
   +-------------------+  +-------------------+  +-------------------+

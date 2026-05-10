@@ -47,7 +47,6 @@ flowchart TB
             p_rd["rtk-dedupe"]
             p_dc["diff-context"]
             p_aw["active-work-context"]
-            p_cs["compaction-save"]
         end
 
         subgraph agents["Agent Roles (src/agents/)"]
@@ -89,7 +88,6 @@ flowchart TB
 | **After significant work**    | `brain/` notes      | Stores new decisions, patterns, bug fixes                         |
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review    |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)                  |
-| **On compaction**             | Compaction Save     | Writes compaction timestamp to each active work item              |
 | **End of session**            | `brain/` notes      | Saves session summary; archives completed work notes              |
 | **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions                 |
 | **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata          |
@@ -200,7 +198,6 @@ src/
     remember-session.js       # auto-captures learnings before compaction
     diff-context.js          # injects git change summary on first bash call
     active-work-context.js   # injects active work items at session start
-    compaction-save.js       # saves compaction timestamps to active work items
     lib/
       readme-utils.js        # shared utilities for README.md parsing
   skills/
