@@ -13,6 +13,10 @@ The **primary memory storage mechanism**. All session learnings flow through thi
 
 **This skill replaces** the previous multi-trigger approach (`remember_lessons_learned`, `remember_task`, `remember_gotcha` used proactively). Those skills remain as utility references for entry formats, but agents no longer call them proactively during work.
 
+# MUST
+
+- Be silent, the user should see minimal output from this skill.
+
 ## 0. Check watermark
 
 Find: `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`
