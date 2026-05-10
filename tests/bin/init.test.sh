@@ -289,18 +289,45 @@ else
   _fail ".ai/telamon/secrets — expected a real directory, got: $(ls -lad "${SECRETS_DIR}" 2>/dev/null || echo 'missing')"
 fi
 
-# Each global secret must have a symlink in the per-project directory
+# Each global secret must have a symlink in the per-project directory.
+# Strong checks:
+#   (a) per-project entry is a symlink
+#   (b) symlink resolves to the corresponding file under storage/secrets/
+#   (c) target is readable (not dangling)
 _GLOBAL_SECRETS_DIR="${TELAMON_ROOT}/storage/secrets"
+_secrets_seen=0
 for _sf in "${_GLOBAL_SECRETS_DIR}"/*; do
   [[ -f "${_sf}" ]] || continue
+  _secrets_seen=$((_secrets_seen + 1))
   _sn="$(basename "${_sf}")"
   _sl="${SECRETS_DIR}/${_sn}"
-  if [[ -L "${_sl}" ]]; then
-    _pass "secret symlink: ${_sn}"
-  else
-    _fail "secret symlink: ${_sn} — expected a symlink at ${_sl}"
+  _expected_target="$(readlink -f "${_sf}")"
+
+  if [[ ! -L "${_sl}" ]]; then
+    _fail "secret symlink: ${_sn} — expected a symlink at ${_sl}, got: $(ls -lad "${_sl}" 2>/dev/null || echo 'missing')"
+    continue
   fi
+
+  _actual_target="$(readlink -f "${_sl}" 2>/dev/null || true)"
+  if [[ -z "${_actual_target}" ]]; then
+    _fail "secret symlink: ${_sn} — dangling (readlink -f returned empty for ${_sl})"
+    continue
+  fi
+  if [[ "${_actual_target}" != "${_expected_target}" ]]; then
+    _fail "secret symlink: ${_sn} — points to '${_actual_target}', expected '${_expected_target}'"
+    continue
+  fi
+  if [[ ! -r "${_sl}" ]]; then
+    _fail "secret symlink: ${_sn} — target not readable through symlink ${_sl}"
+    continue
+  fi
+
+  _pass "secret symlink: ${_sn} → ${_actual_target}"
 done
+
+if [[ "${_secrets_seen}" -eq 0 ]]; then
+  _warn "no global secrets found in ${_GLOBAL_SECRETS_DIR} — secret symlink assertions skipped"
+fi
 
 # ── 5b. memory symlink — mode-dependent ──────────────────────────────────────
 _section "5b. .ai/telamon/memory (${MEMORY_OWNER} mode)"
