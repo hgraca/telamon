@@ -216,7 +216,7 @@ PRE_DOCKER_APPS=(homebrew sqlite3 gh docker)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make install` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd cli langfuse graphiti)
+POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd langfuse graphiti)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do
@@ -228,6 +228,7 @@ post_docker() {
   for _app in "${POST_DOCKER_APPS[@]}"; do
     timed_run "${_app}" bash "${TOOLS_PATH}/${_app}/install.sh"
   done
+  timed_run "telamon-cli" bash "${TELAMON_ROOT}/src/telamon-cli/install.sh"
 }
 
 # ── main ──────────────────────────────────────────────────────────────────────

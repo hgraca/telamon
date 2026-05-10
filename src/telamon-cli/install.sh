@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/tools/cli/install.sh
+# src/telamon-cli/install.sh
 # Creates the global `telamon` CLI symlink and desktop/app menu entry.
 # Idempotent: safe to re-run.
 # =============================================================================
