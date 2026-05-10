@@ -20,8 +20,15 @@ import { join, dirname, basename } from "path";
 const LOCK_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const STALL_FLAG_TTL_MS = 6 * 60 * 1000; // duplicated per ADR M-ARCH-034 (= LOCK_TTL_MS_enforcer + GRACE_MS)
 const CAPTURE_PROMPT_TEXT =
-  "[Telamon] Please load the `telamon.remember_session` skill and run it now. " +
-  "This is an automated idle capture triggered by the remember-session plugin.";
+  "[Telamon] Automated idle capture from the remember-session plugin.\n" +
+  "\n" +
+  "Invoke the `skill` tool exactly ONCE with name `telamon.remember_session`, " +
+  "execute its steps exactly ONCE (check watermark, capture if anything new, " +
+  "update watermark, exit), then end your response. " +
+  "Do NOT emit `<skill>...</skill>` text markers. " +
+  "Do NOT re-invoke the skill tool a second time. " +
+  "Do NOT write the watermark file more than once per turn. " +
+  "If the watermark file has already been written in this response, exit immediately.";
 
 function worktreeSlug(worktree, directory) {
   const raw = basename(worktree || directory || "default");
