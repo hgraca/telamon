@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Install graphify and telamon git hooks into a project.
 # Hooks trigger background graphify updates, codebase-index rebuilds,
-# and memory session capture on branch switch and commit.
+# memory session capture on branch switch and commit, and a `make test`
+# gate before opencode-driven commits.
 #
 # Requires: PROJ (absolute or relative path to the target project)
 
@@ -18,6 +19,7 @@ HOOKS_DIR="${PROJ}/.git/hooks"
 RUNNER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/graphify-hook-runner.sh"
 REMEMBER_SESSION_RUNNER="${TOOLS_PATH}/git-hook-remember-session/remember-session-hook-runner.sh"
 CODEBASE_INDEX_RUNNER="${TOOLS_PATH}/codebase-index/codebase-index-hook-runner.sh"
+RUN_TESTS_RUNNER="${TOOLS_PATH}/git-hook-run-tests/run-tests-hook-runner.sh"
 
 MARKER_START="# ── TELAMON START ──"
 MARKER_END="# ── TELAMON END ──"
@@ -82,5 +84,14 @@ fi
 
 install_hook "post-checkout" "${POST_CHECKOUT_BODY}"
 install_hook "post-commit"   "${POST_COMMIT_BODY}"
+
+# ── pre-commit: run `make test` before allowing commit (opencode commits only) ─
+# This hook runs in the foreground — a non-zero exit aborts the commit so the
+# LLM sees the failure and can react. The runner short-circuits to exit 0 when
+# OPENCODE_SESSION_ID is unset, so human commits are never blocked.
+if [[ -f "${RUN_TESTS_RUNNER}" ]]; then
+  PRE_COMMIT_BODY="bash \"${RUN_TESTS_RUNNER}\" \"${PROJ}\" || exit 1"
+  install_hook "pre-commit" "${PRE_COMMIT_BODY}"
+fi
 
 log "Graphify git hooks installed in ${PROJ}"

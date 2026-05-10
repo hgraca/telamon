@@ -203,6 +203,8 @@ src/
   modules/
     git-hook-remember-session/
       remember-session-hook-runner.sh  # post-commit hook: captures learnings to memory
+    git-hook-run-tests/
+      run-tests-hook-runner.sh         # pre-commit hook: runs `make test` before opencode commits
   skills/
     memory/                  # memory & context management skills
     dev/                     # development convention skills
