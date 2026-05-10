@@ -201,7 +201,7 @@ fi
 # ── 7. opencode config: symlink or merge ─────────────────────────────────────
 # Detect any existing opencode config (symlink or regular file, .jsonc or .json)
 OPENCODE_TARGET="${TELAMON_ROOT}/storage/opencode.jsonc"
-MERGE_SCRIPT="${TELAMON_ROOT}/src/tools/opencode/merge-config.py"
+MERGE_SCRIPT="${TELAMON_ROOT}/src/modules/opencode/merge-config.py"
 OPENCODE_LINK=""      # the path we will create the symlink at (if creating)
 EXISTING_FILE=""      # path to an existing regular file (if found)
 

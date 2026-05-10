@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/tools/graphiti/install.sh
+# src/modules/graphiti/install.sh
 # Optional install module for Graphiti (temporal knowledge graph).
 #
 # Guarded by GRAPHITI_ENABLED=true in .env.

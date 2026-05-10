@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/tools/langfuse/install.sh
+# src/modules/langfuse/install.sh
 # Optional install module for Langfuse (LLM observability).
 #
 # Guarded by LANGFUSE_ENABLED=true in .env.

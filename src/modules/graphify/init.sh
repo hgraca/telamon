@@ -58,7 +58,7 @@ fi
 
 # ── Symlink MCP wrapper ──────────────────────────────────────────────────────
 if [[ -d ".opencode" ]]; then
-  ln -sf "${TELAMON_ROOT}/src/tools/graphify/serve-wrapper.sh" .opencode/graphify-serve.sh
+  ln -sf "${TELAMON_ROOT}/src/modules/graphify/serve-wrapper.sh" .opencode/graphify-serve.sh
   log "Symlinked .opencode/graphify-serve.sh"
 else
   warn ".opencode/ directory not found — skipping MCP wrapper symlink"

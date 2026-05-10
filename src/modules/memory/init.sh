@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/tools/memory/init.sh
+# src/modules/memory/init.sh
 # Scaffold the memory vault for a project.
 #
 # Creates the vault directory structure, brain files (with placeholder

@@ -44,9 +44,9 @@ graphify-out/
 !opencode.dist.jsonc
 !src/commands/patch-opencode/
 !src/commands/patch-opencode/**
-!src/tools/opencode/
-!src/tools/opencode/**
-src/tools/opencode/__pycache__/
+!src/modules/opencode/
+!src/modules/opencode/**
+src/modules/opencode/__pycache__/
 repomix.config.json
 .telamon.jsonc
 ###< telamon ###

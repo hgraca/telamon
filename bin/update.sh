@@ -179,7 +179,7 @@ fi
 # ── Project config sync ───────────────────────────────────────────────────────
 header "Project config sync"
 
-# Defaults MUST match src/tools/opencode/init.sh template (step 5)
+# Defaults MUST match src/modules/opencode/init.sh template (step 5)
 _CFG_DEFAULTS='{"rtk_enabled":true,"caveman_enabled":true,"medium_model":"","memory_owner":"telamon"}'
 
 while IFS= read -r _ppath_file; do
