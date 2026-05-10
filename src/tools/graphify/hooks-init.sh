@@ -16,7 +16,7 @@ PROJ="$(cd "${PROJ}" && pwd)"
 
 HOOKS_DIR="${PROJ}/.git/hooks"
 RUNNER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/graphify-hook-runner.sh"
-REMEMBER_SESSION_RUNNER="${TOOLS_PATH}/memory/remember-session-hook-runner.sh"
+REMEMBER_SESSION_RUNNER="${TOOLS_PATH}/git-hook-remember-session/remember-session-hook-runner.sh"
 CODEBASE_INDEX_RUNNER="${TOOLS_PATH}/codebase-index/codebase-index-hook-runner.sh"
 
 MARKER_START="# ── TELAMON START ──"
