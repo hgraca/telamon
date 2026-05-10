@@ -46,6 +46,7 @@ graphify-out/
 !src/commands/patch-opencode/**
 !src/tools/opencode/
 !src/tools/opencode/**
+src/tools/opencode/__pycache__/
 repomix.config.json
 .telamon.jsonc
 ###< telamon ###

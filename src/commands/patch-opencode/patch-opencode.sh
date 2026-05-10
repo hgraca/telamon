@@ -3,6 +3,14 @@
 #
 # Triggered manually via the /patch-opencode slash command (NOT on install/update).
 #
+# Usage:
+#   patch-opencode.sh [latest|dev|<version>] [--resume] [--dry-run]
+#     latest     — newest v* tag in the opencode repo (default)
+#     dev        — origin/dev branch
+#     <version>  — explicit version, e.g. 1.14.44 or v1.14.44
+#     --resume   — continue after LLM-resolved merge conflicts (working tree preserved)
+#     --dry-run  — build & smoke-test only; do NOT back up or replace ~/.opencode/bin/opencode
+#
 # Workflow:
 #   1. Resolve target ref from argument: latest | dev | <version> (default: latest)
 #   2. Clone/update opencode source under storage/opencode-src/
@@ -50,12 +58,17 @@ FUNCTIONS_PATH="${TELAMON_ROOT}/src/functions"
 . "${FUNCTIONS_PATH}/autoload.sh"
 
 # ── Args ─────────────────────────────────────────────────────────────────────
-TARGET_ARG="${1:-latest}"
+TARGET_ARG="latest"
 RESUME=0
-if [[ "${TARGET_ARG}" == "--resume" ]]; then
-  RESUME=1
-  TARGET_ARG="${2:-latest}"
-fi
+DRY_RUN=0
+for arg in "$@"; do
+  case "${arg}" in
+    --resume)  RESUME=1 ;;
+    --dry-run) DRY_RUN=1 ;;
+    -*)        error "Unknown flag: ${arg}" ;;
+    *)         TARGET_ARG="${arg}" ;;
+  esac
+done
 
 PATCHED_VERSION="666.0.0"   # stamped into the built binary
 SRC_DIR="${TELAMON_ROOT}/storage/opencode-src"
@@ -68,7 +81,10 @@ CONFIG_FILE="${TELAMON_ROOT}/.telamon.jsonc"
 
 mkdir -p "${BACKUP_DIR}" "$(dirname "${DEST}")" "$(dirname "${STATE_FILE}")"
 
-header "patch-opencode (target: ${TARGET_ARG}${RESUME:+, resume})"
+_mode_suffix=""
+[[ "${RESUME}" -eq 1 ]] && _mode_suffix="${_mode_suffix}, resume"
+[[ "${DRY_RUN}" -eq 1 ]] && _mode_suffix="${_mode_suffix}, DRY-RUN"
+header "patch-opencode (target: ${TARGET_ARG}${_mode_suffix})"
 
 # ── 1. Read patches list ─────────────────────────────────────────────────────
 if [[ ! -f "${CONFIG_FILE}" ]]; then
@@ -252,16 +268,14 @@ PYEOF
     warn "Merge conflict in ${CONFLICT_PR}"
     warn "Conflicting files:"
     echo "${CONFLICT_FILES}" | sed 's/^/       /'
-    cat <<EOF
-
-  ${TEXT_BOLD}Next steps for the LLM:${TEXT_CLEAR}
-    1. cd ${SRC_DIR}
-    2. Resolve conflicts in the listed files (remove <<<<<<< / ======= / >>>>>>> markers)
-    3. git add <resolved-files>
-    4. Re-run: bash ${BASH_SOURCE[0]} --resume ${TARGET_ARG}
-
-  Conflict context written to: ${CONFLICT_FILE}
-EOF
+    echo
+    echo -e "  ${TEXT_BOLD}Next steps for the LLM:${TEXT_CLEAR}"
+    echo "    1. cd ${SRC_DIR}"
+    echo "    2. Resolve conflicts in the listed files (remove <<<<<<< / ======= / >>>>>>> markers)"
+    echo "    3. git add <resolved-files>"
+    echo "    4. Re-run: bash ${BASH_SOURCE[0]} --resume ${TARGET_ARG}"
+    echo
+    echo "  Conflict context written to: ${CONFLICT_FILE}"
     exit 3
   fi
 fi
@@ -305,6 +319,16 @@ fi
 log "Smoke test passed: ${SMOKE_OUTPUT}"
 
 # ── 11. Backup current binary, replace ─────────────────────────────────────
+if [[ "${DRY_RUN}" -eq 1 ]]; then
+  echo
+  log "DRY-RUN: skipping backup / install / state-save"
+  log "DRY-RUN: built binary left at ${BUILT_BINARY}"
+  log "DRY-RUN: combined patch at ${COMBINED_PATCH}"
+  log "DRY-RUN: would have replaced ${DEST} (current: $([[ -f ${DEST} ]] && "${DEST}" --version 2>/dev/null || echo "absent"))"
+  log "DRY-RUN: ${#APPLIED_PRS[@]} PR(s) applied on ${TARGET_REF}, smoke-test passed"
+  exit 0
+fi
+
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 if [[ -f "${DEST}" ]]; then
   CURRENT_VERSION="$("${DEST}" --version 2>/dev/null || echo "unknown")"

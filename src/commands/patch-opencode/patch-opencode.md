@@ -3,16 +3,22 @@ description: Build a patched opencode binary from .telamon.jsonc::opencode_patch
 agent: telamon/telamon
 ---
 
-Run `.opencode/commands/telamon/patch-opencode/patch-opencode.sh $1` and follow its output.
+Run `.opencode/commands/telamon/patch-opencode/patch-opencode.sh $ARGUMENTS` and follow its output.
 
 The script does everything autonomously — downloading PRs, applying them, building, smoke-testing, and swapping the installed binary with a backup. Your only job as the agent is to handle merge conflicts when the script asks for help.
 
-## Argument
+## Arguments
 
-- `$1` is the base ref to patch on top of:
-  - omitted or `latest` → the latest released opencode tag
+`$ARGUMENTS` is forwarded verbatim. Supported forms:
+
+- `<base-ref>` — what to patch on top of:
+  - omitted or `latest` → the latest released opencode tag (default)
   - `dev` → the upstream `dev` branch HEAD
   - `<version>` (e.g. `1.14.44` or `v1.14.44`) → that specific release tag
+- `--dry-run` — build & smoke-test only; do **not** back up or replace `~/.opencode/bin/opencode`. Use this to validate that patches still apply and the build is healthy without touching the live binary.
+- `--resume` — continue after you have resolved merge conflicts in the working tree (see below).
+
+Flags and the base-ref can be combined in any order, e.g. `/patch-opencode dev --dry-run` or `/patch-opencode --resume 1.14.44`.
 
 The patched binary is always stamped as version `666.0.0` so the user can tell at a glance (`opencode --version`) that they are running the patched build. The Telamon updater (`make update`) detects this stamp and skips npm so it never clobbers a patched build.
 
@@ -43,7 +49,7 @@ Steps:
    - Resolve the conflict markers (keep the right hunks; merge intent)
    - Write the resolved file back
 4. Stage the resolved files: `cd <src_dir> && git add <file>...`
-5. Re-run the script with `--resume`: `bash .opencode/commands/telamon/patch-opencode/patch-opencode.sh --resume $1`
+5. Re-run the script with `--resume`: `bash .opencode/commands/telamon/patch-opencode/patch-opencode.sh --resume <base-ref>`
 
 The `--resume` flag tells the script to skip the patch-application phase (the working tree already has the resolved state) and jump straight to building, smoke-testing, and installing.
 
