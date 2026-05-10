@@ -1,11 +1,11 @@
-"""Tests for src/instructions/commands/format-md/format-md.py — pure logic functions."""
+"""Tests for src/instructions/tools/format-md/format-md.py — pure logic functions."""
 
 import sys
 import os
 
 # Make the script directory importable
 _SCRIPT_DIR = os.path.join(
-    os.path.dirname(__file__), "..", "..", "src", "commands", "format-md"
+    os.path.dirname(__file__), "..", "..", "src", "instructions", "tools", "format-md"
 )
 sys.path.insert(0, _SCRIPT_DIR)
 

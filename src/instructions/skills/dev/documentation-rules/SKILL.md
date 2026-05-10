@@ -24,4 +24,4 @@ description: "Repository documentation conventions: file organization, README TO
   - Create a folder with the name of that `.md` file
   - Break up the file into several files inside that folder, each new file containing one section of the initial file
 - Images used in documentation, should be stored under `docs/imgs/`
-- **After writing or editing any `.md` file**, run `python3 .opencode/commands/telamon/format-md/format-md.py <file-or-directory>` to align markdown table columns. Run this on every `.md` file touched before committing.
+- **After writing or editing any `.md` file**, use the `format-md` tool with the file or directory path to align markdown table columns. Run this on every `.md` file touched before committing.
