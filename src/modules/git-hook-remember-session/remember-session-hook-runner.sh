@@ -5,10 +5,21 @@
 #
 # Usage: remember-session-hook-runner.sh <project-path>
 #
+# Trigger model:
+# - Only fires when the commit was made from inside an opencode session
+#   (i.e. $OPENCODE_SESSION_ID is set in the inherited environment).
+# - The session-id-export.js plugin populates OPENCODE_SESSION_ID on every
+#   tool.execute.before, so any bash tool invocation (including `git commit`)
+#   inherits it.
+# - Manual commits made from a normal terminal carry no OPENCODE_SESSION_ID
+#   → this hook exits silently and produces no capture. This is intentional:
+#   we never want to inject a capture prompt into an unrelated session via
+#   --continue.
+#
 # Requirements:
 # - opencode CLI must be installed
-# - Only runs for the current project and session
-# - Incremental: uses --continue to append to the current session
+# - .ai/telamon directory must exist (project initialized)
+# - $OPENCODE_SESSION_ID must be set (commit originated from an opencode session)
 
 set -uo pipefail
 
@@ -31,6 +42,15 @@ if [[ ! -d "${LOG_DIR}" ]]; then
   exit 0
 fi
 
+# Must have an originating opencode session — otherwise skip silently.
+# (Commits from a normal terminal have no OPENCODE_SESSION_ID and we
+# refuse to fall back to --continue, which would target an unrelated session.)
+if [[ -z "${OPENCODE_SESSION_ID:-}" ]]; then
+  exit 0
+fi
+
+SESSION_ID="${OPENCODE_SESSION_ID}"
+
 # Kill any running remember-session process for this project
 if [[ -f "${PID_FILE}" ]]; then
   OLD_PID="$(cat "${PID_FILE}" 2>/dev/null || true)"
@@ -50,17 +70,15 @@ if [[ -f "${LOG_FILE}" ]] && [[ "$(wc -c < "${LOG_FILE}" 2>/dev/null || echo 0)"
 fi
 
 # Launch opencode run in background with nohup so it survives terminal close.
-# Uses --continue to resume the current session (incremental).
+# Targets the originating session by ID — never falls back to --continue.
 (
   echo "${BASHPID}" > "${PID_FILE}"
 
   cd "${PROJECT_PATH}" || exit 0
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session started" >> "${LOG_FILE}"
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session started (session=${SESSION_ID})" >> "${LOG_FILE}"
 
-  # Run the remember_session skill via opencode CLI
-  # --continue resumes the last session (incremental, same session context)
   nohup opencode run \
-    --continue \
+    --session "${SESSION_ID}" \
     --pure \
     "A git commit was just made. Run the telamon.remember_session skill to capture any session knowledge worth keeping. Be brief, silent, and only save genuinely new insights." \
     >> "${LOG_FILE}" 2>&1

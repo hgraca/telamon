@@ -36,10 +36,6 @@ When the per-session attempt count hits `max_attempts` (default `2`), the plugin
 [agent-communication] Session <id> exceeded max nudge attempts (<N>) — stopping. Human review needed.
 ```
 
-## Coordination with Session Capture
-
-This plugin coexists with [Session Capture](remember-session). On a stalled idle, Status Marker Enforcer writes a stall-flag file (`.ai/telamon/memory/thinking/.agent-communication-stall-<slug>.json`, 6-min TTL). Session Capture reads that flag and skips its capture pass while the flag is fresh and `attempt < max_attempts`. Once the agent emits a marker — or the attempt ceiling is reached — the flag clears and Session Capture proceeds normally.
-
 ## Configuration
 
 In `.ai/telamon/telamon.jsonc`:

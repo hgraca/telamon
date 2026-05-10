@@ -195,11 +195,14 @@ src/
     graphify.js              # injects graph context into first tool call
     rtk.ts                   # RTK token compression integration
     rtk-dedupe.ts            # deduplicates RTK output
-    remember-session.js       # auto-captures learnings before compaction
     diff-context.js          # injects git change summary on first bash call
     active-work-context.js   # injects active work items at session start
+    session-id-export.js     # exports OPENCODE_SESSION_ID to env + per-PID file
     lib/
       readme-utils.js        # shared utilities for README.md parsing
+  modules/
+    git-hook-remember-session/
+      remember-session-hook-runner.sh  # post-commit hook: captures learnings to memory
   skills/
     memory/                  # memory & context management skills
     dev/                     # development convention skills
