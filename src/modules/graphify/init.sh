@@ -110,4 +110,23 @@ fi
 
 # ── Install graphify git hooks ────────────────────────────────────────────────
 step "Installing graphify git hooks..."
-bash "${TOOLS_PATH}/graphify/hooks-init.sh" || warn "Failed to install graphify git hooks — graph updates will need manual runs"
+
+GRAPHIFY_RUNNER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/graphify-hook-runner.sh"
+
+# Background + disown — prevents MCP git server from waiting on child processes
+# (Python subprocess waits until inherited FDs close).
+PROJ_ABS="$(cd "${PROJ}" && pwd)"
+
+# post-checkout: fire only on actual branch switch (3rd arg from git == 1).
+POST_CHECKOUT_BODY="# Args: prev-ref new-ref branch-flag
+if [[ \"\${3:-0}\" == \"1\" ]]; then
+  bash \"${GRAPHIFY_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown
+fi"
+
+# post-commit: rebuild graph in the background.
+POST_COMMIT_BODY="bash \"${GRAPHIFY_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown"
+
+PROJ="${PROJ_ABS}" install_telamon_hook "post-checkout" "${POST_CHECKOUT_BODY}" \
+  || warn "Failed to install graphify post-checkout hook"
+PROJ="${PROJ_ABS}" install_telamon_hook "post-commit"   "${POST_COMMIT_BODY}" \
+  || warn "Failed to install graphify post-commit hook"

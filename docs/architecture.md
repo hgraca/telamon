@@ -203,16 +203,19 @@ src/
   modules/
     git-hook-remember-session/
       remember-session-hook-runner.sh  # post-commit hook: captures learnings to memory
+      init.sh                          # installs the post-commit hook into a project
     git-hook-run-tests/
       run-tests-hook-runner.sh         # pre-commit hook: runs `make test` before opencode commits
+      init.sh                          # installs the pre-commit hook into a project
   skills/
     memory/                  # memory & context management skills
     dev/                     # development convention skills
     workflow/                # workflow orchestration skills
     addyosmani/              # general engineering skills (from addyosmani/agent-skills)
-  functions/                 # shared bash library (colors, stdout, state, os, opencode, secrets, shell profile)
+  functions/                 # shared bash library (colors, stdout, state, os, opencode, secrets, shell profile, git)
     autoload.sh              # auto-sources all functions in the directory
     colors.sh                # terminal color definitions
+    git.sh                   # install_telamon_hook helper for module hook installers
     install.sh               # shell profile PATH + env setup (merged from shell/)
     write-env.sh             # writes exports to shell RC file (merged from shell/)
     strip_jsonc.py           # JSON-with-comments parser

@@ -201,3 +201,12 @@ NODE_SCRIPT
     fi
   fi
 fi
+
+# ── Install codebase-index post-commit hook ──────────────────────────────────
+HOOK_RUNNER="${SCRIPT_DIR}/codebase-index-hook-runner.sh"
+if [[ -f "${HOOK_RUNNER}" ]] && [[ -n "${PROJ:-}" ]]; then
+  PROJ_ABS="$(cd "${PROJ}" && pwd)"
+  PROJ="${PROJ_ABS}" install_telamon_hook "post-commit" \
+    "bash \"${HOOK_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown"
+  log "codebase-index post-commit hook installed"
+fi

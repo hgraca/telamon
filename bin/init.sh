@@ -110,7 +110,7 @@ export TELAMON_ROOT PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH PROJ PROJECT_
 header "Telamon init — ${PROJECT_NAME}"
 
 # ── Run per-app init scripts ──────────────────────────────────────────────────
-INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd)
+INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd git-hook-remember-session git-hook-run-tests)
 
 for _app in "${INIT_APPS[@]}"; do
   _dir=$(_resolve_app_path "${_app}") || {

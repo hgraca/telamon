@@ -11,3 +11,4 @@
 . "${FUNCTIONS_PATH}/env.sh"
 . "${FUNCTIONS_PATH}/config.sh"
 . "${FUNCTIONS_PATH}/resolve.sh"
+. "${FUNCTIONS_PATH}/git.sh"
