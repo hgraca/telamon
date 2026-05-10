@@ -42,6 +42,10 @@ graphify-out/
 *junie*
 !opencode.dist.json
 !opencode.dist.jsonc
+!src/commands/patch-opencode/
+!src/commands/patch-opencode/**
+!src/tools/opencode/
+!src/tools/opencode/**
 repomix.config.json
 .telamon.jsonc
 ###< telamon ###

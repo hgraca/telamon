@@ -53,9 +53,9 @@ The file `.telamon.jsonc` in the Telamon root directory contains global settings
 | Key                | Default | Description                                                                                                                     |
 |--------------------|---------|---------------------------------------------------------------------------------------------------------------------------------|
 | `modules`          | `{}`    | External modules (agent skills, commands, plugins) from git repos                                                               |
-| `opencode_patches` | `[]`    | Array of GitHub PR URLs to apply when building opencode from source. See [Opencode Patches](tools/opencode-patches) for details |
+| `opencode_patches` | `[]`    | Array of GitHub PR URLs applied on demand by `/patch-opencode`. See [Opencode Patches](tools/opencode-patches) for details      |
 
-When `opencode_patches` is non-empty, opencode is built from source with the specified patches applied on every `make update` or `make install`.
+Patches are applied on demand via the `/patch-opencode` slash command — never automatically on `make install` or `make update`.
 
 ---
 
