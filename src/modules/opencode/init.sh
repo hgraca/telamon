@@ -89,7 +89,8 @@ fi
 #      file's REAL path. Bun walks up from the symlink target. We therefore
 #      install @opencode-ai/plugin once at src/instructions/tools/node_modules/
 #      so every tool .ts file under that tree can resolve the package without
-#      duplication.
+#      duplication. That install runs in opencode/install.sh and opencode/update.sh
+#      (telamon-checkout-scoped, not per-project) — this step assumes it has run.
 #
 # Layout convention: src/instructions/tools/<name>/<name>.ts (+ optional sibling
 # script). The flat symlink at .opencode/tools/<name>.ts resolves to that file.
@@ -98,18 +99,12 @@ TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
 TOOLS_DIR="${PROJ}/.opencode/tools"
 mkdir -p "${TOOLS_DIR}"
 
-# 5a. Ensure node_modules is installed at the tool source root so plugin resolution works.
+# Warn if the telamon-scoped install never ran — tools will fail to register.
 if [[ -f "${TOOLS_SRC}/package.json" && ! -d "${TOOLS_SRC}/node_modules/@opencode-ai/plugin" ]]; then
-  if command -v bun >/dev/null 2>&1; then
-    step "Installing @opencode-ai/plugin in ${TOOLS_SRC} ..."
-    (cd "${TOOLS_SRC}" && bun install) >/dev/null 2>&1 || warn "bun install failed in ${TOOLS_SRC} — custom tools will not load"
-    log "Installed tool deps in src/instructions/tools/"
-  else
-    warn "bun not found — cannot install @opencode-ai/plugin for custom tools"
-  fi
+  warn "${TOOLS_SRC}/node_modules/@opencode-ai/plugin is missing — run \`make install\` or \`make update\` to install tool dependencies. Custom tools will not load until then."
 fi
 
-# 5b. Symlink each src/instructions/tools/<name>/<name>.ts as a flat file.
+# Symlink each src/instructions/tools/<name>/<name>.ts as a flat file.
 _tools_linked=0
 if [[ -d "${TOOLS_SRC}" ]]; then
   for _tool_dir in "${TOOLS_SRC}"/*/; do

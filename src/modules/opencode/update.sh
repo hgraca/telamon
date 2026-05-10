@@ -45,3 +45,23 @@ else
   echo "${_npm_out}" | grep -i "error" | head -5 | sed 's/^/       /'
   exit 1
 fi
+
+# ── Refresh @opencode-ai/plugin for custom tools ──────────────────────────────
+# Re-run bun install so that any version bump in src/instructions/tools/package.json
+# (delivered by a telamon update) gets picked up. Idempotent and fast when nothing
+# has changed. See brain/gotchas.md "Opencode custom tools require flat layout AND
+# co-located node_modules" (2026-05-10).
+TELAMON_ROOT="$(cd "${TOOLS_PATH}/../.." && pwd)"
+TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
+if [[ -f "${TOOLS_SRC}/package.json" ]]; then
+  if command -v bun &>/dev/null; then
+    step "Refreshing custom-tool dependencies (@opencode-ai/plugin)..."
+    if (cd "${TOOLS_SRC}" && bun install) >/dev/null 2>&1; then
+      log "Custom-tool deps refreshed → ${TOOLS_SRC}/node_modules/"
+    else
+      warn "bun install failed in ${TOOLS_SRC} — custom tools may not load"
+    fi
+  else
+    warn "bun not found — cannot refresh @opencode-ai/plugin; custom tools may run with stale version"
+  fi
+fi

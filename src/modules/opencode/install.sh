@@ -43,3 +43,25 @@ fi
 
 # Export for tool install scripts that patch opencode.json
 export OPENCODE_CONFIG_FILE="${STORAGE_CONFIG}"
+
+# ── Install @opencode-ai/plugin for custom tools ──────────────────────────────
+# Custom tools under src/instructions/tools/<name>/<name>.ts import from
+# @opencode-ai/plugin, which Bun resolves from the file's real path. Installing
+# once at src/instructions/tools/node_modules/ covers every tool .ts under that
+# tree. This is telamon-checkout-scoped — NOT per-project — so it lives here
+# (and in opencode/update.sh) rather than in opencode/init.sh.
+# See brain/gotchas.md "Opencode custom tools require flat layout AND
+# co-located node_modules" (2026-05-10).
+TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
+if [[ -f "${TOOLS_SRC}/package.json" ]]; then
+  if command -v bun &>/dev/null; then
+    step "Installing custom-tool dependencies (@opencode-ai/plugin)..."
+    if (cd "${TOOLS_SRC}" && bun install) >/dev/null 2>&1; then
+      log "Custom-tool deps installed → ${TOOLS_SRC}/node_modules/"
+    else
+      warn "bun install failed in ${TOOLS_SRC} — custom tools will not load"
+    fi
+  else
+    warn "bun not found — cannot install @opencode-ai/plugin; custom tools will not load. Install bun and re-run \`make install\`."
+  fi
+fi
