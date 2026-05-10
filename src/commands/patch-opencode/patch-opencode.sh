@@ -147,7 +147,10 @@ resolve_ref() {
       echo "origin/dev"
       ;;
     latest)
-      git -C "${SRC_DIR}" tag -l 'v[0-9]*' | sort -V -r | head -1
+      # `sort -V -r | head -1` is unsafe under `pipefail`: head closes early,
+      # SIGPIPEs sort, and the surrounding subshell inherits the failure.
+      # Use `sort -V | tail -1` instead — tail consumes the full stream.
+      git -C "${SRC_DIR}" tag -l 'v[0-9]*' | sort -V | tail -1
       ;;
     v*)
       echo "${arg}"
@@ -187,6 +190,29 @@ SKIPPED_PRS=()
 CONFLICT_PR=""
 CONFLICT_FILES=""
 
+# On --resume: restore APPLIED_PRS / SKIPPED_PRS from the conflict file so the
+# final summary reports the correct counts. The currently-conflicting PR is
+# treated as applied (the LLM resolved it manually before resuming).
+if [[ "${RESUME}" -eq 1 && -f "${CONFLICT_FILE}" ]]; then
+  mapfile -t APPLIED_PRS < <(python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+for p in d.get('applied_prs', []):
+    print(p)
+if d.get('conflict_pr'):
+    print(d['conflict_pr'])
+" "${CONFLICT_FILE}")
+  mapfile -t SKIPPED_PRS < <(python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+for p in d.get('skipped_prs', []):
+    print(p)
+" "${CONFLICT_FILE}")
+  log "Resumed: ${#APPLIED_PRS[@]} PR(s) applied (incl. resolved), ${#SKIPPED_PRS[@]} skipped"
+fi
+
 if [[ "${RESUME}" -eq 0 ]]; then
   step "Applying ${PATCH_COUNT} patch(es)..."
 
@@ -220,8 +246,11 @@ if [[ "${RESUME}" -eq 0 ]]; then
 
     # Try 3-way merge (leaves conflict markers in working tree)
     if git -C "${SRC_DIR}" apply --3way "${patch_file}" 2>/dev/null; then
-      # Check if there are conflict markers
+      # Check for unmerged paths AND inline conflict markers (the latter can
+      # appear without the index showing UU when --3way partially succeeds).
       conflicting="$(git -C "${SRC_DIR}" diff --name-only --diff-filter=U 2>/dev/null || true)"
+      inline_marked="$(git -C "${SRC_DIR}" grep -lE '^(<{7}|={7}|>{7}) ' -- '*.ts' '*.tsx' '*.js' '*.json' '*.md' 2>/dev/null || true)"
+      conflicting="$(printf '%s\n%s\n' "${conflicting}" "${inline_marked}" | awk 'NF && !seen[$0]++')"
       if [[ -z "${conflicting}" ]]; then
         log "  ✔ PR #${pr_num} applied via 3-way merge"
         APPLIED_PRS+=("${pr_url}")
@@ -238,9 +267,11 @@ if [[ "${RESUME}" -eq 0 ]]; then
     # autopilot path and surface to LLM
     git -C "${SRC_DIR}" apply --3way "${patch_file}" 2>"${SRC_DIR}/.pr-${pr_num}.err" || true
     CONFLICT_PR="${pr_url}"
-    CONFLICT_FILES="$(git -C "${SRC_DIR}" diff --name-only --diff-filter=U 2>/dev/null || true)"
+    _unmerged="$(git -C "${SRC_DIR}" diff --name-only --diff-filter=U 2>/dev/null || true)"
+    _inline="$(git -C "${SRC_DIR}" grep -lE '^(<{7}|={7}|>{7}) ' -- '*.ts' '*.tsx' '*.js' '*.json' '*.md' 2>/dev/null || true)"
+    CONFLICT_FILES="$(printf '%s\n%s\n' "${_unmerged}" "${_inline}" | awk 'NF && !seen[$0]++')"
     if [[ -z "${CONFLICT_FILES}" ]]; then
-      # No 3-way attempted → leave the patch file so LLM can inspect
+      # No conflicts detected anywhere → leave the patch file so LLM can inspect
       CONFLICT_FILES="(patch did not apply; see ${patch_file} and .pr-${pr_num}.err)"
     fi
     break
@@ -286,9 +317,18 @@ fi
 if git -C "${SRC_DIR}" diff --name-only --diff-filter=U 2>/dev/null | grep -q .; then
   error "Working tree still has unresolved conflicts. Resolve them and re-run with --resume"
 fi
+# Also catch inline markers that --diff-filter=U misses
+if git -C "${SRC_DIR}" grep -lE '^(<{7}|={7}|>{7}) ' -- '*.ts' '*.tsx' '*.js' '*.json' '*.md' 2>/dev/null | grep -q .; then
+  error "Working tree has inline conflict markers (<<<<<<< / ======= / >>>>>>>). Resolve them and re-run with --resume"
+fi
 
 # ── 8. Save combined patch (record of what was applied) ─────────────────────
 step "Saving combined patch → ${COMBINED_PATCH}"
+# Remove scratch artifacts before staging so they don't pollute the patch.
+# (.pr-*.patch / .pr-*.err are normally cleaned per-PR but linger on conflict
+# paths; combined.patch must be removed to avoid recursive self-inclusion.)
+find "${SRC_DIR}" -maxdepth 1 \( -name '.pr-*.patch' -o -name '.pr-*.err' \) -delete 2>/dev/null || true
+rm -f "${COMBINED_PATCH}"
 git -C "${SRC_DIR}" add -A
 git -C "${SRC_DIR}" diff --cached --binary > "${COMBINED_PATCH}" || true
 log "Combined patch: $(wc -l < "${COMBINED_PATCH}") lines"
@@ -321,6 +361,9 @@ fi
 log "Smoke test passed: ${SMOKE_OUTPUT}"
 
 # ── 11. Backup current binary, replace ─────────────────────────────────────
+# Smoke test passed → conflict (if any) is fully resolved; clean up marker.
+rm -f "${CONFLICT_FILE}"
+
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo
   log "DRY-RUN: skipping backup / install / state-save"
@@ -375,8 +418,6 @@ with open(state_file, "w") as f:
   f.write("\n")
 PYEOF
 log "State → ${STATE_FILE}"
-
-rm -f "${CONFLICT_FILE}"
 
 echo
 log "opencode patched successfully (${#APPLIED_PRS[@]} PR(s) applied on ${TARGET_REF}, stamped as v${PATCHED_VERSION})"
