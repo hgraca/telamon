@@ -6,8 +6,7 @@
 #   2. Symlink .opencode/plugins/telamon → <telamon-root>/src/instructions/plugins
 #   3. Symlink .opencode/agents/telamon → <telamon-root>/src/instructions/agents
 #   4. Symlink .opencode/commands/telamon → <telamon-root>/src/instructions/commands
-#   5. Symlink .opencode/tools/telamon → <telamon-root>/src/instructions/tools
-#   6. Write   .ai/telamon/telamon.jsonc with the project name
+#   5. Write   .ai/telamon/telamon.jsonc with the project name
 #   6. Symlink .ai/telamon/secrets → <telamon-root>/storage/secrets
 #   7. Symlink opencode.jsonc → <telamon-root>/storage/opencode.jsonc
 #      (or merge Telamon settings into an existing project config)
@@ -76,18 +75,7 @@ else
   log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/instructions/commands"
 fi
 
-# ── 5. Symlink .opencode/tools/telamon → <telamon-root>/src/instructions/tools ───────────────────
-TOOLS_DIR="${PROJ}/.opencode/tools"
-mkdir -p "${TOOLS_DIR}"
-TOOLS_LINK="${TOOLS_DIR}/telamon"
-if [[ -L "${TOOLS_LINK}" ]]; then
-  skip ".opencode/tools/telamon symlink (already exists)"
-else
-  ln -s "${TELAMON_ROOT}/src/instructions/tools" "${TOOLS_LINK}"
-  log "Symlinked .opencode/tools/telamon → ${TELAMON_ROOT}/src/instructions/tools"
-fi
-
-# ── 6. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
+# ── 5. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
 TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 
 # Migrate old INI format if present
