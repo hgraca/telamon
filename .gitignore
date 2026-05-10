@@ -31,6 +31,7 @@ docs/.jekyll-cache/
 docs/.jekyll-metadata
 docs/Gemfile.lock
 
+
 ###> telamon ###
 .ai/telamon
 .graphifyignore
@@ -42,11 +43,6 @@ graphify-out/
 *junie*
 !opencode.dist.json
 !opencode.dist.jsonc
-!src/instructions/commands/patch-opencode/
-!src/instructions/commands/patch-opencode/**
-!src/modules/opencode/
-!src/modules/opencode/**
-src/modules/opencode/__pycache__/
 repomix.config.json
 .telamon.jsonc
 ###< telamon ###

@@ -20,16 +20,23 @@
  *   NOT tear down between test files. To prevent this file's mock from breaking
  *   sibling test files, the factory forwards to the REAL node:fs methods
  *   (captured before the mock is installed) for any path other than the
- *   telamon.jsonc config path that the plugin itself reads.
+ *   plugin's own exact config path (_PLUGIN_CONFIG_PATH). Both "fs" and
+ *   "node:fs" are mocked explicitly to cover all import styles.
  */
 
 import { describe, test, expect, mock } from "bun:test"
+import { join } from "path"
 
 // ---------------------------------------------------------------------------
 // Capture REAL node:fs methods before installing the mock.
 // ---------------------------------------------------------------------------
-import * as _realFs from "node:fs"
-const _realRead = _realFs.readFileSync
+import * as _realFsNode from "node:fs"
+import * as _realFsBare from "fs"
+const _realReadNode = _realFsNode.readFileSync
+const _realReadBare = _realFsBare.readFileSync
+
+// The exact absolute path the plugin reads — used as discriminator.
+const _PLUGIN_CONFIG_PATH = join(process.cwd(), ".ai", "telamon", "telamon.jsonc")
 
 // ---------------------------------------------------------------------------
 // RTK mock — must be set up BEFORE the first import of rtk-dedupe.ts
@@ -51,18 +58,22 @@ mock.module("/home/herberto/Development/hgraca/telamon/src/instructions/plugins/
 // ---------------------------------------------------------------------------
 let _rtkEnabled: boolean | "missing" = true
 
-mock.module("node:fs", () => ({
-  ..._realFs,
-  readFileSync: (path: string, enc?: any) => {
-    // The plugin reads exactly one path: <cwd>/.ai/telamon/telamon.jsonc.
-    // Mock that path; forward all others to real fs.
-    if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
-      if (_rtkEnabled === "missing") throw new Error("ENOENT")
-      return JSON.stringify({ rtk_enabled: _rtkEnabled })
-    }
-    return _realRead(path as any, enc as any)
-  },
-}))
+function _makeFactory(realFs: typeof _realFsNode, realRead: typeof _realReadNode) {
+  return () => ({
+    ...realFs,
+    readFileSync: (path: string, enc?: any) => {
+      // Only intercept the plugin's own config path; forward everything else.
+      if (path === _PLUGIN_CONFIG_PATH) {
+        if (_rtkEnabled === "missing") throw new Error("ENOENT")
+        return JSON.stringify({ rtk_enabled: _rtkEnabled })
+      }
+      return realRead(path as any, enc as any)
+    },
+  })
+}
+
+mock.module("node:fs", _makeFactory(_realFsNode, _realReadNode))
+mock.module("fs",      _makeFactory(_realFsBare, _realReadBare))
 
 // ---------------------------------------------------------------------------
 // Now import the plugin under test (after mocks are in place)
@@ -140,31 +151,35 @@ describe("RtkDedupePlugin", () => {
 
     test("JSONC line comments are stripped before parsing config", async () => {
       mock.module("node:fs", () => ({
-        ..._realFs,
+        ..._realFsNode,
         readFileSync: (path: string, enc?: any) => {
-          if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
+          if (path === _PLUGIN_CONFIG_PATH) {
             return `{
               // This is a comment
               "rtk_enabled": true // inline comment
             }`
           }
-          return _realRead(path as any, enc as any)
+          return _realReadNode(path as any, enc as any)
+        },
+      }))
+      mock.module("fs", () => ({
+        ..._realFsBare,
+        readFileSync: (path: string, enc?: any) => {
+          if (path === _PLUGIN_CONFIG_PATH) {
+            return `{
+              // This is a comment
+              "rtk_enabled": true // inline comment
+            }`
+          }
+          return _realReadBare(path as any, enc as any)
         },
       }))
       const hooks = await RtkDedupePlugin(makeCtx())
       // If JSONC parsing works, rtk_enabled=true → hooks are returned
       expect(hooks["tool.execute.before"]).toBeTypeOf("function")
       // Restore the standard mock
-      mock.module("node:fs", () => ({
-        ..._realFs,
-        readFileSync: (path: string, enc?: any) => {
-          if (typeof path === "string" && path.endsWith(".ai/telamon/telamon.jsonc")) {
-            if (_rtkEnabled === "missing") throw new Error("ENOENT")
-            return JSON.stringify({ rtk_enabled: _rtkEnabled })
-          }
-          return _realRead(path as any, enc as any)
-        },
-      }))
+      mock.module("node:fs", _makeFactory(_realFsNode, _realReadNode))
+      mock.module("fs",      _makeFactory(_realFsBare, _realReadBare))
     })
   })
 
