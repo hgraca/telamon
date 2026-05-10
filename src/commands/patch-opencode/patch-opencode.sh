@@ -268,12 +268,14 @@ PYEOF
     warn "Merge conflict in ${CONFLICT_PR}"
     warn "Conflicting files:"
     echo "${CONFLICT_FILES}" | sed 's/^/       /'
+    _resume_extra=""
+    [[ "${DRY_RUN}" -eq 1 ]] && _resume_extra=" --dry-run"
     echo
     echo -e "  ${TEXT_BOLD}Next steps for the LLM:${TEXT_CLEAR}"
     echo "    1. cd ${SRC_DIR}"
     echo "    2. Resolve conflicts in the listed files (remove <<<<<<< / ======= / >>>>>>> markers)"
     echo "    3. git add <resolved-files>"
-    echo "    4. Re-run: bash ${BASH_SOURCE[0]} --resume ${TARGET_ARG}"
+    echo "    4. Re-run: bash ${BASH_SOURCE[0]} --resume ${TARGET_ARG}${_resume_extra}"
     echo
     echo "  Conflict context written to: ${CONFLICT_FILE}"
     exit 3
