@@ -80,7 +80,7 @@ fi
   nohup opencode run \
     --session "${SESSION_ID}" \
     --pure \
-    "A git commit was just made. Run the telamon.remember_session skill to capture any session knowledge worth keeping. Be brief, silent, and only save genuinely new insights." \
+    "A git commit was just made. Run the telamon.remember_session skill to capture any session knowledge worth keeping. Be brief, silent, and only save genuinely new insights. Then continue with any leftover work to do, if any." \
     >> "${LOG_FILE}" 2>&1
 
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session finished (exit $?)" >> "${LOG_FILE}"
