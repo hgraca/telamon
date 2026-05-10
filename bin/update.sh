@@ -177,6 +177,14 @@ PYEOF
   fi
 fi
 
+# ── Module wiring sync ────────────────────────────────────────────────────────
+# After pulling/cloning module repos, re-wire symlinks into all initialised
+# projects so newly added skills/agents/plugins/commands/scripts are exposed
+# and stale references are repaired.
+header "Module wiring sync"
+bash "${TELAMON_ROOT}/bin/module.sh" sync \
+  || { echo -e "  ${TEXT_RED}✖${TEXT_CLEAR}  module sync failed"; FAILED=$((FAILED + 1)); }
+
 # ── Project config sync ───────────────────────────────────────────────────────
 header "Project config sync"
 

@@ -730,10 +730,12 @@ for name, entry in modules.items():
     url        = entry.get('url', '')
     local_path = entry.get('local_path', '')
     paths = entry.get('paths', {'commands': './commands', 'agents': './agents', 'skills': './skills', 'plugins': './plugins', 'scripts': './scripts'})
-    print(name + '\t' + url + '\t' + local_path + '\t' + json.dumps(paths))
+    # Use ASCII Unit Separator (\x1f) — non-whitespace so bash 'read' does
+    # not collapse adjacent empty fields (e.g. when local_path is empty).
+    print(name + '\x1f' + url + '\x1f' + local_path + '\x1f' + json.dumps(paths))
 " "${modules_json}")"
 
-  while IFS=$'\t' read -r _name _url _local_path _paths_json; do
+  while IFS=$'\x1f' read -r _name _url _local_path _paths_json; do
     if [[ -n "${_local_path}" ]]; then
       # Local module: resolve vendor symlink (create if missing), then wire
       local _remote_url
