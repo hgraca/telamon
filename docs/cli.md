@@ -37,6 +37,25 @@ telamon init ~/my-project                # same result, from anywhere
 telamon init ../other-project            # relative path works too
 ```
 
+### init
+
+`telamon init [path]` wires the project for Telamon and, as the **last step**, auto-generates `<PROJ>/.ai/telamon/memory/project-rules/description.md` by invoking the `telamon.explore-project` skill via `opencode run`. The description is the canonical project map that every future agent session reads at bootstrap.
+
+**Idempotency.** Init checks whether `description.md` already exists and is non-empty. If yes, exploration is skipped. To refresh the description after the repo has drifted, delete (or empty) `description.md` and re-run `telamon init`, or invoke the `telamon.explore-project` skill manually from an agent session.
+
+**Missing `opencode`.** If `opencode` is not on `PATH`, init prints a warning, skips exploration, and exits 0 — exploration is an enhancement, not a hard requirement.
+
+**Known limitations.**
+
+- No timeout: the exploration call blocks until `opencode run` returns. On very large repositories the wall-clock can be several minutes. Press Ctrl-C to abort init; description generation can be retried later.
+- No `--force-explore` flag: re-exploration is opt-in via deleting `description.md`. A flag may be added later.
+- `opencode run` failures are logged as warnings, not errors — init still exits 0 so that exploration failure does not block project wiring.
+
+```bash
+telamon init                              # auto-explores if description.md is missing
+rm .ai/telamon/memory/project-rules/description.md && telamon init   # refresh
+```
+
 ### recover-memories
 
 Scans the opencode session database for all sessions associated with a project, extracts decisions, patterns, gotchas, and lessons using an LLM, then writes them to the `brain/` markdown files.

@@ -130,6 +130,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 - Installs the Graphify git hook and OpenCode plugin
 - Installs the remember-session OpenCode plugin (auto-captures before compaction)
 - Registers QMD vault collections and builds the initial semantic index
+- Runs the `telamon.explore-project` skill via `opencode run` to generate `.ai/telamon/memory/project-rules/description.md` — the canonical project map that future agent sessions load at bootstrap. Skipped on re-init when the description is already present; skipped with a warning (init still exits 0) when `opencode` is not on PATH. See [`docs/cli.md`](./cli.md#init) for details and known limitations (no timeout, no `--force-explore` flag yet).
 
 ### What the agent does at session start
 

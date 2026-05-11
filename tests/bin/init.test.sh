@@ -391,6 +391,17 @@ assert_symlink "${PROJ}/AGENTS.md" "storage/AGENTS.shared.md" \
 assert_file "${TELAMON_ROOT}/storage/AGENTS.shared.md" \
   "storage/AGENTS.shared.md (storage copy)"
 
+# ── 9. Project description (telamon.explore-project auto-run) ────────────────
+_section "9. Project description (.ai/telamon/memory/project-rules/description.md)"
+DESC_FILE="${PROJ}/.ai/telamon/memory/project-rules/description.md"
+if [[ -s "${DESC_FILE}" ]]; then
+  _pass "description.md exists and is non-empty (auto-generated or pre-existing)"
+elif command -v opencode >/dev/null 2>&1; then
+  _fail "description.md missing or empty — init should have invoked telamon.explore-project (opencode IS on PATH)"
+else
+  _warn "description.md missing — init correctly skipped exploration (opencode not on PATH); manual verification required for the auto-run path"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo
 echo -e "${BOLD}────────────────────────────────────────────${RESET}"

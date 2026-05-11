@@ -283,6 +283,51 @@ PYEOF
   fi
 fi
 
+# ──BEGIN telamon.explore-project block──
+# ── Project description (telamon.explore-project) ─────────────────────────────
+# If <PROJ>/.ai/telamon/memory/project-rules/description.md is missing or empty,
+# synchronously invoke `opencode run` so the telamon.explore-project skill writes
+# the canonical project map for future agent sessions. Idempotent: skip when the
+# description is already populated. Symlink-transparent: bash's `-s` test follows
+# symlinks, so MEMORY_OWNER=telamon (where the file lives under
+# storage/projects-memory/<name>/project-rules/ and is exposed via the
+# .ai/telamon/memory symlink) is handled identically to MEMORY_OWNER=project.
+# Missing `opencode` → warn + continue (exploration is enhancement, not a hard
+# requirement). `opencode run` failure → warn + continue. Init never aborts here.
+#
+# NB: The two sentinels (BEGIN/END) are load-bearing: tests/bin/init-explore.test.sh
+# extracts this block by name and sources it in isolation. Edit them with care.
+
+header "Project description"
+
+_DESC_FILE="${PROJ}/.ai/telamon/memory/project-rules/description.md"
+
+if [[ -s "${_DESC_FILE}" ]]; then
+  info "Project description already present — skipping exploration"
+elif ! command -v opencode >/dev/null 2>&1; then
+  warn "opencode not on PATH — skipping project exploration. Install opencode and re-run 'telamon init' to generate the project description, or run the telamon.explore-project skill manually."
+else
+  info "Exploring project — this may take several minutes…"
+  _explore_prompt="Use the telamon.explore-project skill to map this project and write the project description."
+  if opencode run \
+      --agent telamon \
+      --dir "${PROJ}" \
+      --dangerously-skip-permissions \
+      "${_explore_prompt}"; then
+    if [[ -s "${_DESC_FILE}" ]]; then
+      log "Project exploration complete"
+    else
+      warn "opencode run completed but description.md is still empty — re-run 'telamon init' or invoke telamon.explore-project manually."
+    fi
+  else
+    warn "opencode run exited with non-zero status — project description not generated. Re-run 'telamon init' or invoke telamon.explore-project manually."
+  fi
+  unset _explore_prompt
+fi
+
+unset _DESC_FILE
+# ──END telamon.explore-project block──
+
 # ── Done ──────────────────────────────────────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   BRAIN_DIR="${PROJ}/.ai/telamon/memory/brain"

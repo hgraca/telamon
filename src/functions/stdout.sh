@@ -42,6 +42,10 @@ stdout.debug()     { [[ ${BASH_OVERLAY_LOG_LEVEL} -le ${BASH_OVERLAY_LOG_LEVEL_D
 stdout.success()   { stdout.log 'success' "${1}"; }
 
 # Structured output helpers — matching the original script's style
+# Default-empty fallbacks so these helpers work when sourced without colors.sh
+# (e.g. in hermetic test harnesses that source stdout.sh in isolation).
+: "${TEXT_RED:=}" "${TEXT_GREEN:=}" "${TEXT_YELLOW:=}" "${TEXT_BLUE:=}"
+: "${TEXT_MAGENTA:=}" "${TEXT_WHITE:=}" "${TEXT_BOLD:=}" "${TEXT_DIM:=}" "${TEXT_CLEAR:=}"
 log()    { echo -e "  ${TEXT_GREEN}✔${TEXT_CLEAR}  $1"; }
 skip()   { echo -e "  ${TEXT_DIM}–  $1 (already done)${TEXT_CLEAR}"; }
 info()   { echo -e "  ${TEXT_BLUE}ℹ${TEXT_CLEAR}  $1"; }
