@@ -43,18 +43,12 @@ fi
 mkdir -p "${GRAPHIFY_STORAGE}"
 echo -n "$(pwd)" > "${GRAPHIFY_STORAGE}/.project-path"
 
-if [[ -L "graphify-out" ]]; then
-  skip "graphify-out symlink (already exists)"
-elif [[ -d "graphify-out" ]]; then
+if [[ -d "graphify-out" && ! -L "graphify-out" ]]; then
   warn "graphify-out is a real directory — moving contents to storage/graphify and replacing with symlink"
   cp -r graphify-out/. "${GRAPHIFY_STORAGE}/"
   rm -rf graphify-out
-  ln -s "${GRAPHIFY_STORAGE}" graphify-out
-  log "graphify-out → ${GRAPHIFY_STORAGE}"
-else
-  ln -s "${GRAPHIFY_STORAGE}" graphify-out
-  log "Symlinked graphify-out → ${GRAPHIFY_STORAGE}"
 fi
+ensure_symlink "graphify-out" "${GRAPHIFY_STORAGE}" "graphify-out"
 
 # ── Symlink MCP wrapper ──────────────────────────────────────────────────────
 if [[ -d ".opencode" ]]; then

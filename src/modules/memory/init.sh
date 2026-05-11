@@ -80,21 +80,11 @@ done
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   # storage/projects-memory/<name> → project/.ai/telamon/memory
   mkdir -p "$(dirname "${SYMLINK_PATH}")"
-  if [[ -L "${SYMLINK_PATH}" ]]; then
-    skip "storage/projects-memory/${PROJECT_NAME} symlink (already exists)"
-  else
-    ln -s "${SYMLINK_TARGET}" "${SYMLINK_PATH}"
-    log "Symlinked storage/projects-memory/${PROJECT_NAME} → .ai/telamon/memory"
-  fi
+  ensure_symlink "${SYMLINK_PATH}" "${SYMLINK_TARGET}" "storage/projects-memory/${PROJECT_NAME}"
 else
   # project/.ai/telamon/memory → storage/projects-memory/<name>
   mkdir -p "$(dirname "${SYMLINK_PATH}")"
-  if [[ -L "${SYMLINK_PATH}" ]]; then
-    skip ".ai/telamon/memory symlink (already exists)"
-  else
-    ln -s "${SYMLINK_TARGET}" "${SYMLINK_PATH}"
-    log "Symlinked .ai/telamon/memory → storage/projects-memory/${PROJECT_NAME}"
-  fi
+  ensure_symlink "${SYMLINK_PATH}" "${SYMLINK_TARGET}" ".ai/telamon/memory"
 fi
 
 info "Memory vault ready for '${PROJECT_NAME}' (${MEMORY_OWNER} mode)"

@@ -12,3 +12,4 @@
 . "${FUNCTIONS_PATH}/config.sh"
 . "${FUNCTIONS_PATH}/resolve.sh"
 . "${FUNCTIONS_PATH}/git.sh"
+. "${FUNCTIONS_PATH}/symlink.sh"

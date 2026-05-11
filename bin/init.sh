@@ -180,6 +180,48 @@ fi
 # ── Wire external modules ─────────────────────────────────────────────────────
 _telamon_cfg="${TELAMON_ROOT}/.telamon.jsonc"
 if [[ -f "${_telamon_cfg}" ]]; then
+  header "External modules"
+
+  # Step 1: Prune stale .opencode/<type>/<name> symlinks whose <name> is no
+  # longer a registered module. Mirrors the self-healing pass in update.sh.
+  # Only prunes symlinks whose target points into vendor/ or src/instructions/
+  # so user-created symlinks are preserved.
+  _registered_names="$(python3 - "${_telamon_cfg}" "${FUNCTIONS_PATH}" <<'PYEOF'
+import sys
+sys.path.insert(0, sys.argv[2])
+from strip_jsonc import load_jsonc
+
+with open(sys.argv[1]) as f:
+    data = load_jsonc(f.read())
+
+# 'telamon' is the canonical first-party skill bundle (always wired by init).
+print('\n'.join(['telamon'] + list(data.get('modules', {}).keys())))
+PYEOF
+)"
+
+  declare -A _REGISTERED=()
+  while IFS= read -r _n; do
+    [[ -n "${_n}" ]] && _REGISTERED["${_n}"]=1
+  done <<< "${_registered_names}"
+
+  _stale_pruned=0
+  for _type in skills plugins agents commands scripts; do
+    _type_dir="${PROJ}/.opencode/${_type}"
+    [[ -d "${_type_dir}" ]] || continue
+    for _link in "${_type_dir}"/*; do
+      [[ -L "${_link}" ]] || continue
+      _name="$(basename "${_link}")"
+      if [[ -z "${_REGISTERED[${_name}]+x}" ]]; then
+        _target="$(readlink "${_link}")"
+        if [[ "${_target}" == "${TELAMON_ROOT}/vendor/"* || "${_target}" == "${TELAMON_ROOT}/src/instructions/"* ]]; then
+          rm "${_link}"
+          log "Pruned stale .opencode/${_type}/${_name}"
+          _stale_pruned=$((_stale_pruned + 1))
+        fi
+      fi
+    done
+  done
+
   _module_lines="$(python3 - "${_telamon_cfg}" "${FUNCTIONS_PATH}" <<'PYEOF'
 import json, sys, os
 sys.path.insert(0, sys.argv[2])
@@ -195,21 +237,23 @@ def url_to_vendor(url):
 with open(sys.argv[1]) as f:
     data = load_jsonc(f.read())
 
+# Use ASCII Unit Separator (\x1f) — non-whitespace so bash 'read' does not
+# collapse adjacent empty fields (e.g. when local_path or vendor is empty).
+SEP = '\x1f'
 for name, entry in data.get('modules', {}).items():
     local_path = entry.get('local_path', '')
     url        = entry.get('url', '')
     paths      = entry.get('paths', {})
     if local_path and paths:
         # local module: vendor path is the local_path itself (wiring uses it directly)
-        print(f'{name}\t\t{local_path}\t{json.dumps(paths)}')
+        print(name + SEP + '' + SEP + local_path + SEP + json.dumps(paths))
     elif url and paths:
-        print(f'{name}\t{url_to_vendor(url)}\t\t{json.dumps(paths)}')
+        print(name + SEP + url_to_vendor(url) + SEP + '' + SEP + json.dumps(paths))
 PYEOF
 )"
 
   if [[ -n "${_module_lines}" ]]; then
-    header "External modules"
-    while IFS=$'\t' read -r _mname _mvendor _mlocal _mpaths; do
+    while IFS=$'\x1f' read -r _mname _mvendor _mlocal _mpaths; do
       if [[ -n "${_mlocal}" ]]; then
         # Local module: wire directly from local_path
         if [[ ! -d "${_mlocal}" ]]; then
@@ -233,14 +277,7 @@ PYEOF
         [[ -d "${_src}" ]] || continue
         _link="${PROJ}/.opencode/${_type}/${_mname}"
         mkdir -p "${PROJ}/.opencode/${_type}"
-        if [[ -L "${_link}" ]]; then
-          skip ".opencode/${_type}/${_mname} (already exists)"
-        elif [[ -e "${_link}" ]]; then
-          warn ".opencode/${_type}/${_mname} exists but is not a symlink — skipping"
-        else
-          ln -s "${_src}" "${_link}"
-          log "Symlinked .opencode/${_type}/${_mname} → ${_src}"
-        fi
+        ensure_symlink "${_link}" "${_src}" ".opencode/${_type}/${_mname}"
       done
     done <<< "${_module_lines}"
   fi

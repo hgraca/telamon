@@ -36,45 +36,25 @@ header "opencode"
 SKILLS_DIR="${PROJ}/.opencode/skills"
 mkdir -p "${SKILLS_DIR}"
 SKILLS_LINK="${SKILLS_DIR}/telamon"
-if [[ -L "${SKILLS_LINK}" ]]; then
-  skip ".opencode/skills/telamon symlink (already exists)"
-else
-  ln -s "${TELAMON_ROOT}/src/instructions/skills" "${SKILLS_LINK}"
-  log "Symlinked .opencode/skills/telamon → ${TELAMON_ROOT}/src/instructions/skills"
-fi
+ensure_symlink "${SKILLS_LINK}" "${TELAMON_ROOT}/src/instructions/skills" ".opencode/skills/telamon"
 
 # ── 2. Symlink .opencode/plugins/telamon → <telamon-root>/src/instructions/plugins ───────────────
 PLUGINS_DIR="${PROJ}/.opencode/plugins"
 mkdir -p "${PLUGINS_DIR}"
 PLUGINS_LINK="${PLUGINS_DIR}/telamon"
-if [[ -L "${PLUGINS_LINK}" ]]; then
-  skip ".opencode/plugins/telamon symlink (already exists)"
-else
-  ln -s "${TELAMON_ROOT}/src/instructions/plugins" "${PLUGINS_LINK}"
-  log "Symlinked .opencode/plugins/telamon → ${TELAMON_ROOT}/src/instructions/plugins"
-fi
+ensure_symlink "${PLUGINS_LINK}" "${TELAMON_ROOT}/src/instructions/plugins" ".opencode/plugins/telamon"
 
 # ── 3. Symlink .opencode/agents/telamon → <telamon-root>/src/instructions/agents ─────────────────
 AGENTS_DIR="${PROJ}/.opencode/agents"
 mkdir -p "${AGENTS_DIR}"
 AGENTS_LINK="${AGENTS_DIR}/telamon"
-if [[ -L "${AGENTS_LINK}" ]]; then
-  skip ".opencode/agents/telamon symlink (already exists)"
-else
-  ln -s "${TELAMON_ROOT}/src/instructions/agents" "${AGENTS_LINK}"
-  log "Symlinked .opencode/agents/telamon → ${TELAMON_ROOT}/src/instructions/agents"
-fi
+ensure_symlink "${AGENTS_LINK}" "${TELAMON_ROOT}/src/instructions/agents" ".opencode/agents/telamon"
 
 # ── 4. Symlink .opencode/commands/telamon → <telamon-root>/src/instructions/commands ─────────────
 COMMANDS_DIR="${PROJ}/.opencode/commands"
 mkdir -p "${COMMANDS_DIR}"
 COMMANDS_LINK="${COMMANDS_DIR}/telamon"
-if [[ -L "${COMMANDS_LINK}" ]]; then
-  skip ".opencode/commands/telamon symlink (already exists)"
-else
-  ln -s "${TELAMON_ROOT}/src/instructions/commands" "${COMMANDS_LINK}"
-  log "Symlinked .opencode/commands/telamon → ${TELAMON_ROOT}/src/instructions/commands"
-fi
+ensure_symlink "${COMMANDS_LINK}" "${TELAMON_ROOT}/src/instructions/commands" ".opencode/commands/telamon"
 
 # ── 5. Per-file flat symlinks .opencode/tools/<name>.ts → src/instructions/tools/<name>/<name>.ts ─
 # Custom tools have two strict location requirements (see brain/gotchas.md
@@ -113,13 +93,8 @@ if [[ -d "${TOOLS_SRC}" ]]; then
     _tool_src="${_tool_dir}${_tool_name}.ts"
     [[ -f "${_tool_src}" ]] || continue
     _tool_link="${TOOLS_DIR}/${_tool_name}.ts"
-    if [[ -L "${_tool_link}" ]]; then
-      skip ".opencode/tools/${_tool_name}.ts symlink (already exists)"
-    else
-      ln -s "${_tool_src}" "${_tool_link}"
-      log "Symlinked .opencode/tools/${_tool_name}.ts → ${_tool_src}"
-      _tools_linked=$((_tools_linked + 1))
-    fi
+    ensure_symlink "${_tool_link}" "${_tool_src}" ".opencode/tools/${_tool_name}.ts"
+    [[ -L "${_tool_link}" ]] && _tools_linked=$((_tools_linked + 1))
   done
 fi
 

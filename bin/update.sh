@@ -177,6 +177,111 @@ PYEOF
   fi
 fi
 
+# ── Stale module pruning ──────────────────────────────────────────────────────
+# Self-healing: remove orphaned module entries from .telamon.jsonc and prune
+# stale per-project symlinks that no longer correspond to a registered module.
+#
+# Two failure modes this fixes:
+#   1. Duplicate built-in entries (e.g. an "agent-skills" entry registered
+#      alongside the canonical "addyosmani" entry, both pointing at the same
+#      vendor repo). Detected as: a non-builtin module whose url matches
+#      another builtin module's url.
+#   2. Per-project symlinks under .opencode/<type>/<name> whose <name> is not
+#      in the current modules list (left over after a module rename/removal).
+header "Stale module pruning"
+
+# Step 1: Prune duplicate non-builtin entries that share a URL with a builtin.
+if [[ -f "${TELAMON_ROOT}/.telamon.jsonc" ]]; then
+  _pruned_modules="$(python3 - "${TELAMON_ROOT}/.telamon.jsonc" "${FUNCTIONS_PATH}" <<'PYEOF'
+import json, sys
+sys.path.insert(0, sys.argv[2])
+from strip_jsonc import load_jsonc
+
+path = sys.argv[1]
+with open(path) as f:
+    data = load_jsonc(f.read())
+
+modules = data.get('modules', {})
+builtin_urls = {e.get('url') for n, e in modules.items() if e.get('builtin') and e.get('url')}
+
+removed = []
+for name in list(modules.keys()):
+    entry = modules[name]
+    if entry.get('builtin'):
+        continue
+    url = entry.get('url')
+    if url and url in builtin_urls:
+        # Duplicate of a builtin — prune
+        del modules[name]
+        removed.append(name)
+
+if removed:
+    data['modules'] = modules
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+        f.write('\n')
+    print(','.join(removed))
+PYEOF
+)"
+
+  if [[ -n "${_pruned_modules}" ]]; then
+    log "Pruned duplicate module entries: ${_pruned_modules}"
+  else
+    info "No duplicate module entries"
+  fi
+fi
+
+# Step 2: Compute the set of registered module names, then prune any
+# .opencode/<type>/<name> symlink in any project whose <name> is not in the set.
+if [[ -f "${TELAMON_ROOT}/.telamon.jsonc" ]]; then
+  _registered_names="$(python3 - "${TELAMON_ROOT}/.telamon.jsonc" "${FUNCTIONS_PATH}" <<'PYEOF'
+import sys
+sys.path.insert(0, sys.argv[2])
+from strip_jsonc import load_jsonc
+
+with open(sys.argv[1]) as f:
+    data = load_jsonc(f.read())
+
+# 'telamon' is the canonical first-party skill bundle (always wired by init).
+print('\n'.join(['telamon'] + list(data.get('modules', {}).keys())))
+PYEOF
+)"
+
+  # Build a bash-readable set
+  declare -A _REGISTERED=()
+  while IFS= read -r _n; do
+    [[ -n "${_n}" ]] && _REGISTERED["${_n}"]=1
+  done <<< "${_registered_names}"
+
+  _pruned_links=0
+  while IFS= read -r _ppath_file; do
+    [[ -f "${_ppath_file}" ]] || continue
+    _proj_dir="$(cat "${_ppath_file}")"
+    [[ -d "${_proj_dir}" ]] || continue
+
+    for _type in skills plugins agents commands scripts; do
+      _type_dir="${_proj_dir}/.opencode/${_type}"
+      [[ -d "${_type_dir}" ]] || continue
+      for _link in "${_type_dir}"/*; do
+        [[ -L "${_link}" ]] || continue
+        _name="$(basename "${_link}")"
+        if [[ -z "${_REGISTERED[${_name}]+x}" ]]; then
+          # Only prune if it points into vendor/ or src/instructions/ — never
+          # touch user-created symlinks pointing elsewhere.
+          _target="$(readlink "${_link}")"
+          if [[ "${_target}" == "${TELAMON_ROOT}/vendor/"* || "${_target}" == "${TELAMON_ROOT}/src/instructions/"* ]]; then
+            rm "${_link}"
+            log "Pruned stale .opencode/${_type}/${_name} (${_proj_dir})"
+            _pruned_links=$((_pruned_links + 1))
+          fi
+        fi
+      done
+    done
+  done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
+
+  [[ "${_pruned_links}" -eq 0 ]] && info "No stale project symlinks"
+fi
+
 # ── Module wiring sync ────────────────────────────────────────────────────────
 # After pulling/cloning module repos, re-wire symlinks into all initialised
 # projects so newly added skills/agents/plugins/commands/scripts are exposed

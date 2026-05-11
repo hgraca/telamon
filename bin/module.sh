@@ -270,14 +270,7 @@ print(paths.get(sys.argv[2], ''))
 
     mkdir -p "${target_dir}"
 
-    if [[ -L "${link_path}" ]]; then
-      skip ".opencode/${type}/${name} symlink (already exists)"
-    elif [[ -e "${link_path}" ]]; then
-      warn ".opencode/${type}/${name} exists but is not a symlink — skipping"
-    else
-      ln -s "${src_dir}" "${link_path}"
-      log "Symlinked .opencode/${type}/${name} → ${src_dir}"
-    fi
+    ensure_symlink "${link_path}" "${src_dir}" ".opencode/${type}/${name}"
   done
 }
 
