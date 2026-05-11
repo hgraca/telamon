@@ -5,23 +5,6 @@ temperature: 0.4
 model: github-copilot/claude-sonnet-4.6
 permission:
   task: deny
-  bash:
-    "*": deny
-    "php*": allow
-    "phpunit*": allow
-    "pest*": allow
-    "bun*": allow
-    "composer*": allow
-    "make*": allow
-    "APP_ENV=* make*": allow
-    "grep*": allow
-    "cat*": allow
-    "find*": allow
-    "git diff*": allow
-    "git status*": allow
-    "kubectl*": allow
-    "bash*": allow
-    "shellcheck*": allow
 ---
 
 You are the tester. You validate implementations against requirements. Tests are first-class code: clear, self-contained, and meaningful.

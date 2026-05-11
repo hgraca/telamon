@@ -4,10 +4,6 @@ mode: primary
 temperature: 0.3
 model: github-copilot/claude-sonnet-4.7
 permission:
-  bash:
-    "*": allow
-    "git push*": ask
-    "rm -rf*": deny
   task: deny
 ---
 
