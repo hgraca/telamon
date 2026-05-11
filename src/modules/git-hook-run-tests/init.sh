@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Install the run-tests pre-commit hook into the current project.
 #
-# Adds a blocking call to .git/hooks/pre-commit that runs `make test` before
-# allowing the commit to proceed. The runner short-circuits to exit 0 when
-# OPENCODE_SESSION_ID is unset, so human commits are never gated by this hook.
+# Adds a blocking call to .git/hooks/pre-commit that runs
+# `make test DRY_RUN=--dry-run` before allowing the commit to proceed. The
+# runner short-circuits to exit 0 when OPENCODE_SESSION_ID is unset, so human
+# commits are never gated by this hook.
 #
 # Re-running this script replaces only this module's hook section — other
 # modules' contributions to pre-commit are preserved.
