@@ -30,7 +30,7 @@ The retrospective MUST NOT make causal claims about subagent behaviour ("the cri
 
 ### Per-Agent count claims (MUST)
 
-Every "total invocations" or per-agent count claim in the retrospective MUST cite the source of the count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with the underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. The retrospective author MUST run the Per-Agent reconciliation procedure (per `plan_story` SKILL Step 5 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
+Every "total invocations" or per-agent count claim in the retrospective MUST cite the source of the count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with the underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. The retrospective author MUST run the Per-Agent reconciliation procedure (per `plan` SKILL Step 8 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
 
 **Prose-vs-table cross-check (MUST)**: Every numeric claim in retrospective free-prose (paragraphs, bullets, "What Went Well" / "What Needs Improvement" / "Process Observations") about an agent count, invocation count, stall count, critic-round count, re-delegation count, or task count MUST match the corresponding cell in the reconciliation table or be flagged with an inline `[reconciliation-note: <one-line rationale>]` tag explaining the discrepancy (e.g. `[reconciliation-note: prose excludes the rejected critic R1 first attempt; table includes it per Per-Agent Totals procedure]`).
 

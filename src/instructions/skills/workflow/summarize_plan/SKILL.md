@@ -9,7 +9,7 @@ Produce a structured summary report at the end of a planning stage.
 
 ## When to Apply
 
-- When the `plan_story` workflow reaches its summary step
+- When the `plan` workflow reaches its summary step
 - When the orchestrator completes a planning stage and needs to summarize artifacts, decisions, and next steps
 
 ## Procedure

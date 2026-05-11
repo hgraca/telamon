@@ -9,9 +9,7 @@ Slash commands trigger specific workflows. Type them in the opencode chat.
 
 | Command                 | Description                                                      |
 |-------------------------|------------------------------------------------------------------|
-| `/story <brief>`        | Plan and implement a story end-to-end                            |
-| `/epic <brief>`         | Break an epic into stories, plan and implement each              |
-| `/plan <brief>`         | Plan a story or feature (backlog + architecture)                 |
+| `/plan <brief>`         | Plan a story or epic (backlog + architecture)                    |
 | `/implement <brief>`    | Implement an approved plan                                       |
 | `/dev <task>`           | Delegate a code task directly to the developer                   |
 | `/test`                 | Write or run tests for the current changeset                     |

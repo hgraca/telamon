@@ -1,11 +1,11 @@
 ---
 name: telamon.improve-planning
-description: "Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly."
+description: "Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly."
 ---
 
 # Improve Planning Instructions
 
-Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan_story`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly.
+Drives a continuous improvement loop for the multi-agent planning system. Generates a plan in an isolated task-solver session, evaluates it from the main session against absolute quality criteria, traces every weakness back to a specific instruction gap, and proposes edits to the agent files (telamon, po, architect, critic) and their planning skills (`plan`, `plan_implementation`, `review_plan`). Use when the user says 'improve planning', 'improve planning instructions', 'planning quality', or wants to make the planning workflow produce better plans. Also use after a planning iteration completes poorly.
 
 ## Architecture: Two Sessions
 
@@ -28,7 +28,7 @@ The grader is the **main-session telamon agent itself**. It evaluates the solver
 
 | Agents                   | Skills                |
 |--------------------------|-----------------------|
-| `telamon` (orchestrator) | `plan_story`          |
+| `telamon` (orchestrator) | `plan`                |
 | `po`                     | `plan_implementation` |
 | `architect`              | `review_plan`         |
 | `critic`                 |                       |
@@ -103,7 +103,7 @@ After the script succeeds, write `iteration-<n>/metadata.json`:
 
 The user opens a new opencode session in `iteration-<n>/` and tells the agent: *"Execute the instructions in PROMPT.md"*. That prompt instructs the solver to run Phase 1 (planning only — no implementation) and Phase 2 (write `interactions.md`) end-to-end **without asking the human stakeholder for approvals**. When the solver finishes, it instructs the user to return to the main session and say "evaluate this iteration".
 
-The solver follows the standard `plan_story` workflow, which creates a normal **issue-folder** under:
+The solver follows the standard `plan` workflow, which creates a normal **issue-folder** under:
 
 ```
 iteration-<n>/.ai/telamon/memory/work/active/<YYYYMMDD-HHMMSS-NN>-<slug>/
@@ -129,13 +129,13 @@ Main-session evaluation artifacts (`metadata.json`, `quality-report.md`, `root-c
 Back in the main session:
 
 1. **Solver artifacts** — locate `<issue-folder>` (single match for `iteration-<n>/.ai/telamon/memory/work/active/*/`) and confirm every required file from Step 1.5 exists inside it (used by Steps 3 and 4).
-2. **Reference standards** — architecture rules, the `plan_story` skill, the `plan_implementation` skill (used by Steps 3 and 4).
+2. **Reference standards** — architecture rules, the `plan` skill, the `plan_implementation` skill (used by Steps 3 and 4).
 3. **Previous iteration data** — `iterations_quality.md`, prior `quality-report.md` and `root-cause-analysis.md` (used by Steps 5 and 6 for delta and regression analysis; skip for iteration 1).
 4. **Rejected proposals log** — `storage/self-improvement/improve-planning/rejected-proposals.md` (used by Step 7 to suppress re-proposals).
 
 ### Step 3: Produce the Quality Report
 
-Write `iteration-<n>/quality-report.md` following the Plan Quality Report Guide below. Grades are **absolute** — measured against the reference standards (architecture rules, the `plan_story` and `plan_implementation` skills, coding standards), not relative to any prior iteration.
+Write `iteration-<n>/quality-report.md` following the Plan Quality Report Guide below. Grades are **absolute** — measured against the reference standards (architecture rules, the `plan` and `plan_implementation` skills, coding standards), not relative to any prior iteration.
 
 The grader is the **main-session telamon agent**. Read the plan artifacts, the reference standards, this skill's grading rubric, and the example report at `src/instructions/skills/self-improvement/improve-planning/references/report-example.md` (used as a *format* reference only, not as a scoring anchor).
 
@@ -217,14 +217,14 @@ The tracker file `storage/self-improvement/improve-planning/iterations_quality.m
 Use this exact header (initialise the file with this header if it doesn't exist). The table records each rubric dimension's raw score (0–100) so per-dimension trends are visible without opening every quality report. Immediately under the header row, the file MUST keep a `Weights` reference row showing the current rubric weights (this row is data, not just a comment, so the per-dim columns are meaningful at a glance):
 
 ```markdown
-| Iter | Status | Model | Rubric | Spec | plan_story | Arch | Clar | Proc | Def | Solv | Grade | Δ Grade | Issues addressed | Issues remaining | Regressions | Effective fixes | Stalls | Critic rounds |
-|------|--------|-------|--------|------|------------|------|------|------|------|------|-------|---------|------------------|------------------|-------------|-----------------|--------|---------------|
-| —    | weights | —    | v3     | 35%  | 21%        | 21%  | 10%  | 5%   | 5%   | 3%   | 100%  | —       | —                | —                | —           | —               | —      | —             |
+| Iter | Status  | Model | Rubric | Spec | Plan | Arch | Clar | Proc | Def | Solv | Grade | Δ Grade | Issues addressed | Issues remaining | Regressions | Effective fixes | Stalls | Critic rounds |
+|------|---------|-------|--------|------|------|------|------|------|-----|------|-------|---------|------------------|------------------|-------------|-----------------|--------|---------------|
+| —    | weights | —     | v3     | 35%  | 21%  | 21%  | 10%  | 5%   | 5%  | 3%   | 100%  | —       | —                | —                | —           | —               | —      | —             |
 ```
 
 - Status: `success` | `failed` | `model-change` | `rubric-change`
 - Model and Rubric flagged with ⚠️ if changed from prior iteration
-- Spec / plan_story / Arch / Clar / Proc / Def / Solv: raw 0–100 score for each rubric dimension (same numbers as the per-iteration quality report's Grade table, before weighting)
+- Spec / Plan / Arch / Clar / Proc / Def / Solv: raw 0–100 score for each rubric dimension (same numbers as the per-iteration quality report's Grade table, before weighting)
 - Grade: weighted total, rounded to nearest integer
 - Δ Grade: blank for iteration 1 and for iterations following any flagged change
 - When the rubric version changes, append a new `weights` reference row with the updated weights immediately below the previous one and tag the iteration row `rubric-change`
@@ -258,7 +258,7 @@ If either check returns `0`, the part is missing — write it before continuing.
 
 Write `iteration-<n>/proposals.md`. For each proposal:
 
-- **File**: exact path (must be one of: `src/instructions/agents/{telamon,po,architect,critic}.md`, `src/instructions/skills/workflow/plan_story/SKILL.md`, `src/instructions/skills/workflow/plan_implementation/SKILL.md`, `src/instructions/skills/workflow/review_plan/SKILL.md`)
+- **File**: exact path (must be one of: `src/instructions/agents/{telamon,po,architect,critic}.md`, `src/instructions/skills/workflow/plan/SKILL.md`, `src/instructions/skills/workflow/plan_implementation/SKILL.md`, `src/instructions/skills/workflow/review_plan/SKILL.md`)
 - **Location**: section name or line reference
 - **Before**: quote current text (or "absent")
 - **After**: proposed text
@@ -392,7 +392,7 @@ Score each dimension 0–100, then compute the weighted total.
 | Dimension                           | Weight | What to evaluate                                                                                                                                                                                                                                         |
 |-------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Specificity & completeness**      | 35%    | Does every task have testable ACs? Are file paths, class names, field types, and behaviors explicit? Would a lower-reasoning LLM need to guess anything?                                                                                                 |
-| **`plan_story` compliance**         | 21%    | Does the plan satisfy every rule in the `plan_story` and `plan_implementation` skills? Check each bullet point with line references.                                                                                                                     |
+| **`plan` compliance**               | 21%    | Does the plan satisfy every rule in the `plan` and `plan_implementation` skills? Check each bullet point with line references.                                                                                                                           |
 | **Architecture correctness**        | 21%    | Does the plan match the architecture rules? Directory structure, dependency rules, naming conventions. Is there an architect review confirming this?                                                                                                     |
 | **Clarity for lower-reasoning LLM** | 10%    | Are rules centralized or scattered? Are implicit assumptions made? Would a model with limited context window find all necessary information within the task it's working on?                                                                             |
 | **Process guidance**                | 5%     | Does the plan address: reviewer frequency, commit strategy, stall recovery, delegation batch size, error escalation?                                                                                                                                     |
@@ -401,7 +401,7 @@ Score each dimension 0–100, then compute the weighted total.
 
 Weights sum to 100%.
 
-**v3 rationale**: weights were rebalanced from v2 (25/15/15/20/10/10/5) by halving the bottom four dimensions and redistributing the freed 20 percentage points proportionally to the top three (Specificity, `plan_story` compliance, Architecture correctness). Rationale: the bottom four dimensions were either non-discriminating across iterations (Architecture, Defensive — most plans clear them) or weighted disproportionately to their information value (Clarity, Process). Concentrating weight on the top three sharpens the signal on the dimensions where iterations actually move.
+**v3 rationale**: weights were rebalanced from v2 (25/15/15/20/10/10/5) by halving the bottom four dimensions and redistributing the freed 20 percentage points proportionally to the top three (Specificity, `plan` compliance, Architecture correctness). Rationale: the bottom four dimensions were either non-discriminating across iterations (Architecture, Defensive — most plans clear them) or weighted disproportionately to their information value (Clarity, Process). Concentrating weight on the top three sharpens the signal on the dimensions where iterations actually move.
 
 ### Computing the Final Grade
 
@@ -433,15 +433,15 @@ Point deductions are relative to the dimension they affect:
 
 ### Scoring Guidelines — What 100 Looks Like
 
-| Dimension                       | 100/100 means                                                                                          |
-|---------------------------------|--------------------------------------------------------------------------------------------------------|
-| Specificity & completeness      | Every class, method, field, behavior, and file path is named. Zero ambiguity. Edge cases enumerated.   |
-| `plan_story` / `plan_implementation` compliance | Every rule in both skills satisfied with traceable evidence.                                          |
-| Architecture correctness        | Architect review confirms compliance. Directory tree matches architecture exactly.                     |
-| Clarity for lower-reasoning LLM | All rules centralized. Each task's AC is self-contained. No implicit knowledge required.               |
-| Process guidance                | Reviewer mandate, commit strategy, stall recovery, delegation limits, error escalation — all explicit. |
-| Defensive completeness          | Every coding-standard rule reflected. Known pitfalls addressed. All edge cases have test criteria.     |
-| Solver execution                | Zero stalls, zero NEEDS_INPUT, ≤3 critic rounds, all required artifacts present.                       |
+| Dimension                                 | 100/100 means                                                                                          |
+|-------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| Specificity & completeness                | Every class, method, field, behavior, and file path is named. Zero ambiguity. Edge cases enumerated.   |
+| `plan` / `plan_implementation` compliance | Every rule in both skills satisfied with traceable evidence.                                           |
+| Architecture correctness                  | Architect review confirms compliance. Directory tree matches architecture exactly.                     |
+| Clarity for lower-reasoning LLM           | All rules centralized. Each task's AC is self-contained. No implicit knowledge required.               |
+| Process guidance                          | Reviewer mandate, commit strategy, stall recovery, delegation limits, error escalation — all explicit. |
+| Defensive completeness                    | Every coding-standard rule reflected. Known pitfalls addressed. All edge cases have test criteria.     |
+| Solver execution                          | Zero stalls, zero NEEDS_INPUT, ≤3 critic rounds, all required artifacts present.                       |
 
 ### Comparability Rules
 
@@ -505,7 +505,7 @@ This checklist is a **mandatory gate**. Before declaring iteration N complete an
 - [ ] RCA "Previously rejected?" matched by file+section, not exact text
 - [ ] Regression and effectiveness check performed (skipped only for iteration 1 or invalidated comparisons; reason recorded)
 - [ ] Iterations tracker updated; delta blank for iteration 1 and for iterations following any flagged change
-- [ ] Proposals only target in-scope files (telamon/po/architect/critic agents + plan_story/plan_implementation/review_plan skills)
+- [ ] Proposals only target in-scope files (telamon/po/architect/critic agents + plan/plan_implementation/review_plan skills)
 - [ ] Proposals exclude items previously rejected (per `rejected-proposals.md` file+section match)
 - [ ] Each proposal has before/after, rationale, regression risk, linked RCA
 - [ ] Proposals presented in batches of ≤5

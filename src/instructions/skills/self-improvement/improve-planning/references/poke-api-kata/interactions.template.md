@@ -6,7 +6,7 @@ Records all inter-agent interactions during the planning (and optionally impleme
 
 - **Task**: `<path/to/task/description.md>`
 - **Iteration**: `<N>`
-- **Workflow(s) used**: `<plan_story>`, `<implement_story>` (or others)
+- **Workflow(s) used**: `<plan>`, `<implement_story>` (or others)
 - **Models**: orchestrator=`<id>`, po=`<id>`, architect=`<id>`, critic=`<id>`, developer=`<id>` (etc.)
 
 ### Agents Involved

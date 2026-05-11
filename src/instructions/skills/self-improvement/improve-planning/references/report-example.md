@@ -251,7 +251,7 @@ lower-reasoning LLMs may not reference external documents during implementation.
 | Dimension | Weight | Score | Notes |
 |-----------|--------|-------|-------|
 | Specificity & completeness | 35% | 95/100 | Excellent — nearly every class, field, and behavior specified |
-| `plan_story` workflow compliance | 21% | 100/100 | All rules satisfied with evidence |
+| `plan` workflow compliance | 21% | 100/100 | All rules satisfied with evidence |
 | Architecture correctness | 21% | 100/100 | Confirmed by Architect review; matches ARCHITECTURE.md |
 | Clarity for lower-reasoning LLM | 10% | 85/100 | Good but some rules are scattered/implicit |
 | Process guidance | 5% | 70/100 | Missing reviewer mandate, stall recovery, Critic response loop |
@@ -274,7 +274,7 @@ The plan scores 94/100 because it is **highly effective** (proven by 3 implement
 
 **Why not lower:**
 - The plan's core architecture is flawless — no implementation deviated from the directory tree or namespace mapping (Architecture 100, weight 21%).
-- `plan_story` workflow compliance is total (100, weight 21%) — every required artefact present with line-anchored evidence.
+- `plan` workflow compliance is total (100, weight 21%) — every required artefact present with line-anchored evidence.
 - Acceptance criteria are precise enough that all 3 implementations achieved 100% test coverage and PHPStan max level.
 - The Lessons section prevents the most common V1–V9 failure modes.
 - Solver effectiveness is near-perfect (98, weight 3%) — but its tiny weight under v3 means even a perfect proven score would only add ~0.06 to total.

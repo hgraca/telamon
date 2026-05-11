@@ -71,7 +71,7 @@ to use the message bus and that the implementation will use the bus's
   document(s), critic review document(s)).
 - The Architect's plan has zero open BLOCKERs from the Critic.
 - Every backlog task has acceptance criteria, priority, and dependencies.
-- The plan satisfies the `plan_story` and `plan_implementation` skills.
+- The plan satisfies the `plan` and `plan_implementation` skills.
 - Architecture is sound: directory layout, dependency rules, and naming
   follow the project's architecture rules.
 

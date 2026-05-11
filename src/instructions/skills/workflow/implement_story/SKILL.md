@@ -1,6 +1,6 @@
 ---
 name: telamon.implement_story
-description: "Implements an approved plan by orchestrating Tester, Developer, and Reviewer in a structured cycle per task. Use after the human stakeholder approves the plan from the telamon.plan_story skill."
+description: "Implements an approved plan by orchestrating Tester, Developer, and Reviewer in a structured cycle per task. Use after the human stakeholder approves the plan from the telamon.plan skill."
 ---
 
 # Skill: Implement Plan
@@ -9,13 +9,13 @@ Implement an approved plan by orchestrating Tester, Developer, and Reviewer for 
 
 ## When to Apply
 
-- After the human stakeholder approves the plan from the `telamon.plan_story` skill
-- When the `/implement`, `/story`, or `/epic` command is invoked for implementation
+- After the human stakeholder approves the plan from the `telamon.plan` skill
+- When the `/implement` command is invoked for implementation
 - When the `/test`, `/dev`, or `/review` command invokes a specific step
 
 ## Artifacts
 
-Place all artifacts in the `<issue-folder>` established during planning (see `telamon.plan_story` skill for naming conventions). Artifacts must not be committed to git.
+Place all artifacts in the `<issue-folder>` established during planning (see `telamon.plan` skill for naming conventions). Artifacts must not be committed to git.
 
 ### Scratch files
 
@@ -23,7 +23,7 @@ When you need to create a temporary file, use the `telamon.thinking` skill. Prom
 
 ### Pre-flight check
 
-Before creating any artifact, verify the issue folder already exists in `.ai/telamon/memory/work/active/`. If it does not, STOP — planning must be completed first via `telamon.plan_story`. If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
+Before creating any artifact, verify the issue folder already exists in `.ai/telamon/memory/work/active/`. If it does not, STOP — planning must be completed first via `telamon.plan` (or, for trivial work routed directly to implementation, the orchestrator must create the work folder before invoking this skill). If multiple folders exist for the same initiative, consolidate into the correctly-named one and delete the duplicate.
 
 ## Clarification Channels
 
