@@ -27,6 +27,10 @@
   //  "small_model": "cortecs/qwen3-32b",
   //  "coding_model": "cortecs/qwen3-coder-480b-a35b-instruct",
 
+  //  "model": "cortecs/deepseek-v4-flash",
+  //  "small_model": "cortecs/deepseek-v4-flash",
+  //  "coding_model": "cortecs/deepseek-v4-flash",
+
   "instructions": [
     "AGENTS.md",
     ".ai/telamon/memory/bootstrap/**/*.md"
