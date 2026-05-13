@@ -31,6 +31,10 @@
   //  "small_model": "cortecs/deepseek-v4-flash",
   //  "coding_model": "cortecs/deepseek-v4-flash",
 
+  //  "model": "ollama-cloud/deepseek-v4-flash",
+  //  "small_model": "ollama-cloud/deepseek-v4-flash",
+  //  "coding_model": "ollama-cloud/deepseek-v4-flash",
+
   "instructions": [
     "AGENTS.md",
     ".ai/telamon/memory/bootstrap/**/*.md"
