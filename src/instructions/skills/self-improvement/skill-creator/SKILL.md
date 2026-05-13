@@ -11,13 +11,15 @@ High-level process:
 
 - Decide what skill should do and roughly how
 - Write draft
-- Create test prompts, run claude-with-access-to-skill on them
+- Create test prompts, run agent-with-access-to-skill on them
 - Help user evaluate results qualitatively and quantitatively
   - While runs happen in background, draft quantitative evals if none exist (or modify existing). Explain them to user.
   - Use `eval-viewer/generate_review.py` script to show results for user review, plus quantitative metrics
 - Rewrite skill based on feedback (and glaring flaws from quantitative benchmarks)
 - Repeat until satisfied
 - Expand test set, try again at larger scale
+- Optimize description for triggering accuracy (optional)
+- Optimize instructions with `telamon.optimize-instructions`
 
 Your job: figure out where user is in this process, jump in, help progress through stages. Maybe user says "I want skill for X". Help narrow intent, write draft, write test cases, figure out evaluation approach, run prompts, repeat.
 
@@ -25,11 +27,11 @@ Maybe user already has draft — go straight to eval/iterate.
 
 Always be flexible. If user says "don't need evaluations, just vibe", do that.
 
-After skill done (order flexible), run description improver (separate script) to optimize triggering.
+After skill content finalized, run description improver (separate script) to optimize triggering. Then run `telamon.optimize-instructions` to optimize skill file for clarity, token efficiency, and pattern compliance.
 
 ## Communicating with user
 
-Skill creator used by people across wide range of familiarity with coding jargon. If you haven't heard, trend where Claude's power inspires plumbers to open terminals, parents to google "how to install npm". Bulk of users fairly computer-literate.
+Skill creator used by people across wide range of familiarity with coding jargon. Bulk of users fairly computer-literate.
 
 Pay attention to context cues for phrasing! Default guidelines:
 
@@ -46,7 +48,7 @@ OK to briefly explain terms if unsure, feel free to clarify with short definitio
 
 Start by understanding user's intent. Current conversation might already contain workflow user wants to capture (e.g., "turn this into a skill"). If so, extract answers from conversation history first — tools used, sequence of steps, corrections user made, input/output formats observed. User may need to fill gaps, and should confirm before proceeding.
 
-1. What should this skill enable Claude to do?
+1. What should this skill enable the agent to do?
 2. When should this skill trigger? (what user phrases/contexts)
 3. What's expected output format?
 4. Should we set up test cases? Skills with objectively verifiable outputs (file transforms, data extraction, code generation, fixed workflow steps) benefit from test cases. Skills with subjective outputs (writing style, art) often don't need them. Suggest appropriate default based on skill type, but let user decide.
@@ -62,7 +64,7 @@ Check available MCPs — if useful for research (searching docs, finding similar
 Based on user interview, fill in these components:
 
 - **name**: Skill identifier
-- **description**: When to trigger, what it does. Primary triggering mechanism — include both what skill does AND specific contexts for when to use. All "when to use" info goes here, not in body. Note: Claude tends to "undertrigger" skills. To combat this, make descriptions a bit "pushy". Instead of "How to build simple fast dashboard to display internal Anthropic data.", write "How to build simple fast dashboard to display internal Anthropic data. Use this skill whenever user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if not explicitly asking for 'dashboard.'"
+- **description**: When to trigger, what it does. Primary triggering mechanism — include both what skill does AND specific contexts for when to use. All "when to use" info goes here, not in body. Note: agents tend to "undertrigger" skills. To combat this, make descriptions a bit "pushy". Instead of "How to build simple fast dashboard to display internal data.", write "How to build simple fast dashboard to display internal data. Use this skill whenever user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if not explicitly asking for 'dashboard.'"
 - **compatibility**: Required tools, dependencies (optional, rarely needed)
 - **rest of skill**
 
@@ -104,7 +106,7 @@ cloud-deploy/
     ├── gcp.md
     └── azure.md
 ```
-Claude reads only the relevant reference file.
+The agent reads only the relevant reference file.
 
 #### Principle of Lack of Surprise
 
@@ -242,7 +244,7 @@ Put each with_skill version before its baseline counterpart.
    ```
    For iteration 2+, also pass `--previous-workspace <workspace>/iteration-<N-1>`.
 
-   **Cowork / headless environments:** If `webbrowser.open()` not available or no display, use `--static <output_path>` to write standalone HTML file. Feedback downloads as `feedback.json` when user clicks "Submit All Reviews". After download, copy `feedback.json` into workspace directory for next iteration.
+   **Headless environments:** If `webbrowser.open()` not available or no display, use `--static <output_path>` to write standalone HTML file. Feedback downloads as `feedback.json` when user clicks "Submit All Reviews". After download, copy `feedback.json` into workspace directory for next iteration.
 
 Note: use `generate_review.py` to create viewer; no need for custom HTML.
 
@@ -330,7 +332,7 @@ Optional, requires subagents, most users won't need it. Human review loop usuall
 
 ## Description Optimization
 
-The description field in SKILL.md frontmatter is the primary mechanism that determines whether Claude invokes a skill. After creating or improving a skill, offer to optimize the description for better triggering accuracy.
+The description field in SKILL.md frontmatter is the primary mechanism that determines whether the agent invokes a skill. After creating or improving a skill, offer to optimize the description for better triggering accuracy.
 
 ### Step 1: Generate trigger eval queries
 
@@ -343,7 +345,7 @@ Create 20 eval queries — mix of should-trigger and should-not-trigger. Save as
 ]
 ```
 
-Queries must be realistic — what Claude Code or Claude.ai user would actually type. Not abstract requests, but concrete, specific, detailed. File paths, personal context about user's job or situation, column names and values, company names, URLs. Backstory. Some lowercase, abbreviations, typos, casual speech. Mix lengths. Focus on edge cases rather than clear-cut (user will sign off).
+Queries must be realistic — what a user would actually type. Not abstract requests, but concrete, specific, detailed. File paths, personal context about user's job or situation, column names and values, company names, URLs. Backstory. Some lowercase, abbreviations, typos, casual speech. Mix lengths. Focus on edge cases rather than clear-cut (user will sign off).
 
 Bad: `"Format this data"`, `"Extract text from PDF"`, `"Create a chart"`
 
@@ -389,17 +391,44 @@ Use model ID from system prompt (powering current session) so triggering test ma
 
 While running, periodically tail output to give user updates on iteration and scores.
 
-Handles full optimization loop automatically. Splits eval set into 60% train, 40% held-out test, evaluates current description (running each query 3 times for reliable trigger rate), calls Claude to propose improvements based on failures. Re-evaluates each new description on both train and test, iterating up to 5 times. When done, opens HTML report in browser with results per iteration and returns JSON with `best_description` — selected by test score rather than train score to avoid overfitting.
+Handles full optimization loop automatically. Splits eval set into 60% train, 40% held-out test, evaluates current description (running each query 3 times for reliable trigger rate), calls the agent to propose improvements based on failures. Re-evaluates each new description on both train and test, iterating up to 5 times. When done, opens HTML report in browser with results per iteration and returns JSON with `best_description` — selected by test score rather than train score to avoid overfitting.
 
 ### How skill triggering works
 
-Skills appear in Claude's `available_skills` list with name + description. Claude decides whether to consult skill based on description. Important: Claude only consults skills for tasks it can't easily handle alone — simple one-step queries like "read this PDF" may not trigger even if description matches perfectly, because Claude handles them directly with basic tools. Complex, multi-step, or specialized queries reliably trigger skills when description matches.
+Skills appear in the agent's `available_skills` list with name + description. The agent decides whether to consult skill based on description. Important: the agent only consults skills for tasks it can't easily handle alone — simple one-step queries like "read this PDF" may not trigger even if description matches perfectly, because the agent handles them directly with basic tools. Complex, multi-step, or specialized queries reliably trigger skills when description matches.
 
-This means eval queries should be substantive enough that Claude would actually benefit from consulting a skill. Simple queries like "read file X" are poor test cases — won't trigger regardless of description quality.
+This means eval queries should be substantive enough that the agent would actually benefit from consulting a skill. Simple queries like "read file X" are poor test cases — won't trigger regardless of description quality.
 
 ### Step 4: Apply result
 
 Take `best_description` from JSON output and update skill's SKILL.md frontmatter. Show user before/after and report scores.
+
+---
+
+## Optimize Instructions
+
+After the skill content is finalized (iteration loop complete) and the description has been optimized, run `telamon.optimize-instructions` on the created skill's SKILL.md to ensure it meets clarity, token efficiency, and pattern compliance standards.
+
+### Procedure
+
+1. Load the `telamon.optimize-instructions` skill
+2. Follow its 6-step procedure:
+   - **Step 1: Classify the file** — The created file is a Skill type. Confirm its structure matches the Skill template.
+   - **Step 2: Apply writing rules** — Check every rule against the 8-point checklist (economy, precision, positive phrasing, non-redundant, priority ordered, scoped, bounded, output contract). Fix violations.
+   - **Step 3: Check structure compliance** — Validate against the Skill file structure (frontmatter, when to apply, procedure, templates, definitions).
+   - **Step 4: Validate pattern coverage** — Check decomposition/routing, context engineering, communication, reflection, planning, resilience, human oversight, memory, and reasoning patterns relevant to a skill file.
+   - **Step 5: Produce output** — Write the optimized SKILL.md back to its path.
+   - **Step 6: Compress with caveman skill** — Load `caveman` skill and apply compression (full then ultra intensity) to prose sections, preserving all technical substance.
+
+### When to skip
+
+- Skip if the skill is intentionally verbose (e.g., tutorial-style skills where readability for humans matters more than token efficiency).
+- Skip if the skill is still in active iteration — only optimize once the content is stable.
+- Skip if the user explicitly declines optimization.
+
+### Integration with Description Optimization
+
+Run optimize-instructions **after** description optimization (or skip description optimization if user declines it). The optimize-instructions pass may further refine the description as part of its writing rules check, so there is no strict ordering dependency — but running description optimization first gives the frontmatter a focused pass before the holistic optimization.
 
 ---
 
@@ -415,42 +444,24 @@ After packaging, direct user to resulting `.skill` file path so they can install
 
 ---
 
-## Claude.ai-specific instructions
+## Headless environment notes
 
-In Claude.ai, core workflow same (draft → test → review → improve → repeat), but Claude.ai lacks subagents so some mechanics change:
-
-**Running test cases**: No subagents = no parallel execution. For each test case, read skill's SKILL.md, follow instructions to accomplish test prompt. One at a time. Less rigorous than independent subagents (you wrote skill and run it — full context), but useful sanity check — human review compensates. Skip baseline runs — just use skill to complete task.
-
-**Reviewing results**: If can't open browser (Claude.ai VM no display or remote server), skip browser reviewer. Present results directly in conversation. For each test case, show prompt and output. If output is file user needs to see (.docx, .xlsx), save to filesystem, tell them where to download and inspect. Ask feedback inline: "How does this look? Anything change?"
-
-**Benchmarking**: Skip quantitative benchmarking — relies on baseline comparisons not meaningful without subagents. Focus on qualitative feedback.
-
-**Iteration loop**: Same — improve skill, rerun test cases, ask feedback — just without browser reviewer in middle. Still organize results into iteration directories on filesystem if available.
-
-**Description optimization**: Requires `claude` CLI tool (`claude -p`) only available in Claude Code. Skip on Claude.ai.
-
-**Blind comparison**: Requires subagents. Skip.
-
-**Packaging**: `package_skill.py` works anywhere with Python and filesystem. On Claude.ai, run it, user downloads resulting `.skill` file.
-
-**Updating existing skill**: User may ask to update existing skill, not create new one. In this case:
-- **Preserve original name.** Note skill's directory name and `name` frontmatter field — use unchanged. E.g., if installed skill `research-helper`, output `research-helper.skill` (not `research-helper-v2`).
-- **Copy to writeable location before editing.** Installed skill path may be read-only. Copy to `/tmp/skill-name/`, edit there, package from copy.
-- **If packaging manually, stage in `/tmp/` first**, then copy to output directory — direct writes may fail due to permissions.
-
----
-
-## Cowork-Specific Instructions
-
-In Cowork, main things:
+In headless environments (no display, no browser):
 
 - Have subagents, so main workflow (spawn test cases in parallel, run baselines, grade, etc.) all works. (If severe timeout problems, OK to run test prompts in series.)
 - No browser or display. When generating eval viewer, use `--static <output_path>` to write standalone HTML file. Proffer link user can click to open in their browser.
-- Cowork setup seems to disincline Claude from generating eval viewer after running tests. Reiterate: whether Cowork or Claude Code, after running tests always generate eval viewer for human to look at examples before revising skill, using `generate_review.py` (not custom HTML). GENERATE EVAL VIEWER *BEFORE* evaluating inputs yourself. Get results in front of human ASAP!
 - Feedback works differently: no running server, viewer's "Submit All Reviews" button downloads `feedback.json` as file. Read from there (may need to request access first).
 - Packaging works — `package_skill.py` just needs Python and filesystem.
-- Description optimization (`run_loop.py` / `run_eval.py`) should work in Cowork since uses `claude -p` via subprocess, not browser. Save until fully finished making skill and user agrees it's in good shape.
-- **Updating existing skill**: User may ask to update existing skill. Follow update guidance in Claude.ai section above.
+- Description optimization (`run_loop.py` / `run_eval.py`) works in headless environments since it uses the agent CLI via subprocess, not browser. Save until fully finished making skill and user agrees it's in good shape.
+- **Optimize instructions**: `telamon.optimize-instructions` is a skill loaded on demand, no subagents or CLI tools required. Run it after the skill content is finalized.
+- **Updating existing skill**: User may ask to update existing skill. Follow update guidance below.
+
+### Updating existing skill
+
+User may ask to update existing skill, not create new one. In this case:
+- **Preserve original name.** Note skill's directory name and `name` frontmatter field — use unchanged. E.g., if installed skill `research-helper`, output `research-helper.skill` (not `research-helper-v2`).
+- **Copy to writeable location before editing.** Installed skill path may be read-only. Copy to `/tmp/skill-name/`, edit there, package from copy.
+- **If packaging manually, stage in `/tmp/` first**, then copy to output directory — direct writes may fail due to permissions.
 
 ---
 
@@ -471,13 +482,15 @@ Core loop again:
 
 - Figure out what skill is about
 - Draft or edit skill
-- Run claude-with-access-to-skill on test prompts
+- Run agent-with-access-to-skill on test prompts
 - With user, evaluate outputs:
   - Create benchmark.json, run `eval-viewer/generate_review.py` for user review
   - Run quantitative evals
 - Repeat until satisfied
+- Optimize description for triggering accuracy (optional, user decides)
+- Optimize instructions with `telamon.optimize-instructions` (optional, user decides)
 - Package final skill, return to user.
 
-Add steps to TodoList to not forget. In Cowork, specifically put "Create evals JSON and run `eval-viewer/generate_review.py` so human can review test cases" in TodoList.
+Add steps to TodoList to not forget. In headless environments, specifically put "Create evals JSON and run `eval-viewer/generate_review.py` so human can review test cases" in TodoList.
 
 Good luck!
