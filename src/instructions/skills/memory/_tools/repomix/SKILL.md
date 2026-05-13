@@ -9,22 +9,22 @@ Packs directories or file sets into structured XML with Tree-sitter compression 
 
 ## When to Use
 
-| Situation | Tool |
-|-----------|------|
-| Reading 5+ files in same directory | **Repomix** |
-| Need full module/feature context | **Repomix** |
-| Exploring unfamiliar codebase area | **Repomix** |
-| Searching by meaning across whole codebase | codebase-index |
-| Finding specific function/class definition | codebase-index |
+| Situation                                                       | Tool                  |
+|-----------------------------------------------------------------|-----------------------|
+| Reading 5+ files in same directory                              | **Repomix**           |
+| Need full module/feature context                                | **Repomix**           |
+| Exploring unfamiliar codebase area                              | **Repomix**           |
+| Searching by meaning across whole codebase                      | codebase-index        |
+| Finding specific function/class definition                      | codebase-index        |
 | Reading 1–3 specific files, need exact line numbers for editing | Individual file reads |
 
-**NEVER use both Repomix AND codebase-index for the same files** — duplicate context wastes tokens.
+**NEVER use both Repomix AND codebase-index for same files** — duplicate context wastes tokens.
 
 ## MCP Tools
 
-The Repomix MCP server exposes tools for:
+Repomix MCP server exposes tools for:
 
-- **Pack directory** — compress a directory (or file list) into XML context
+- **Pack directory** — compress directory (or file list) into XML context
 - **File tree** — read directory structure without file contents
 - **Search** — search within packed codebase
 
@@ -41,7 +41,7 @@ Custom ignore patterns (applied via `repomix.config.json`) exclude:
 
 ## Config
 
-`repomix.config.json` in project root is applied automatically. Example:
+`repomix.config.json` in project root applied automatically. Example:
 
 ```json
 {
@@ -54,10 +54,10 @@ Custom ignore patterns (applied via `repomix.config.json`) exclude:
 
 Repomix refuses to pack directories containing detected secrets (API keys, passwords, `.env` files).
 
-If packing fails with a security error:
+If packing fails with security error:
 1. Check if directory contains `.env` or credentials files
 2. Use `--no-security-check` **only after verifying no secrets will leak**
-3. Prefer excluding the secrets file via `ignore.customPatterns`
+3. Prefer excluding secrets file via `ignore.customPatterns`
 
 ## Installation
 

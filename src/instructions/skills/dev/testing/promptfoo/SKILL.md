@@ -7,17 +7,17 @@ description: "Agent evaluation with promptfoo: running evals, interpreting resul
 
 ## When to Apply
 
-| Trigger                                             | Action                                      |
-|-----------------------------------------------------|---------------------------------------------|
+| Trigger                                                          | Action                                      |
+|------------------------------------------------------------------|---------------------------------------------|
 | After changing agent instructions (src/instructions/agents/*.md) | Run affected evals to check for regressions |
-| After adding or modifying skills (src/instructions/skills/)      | Run evals that exercise the changed skill   |
-| Before merging agent behavior changes               | Run full eval suite                         |
-| After adding a new agent role                       | Create a new eval config for it             |
-| Debugging unexpected agent routing                  | Run request-classification eval             |
+| After adding or modifying skills (src/instructions/skills/)      | Run evals that exercise changed skill       |
+| Before merging agent behavior changes                            | Run full eval suite                         |
+| After adding new agent role                                      | Create new eval config for it               |
+| Debugging unexpected agent routing                               | Run request-classification eval             |
 
 ## Prerequisites
 
-Before first eval run in a project:
+Before first eval run in project:
 
 ```bash
 cd tests/agents && npm install
@@ -31,7 +31,7 @@ This installs `@opencode-ai/sdk` locally. Only needed once per project.
 # Run all evals
 cd tests/agents && npx -y promptfoo eval
 
-# Run a specific eval
+# Run specific eval
 cd tests/agents && npx -y promptfoo eval -c evals/request-classification.yaml
 
 # View results in web UI
@@ -48,7 +48,7 @@ export TELAMON_ROOT=/path/to/telamon
 
 ## Eval Structure
 
-Each eval is a standalone YAML file in `tests/agents/evals/`:
+Each eval is standalone YAML file in `tests/agents/evals/`:
 
 ```yaml
 description: "What this eval tests"
@@ -70,7 +70,7 @@ prompts:
 tests:
   - description: "Test case description"
     vars:
-      request: "The prompt to send"
+      request: "Prompt to send"
     assert:
       - type: javascript
         value: "output.includes('expected')"
@@ -85,19 +85,19 @@ tests:
 | Type                  | Use for                                                         |
 |-----------------------|-----------------------------------------------------------------|
 | `javascript`          | Check output contains expected strings (use OR for flexibility) |
-| `llm-rubric`          | Semantic quality evaluation (LLM judges the output)             |
+| `llm-rubric`          | Semantic quality evaluation (LLM judges output)                 |
 | `contains-json`       | Verify structured output contains expected JSON                 |
 | `cost`                | Token cost threshold                                            |
 | `latency`             | Response time threshold                                         |
 | `trajectory:contains` | Verify specific tool calls were made                            |
 
-## Adding a New Eval
+## Adding New Eval
 
 1. Create `tests/agents/evals/<name>.yaml`
 2. Create fixture directory `tests/agents/fixtures/<name>/` if needed
 3. Define provider config, prompts, test cases, and assertions
 4. Run: `cd tests/agents && npx -y promptfoo eval -c evals/<name>.yaml`
-5. Iterate on assertions until they meaningfully test the behavior
+5. Iterate on assertions until they meaningfully test behavior
 
 ## Existing Evals
 
@@ -110,7 +110,7 @@ tests:
 
 ## Notes
 
-- This establishes the "nested skill" pattern — a sub-skill under `dev/testing/`
-- Each eval starts an ephemeral opencode server — no session state leakage
+- This establishes "nested skill" pattern — sub-skill under `dev/testing/`
+- Each eval starts ephemeral opencode server — no session state leakage
 - Evals cost real LLM tokens. Use `cost` assertions to cap spending
 - `.promptfoo/` cache in `tests/agents/` stores results (gitignored)

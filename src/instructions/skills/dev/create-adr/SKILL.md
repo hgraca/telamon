@@ -2,30 +2,30 @@
 name: telamon.create-adr
 description: "Creates Architecture Decision Records (ADRs). Activates when asked to create, write, or draft an ADR, document an architecture decision, or record a technical decision."
 ---
-# Skill: Create an Architecture Decision Record (ADR)
+# Skill: Create Architecture Decision Record (ADR)
 
 ## When to Apply
 
-Activate when asked to: create/write/draft an ADR, document an architecture decision, record a technical decision.
+Activate when asked: create/write/draft ADR, document architecture decision, record technical decision.
 
 ## Inputs
 
-If not already provided, ask before starting:
+If not provided, ask before starting:
 
-1. **Topic** — the architectural question or choice being decided
+1. **Topic** — architectural question or choice being decided
 2. **Decision status** — already made (which option and why) or still exploring (ADR ends with `[pending review]`)
 3. **Proponents and deciders** — default: `Herberto` / `[pending review]`
 4. **Date** — default: today in `YYYY-MM-DD`
 
-Do not ask for information inferable from the codebase. Research first.
+Do not ask for information inferable from codebase. Research first.
 
 ## Process
 
 ### Step 1 — Research
 
-Explore the codebase for:
+Explore codebase for:
 - Current state (existing patterns and implementations)
-- Pain points motivating the decision
+- Pain points motivating decision
 - Two or more credible options
 - Relevant code, config, or documentation
 
@@ -41,9 +41,9 @@ Title: short, present-tense imperative phrase, <50 chars, lowercase kebab-case, 
 
 Example: `.ai/local/ADRs/ADR-015-enforce-cursor-based-pagination.md`
 
-### Step 4 — Write the ADR
+### Step 4 — Write ADR
 
-Use the template at `./_template.md`. Match the style of existing ADRs, if any.
+Use template at `./_template.md`. Match style of existing ADRs, if any.
 
 #### Structure
 
@@ -59,7 +59,7 @@ Last updated time: {Month DD, YYYY H:MM AM/PM}
 
 **Summary** — structured paragraph:
 ```markdown
-**In the context of** {use case}
+**In context of** {use case}
 **facing**
 - {concern}
 **we decided for** {chosen option}
@@ -68,7 +68,7 @@ Last updated time: {Month DD, YYYY H:MM AM/PM}
 **accepting** {key downside/trade-off}.
 ```
 
-**Context** — 3-5 paragraphs: current state, why decision is needed, anti-patterns/failure modes, what ADR establishes. Do not name the chosen option here.
+**Context** — 3-5 paragraphs: current state, why decision needed, anti-patterns/failure modes, what ADR establishes. Do not name chosen option here.
 
 **Options** — at least two, mark chosen with `(decided)`:
 ```markdown
@@ -93,21 +93,21 @@ Last updated time: {Month DD, YYYY H:MM AM/PM}
 
 #### Required section: Convention deviation justification
 
-If this ADR deviates from an established project convention (Explicit Architecture, naming, layering, testing, etc), it MUST include a section before `Consequences and Follow-Up Work`:
+If this ADR deviates from established project convention (Explicit Architecture, naming, layering, testing, etc), it MUST include section before `Consequences and Follow-Up Work`:
 
-> ## Why the existing convention is insufficient
+> ## Why existing convention is insufficient
 >
-> - **Existing convention**: <one-line summary of what the convention says>.
-> - **Where it falls short for this case**: concrete failure mode the convention does not address. Cite a file, a test scenario, or a pattern in the codebase.
-> - **What was tried first**: at least one attempt to comply with the convention before deciding to deviate. If no attempt was made, the deviation is premature — comply first, then write the ADR if compliance fails.
+> - **Existing convention**: <one-line summary of what convention says>.
+> - **Where it falls short for this case**: concrete failure mode convention does not address. Cite file, test scenario, or pattern in codebase.
+> - **What was tried first**: at least one attempt to comply with convention before deciding to deviate. If no attempt made, deviation premature — comply first, then write ADR if compliance fails.
 
-If you cannot complete the three bullets above, do not deviate. The convention exists because someone considered alternatives; you must engage with their reasoning, not bypass it.
+If you cannot complete three bullets above, do not deviate. Convention exists because someone considered alternatives; you must engage with their reasoning, not bypass it.
 
-ADRs that document a *conformance* (not deviation) do not need this section.
+ADRs documenting *conformance* (not deviation) do not need this section.
 
 ### Step 5 — Save
 
-Write to `.ai/local/ADRs/{filename}.md`. After writing, run `format-md` on the file to align table columns. Confirm file path and title to the user.
+Write to `.ai/local/ADRs/{filename}.md`. After writing, run `format-md` on file to align table columns. Confirm file path and title to user.
 
 ## Quality Checklist
 
@@ -130,4 +130,4 @@ Write to `.ai/local/ADRs/{filename}.md`. After writing, run `format-md` on the f
 - Tables for comparing across multiple dimensions.
 - Code blocks for URLs, JSON, config snippets.
 - `##` for top-level sections, `###` for sub-sections.
-- No sections beyond the template. No emoji.
+- No sections beyond template. No emoji.

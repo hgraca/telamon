@@ -5,19 +5,19 @@ description: "Produces a planning summary report after a planning stage complete
 
 # Skill: Planning Summary
 
-Produce a structured summary report at the end of a planning stage.
+Produce structured summary report at end of planning stage.
 
 ## When to Apply
 
-- When the `plan` workflow reaches its summary step
-- When the orchestrator completes a planning stage and needs to summarize artifacts, decisions, and next steps
+- `plan` workflow reaches its summary step
+- Orchestrator completes planning stage and needs to summarize artifacts, decisions, and next steps
 
 ## Procedure
 
-1. Read all artifacts in the `<issue-folder>` (backlog, architecture specs, critic reviews, UI/UX specs, decisions).
-2. Fill in every section of the template below — do NOT invent a custom format.
-3. Write the result to `<issue-folder>/summary.md`. After writing, run `format-md` on the file to align table columns.
-4. Output the summary to the human stakeholder, as properly formatted Markdown.
+1. Read all artifacts in `<issue-folder>` (backlog, architecture specs, critic reviews, UI/UX specs, decisions).
+2. Fill in every section of template below — do NOT invent custom format.
+3. Write result to `<issue-folder>/summary.md`. After writing, run `format-md` on file to align table columns.
+4. Output summary to human stakeholder, as properly formatted Markdown.
 
 ## Template
 
@@ -27,7 +27,7 @@ Produce a structured summary report at the end of a planning stage.
 >
 > ## Technology Choice
 >
-> _(If the plan involved choosing between competing technologies, summarize the evaluation here FIRST. Include: candidates, comparison table, decision rationale, when rejected alternatives would be right. If no technology choice was made, omit this section.)_
+> _(If plan involved choosing between competing technologies, summarize evaluation here FIRST. Include: candidates, comparison table, decision rationale, when rejected alternatives would be right. If no technology choice made, omit this section.)_
 >
 > ## Artifacts Produced
 > |Document|Path|
@@ -58,7 +58,7 @@ Produce a structured summary report at the end of a planning stage.
 > ## Tools used
 >
 > ### SKILLS
-> List skills used by the agent while doing the planning, or "None."
+> List skills used by agent while doing planning, or "None."
 >
 > ### MCP tools
-> List MCP tools used by the agent while doing the planning, or "None."
+> List MCP tools used by agent while doing planning, or "None."

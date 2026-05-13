@@ -5,17 +5,17 @@ description: "Produces test reports documenting test results, bugs found, and co
 
 # Skill: Test Reporting
 
-Document test results, bugs found, production code changes, and coverage assessment in a structured report.
+Document test results, bugs found, production code changes, and coverage assessment in structured report.
 
 ## When to Apply
 
-- After completing a test writing session (pre-implementation)
+- After completing test writing session (pre-implementation)
 - After completing test validation (post-implementation)
-- After a test audit
+- After test audit
 
 ## Test Report
 
-Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
+Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
 
 ### Template
 
@@ -46,15 +46,15 @@ Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`. After writing, run `form
 > - **Steps to reproduce**: Numbered steps.
 > - **Expected**: What should happen.
 > - **Actual**: What actually happens.
-> - **Affected test**: The test that exposed this bug (if any).
+> - **Affected test**: Test that exposed this bug (if any).
 >
 > ## Production Code Changes
 >
 > _If none: "No production code was modified."_
 >
-> - **File path**: The file modified.
+> - **File path**: File modified.
 > - **What changed**: Exact description.
-> - **Why**: Why production code was untestable without this change.
+> - **Why**: Why production code untestable without this change.
 >
 > ## Coverage Assessment
 >
@@ -63,13 +63,13 @@ Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`. After writing, run `form
 > ## Tools used
 >
 > ### SKILLS
-> List skills used by the agent while creating the report, or "None."
+> List skills used by agent while creating report, or "None."
 >
 > ### MCP tools
-> List MCP tools used by the agent while creating the report, or "None."
+> List MCP tools used by agent while creating report, or "None."
 
 ### Bug Severity Definitions
 
 - **CRITICAL** — Breaks core functionality or causes data loss.
-- **MAJOR** — Significant incorrect behavior with a workaround.
+- **MAJOR** — Significant incorrect behavior with workaround.
 - **MINOR** — Cosmetic or low-impact issue.

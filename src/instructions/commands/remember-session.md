@@ -3,4 +3,4 @@ description: Capture session knowledge to brain/ notes (manual trigger)
 agent: telamon/telamon
 ---
 
-Load the `telamon.remember_session` skill and run it now. This is a **manual** trigger — produce the wrap-up report described at the end of the skill (not the silent automatic-capture variant).
+Load `telamon.remember_session` skill and run now. This is **manual** trigger — produce wrap-up report described at end of skill (not silent automatic-capture variant).

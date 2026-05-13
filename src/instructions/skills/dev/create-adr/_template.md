@@ -5,11 +5,11 @@ Created time: <created-timestamp>
 Last edited by: <last-editor>
 Last updated time: <last-updated-timestamp>
 
-The title should be a short present tense imperative phrase, less than 50 characters, like a git commit message.
+Title should be short present tense imperative phrase, less than 50 characters, like git commit message.
 
 ## **Summary**
 
-**In the context of** (use case)
+**In context of** (use case)
 
 **facing** 
 
@@ -27,15 +27,15 @@ The title should be a short present tense imperative phrase, less than 50 charac
 
 ## **Context**
 
-Describe the context and problem statement in free form, using two to three sentences.
+Describe context and problem statement in free form, using two to three sentences.
 
-You may want to articulate the problem in the form of a question.
+You may want to articulate problem in form of question.
 
-What is the issue that we're seeing that is motivating this decision or change.
+What is issue motivating this decision or change.
 
-This is the story explaining the problem we are looking to resolve.
+This is story explaining problem we are looking to resolve.
 
-Explains the forces at play (technical, political, social, project).
+Explains forces at play (technical, political, social, project).
 
 ## **Options**
 
@@ -55,11 +55,11 @@ Explains the forces at play (technical, political, social, project).
 
 ## **Decision**
 
-What is the change that we're actually proposing or doing.
+What is change we are proposing or doing.
 
-Explains how the decision will solve the problem.
+Explains how decision will solve problem.
 
-The response to forces at play, with justification.
+Response to forces at play, with justification.
 
 ## **Design Constraints**
 
@@ -80,11 +80,11 @@ To implement this decision, we need to:
 
 - …
 
-### Proponents: [list everyone involved in the proposing the ADR]
+### Proponents: [list everyone involved in proposing ADR]
 
-### Deciders: [list everyone involved in the decision]
+### Deciders: [list everyone involved in decision]
 
-### Date: [YYYY-MM-DD when the decision was made]
+### Date: [YYYY-MM-DD when decision was made]
 
 <aside>
 

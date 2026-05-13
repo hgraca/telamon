@@ -12,7 +12,7 @@ Architecture: Explicit Architecture (DDD + Hexagonal + CQRS), modular monolith
 - Making architectural decisions or reviewing design choices
 - Checking security constraints or forbidden patterns
 - Reviewing code quality or static analysis compliance
-- When uncertain about design direction — consult the defaults
+- When uncertain about design direction — consult defaults
 
 ## Priority Order
 
@@ -54,21 +54,21 @@ UUID v7, generated in Domain. Never use auto-increment IDs in Domain logic.
 
 - Static analysis tools enforce code quality
 - Import classes instead of using fully qualified names (production and test code)
-- Do not ignore static analysis issues — resolve them or escalate to the human stakeholder
-- Do not add issues to static analysis tools baselines — resolve them in the codebase
+- Do not ignore static analysis issues — resolve them or escalate to human stakeholder
+- Do not add issues to static analysis tools baselines — resolve them in codebase
 
 ## Design Rules
 
 - Value Objects over primitives for domain concepts (names, IDs, scores, URLs, etc.)
-- All domain classes must be `final` unless explicitly designed for extension (if allowed by the programming language)
+- All domain classes must be `final` unless explicitly designed for extension (if allowed by programming language)
 - Port contracts must use typed DTOs — never raw arrays crossing boundaries
 - Port interfaces must not expose transport or infrastructure concepts (URLs, headers, connection strings)
 - Application services returning data to presentation must return DTOs — never domain entities
-- Exceptions crossing layer boundaries must be defined at the port level
-- Domain behavior must live on the owning entity or aggregate, not in unrelated factory methods or standalone services
+- Exceptions crossing layer boundaries must be defined at port level
+- Domain behavior must live on owning entity or aggregate, not in unrelated factory methods or standalone services
 - Dependencies must be explicitly injected — not instantiated inside constructors or factory methods
 - Domain constructors must normalize input (sort collections, trim/lowercase strings)
-- Output formatting must be a separate concern from application orchestration
+- Output formatting must be separate concern from application orchestration
 - Infrastructure adapters must validate external data defensively before mapping to domain types
 - Infrastructure adapters must validate URL schemes (require HTTPS) for external API URLs
 - Encode external input before interpolating into URLs, SQL, or shell commands

@@ -3,4 +3,4 @@ description: Address code review comments on a GitHub PR
 agent: telamon/telamon
 ---
 
-Follow the `telamon.gh_review` skill to address the review comments on PR $1
+Follow `telamon.gh_review` skill to address review comments on PR $1

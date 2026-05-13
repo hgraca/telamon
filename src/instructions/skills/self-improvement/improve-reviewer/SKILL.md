@@ -5,29 +5,29 @@ description: "Improves the reviewer agent and/or its skills so that issues detec
 
 # Skill: Improve Reviewer from External Feedback
 
-Analyze external review comments addressed in the current session, identify gaps in our reviewer's detection capabilities, and propose improvements to the reviewer agent and/or its skills.
+Analyze external review comments addressed in current session, identify gaps in our reviewer's detection capabilities, and propose improvements to reviewer agent and/or its skills.
 
 ## When to Apply
 
-- At the end of a `telamon.gh_review` skill execution
+- At end of `telamon.gh_review` skill execution
 - When external PR review comments reveal issues our reviewer should have caught
 
 ## Goal
 
-Improve the reviewer agent and/or its skills, so that the issues detected by the external reviewer will be detected by our reviewer next time.
+Improve reviewer agent and/or its skills so issues detected by external reviewer will be detected by our reviewer next time.
 
 ## Procedure
 
 ### Step 1: Collect external review issues
 
-Gather all review comments addressed in the current session. For each comment, classify:
+Gather all review comments addressed in current session. For each comment, classify:
 
-| Field | Description |
-|-------|-------------|
-| **Issue** | What the external reviewer flagged |
-| **Category** | Code quality, security, performance, architecture, naming, logic, testing, style |
-| **Was it a code change?** | Did the comment result in a code change or just an explanation? |
-| **Should our reviewer catch this?** | Yes / No / Already covered |
+| Field                               | Description                                                                      |
+|-------------------------------------|----------------------------------------------------------------------------------|
+| **Issue**                           | What external reviewer flagged                                                   |
+| **Category**                        | Code quality, security, performance, architecture, naming, logic, testing, style |
+| **Was it code change?**             | Did comment result in code change or just explanation?                           |
+| **Should our reviewer catch this?** | Yes / No / Already covered                                                       |
 
 Filter to only issues where **should our reviewer catch this = Yes** and **already covered = No**.
 
@@ -35,40 +35,40 @@ Filter to only issues where **should our reviewer catch this = Yes** and **alrea
 
 For each gap, determine which file(s) need changes:
 
-| Target | When |
-|--------|------|
-| `src/instructions/skills/workflow/review_changeset/SKILL.md` | New review check, modified check, new finding pattern |
-| `src/instructions/agents/reviewer.md` | New responsibility, new MUST/MUST NOT rule, new skill reference |
-| Other reviewer-referenced skills | If gap falls within an existing skill's scope |
+| Target                                                       | When                                                            |
+|--------------------------------------------------------------|-----------------------------------------------------------------|
+| `src/instructions/skills/workflow/review_changeset/SKILL.md` | New review check, modified check, new finding pattern           |
+| `src/instructions/agents/reviewer.md`                        | New responsibility, new MUST/MUST NOT rule, new skill reference |
+| Other reviewer-referenced skills                             | If gap falls within an existing skill's scope                   |
 
 Read target files before proposing changes.
 
 ### Step 3: Draft improvements
 
-For each gap, draft a concrete change:
+For each gap, draft concrete change:
 
-- **New review check** — add a numbered section to `review_changeset/SKILL.md` following the existing pattern (heading, bullet list of checks).
-- **Strengthened existing check** — extend an existing section with additional verification steps.
-- **New MUST/MUST NOT rule** — add to `reviewer.md` if it's a behavioral rule, not a procedure.
-- **New skill reference** — add to reviewer's Skills section if a new skill covers the gap.
+- **New review check** — add numbered section to `review_changeset/SKILL.md` following existing pattern (heading, bullet list of checks).
+- **Strengthened existing check** — extend existing section with additional verification steps.
+- **New MUST/MUST NOT rule** — add to `reviewer.md` if behavioral rule, not procedure.
+- **New skill reference** — add to reviewer's Skills section if new skill covers gap.
 
 ### Step 4: Present suggestions for approval
 
-Present each suggestion to the human stakeholder:
+Present each suggestion to human stakeholder:
 
 > ### Suggestion N: \<title\>
 >
-> **External review issue**: \<what the external reviewer flagged\>
+> **External review issue**: \<what external reviewer flagged\>
 >
 > **Gap**: \<why our reviewer didn't catch it\>
 >
 > **Target file**: \<path\>
 >
-> **Change**: \<description of the change\>
+> **Change**: \<description of change\>
 >
-> **Rationale**: \<why this will prevent the gap next time\>
+> **Rationale**: \<why this will prevent gap next time\>
 
-Ask for approval per suggestion: **Approve**, **Modify**, or **Skip**.
+Ask approval per suggestion: **Approve**, **Modify**, or **Skip**.
 
 ### Step 5: Implement approved suggestions
 
@@ -76,7 +76,7 @@ For each approved suggestion:
 
 1. Apply changes to target files.
 2. Verify structural consistency — YAML frontmatter, heading hierarchy, numbering sequence.
-3. Record as a decision using `telamon.remember_lessons_learned` skill.
+3. Record as decision using `telamon.remember_lessons_learned` skill.
 4. Commit: `git add <specific-files>`, verify with `git diff --staged --stat`, commit with descriptive message.
 
 ### Step 6: Summary

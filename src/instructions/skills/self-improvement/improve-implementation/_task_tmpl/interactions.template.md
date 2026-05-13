@@ -9,14 +9,14 @@ This document records all inter-agent interactions that occurred during the plan
 
 ### Agents Involved
 
-| Agent | Role |
-|---|---|
-| **PO** (Product Owner) | Orchestrator — created backlog, coordinated planning reviews, managed implementation workflow |
-| **Architect** | Reviewed backlog, provided 11 refinements (domain model, port design, level calc, directory structure) |
-| **Critic** | Reviewed plan for gaps/contradictions (1 round — found 2 blockers, 8 weaknesses, 4 suggestions) |
-| **Human Stakeholder** | Approved the plan to begin implementation; corrected iteration number; approved Phase 2 |
-| **Developer** | Implemented all 10 tasks across 4 subagent sessions, committed code |
-| **Explore** | Analyzed v1, v2, v3 codebases for Phase 2 comparison research |
+| Agent                  | Role                                                                                                   |
+|------------------------|--------------------------------------------------------------------------------------------------------|
+| **PO** (Product Owner) | Orchestrator — created backlog, coordinated planning reviews, managed implementation workflow          |
+| **Architect**          | Reviewed backlog, provided 11 refinements (domain model, port design, level calc, directory structure) |
+| **Critic**             | Reviewed plan for gaps/contradictions (1 round — found 2 blockers, 8 weaknesses, 4 suggestions)        |
+| **Human Stakeholder**  | Approved the plan to begin implementation; corrected iteration number; approved Phase 2                |
+| **Developer**          | Implemented all 10 tasks across 4 subagent sessions, committed code                                    |
+| **Explore**            | Analyzed v1, v2, v3 codebases for Phase 2 comparison research                                          |
 
 ---
 
@@ -49,19 +49,19 @@ This document records all inter-agent interactions that occurred during the plan
 
 **Response from Architect:**
 
-| # | Category | Refinement |
-|---|---|---|
-| 1 | Domain model | Clarify Pokemon as a Value Object (final readonly), not an entity |
-| 2 | Port design | Add `SpeciesReference`→renamed to `GrowthRateReference` — opaque reference returned from `PokemonDataProvider` so URLs never leak into the port |
-| 3 | Level calculation | `GrowthRateLevelTable` collection with `levelFor()` method — behavior lives on the collection that owns the data |
-| 4 | Port exception | Define `PokeApiException` at the port level, not in Infrastructure |
-| 5 | Data flow | `PokemonDataProvider` returns `PokemonDataResult` (DTO with name, experience, species, growth rate ref), then `GrowthRateLevelProvider` resolves the reference |
-| 6 | Task reorder | Move Task 6 (formatter) before Task 4 (service) since service depends on formatter |
-| 7 | Bug fix | Original code's level calculation loop never assigns max level when base_experience exceeds all thresholds (returns 0). Must fix in `GrowthRateLevelTable::levelFor()` |
-| 8 | Directory structure | `src/Domain/`, `src/Port/`, `src/Application/`, `src/Infrastructure/PokeApi/`, `src/Presentation/` |
-| 9 | HTTP design | Injectable `callable(string): string` for HTTP fetching, enabling test doubles without real HTTP |
-| 10 | Two providers | Split port into `PokemonDataProvider` (2 HTTP calls: pokemon + species) and `GrowthRateLevelProvider` (1 HTTP call: growth rate) |
-| 11 | GrowthRateReference | Opaque value object wrapping the growth rate URL — port consumers never see it's a URL |
+| #   | Category            | Refinement                                                                                                                                                             |
+|-----|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1   | Domain model        | Clarify Pokemon as a Value Object (final readonly), not an entity                                                                                                      |
+| 2   | Port design         | Add `SpeciesReference`→renamed to `GrowthRateReference` — opaque reference returned from `PokemonDataProvider` so URLs never leak into the port                        |
+| 3   | Level calculation   | `GrowthRateLevelTable` collection with `levelFor()` method — behavior lives on the collection that owns the data                                                       |
+| 4   | Port exception      | Define `PokeApiException` at the port level, not in Infrastructure                                                                                                     |
+| 5   | Data flow           | `PokemonDataProvider` returns `PokemonDataResult` (DTO with name, experience, species, growth rate ref), then `GrowthRateLevelProvider` resolves the reference         |
+| 6   | Task reorder        | Move Task 6 (formatter) before Task 4 (service) since service depends on formatter                                                                                     |
+| 7   | Bug fix             | Original code's level calculation loop never assigns max level when base_experience exceeds all thresholds (returns 0). Must fix in `GrowthRateLevelTable::levelFor()` |
+| 8   | Directory structure | `src/Domain/`, `src/Port/`, `src/Application/`, `src/Infrastructure/PokeApi/`, `src/Presentation/`                                                                     |
+| 9   | HTTP design         | Injectable `callable(string): string` for HTTP fetching, enabling test doubles without real HTTP                                                                       |
+| 10  | Two providers       | Split port into `PokemonDataProvider` (2 HTTP calls: pokemon + species) and `GrowthRateLevelProvider` (1 HTTP call: growth rate)                                       |
+| 11  | GrowthRateReference | Opaque value object wrapping the growth rate URL — port consumers never see it's a URL                                                                                 |
 
 **Decision:** PO incorporated all 11 refinements — updated backlog with amended domain model, port design, task ordering, and architecture guidelines.
 
@@ -76,22 +76,22 @@ This document records all inter-agent interactions that occurred during the plan
 
 **Response from Critic:**
 
-| # | Severity | Issue |
-|---|---|---|
-| 1 | **Blocker** | `SpeciesReference` name ambiguous — it wraps a growth rate URL, not a species URL. Rename to `GrowthRateReference` |
-| 2 | **Blocker** | Coverage driver unclear — backlog mentions 90% target but no infrastructure test strategy |
-| 3 | **Weakness** | Docker constraint not mentioned in backlog tasks |
-| 4 | **Weakness** | PHP version conflict (ARCHITECTURE.md says 8.4, kata needs 8.2) not documented |
-| 5 | **Weakness** | No explicit data flow diagram |
-| 6 | **Weakness** | Missing error handling specification for HTTP failures |
-| 7 | **Weakness** | Task 0 missing — no baseline verification task |
-| 8 | **Weakness** | No specification for bin/run.php wiring |
-| 9 | **Weakness** | Test naming convention not specified |
-| 10 | **Weakness** | No commit strategy specified |
-| 11 | **Suggestion** | Add injectable HTTP callable specification |
-| 12 | **Suggestion** | Add data flow diagram to backlog |
-| 13 | **Suggestion** | Specify exact Docker command template |
-| 14 | **Suggestion** | Clarify formatter return type (string vs void with echo) |
+| #   | Severity       | Issue                                                                                                              |
+|-----|----------------|--------------------------------------------------------------------------------------------------------------------|
+| 1   | **Blocker**    | `SpeciesReference` name ambiguous — it wraps a growth rate URL, not a species URL. Rename to `GrowthRateReference` |
+| 2   | **Blocker**    | Coverage driver unclear — backlog mentions 90% target but no infrastructure test strategy                          |
+| 3   | **Weakness**   | Docker constraint not mentioned in backlog tasks                                                                   |
+| 4   | **Weakness**   | PHP version conflict (ARCHITECTURE.md says 8.4, kata needs 8.2) not documented                                     |
+| 5   | **Weakness**   | No explicit data flow diagram                                                                                      |
+| 6   | **Weakness**   | Missing error handling specification for HTTP failures                                                             |
+| 7   | **Weakness**   | Task 0 missing — no baseline verification task                                                                     |
+| 8   | **Weakness**   | No specification for bin/run.php wiring                                                                            |
+| 9   | **Weakness**   | Test naming convention not specified                                                                               |
+| 10  | **Weakness**   | No commit strategy specified                                                                                       |
+| 11  | **Suggestion** | Add injectable HTTP callable specification                                                                         |
+| 12  | **Suggestion** | Add data flow diagram to backlog                                                                                   |
+| 13  | **Suggestion** | Specify exact Docker command template                                                                              |
+| 14  | **Suggestion** | Clarify formatter return type (string vs void with echo)                                                           |
 
 **Overall assessment:** Ready — with blockers addressed.
 
@@ -256,99 +256,99 @@ This document records all inter-agent interactions that occurred during the plan
 
 ```
 Human Stakeholder
-    |
+|-----|
     | (start epic)
     v
    PO -----> Architect (review backlog)
-    |            |
+|-----|
     |            v
    PO <----- 11 refinements (GrowthRateReference, GrowthRateLevelTable, injectable HTTP, etc.)
-    |
+|-----|
     +-------> Critic (review plan)
-    |            |
+|-----|
     |            v (2 blockers + 8 weaknesses + 4 suggestions)
    PO addresses all issues (rename GrowthRateReference, coverage strategy, Docker, PHP version)
-    |
+|-----|
     +-------> Human Stakeholder (approval)
-    |
+|-----|
     | (approved: "continue")
-    |
+|-----|
     |  === Implementation Phase ===
-    |
+|-----|
     +-------> Developer (Task 0: env setup, baseline verification)
-    |            |
+|-----|
     |            v commit 2c322ac
-    |
+|-----|
     +-------> Developer (Tasks 1+2+3+6: domain, ports, level calc, formatter)
-    |            |
+|-----|
     |            v commit 517a74a
-    |
+|-----|
     +-------> Developer (Tasks 4+5+7: first attempt — interrupted)
-    |
+|-----|
     +-------> Developer (Tasks 4+5+7: re-delegated with explicit specs)
-    |            |
+|-----|
     |            v commit 3aec2ce
-    |
+|-----|
     +-------> Developer (Tasks 8+9: static analysis + coverage)
-    |            |
+|-----|
     |            v commit 6f238b5
-    |
+|-----|
    PO -----> Human Stakeholder (Phase 1 complete)
-    |
+|-----|
     | (Human corrects iteration number to 4)
-    |
+|-----|
    PO renames folder, commits 510f314
-    |
+|-----|
     | (Human approves Phase 2)
-    |
+|-----|
     +-------> Explore (codebase comparison research — v1, v2, v3, v4)
-    |            |
+|-----|
     |            v (detailed analysis returned)
-    |
+|-----|
    PO writes Phase 2 reports
 ```
 
 ## Summary Statistics
 
-| Metric | Value |
-|---|---|
-| Total agent interactions | 14 |
-| Unique agents involved | 5 (PO, Architect, Critic, Human Stakeholder, Developer, Explore) |
-| Planning interactions | 5 (PO reads context, PO creates backlog, Architect review, Critic review, Human approval) |
-| Implementation interactions | 7 (Developer x5, PO x1 rename, Explore x1) |
-| Architect invocations | 1 |
-| Critic invocations | 1 |
-| Developer invocations | 5 (1 setup + 1 domain/ports/calc/formatter + 1 interrupted + 1 service/infra/CLI + 1 analysis/coverage) |
-| Explore invocations | 1 (Phase 2 comparison research) |
-| Tasks completed | 10 (Tasks 0–9) |
-| Total commits | 5 (Task 0, Tasks 1+2+3+6, Tasks 4+5+7, Tasks 8+9, iteration rename) |
-| Tests at completion | 54 tests, 95 assertions, all green |
-| Code coverage | 100% line (120/120 lines) of src/ |
-| PHPStan | 0 errors at max level |
+| Metric                      | Value                                                                                                   |
+|-----------------------------|---------------------------------------------------------------------------------------------------------|
+| Total agent interactions    | 14                                                                                                      |
+| Unique agents involved      | 5 (PO, Architect, Critic, Human Stakeholder, Developer, Explore)                                        |
+| Planning interactions       | 5 (PO reads context, PO creates backlog, Architect review, Critic review, Human approval)               |
+| Implementation interactions | 7 (Developer x5, PO x1 rename, Explore x1)                                                              |
+| Architect invocations       | 1                                                                                                       |
+| Critic invocations          | 1                                                                                                       |
+| Developer invocations       | 5 (1 setup + 1 domain/ports/calc/formatter + 1 interrupted + 1 service/infra/CLI + 1 analysis/coverage) |
+| Explore invocations         | 1 (Phase 2 comparison research)                                                                         |
+| Tasks completed             | 10 (Tasks 0–9)                                                                                          |
+| Total commits               | 5 (Task 0, Tasks 1+2+3+6, Tasks 4+5+7, Tasks 8+9, iteration rename)                                     |
+| Tests at completion         | 54 tests, 95 assertions, all green                                                                      |
+| Code coverage               | 100% line (120/120 lines) of src/                                                                       |
+| PHPStan                     | 0 errors at max level                                                                                   |
 
 ### Per-Task Breakdown
 
-| Task | Developer Session | Tests | Commit |
-|---|---|---|---|
-| Task 0 — Env setup | Session 1 | Baseline verification | `2c322ac` |
-| Task 1 — Domain VOs | Session 2 | Domain VO tests (PokemonName, BaseExperience, SpeciesName, Level, GrowthRateLevel, GrowthRateLevelTable, Pokemon) | `517a74a` |
-| Task 2 — Port interfaces | Session 2 | Port DTO tests (PokemonDataResult, GrowthRateReference) | `517a74a` |
-| Task 3 — Level calculation | Session 2 | GrowthRateLevelTable tests (mid-range, boundaries, above-max fix, zero, empty) | `517a74a` |
-| Task 4 — Application service | Session 3 (re-delegated) | PokemonLevelService tests | `3aec2ce` |
-| Task 5 — Infrastructure adapters | Session 3 (re-delegated) | HttpPokemonDataProvider + HttpGrowthRateLevelProvider tests (injectable callable) | `3aec2ce` |
-| Task 6 — Formatter | Session 2 | PokemonFormatter tests | `517a74a` |
-| Task 7 — bin/run.php | Session 3 (re-delegated) | CLI integration | `3aec2ce` |
-| Task 8 — Static analysis | Session 4 | PHPStan max level, 0 errors | `6f238b5` |
-| Task 9 — Test coverage | Session 4 | 100% line coverage achieved | `6f238b5` |
+| Task                             | Developer Session        | Tests                                                                                                             | Commit    |
+|----------------------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------|-----------|
+| Task 0 — Env setup               | Session 1                | Baseline verification                                                                                             | `2c322ac` |
+| Task 1 — Domain VOs              | Session 2                | Domain VO tests (PokemonName, BaseExperience, SpeciesName, Level, GrowthRateLevel, GrowthRateLevelTable, Pokemon) | `517a74a` |
+| Task 2 — Port interfaces         | Session 2                | Port DTO tests (PokemonDataResult, GrowthRateReference)                                                           | `517a74a` |
+| Task 3 — Level calculation       | Session 2                | GrowthRateLevelTable tests (mid-range, boundaries, above-max fix, zero, empty)                                    | `517a74a` |
+| Task 4 — Application service     | Session 3 (re-delegated) | PokemonLevelService tests                                                                                         | `3aec2ce` |
+| Task 5 — Infrastructure adapters | Session 3 (re-delegated) | HttpPokemonDataProvider + HttpGrowthRateLevelProvider tests (injectable callable)                                 | `3aec2ce` |
+| Task 6 — Formatter               | Session 2                | PokemonFormatter tests                                                                                            | `517a74a` |
+| Task 7 — bin/run.php             | Session 3 (re-delegated) | CLI integration                                                                                                   | `3aec2ce` |
+| Task 8 — Static analysis         | Session 4                | PHPStan max level, 0 errors                                                                                       | `6f238b5` |
+| Task 9 — Test coverage           | Session 4                | 100% line coverage achieved                                                                                       | `6f238b5` |
 
 ### Key Decisions During Implementation
 
-| Decision | Rationale |
-|---|---|
+| Decision                                            | Rationale                                                                                                           |
+|-----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | Re-delegated Tasks 4+5+7 after first attempt failed | First developer session got stuck; PO extracted explicit specs from existing test files to provide clearer guidance |
-| No separate Tester/Reviewer subagents | Developer handled test-first and review internally within each session, reducing interaction count |
-| Batch commits (tasks grouped) | Fewer, larger commits vs per-task commits — trade-off for efficiency |
-| Injectable `callable(string): string` for HTTP | Enables deterministic testing of infrastructure adapters without network calls or stream wrappers |
+| No separate Tester/Reviewer subagents               | Developer handled test-first and review internally within each session, reducing interaction count                  |
+| Batch commits (tasks grouped)                       | Fewer, larger commits vs per-task commits — trade-off for efficiency                                                |
+| Injectable `callable(string): string` for HTTP      | Enables deterministic testing of infrastructure adapters without network calls or stream wrappers                   |
 
 ### Agent Processing Time
 
@@ -356,59 +356,59 @@ Time estimates are derived from observed interaction durations. Human stakeholde
 
 #### Planning Phase
 
-| Interaction | Agent(s) | Approx. Duration | Notes |
-|---|---|---|---|
-| 1. PO reads context and epic | PO | ~3m | Read 15+ files (context, persona, workflows, source code) |
-| 2. PO creates backlog | PO | ~4m | Drafted 10 tasks with ACs, goal, problem analysis |
-| 3. Architect reviews backlog | Architect | ~4m | 11 refinements: domain model, port design, bug fix, directory structure |
-| 4. Critic reviews plan | Critic | ~3m | Found 2 blockers, 8 weaknesses, 4 suggestions |
-| 5. PO addresses feedback + gets approval | PO | ~3m | Renamed GrowthRateReference, added coverage strategy, Docker, PHP version |
-| **Planning subtotal** | | **~17m** | |
+| Interaction                              | Agent(s)  | Approx. Duration | Notes                                                                     |
+|------------------------------------------|-----------|------------------|---------------------------------------------------------------------------|
+| 1. PO reads context and epic             | PO        | ~3m              | Read 15+ files (context, persona, workflows, source code)                 |
+| 2. PO creates backlog                    | PO        | ~4m              | Drafted 10 tasks with ACs, goal, problem analysis                         |
+| 3. Architect reviews backlog             | Architect | ~4m              | 11 refinements: domain model, port design, bug fix, directory structure   |
+| 4. Critic reviews plan                   | Critic    | ~3m              | Found 2 blockers, 8 weaknesses, 4 suggestions                             |
+| 5. PO addresses feedback + gets approval | PO        | ~3m              | Renamed GrowthRateReference, added coverage strategy, Docker, PHP version |
+| **Planning subtotal**                    |           | **~17m**         |                                                                           |
 
 #### Implementation Phase
 
-| Interaction | Agent | Approx. Duration | Notes |
-|---|---|---|---|
-| 6. Developer — Task 0 setup | Developer | ~3m | Clone, composer install, verify output, commit |
-| 7. Developer — Tasks 1+2+3+6 | Developer | ~8m | 12 source files + test files, all tests pass, commit |
-| 8. Developer — Tasks 4+5+7 (interrupted) | Developer | ~5m | Session stuck, no output |
-| 9. Developer — Tasks 4+5+7 (re-delegated) | Developer | ~6m | 4 source files + test files, all tests pass, commit |
-| 10. Developer — Tasks 8+9 | Developer | ~4m | PHPStan clean, 100% coverage, commit |
-| 11. PO reports Phase 1 complete | PO | ~1m | Completion report to Human |
-| 12. PO renames folder + commits | PO | ~1m | Iteration number correction |
-| 13. Human approves Phase 2 | — | excluded | Wait time for human input |
-| 14. Explore — Codebase comparison | Explore | ~5m | Thorough analysis of v1, v2, v3, v4 |
-| **Implementation subtotal** | | **~33m** | |
+| Interaction                               | Agent     | Approx. Duration | Notes                                                |
+|-------------------------------------------|-----------|------------------|------------------------------------------------------|
+| 6. Developer — Task 0 setup               | Developer | ~3m              | Clone, composer install, verify output, commit       |
+| 7. Developer — Tasks 1+2+3+6              | Developer | ~8m              | 12 source files + test files, all tests pass, commit |
+| 8. Developer — Tasks 4+5+7 (interrupted)  | Developer | ~5m              | Session stuck, no output                             |
+| 9. Developer — Tasks 4+5+7 (re-delegated) | Developer | ~6m              | 4 source files + test files, all tests pass, commit  |
+| 10. Developer — Tasks 8+9                 | Developer | ~4m              | PHPStan clean, 100% coverage, commit                 |
+| 11. PO reports Phase 1 complete           | PO        | ~1m              | Completion report to Human                           |
+| 12. PO renames folder + commits           | PO        | ~1m              | Iteration number correction                          |
+| 13. Human approves Phase 2                | —         | excluded         | Wait time for human input                            |
+| 14. Explore — Codebase comparison         | Explore   | ~5m              | Thorough analysis of v1, v2, v3, v4                  |
+| **Implementation subtotal**               |           | **~33m**         |                                                      |
 
 #### Per-Agent Totals (Full Session)
 
-| Agent | Total Time | Invocations | Notes |
-|---|---|---|---|
-| PO (orchestration) | ~12m | Continuous | Backlog, updates, reports, rename, approvals |
-| Architect | ~4m | 1 | Backlog review + 11 refinements |
-| Critic | ~3m | 1 | Plan review (2 blockers, 8 weaknesses) |
-| Developer | ~26m | 5 | 1 setup + 2 impl batches + 1 interrupted + 1 sweep |
-| Explore | ~5m | 1 | Codebase comparison research |
-| **Total agent processing** | **~50m** | **9 subagent invocations** | |
+| Agent                      | Total Time | Invocations                | Notes                                              |
+|----------------------------|------------|----------------------------|----------------------------------------------------|
+| PO (orchestration)         | ~12m       | Continuous                 | Backlog, updates, reports, rename, approvals       |
+| Architect                  | ~4m        | 1                          | Backlog review + 11 refinements                    |
+| Critic                     | ~3m        | 1                          | Plan review (2 blockers, 8 weaknesses)             |
+| Developer                  | ~26m       | 5                          | 1 setup + 2 impl batches + 1 interrupted + 1 sweep |
+| Explore                    | ~5m        | 1                          | Codebase comparison research                       |
+| **Total agent processing** | **~50m**   | **9 subagent invocations** |                                                    |
 
 #### Session Totals
 
-| Metric | Value |
-|---|---|
-| **Planning phase** | ~17m |
-| **Implementation phase** | ~33m |
+| Metric                               | Value    |
+|--------------------------------------|----------|
+| **Planning phase**                   | ~17m     |
+| **Implementation phase**             | ~33m     |
 | **Total session (agent processing)** | **~50m** |
-| Human stakeholder wait time | excluded |
+| Human stakeholder wait time          | excluded |
 
 #### Cross-Iteration Efficiency Comparison
 
-| Metric | V1 | V2 | V3 | V4 |
-|---|---|---|---|---|
-| Total agent time | ~18m (review session only) | ~62m | ~51m | ~50m |
-| Subagent invocations | 9 | 21 | 15 | 9 |
-| Planning interactions | 1 (review only) | 7 | 5 | 5 |
-| Implementation interactions | 8 | 19 | 13 | 7 |
-| Critic rounds | 0 (prior session) | 2 | 1 | 1 |
-| Tasks | 13 | 5 | 10 | 10 |
-| Final test count | 39 | 49 | 32 | 54 |
-| Final coverage | ~85% (real API) | 98.72% | 63.64% | 100% |
+| Metric                      | V1                         | V2     | V3     | V4   |
+|-----------------------------|----------------------------|--------|--------|------|
+| Total agent time            | ~18m (review session only) | ~62m   | ~51m   | ~50m |
+| Subagent invocations        | 9                          | 21     | 15     | 9    |
+| Planning interactions       | 1 (review only)            | 7      | 5      | 5    |
+| Implementation interactions | 8                          | 19     | 13     | 7    |
+| Critic rounds               | 0 (prior session)          | 2      | 1      | 1    |
+| Tasks                       | 13                         | 5      | 10     | 10   |
+| Final test count            | 39                         | 49     | 32     | 54   |
+| Final coverage              | ~85% (real API)            | 98.72% | 63.64% | 100% |

@@ -13,14 +13,14 @@ description: "PHP coding rules: strict typing, constructor promotion, type decla
 
 ## Strict Typing
 
-- Always use `declare(strict_types=1);` at the head of every `.php` file
+- Always use `declare(strict_types=1);` at head of every `.php` file
 - Always use curly braces for control structures, even for single-line bodies
 - No raw `DateTime` — use Carbon
 
 ## Constructors
 
 - Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`
-- Do not allow empty `__construct()` with zero parameters unless the constructor is private
+- Do not allow empty `__construct()` with zero parameters unless constructor is private
 
 ## Type Declarations
 
@@ -41,7 +41,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Comments
 
 - Prefer PHPDoc blocks over inline comments
-- Never use inline comments unless the logic is exceptionally complex
+- Never use inline comments unless logic is exceptionally complex
 
 ## PHPDoc Blocks
 

@@ -15,9 +15,9 @@ description: "Laravel conventions: project structure (Laravel 10), configuration
 
 ## Foundational Context
 
-This is a Laravel application. Package versions are in `composer.json` — abide by those versions.
+This is Laravel application. Package versions in `composer.json` — abide by those versions.
 
-This project upgraded from Laravel 10 without migrating to the new file structure. This is fine and recommended by Laravel. Follow the existing Laravel 10 structure.
+This project upgraded from Laravel 10 without migrating to new file structure. This is fine and recommended by Laravel. Follow existing Laravel 10 structure.
 
 ### Laravel 10 Structure
 
@@ -34,14 +34,14 @@ This project upgraded from Laravel 10 without migrating to the new file structur
 - Follow existing code conventions. Check sibling files for structure, approach, and naming.
 - Use descriptive names: `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing new ones.
-- If you see a test using "Pest", convert it to PHPUnit.
+- If you see test using "Pest", convert it to PHPUnit.
 
 ## Configuration
 
 - Never call `env()` outside `config/*.php` files. Use `Config::` in application code.
-- Config files live in `config/` at package root, published via `$this->publishes(...)` in the service provider's `boot()` method.
+- Config files live in `config/` at package root, published via `$this->publishes(...)` in service provider's `boot()` method.
 
-## Do Things the Laravel Way
+## Do Things Laravel Way
 
 - Use `php artisan make:` commands to create new files (migrations, controllers, models, etc.)
 - Use `php artisan list` to discover commands, `php artisan [command] --help` for parameters
@@ -55,7 +55,7 @@ This project upgraded from Laravel 10 without migrating to the new file structur
 - Prevent N+1 queries with eager loading.
 - Use query builder only for very complex operations.
 - Laravel 12 allows limiting eagerly loaded records natively: `$query->latest()->limit(10);`
-- When modifying a column in migrations, include all previously defined attributes — otherwise they are dropped.
+- When modifying column in migrations, include all previously defined attributes — otherwise they are dropped.
 
 ### Models
 
@@ -77,7 +77,7 @@ This project upgraded from Laravel 10 without migrating to the new file structur
 
 ## URL Generation
 
-- Prefer named routes and the `route()` function.
+- Prefer named routes and `route()` function.
 
 ## Testing
 

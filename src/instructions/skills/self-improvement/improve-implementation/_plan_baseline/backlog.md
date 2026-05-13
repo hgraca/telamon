@@ -14,42 +14,42 @@ The current `bin/run.php`:
 
 ## Gaps from Prior Iteration (v9) to Close
 
-| Gap | Points lost | Fix |
-|-----|-------------|-----|
-| Test coverage 95.38% not 100% | -1.5 | Target every uncovered branch with dedicated tests |
-| No `rawurlencode()` on pokemon name in URL | -0.5 | Add `rawurlencode($name->value)` in `HttpPokemonDataProvider` |
-| Composer name not customized | -0.25 | Rename to `gete/poke-parser` |
-| `bin/run.php` resource management | -0.25 | Minor; `file_get_contents` is acceptable for this kata |
+| Gap                                        | Points lost | Fix                                                           |
+|--------------------------------------------|-------------|---------------------------------------------------------------|
+| Test coverage 95.38% not 100%              | -1.5        | Target every uncovered branch with dedicated tests            |
+| No `rawurlencode()` on pokemon name in URL | -0.5        | Add `rawurlencode($name->value)` in `HttpPokemonDataProvider` |
+| Composer name not customized               | -0.25       | Rename to `gete/poke-parser`                                  |
+| `bin/run.php` resource management          | -0.25       | Minor; `file_get_contents` is acceptable for this kata        |
 
 ## Data Flow
 
 ```
 bin/run.php (CLI entry point)
-  |
+|-----|
   v
 Message Bus (Dummy adapter, sync dispatch)
-  |
+|-----|
   v
 Query Handler: GetPokemonLevel
-  |
+|-----|
   +---> PokemonDataProvider port ---> HttpPokemonDataProvider
   |       (2 HTTP calls: GET /pokemon/{name} + GET {species_url})
   |       returns PokemonDataResult (name, experience, species name, growth rate reference)
-  |
+|-----|
   +---> GrowthRateLevelProvider port ---> HttpGrowthRateLevelProvider
   |       (1 HTTP call: GET {growth_rate_url})
   |       returns GrowthRateLevelTable (sorted level/experience pairs)
-  |
+|-----|
   +---> GrowthRateLevelTable.levelFor(experience) ---> Level
-  |
+|-----|
   +---> Construct Pokemon domain VO (name, experience, species, level)
-  |
+|-----|
   v
 PokemonLevelResult DTO (application layer, primitives only)
-  |
+|-----|
   v
 PokemonFormatter (formats output string)
-  |
+|-----|
   v
 stdout (no trailing newline, matching original behavior)
 ```
@@ -153,15 +153,15 @@ tests/
 
 ### Namespace Mapping
 
-| Directory | Namespace |
-|-----------|-----------|
-| `src/Core/Component/Pokemon/Domain/` | `Gete\PokeParser\Core\Component\Pokemon\Domain` |
+| Directory                                                       | Namespace                                                                  |
+|-----------------------------------------------------------------|----------------------------------------------------------------------------|
+| `src/Core/Component/Pokemon/Domain/`                            | `Gete\PokeParser\Core\Component\Pokemon\Domain`                            |
 | `src/Core/Component/Pokemon/Application/Query/GetPokemonLevel/` | `Gete\PokeParser\Core\Component\Pokemon\Application\Query\GetPokemonLevel` |
-| `src/Core/Port/PokeApi/` | `Gete\PokeParser\Core\Port\PokeApi` |
-| `src/Infrastructure/MessageBus/` | `Gete\PokeParser\Infrastructure\MessageBus` |
-| `src/Infrastructure/PokeApi/Http/` | `Gete\PokeParser\Infrastructure\PokeApi\Http` |
-| `src/Presentation/Cli/` | `Gete\PokeParser\Presentation\Cli` |
-| `tests/Support/` | `Gete\PokeParser\Test\Support` |
+| `src/Core/Port/PokeApi/`                                        | `Gete\PokeParser\Core\Port\PokeApi`                                        |
+| `src/Infrastructure/MessageBus/`                                | `Gete\PokeParser\Infrastructure\MessageBus`                                |
+| `src/Infrastructure/PokeApi/Http/`                              | `Gete\PokeParser\Infrastructure\PokeApi\Http`                              |
+| `src/Presentation/Cli/`                                         | `Gete\PokeParser\Presentation\Cli`                                         |
+| `tests/Support/`                                                | `Gete\PokeParser\Test\Support`                                             |
 
 ### Key Design Decisions
 

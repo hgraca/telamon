@@ -5,102 +5,102 @@ description: "Defines structured inter-agent communication protocol. Use when de
 
 # Skill: Agent Communication
 
-Structured protocol for communication between agents in the multi-agent system. Ensures handoffs are explicit, artifacts are traceable, and status signals are unambiguous.
+Structured protocol for inter-agent communication in multi-agent system. Handoffs explicit, artifacts traceable, status signals unambiguous.
 
 ## When to Apply
 
-- When delegating work from one agent to another (orchestrator to Architect, orchestrator to Developer, etc.)
-- When an agent completes work and reports back to the orchestrating agent
-- When an agent is blocked and needs input from another agent
-- When handing off artifacts between stages (planning to implementation, implementation to review)
+- Delegating work between agents (orchestrator to Architect, orchestrator to Developer, etc.)
+- Agent completes work and reports back to orchestrating agent
+- Agent blocked, needs input from another agent
+- Handing off artifacts between stages (planning to implementation, implementation to review)
 
 ## Status Signals
 
-Every agent must end its final message with exactly one of these signals on its own line:
+Every agent MUST end final message with exactly one signal on its own line:
 
-- `FINISHED!` — Work is complete. All deliverables produced. Ready for next stage.
-- `BLOCKED: <reason>` — Cannot proceed. Requires input or decision from another agent or the human stakeholder.
-- `NEEDS_INPUT: <question>` — Can proceed partially but needs clarification on a specific point.
-- `PARTIAL: <summary of what is done and what remains>` — Session ending with incomplete work. Provides enough context for a fresh session to resume.
+- `FINISHED!` — Work complete. All deliverables produced. Ready for next stage.
+- `BLOCKED: <reason>` — Cannot proceed. Requires input or decision from another agent or human stakeholder.
+- `NEEDS_INPUT: <question>` — Can proceed partially but needs clarification on specific point.
+- `PARTIAL: <summary of what is done and what remains>` — Session ending with incomplete work. Provides enough context for fresh session to resume.
 
 ### Self-verification gate (FINISHED only)
 
-If the task's deliverable is one or more files, the FINISHED message MUST include for each file:
+If task deliverable is one or more files, FINISHED message MUST include for each file:
 
 1. **Absolute path**.
-2. **Read-back confirmation** — the agent must read the file after writing and include either the first line or a 1-line summary as proof.
+2. **Read-back confirmation** — agent MUST read file after writing and include either first line or 1-line summary as proof.
 3. **Size or line count**.
 
-A FINISHED signal that claims a file deliverable but lacks all three items is invalid. The orchestrator will treat it as a stall and re-delegate. Agents that fail this gate three times in a row should be escalated to the human stakeholder.
+FINISHED signal claiming file deliverable but lacking all three items is invalid. Orchestrator treats as stall and re-delegates. Agents failing this gate three times in a row escalate to human stakeholder.
 
 ### Action-before-narration gate (all signals)
 
-Before emitting your response, run this 3-step check on the response text you are about to send:
+Before emitting response, run this 3-step check on response text about to send:
 
-1. **Scan the last paragraph** for any of these phrases (case-insensitive): "Now I will", "Now let me", "Let me write", "Let me load", "Let me read", "I'll now", "I will now", "Next I'll", "Next let me", "Going to", "Time to".
-2. **If matched**: the next tool call described by that phrase MUST be in this same response. Append it now.
-3. **If you cannot append the tool call** in this response (waiting on input, ending session, etc.): rewrite the last paragraph to NOT describe an immediate next action. Replace with a status signal (`FINISHED!`, `BLOCKED:`, `NEEDS_INPUT:`, `PARTIAL:`).
+1. **Scan last paragraph** for phrases (case-insensitive): "Now I will", "Now let me", "Let me write", "Let me load", "Let me read", "I'll now", "I will now", "Next I'll", "Next let me", "Going to", "Time to".
+2. **If matched**: next tool call described by that phrase MUST be in this same response. Append it now.
+3. **If cannot append tool call** in this response (waiting on input, ending session, etc.): rewrite last paragraph to NOT describe immediate next action. Replace with status signal (`FINISHED!`, `BLOCKED:`, `NEEDS_INPUT:`, `PARTIAL:`).
 
-Scope: only *immediate next* narrations. Multi-step plan descriptions ("In Step 3 I will…") are not in scope.
+Scope: only *immediate next* narrations. Multi-step plan descriptions ("In Step 3 I will…") not in scope.
 
-The orchestrator MUST treat a stalled response (narration without matching tool call) as `PARTIAL` and re-delegate with the narration removed and the action explicit in the prompt. Three consecutive stalls of the same agent on the same task triggers escalation per `telamon.exception-handling`.
+Orchestrator MUST treat stalled response (narration without matching tool call) as `PARTIAL` and re-delegate with narration removed and action explicit in prompt. Three consecutive stalls of same agent on same task triggers escalation per `telamon.exception-handling`.
 
 ## Memory Capture
 
-Memory capture is handled **automatically** by the remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
+Memory capture handled **automatically** by remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
 
 Exceptions:
-- **PDRs/ADRs**: When a stakeholder answers a question or makes a decision, PO and Architect should record it immediately in `brain/PDRs.md` or `brain/ADRs.md` (too important to defer).
+- **PDRs/ADRs**: When stakeholder answers question or makes decision, PO and Architect should record immediately in `brain/PDRs.md` or `brain/ADRs.md` (too important to defer).
 - **Checkpoint**: If context nears overflow, use `telamon.remember_checkpoint`.
 
 ## Delegation Format
 
-When delegating work (typically the orchestrator delegating to a specialist), include these sections:
+When delegating work (typically orchestrator delegating to specialist), include these sections:
 
 ### Template
 
 > **Task**: One-sentence description of what must be produced.
 >
-> **Context files** (read these before starting):
-> - `<path>` — what this file contains and why it matters
+> **Context files** (read before starting):
+> - `<path>` — what file contains and why matters
 >
 > **Deliverable**: What artifact(s) to produce and where to save them.
 >
 > **Constraints**: Specific rules, boundaries, or things to avoid.
 >
-> **Acceptance criteria**: How to know the work is complete.
+> **Acceptance criteria**: How to know work is complete.
 
 ### Rules
 
-- Include only files relevant to this specific task — not the entire project context.
-- When re-delegating after a `PARTIAL` signal, include the partial output and specify only the remaining work.
-- When re-delegating after a `BLOCKED` signal, resolve the blocker first — then re-delegate with the resolution.
-- Never delegate to multiple roles in a single message — one delegation per agent.
+- Include only files relevant to this specific task — not entire project context.
+- When re-delegating after `PARTIAL` signal, include partial output and specify only remaining work.
+- When re-delegating after `BLOCKED` signal, resolve blocker first — then re-delegate with resolution.
+- Never delegate to multiple roles in single message — one delegation per agent.
 
 ### Trust-calibration prompt (developer delegations)
 
-When delegating to @developer (or `telamon.implement_story`) AND the agent has previously self-reported tests-green on failing tests in this iteration, include all three elements in the delegation prompt:
+When delegating to @developer (or `telamon.implement_story`) AND agent previously self-reported tests-green on failing tests in this iteration, include all three elements in delegation prompt:
 
-1. **Name the past mis-claim** — quote the prior FINISHED message and the actual test failure that contradicted it. One sentence is enough.
-2. **Require dual test runs** — instruct the agent to run the full relevant test suite TWICE consecutively and report both runs verbatim (pass/fail counts from each run).
-3. **State independent re-verification** — declare that the orchestrator WILL re-run the tests after FINISHED and that a stall-ceiling escalation per `telamon.exception-handling` follows on the second false-positive.
+1. **Name past mis-claim** — quote prior FINISHED message and actual test failure that contradicted it. One sentence enough.
+2. **Require dual test runs** — instruct agent to run full relevant test suite TWICE consecutively and report both runs verbatim (pass/fail counts from each run).
+3. **State independent re-verification** — declare orchestrator WILL re-run tests after FINISHED and stall-ceiling escalation per `telamon.exception-handling` follows on second false-positive.
 
-Apply this only after the first false-FINISHED in an iteration. Default delegations should not carry this overhead.
+Apply only after first false-FINISHED in iteration. Default delegations should not carry this overhead.
 
 ## Artifact Handoff Contracts
 
-Each transition between agents has a defined set of artifacts that must be passed:
+Each transition between agents has defined set of artifacts that MUST be passed:
 
 ### Orchestrator to Architect
 
-- The brief or backlog (`backlog.md`)
+- Brief or backlog (`backlog.md`)
 - Relevant context documents (architecture doc, ADRs)
 - Scope constraints and priorities
 
 ### Architect to Critic
 
 - Draft plan (`PLAN-ARCH-YYYY-MM-DD-NNN.md`)
-- The brief (for scope validation)
+- Brief (for scope validation)
 - Architecture document and ADR log
 
 ### Critic to Architect (feedback loop)
@@ -135,20 +135,20 @@ Each transition between agents has a defined set of artifacts that must be passe
 
 ## Feedback Response Format
 
-When responding to feedback from another agent (e.g., Developer responding to Reviewer findings):
+When responding to feedback from another agent (e.g. Developer responding to Reviewer findings):
 
 > ### Response to Finding <n>: <Title>
 > - **Action**: FIXED | DISPUTED | DEFERRED
-> - **Detail**: What was changed, or why the finding is disputed/deferred.
+> - **Detail**: What changed, or why finding disputed/deferred.
 > - **Files modified**: (if FIXED)
 
 ## Escalation Handoff
 
-When escalating to a different agent or to the human stakeholder:
+When escalating to different agent or to human stakeholder:
 
 > ### Escalation: <Title>
 > - **From**: <role>
 > - **To**: <target role or Human Stakeholder>
-> - **Reason**: Why this is outside the current agent's scope.
-> - **Context**: What was observed and why it matters.
-> - **Impact**: What is blocked if this is not resolved.
+> - **Reason**: Why this is outside current agent's scope.
+> - **Context**: What observed and why matters.
+> - **Impact**: What blocked if not resolved.

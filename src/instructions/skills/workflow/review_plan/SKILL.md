@@ -5,17 +5,17 @@ description: "Reviews an architect's implementation plan for correctness, comple
 
 # Skill: Plan Review
 
-Evaluate an architect's implementation plan for correctness, completeness, and architectural consistency before any code is written.
+Evaluate architect's implementation plan for correctness, completeness, and architectural consistency before any code written.
 
 ## When to Apply
 
-- When the Architect sends a draft plan for review
-- When evaluating whether a plan is ready for implementation
+- Architect sends draft plan for review
+- Evaluating whether plan is ready for implementation
 
 ## Inputs
 
 - Architect's plan
-- The brief
+- Brief
 - Architecture document
 - ADR log
 
@@ -23,14 +23,14 @@ Evaluate an architect's implementation plan for correctness, completeness, and a
 
 ### Mandatory output filename — MUST
 
-Save the review to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns. Where:
+Save review to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns. Where:
 
-- `YYYY-MM-DD` is the current UTC date.
-- `NNN` is a zero-padded 3-digit sequential number, scoped to the same issue folder. List existing `PLAN-REVIEW-*.md` files in the folder and use the next available number; start at `001`.
+- `YYYY-MM-DD` is current UTC date.
+- `NNN` is zero-padded 3-digit sequential number, scoped to same issue folder. List existing `PLAN-REVIEW-*.md` files in folder and use next available number; start at `001`.
 
-Do **not** use any other prefix (no `CRITIC-*.md`, no `REVIEW-*.md`, no `critic-feedback.md`). The orchestrator and downstream tooling locate review files by the `PLAN-REVIEW-` prefix; deviating breaks task-resumption flows and the architect's "address feedback" loop.
+Do **not** use any other prefix (no `CRITIC-*.md`, no `REVIEW-*.md`, no `critic-feedback.md`). Orchestrator and downstream tooling locate review files by `PLAN-REVIEW-` prefix; deviating breaks task-resumption flows and architect's "address feedback" loop.
 
-If a previous review with the same date+number already exists, do not overwrite it — bump `NNN`. Each iteration of the critic loop produces a new file.
+If previous review with same date+number already exists, do not overwrite — bump `NNN`. Each iteration of critic loop produces new file.
 
 ### Template
 
@@ -38,7 +38,7 @@ If a previous review with the same date+number already exists, do not overwrite 
 >
 > **Verdict**: APPROVED | CHANGES REQUESTED
 >
-> A plan is APPROVED when it contains zero BLOCKER findings.
+> Plan APPROVED when contains zero BLOCKER findings.
 >
 > ## Strengths
 >
@@ -60,7 +60,7 @@ If a previous review with the same date+number already exists, do not overwrite 
 > - **Problem found**:
 > - **Why it matters**:
 > - **Recommendation**:
-> - **Workflow gap** _(optional)_: If this finding represents a *class* of failure not prevented by the workflow (cross-artefact drift, recurring type leak, repeated rule violation across artefacts, same defect category across multiple findings in this review), name the rule that should exist and which file should host it. Leave blank if the finding is a one-off.
+> - **Workflow gap** _(optional)_: If this finding represents *class* of failure not prevented by workflow (cross-artefact drift, recurring type leak, repeated rule violation across artefacts, same defect category across multiple findings in this review), name rule that should exist and which file should host it. Leave blank if finding is one-off.
 
 ### Category and Severity
 
@@ -68,16 +68,16 @@ If a previous review with the same date+number already exists, do not overwrite 
 - **Weakness** — CRITICAL or IMPORTANT. Concrete problem that will cause issues.
 - **Suggestion** — IMPORTANT or MINOR. Improvement opportunity.
 
-When in doubt between severities, choose the higher one.
+When in doubt between severities, choose higher one.
 
 ### Third-party library citation in recommendations — MUST
 
-When a recommendation involves a third-party library — namespace, class name, method signature, configuration option — the critic MUST cite the source-of-truth for the API in the recommendation itself. Acceptable cites are the same as in `telamon.plan_implementation` SKILL's "Third-party library integration" section:
+When recommendation involves third-party library — namespace, class name, method signature, configuration option — critic MUST cite source-of-truth for API in recommendation itself. Acceptable cites same as in `telamon.plan_implementation` SKILL's "Third-party library integration" section:
 
-- the library's `composer.json` autoload section with file path + line reference, OR
-- a specific class file in the vendor tree with file path + class name, OR
-- the library's official README or documentation URL with the symbol name visible at that URL.
+- library's `composer.json` autoload section with file path + line reference, OR
+- specific class file in vendor tree with file path + class name, OR
+- library's official README or documentation URL with symbol name visible at that URL.
 
-Hypothetical recommendations are forbidden — if you cannot verify the API surface, the finding should describe the problem and require the architect to verify, NOT propose a specific replacement (e.g., "the cited namespace is unverified — architect must verify against vendor's `composer.json` before re-submission" rather than "use `Approve\Approvals` instead").
+Hypothetical recommendations forbidden — if cannot verify API surface, finding should describe problem and require architect to verify, NOT propose specific replacement (e.g. "cited namespace is unverified — architect must verify against vendor's `composer.json` before re-submission" rather than "use `Approve\Approvals` instead").
 
-This rule is symmetric with the architect-side rule in `telamon.plan_implementation` SKILL. Together they form a closed loop: architect must cite when proposing; critic must cite when recommending.
+This rule symmetric with architect-side rule in `telamon.plan_implementation` SKILL. Together they form closed loop: architect must cite when proposing; critic must cite when recommending.

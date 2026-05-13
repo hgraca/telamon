@@ -9,7 +9,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ## When to Apply
 
-- Deciding where to save a piece of knowledge
+- Deciding where to save knowledge
 - Formatting memory entries
 - Auditing vault structure or brain note quality
 - When another memory skill references vault rules
@@ -39,7 +39,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 |------------------------------------------------|-------------------------------------------------------|
 | Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
 | Product decision + rationale                   | `brain/PDRs.md`                                       |
-| Human stakeholder answer to a project question | `brain/PDRs.md`                                       |
+| Human stakeholder answer to project question   | `brain/PDRs.md`                                       |
 | New rule from stakeholder                      | `brain/PDRs.md`                                       |
 | Architecture or technical decision + rationale | `brain/ADRs.md`                                       |
 | Established codebase pattern                   | `brain/patterns.md`                                   |
@@ -70,20 +70,20 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ## 4. Writing Constraints
 
-- Every note must link to at least one existing note via `[[wikilink]]` -- an orphan note is a bug
+- Every note must link to at least one existing note via `[[wikilink]]` -- orphan note == bug
 - Never write: secrets, API keys, passwords
-- Never write: files in the vault root (only subfolders)
+- Never write: files in vault root (only subfolders)
 - Never write: agent instructions outside `bootstrap/` expecting auto-load
 
 ## 5. Brain Note Quality Criteria
 
-| File               | Good entry has                                  |
-|--------------------|-------------------------------------------------|
-| `PDRs.md`        | Decision + rationale (not just the decision)    |
-| `ADRs.md`        | Decision + rationale (not just the decision)    |
-| `patterns.md`      | Actionable, specific pattern with when to apply |
-| `gotchas.md`       | Reproducible problem + fix or workaround        |
-| `memories.md`      | M-XXX-NNN format per section 6                  |
+| File          | Good entry has                                  |
+|---------------|-------------------------------------------------|
+| `PDRs.md`     | Decision + rationale (not just decision)        |
+| `ADRs.md`     | Decision + rationale (not just decision)        |
+| `patterns.md` | Actionable, specific pattern with when to apply |
+| `gotchas.md`  | Reproducible problem + fix or workaround        |
+| `memories.md` | M-XXX-NNN format per section 6                  |
 
 ## 6. Memory Entry Format (memories.md)
 
@@ -93,7 +93,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 ### M-<CATEGORY>-NNN: <title>
 - **Date**: YYYY-MM-DD
 - **Context**: What triggered this lesson.
-- **Lesson**: The reusable takeaway.
+- **Lesson**: Reusable takeaway.
 - **Scope**: Where this applies (component, layer, or project-wide).
 - **Status**: ACTIVE
 ```
@@ -113,19 +113,19 @@ Number sequentially within each category. Check existing entries first.
 ### Entry quality rules
 - **Specific, not generic** -- "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
 - **Include context** -- future agents need to understand *why*
-- **Scope it** -- a lesson about the Invoice component must say so
+- **Scope it** -- lesson about Invoice component must say so
 
 ### Pruning (when memories.md exceeds 100 entries)
-- Mark entries as `SUPERSEDED by M-XXX-NNN` when a newer entry replaces them
+- Mark entries as `SUPERSEDED by M-XXX-NNN` when newer entry replaces them
 - Keep superseded entries for one more session before removing
 - Review entries older than 6 months for continued relevance
-- Only the orchestrator or human stakeholder may remove entries
+- Only orchestrator or human stakeholder may remove entries
 
 ## 7. Thinking/ Lifecycle
 
 ### Promote or discard
 For each file in `thinking/`:
-- Contains a reusable lesson -> promote to brain/, then **delete**
+- Contains reusable lesson -> promote to brain/, then **delete**
 - Completed work -> **delete**
 - Still live WIP -> keep; rename to `partial-<task>-YYYY-MM-DD.md` if not descriptive
 
@@ -134,14 +134,14 @@ For each file in `thinking/`:
 - Partial-progress notes use: `YYYY-MM-DD-HH:MM:SS-<task>-partial.md`
 
 ### Watermark
-Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`. Only content after the watermark timestamp needs processing.
+Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`. Only content after watermark timestamp needs processing.
 
 ## 8. Wrap-Up (on "wrap up" / "wrapping up")
 
-1. Promote session learnings to the appropriate `brain/` note
+1. Promote session learnings to appropriate `brain/` note
 2. Archive completed `work/active/` notes -> `work/archive/YYYY/`
 3. Verify every new vault note has at least one `[[wikilink]]`
-4. Tell the user what was promoted and saved
+4. Tell user what was promoted and saved
 
 ## 9. Memory Tiers (reference)
 

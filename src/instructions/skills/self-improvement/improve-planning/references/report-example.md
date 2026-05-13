@@ -38,14 +38,14 @@ This section directly prevents the most common failure modes observed in V1–V9
 
 ### 1.4 PLANNING.md Full Compliance
 
-| Rule | Status | Evidence |
-|------|--------|----------|
-| Sort key justification | ✅ | Line 222: "sorted by experience ascending... because `levelFor()` iterates comparing base_experience against each item's experience threshold" |
-| Application-layer DTO specified | ✅ | Line 266: `PokemonLevelResult` with named fields |
-| Output equivalence criterion | ✅ | Line 328: "byte-identical output to the original" |
-| URL encoding requirement | ✅ | Line 282: `rawurlencode()` |
-| Composer name format | ✅ | Line 195: `gete/poke-parser` (lowercase, hyphens) |
-| Bug cost/benefit evaluation | ✅ | Lines 11–13: detailed analysis of the bug and README-input behavior |
+| Rule                            | Status | Evidence                                                                                                                                       |
+|---------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| Sort key justification          | ✅      | Line 222: "sorted by experience ascending... because `levelFor()` iterates comparing base_experience against each item's experience threshold" |
+| Application-layer DTO specified | ✅      | Line 266: `PokemonLevelResult` with named fields                                                                                               |
+| Output equivalence criterion    | ✅      | Line 328: "byte-identical output to the original"                                                                                              |
+| URL encoding requirement        | ✅      | Line 282: `rawurlencode()`                                                                                                                     |
+| Composer name format            | ✅      | Line 195: `gete/poke-parser` (lowercase, hyphens)                                                                                              |
+| Bug cost/benefit evaluation     | ✅      | Lines 11–13: detailed analysis of the bug and README-input behavior                                                                            |
 
 ### 1.5 Problem Analysis Quality
 
@@ -144,11 +144,11 @@ Looking at the backlog (line 221), it was actually already resolved: "fields `Le
 
 ### Priority 1: Make implicit rules explicit in every task
 
-| Rule | Currently | Should be |
-|------|-----------|-----------|
-| No FQN (use imports) | Only in Task 7 | Global constraint + each task AC |
-| Test classes `final` | Not mentioned | Task 7 AC or global constraint |
-| Review per task | Assumed from IMPLEMENTATION.md | Explicit in plan's Process section |
+| Rule                 | Currently                      | Should be                          |
+|----------------------|--------------------------------|------------------------------------|
+| No FQN (use imports) | Only in Task 7                 | Global constraint + each task AC   |
+| Test classes `final` | Not mentioned                  | Task 7 AC or global constraint     |
+| Review per task      | Assumed from IMPLEMENTATION.md | Explicit in plan's Process section |
 
 ### Priority 2: Add a "Global Constraints" section
 
@@ -248,15 +248,15 @@ lower-reasoning LLMs may not reference external documents during implementation.
 
 > Rubric v3 (weights rebalanced 2026-05-09 — see `SKILL.md` §"Rubric"). Dimensions ordered by weight, descending.
 
-| Dimension | Weight | Score | Notes |
-|-----------|--------|-------|-------|
-| Specificity & completeness | 35% | 95/100 | Excellent — nearly every class, field, and behavior specified |
-| `plan` workflow compliance | 21% | 100/100 | All rules satisfied with evidence |
-| Architecture correctness | 21% | 100/100 | Confirmed by Architect review; matches ARCHITECTURE.md |
-| Clarity for lower-reasoning LLM | 10% | 85/100 | Good but some rules are scattered/implicit |
-| Process guidance | 5% | 70/100 | Missing reviewer mandate, stall recovery, Critic response loop |
-| Defensive completeness | 5% | 80/100 | FQN rule buried, test `final` missing, entry point gaps |
-| Solver effectiveness (proven) | 3% | 98/100 | Produced 98.85–99.75/100 across 3 LLM runs |
+| Dimension                       | Weight | Score   | Notes                                                          |
+|---------------------------------|--------|---------|----------------------------------------------------------------|
+| Specificity & completeness      | 35%    | 95/100  | Excellent — nearly every class, field, and behavior specified  |
+| `plan` workflow compliance      | 21%    | 100/100 | All rules satisfied with evidence                              |
+| Architecture correctness        | 21%    | 100/100 | Confirmed by Architect review; matches ARCHITECTURE.md         |
+| Clarity for lower-reasoning LLM | 10%    | 85/100  | Good but some rules are scattered/implicit                     |
+| Process guidance                | 5%     | 70/100  | Missing reviewer mandate, stall recovery, Critic response loop |
+| Defensive completeness          | 5%     | 80/100  | FQN rule buried, test `final` missing, entry point gaps        |
+| Solver effectiveness (proven)   | 3%     | 98/100  | Produced 98.85–99.75/100 across 3 LLM runs                     |
 
 **Weighted total: 94.19 → rounded to 94/100**
 

@@ -1,39 +1,39 @@
 ---
 name: telamon.create-use-case
 description: > 
-   Generate CQRS Command/CommandHandler pairs, Integration tests covering the CommandHandler,
-   Unit tests covering other introduced services. Use this skill when the user wants to create a new UseCase with Command,
-   CommandHandler, and tests following the project's Clean Architecture and MessageBus patterns.
-   Triggers on "create-use-case" or when user asks to create a command handler, use case, or CQRS command.
+   Generate CQRS Command/CommandHandler pairs, Integration tests covering CommandHandler,
+   Unit tests covering other introduced services. Use this skill when user wants to create new UseCase with Command,
+   CommandHandler, and tests following project's Clean Architecture and MessageBus patterns.
+   Triggers on "create-use-case" or when user asks to create command handler, use case, or CQRS command.
 ---
 
 # Create UseCase Skill
 (shamelessly stolen from [Nickita Kirichenko](https://github.com/Kirich11))
 
-Generate a complete CQRS UseCase folder containing:
-- A **Command** class implementing `GetE\MessageBus\Port\CommandBus\Command`
-- A **CommandHandler** class implementing `GetE\MessageBus\Port\CommandBus\CommandHandler`
-- An **Integration test** for the CommandHandler
-- An **Unit tests** covering any additional services introduced by the UseCase
-- A **CommandValidator** class implementing `GetE\MessageBus\Port\CommandBus\CommandValidator`. If the argument is an entity id - it should exist.
+Generate complete CQRS UseCase folder containing:
+- **Command** class implementing `GetE\MessageBus\Port\CommandBus\Command`
+- **CommandHandler** class implementing `GetE\MessageBus\Port\CommandBus\CommandHandler`
+- **Integration test** for CommandHandler
+- **Unit tests** covering any additional services introduced by UseCase
+- **CommandValidator** class implementing `GetE\MessageBus\Port\CommandBus\CommandValidator`. If argument is entity id - it should exist.
 
-Optionally generate a set of support classes to get needed data in the UseCase:
-- **Event** class implementing `GetE\MessageBus\Port\EventBus\Event` to throw an event in CommandHandler
-- **EventHandler** class implementing `GetE\MessageBus\Port\EventBus\EventHandler` to handle an event
+Optionally generate support classes to get needed data in UseCase:
+- **Event** class implementing `GetE\MessageBus\Port\EventBus\Event` to throw event in CommandHandler
+- **EventHandler** class implementing `GetE\MessageBus\Port\EventBus\EventHandler` to handle event
 - **Query** class implementing `GetE\MessageBus\Port\QueryBus\Query` to fetch data needed in CommandHandler
 - **QueryHandler** class implementing `GetE\MessageBus\Port\QueryBus\QueryHandler` to execute query to fetch data needed in CommandHandler
 
 ## Required Information
 
-Before generating, gather from the user:
+Before generating, gather from user:
 
 1. **Component name** (e.g. `AutomaticBooking`, `User`)
-2. **Command interface** - defaulted to `GetE\MessageBus\Port\CommandBus\Command`, but can be changed by the user input
+2. **Command interface** - defaulted to `GetE\MessageBus\Port\CommandBus\Command`, but can be changed by user input
 3. **UseCase name** (e.g., `RejectBooking`, `CancelFlight`)
-4. **Command properties** - what data the command needs
-5. **Handler logic** - what the handler should do
+4. **Command properties** - what data command needs
+5. **Handler logic** - what handler should do
 6. **Dependencies** - which services/dispatchers are needed
-7. **Return type** - what the command returns (default: `void`)
+7. **Return type** - what command returns (default: `void`)
 
 ## Project Structure
 
@@ -225,7 +225,7 @@ class {UseCaseName}CommandHandlerTest extends TestCase
         // $mockService = $this->createMock(SomeService::class);
         // $mockService->expects($this->once())->method('someMethod');
 
-        // Act: Create and invoke the handler
+        // Act: Create and invoke handler
         $handler = new {UseCaseName}CommandHandler(
             // Pass dependencies or mocks
         );
@@ -236,7 +236,7 @@ class {UseCaseName}CommandHandlerTest extends TestCase
 
         $handler($command);
 
-        // Assert: Verify the expected outcomes
+        // Assert: Verify expected outcomes
         // $this->assertDatabaseHas('bookings', [...]);
         // $this->assertDispatched(SomeEvent::class);
     }
@@ -275,14 +275,14 @@ class {UseCaseName}CommandHandlerTest extends TestCase
         // $mockService = $this->createMock(SomeService::class);
         // $mockService->expects($this->once())->method('someMethod');
 
-        // Act: Create and invoke the handler
+        // Act: Create and invoke handler
         $command = new {UseCaseName}Command(
             // Pass command properties
         );
 
         $this->commandDispatcher->dispatchSync($command);
 
-        // Assert: Verify the expected outcomes
+        // Assert: Verify expected outcomes
         // $this->assertDatabaseHas('bookings', [...]);
         // $this->assertDispatched(SomeEvent::class);
     }
@@ -322,24 +322,24 @@ $queryDispatcher->expects($this->once())
 
 ## Generation Checklist
 
-When generating a UseCase:
+When generating UseCase:
 
-1. Create the UseCase folder in `app/Core/Component/{ComponentName}/Application/UseCase/`
-2. Generate the Command class with:
+1. Create UseCase folder in `app/Core/Component/{ComponentName}/Application/UseCase/`
+2. Generate Command class with:
    - Correct namespace
    - `readonly` modifier
    - `Command` or user-given interfaces
    - PHPDoc with `@implements Command<ReturnType>`
    - Constructor with promoted properties
-3. Generate the CommandHandler class with:
+3. Generate CommandHandler class with:
    - Correct namespace
    - `readonly` modifier (unless state mutation needed)
    - `CommandHandler` interface
    - PHPDoc with `@implements CommandHandler<CommandClass>`
    - Constructor with required dependencies
    - `__invoke` method with implementation
-4. Create the test folder in `tests/Integration/Core/Component/{ComponentName}/Application/UseCase/`
-5. Generate the Integration test class with:
+4. Create test folder in `tests/Integration/Core/Component/{ComponentName}/Application/UseCase/`
+5. Generate Integration test class with:
    - Correct namespace
    - `setUp()` calling `setupSyncDispatcher()`
    - At least one test method with `#[Test]` attribute

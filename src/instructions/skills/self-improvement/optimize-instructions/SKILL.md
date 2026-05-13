@@ -5,7 +5,7 @@ description: "Optimizes agent instruction files for clarity, token efficiency, a
 
 # Skill: Instructions Optimization
 
-Structured procedure for reviewing and improving agent instruction files. Ensures files are minimal, precise, non-redundant, and aligned with agentic design patterns.
+Structured procedure for reviewing and improving agent instruction files. Ensures files minimal, precise, non-redundant, aligned with agentic design patterns.
 
 ## When to Apply
 
@@ -30,16 +30,16 @@ Determine the file type. Each type has a required structure (see File Structure 
 
 ### Step 2: Apply writing rules
 
-Check every rule in the file against this checklist. For each violation, rewrite the rule.
+Check every rule against this checklist. For each violation, rewrite rule.
 
-1. **Economy** — Does this rule change outcomes? Is it testable? Remove if not. Remove qualifiers ("generally", "usually", "try to"). Every instruction costs tokens.
-2. **Precision** — Is it one action or one prohibition? Uses measurable language ("must", "must not", "only")? Can it be audited?
+1. **Economy** — Does this rule change outcomes? Testable? Remove if not. Remove qualifiers ("generally", "usually", "try to"). Every instruction costs tokens.
+2. **Precision** — One action or one prohibition? Uses measurable language ("must", "must not", "only")? Auditable?
 3. **Positive phrasing** — States desired action, not what to avoid? No double negatives? Prohibitions reserved for safety/security only?
-4. **Non-redundant** — Is the rule discoverable from file structure or other docs? Does it duplicate a rule in another file? If so, keep one canonical location, reference from others.
-5. **Priority ordered** — Are rules ordered: safety > correctness > determinism > style?
-6. **Scoped** — Is this rule global (belongs in context) or task-specific (belongs in a skill)? Is it in the right file?
-7. **Bounded** — Does it define defaults for ambiguity? State when to stop and what to report? Require questions only for destructive/security/credential actions?
-8. **Output contract** — Does it specify structured completion format: status, reason, validation result, risks?
+4. **Non-redundant** — Rule discoverable from file structure or other docs? Duplicates rule in another file? If so, keep one canonical location, reference from others.
+5. **Priority ordered** — Rules ordered: safety > correctness > determinism > style?
+6. **Scoped** — Global (belongs in context) or task-specific (belongs in skill)? In right file?
+7. **Bounded** — Defines defaults for ambiguity? States when to stop and what to report? Requires questions only for destructive/security/credential actions?
+8. **Output contract** — Specifies structured completion format: status, reason, validation result, risks?
 
 ### Step 3: Check structure compliance
 
@@ -189,22 +189,22 @@ For findings, use this format per finding:
 
 ### Step 6: Compress with caveman skill
 
-After producing the optimized file, load the `caveman` skill and apply it to the instruction file to reduce token consumption.
+After producing optimized file, load `caveman` skill and apply to instruction file to reduce token consumption.
 
-1. Load the `caveman` skill
-2. Apply **full** intensity to the instruction file content:
+1. Load `caveman` skill
+2. Apply **full** intensity to instruction file content:
    - Drop articles (a/an/the), filler words (just/really/basically/actually/simply), pleasantries, hedging
    - Use fragments where meaning stays clear
    - Replace verbose phrases with short synonyms (e.g., "implement a solution for" → "fix")
    - Keep technical terms exact — never abbreviate code symbols, function names, API names, error strings
-   - Keep code blocks, templates, and structured output formats unchanged
-3. Apply **ultra** intensity to prose sections only (not code, templates, or structured data):
+   - Keep code blocks, templates, structured output formats unchanged
+3. Apply **ultra** intensity to prose sections only (not code, templates, structured data):
    - Abbreviate common prose words (DB/auth/config/req/res/fn/impl)
-   - Strip conjunctions where causality is clear from context
+   - Strip conjunctions where causality clear from context
    - Use arrows (→) for causality chains
    - Replace multi-word phrases with single words where unambiguous
-4. Verify the compressed file preserves all technical substance — every rule, constraint, template field, and procedure step must remain present and unambiguous
-5. Write the compressed version back to the same file path
+4. Verify compressed file preserves all technical substance — every rule, constraint, template field, procedure step must remain present and unambiguous
+5. Write compressed version back to same file path
 
 **Auto-clarity override**: Do NOT compress sections that would become ambiguous:
 - Security warnings and irreversible action confirmations
@@ -213,7 +213,7 @@ After producing the optimized file, load the `caveman` skill and apply it to the
 
 ## Guiding Principle
 
-Agent output is always a proposal. Human validates and approves all instruction changes.
+Agent output always proposal. Human validates and approves all instruction changes.
 
 ---
 

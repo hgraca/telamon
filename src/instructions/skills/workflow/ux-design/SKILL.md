@@ -9,13 +9,13 @@ Produce UX specifications defining user flows, screen interaction specs, and sta
 
 ## When to Apply
 
-- When the orchestrator requests UX work or the Architect needs interaction specifications
-- When producing interaction guidance for the UI Designer and Developer
-- When validating an implemented feature against the original UX spec
+- Orchestrator requests UX work or Architect needs interaction specifications
+- Producing interaction guidance for UI Designer and Developer
+- Validating implemented feature against original UX spec
 
 ## UX Specification
 
-Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
+Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
 
 ### Template
 
@@ -25,21 +25,21 @@ Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-m
 >
 > ## User Goals
 >
-> - **Goal <n>**: <description from user's perspective>
+> - **Goal <n>**: <description from user perspective>
 >
 > ## Flows
 >
 > ### Flow <n>: <Flow Name>
 >
-> **Entry point**: Where the user begins.
+> **Entry point**: Where user begins.
 > **Happy path**: Numbered steps for primary success path.
-> **Exit point**: Where the user ends on success.
+> **Exit point**: Where user ends on success.
 >
 > #### Decision Points
-> Branching logic within the flow.
+> Branching logic within flow.
 >
 > #### Edge Cases
-> Scenarios outside the happy path that must be handled.
+> Scenarios outside happy path that must be handled.
 >
 > ## Screen Interaction Specs
 >
@@ -80,23 +80,23 @@ Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-m
 >
 > ### Pattern <n>: <Name>
 > - **What it is**:
-> - **Why it's needed**:
+> - **Why needed**:
 > - **Where it applies**:
 
 ## UX Validation Report
 
-Save to `<issue-folder>/UX-VALIDATION-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
+Save to `<issue-folder>/UX-VALIDATION-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
 
 ### Template
 
 > # UX Validation Report
 >
 > **Verdict**: APPROVED | CHANGES REQUESTED
-> **Spec reference**: Path to the original UX spec.
+> **Spec reference**: Path to original UX spec.
 >
 > ## Findings
 >
-> _If none: "No findings. Implementation matches the UX spec."_
+> _If none: "No findings. Implementation matches UX spec."_
 >
 > ### Finding <n>: <Title>
 > - **Severity**: CRITICAL | IMPORTANT | MINOR
@@ -109,15 +109,15 @@ Save to `<issue-folder>/UX-VALIDATION-YYYY-MM-DD-NNN.md`. After writing, run `fo
 > ## Tools used
 >
 > ### SKILLS
-> List skills used by the agent while working on the task, or "None."
+> List skills used by agent while working on task, or "None."
 >
 > ### MCP tools
-> List MCP tools used by the agent while working on the task, or "None."
+> List MCP tools used by agent while working on task, or "None."
 
 ### Severity Definitions
 
-- **CRITICAL** — Breaks usability or accessibility for a core flow. Must fix.
+- **CRITICAL** — Breaks usability or accessibility for core flow. Must fix.
 - **IMPORTANT** — Degrades experience but has workaround. Should fix.
 - **MINOR** — Cosmetic/low-impact deviation. Consider fixing.
 
-When in doubt between severities, choose the higher one.
+When in doubt between severities, choose higher one.

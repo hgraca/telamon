@@ -1,19 +1,19 @@
-# Create a coding quality report
+# Create coding quality report
 
-1. Copy the last iteration interactions report (`pokeapi-v<iteration>/.ai/team/epics/kata/interactions.md`) to `./reports/interactions.v<iteration>.md`
+1. Copy last iteration interactions report (`pokeapi-v<iteration>/.ai/team/epics/kata/interactions.md`) to `./reports/interactions.v<iteration>.md`
 
-2. Compare all iterations built for the epic `.ai/team/epics/kata` (the `pokeapi-v*/` folders), with special focus on the progress in the last iteration.
-   Create a report in `reports/quality-report-v<iteration>.md`.
-   Follow the guide `.ai/tasks/quality-report-guide.md` to produce something comparable to `.ai/tasksquality-report-example.md` so results are comparable across iterations.
+2. Compare all iterations built for epic `.ai/team/epics/kata` (`pokeapi-v*/` folders), focus on progress in last iteration.
+   Create report in `reports/quality-report-v<iteration>.md`.
+   Follow guide `.ai/tasks/quality-report-guide.md` to produce output comparable to `.ai/tasksquality-report-example.md` so results comparable across iterations.
 
-3. Produce a root-cause analysis tracing each weakness in the last iteration back to specific gaps in the `.ai/` files (context, roles, workflows).
-   In an analysis gap between the last iteration and a 100% grade, map the gaps with the changes applied to the skills files (`.ai/*.md`)
+3. Produce root-cause analysis tracing each weakness in last iteration back to specific gaps in `.ai/` files (context, roles, workflows).
+   For gap between last iteration and 100% grade, map gaps with changes applied to skills files (`.ai/*.md`)
 
-4. In `./reports/01-implementation_iterations_quality.md`, in the grading table, log a table row with:
-    - the iteration number
-    - the quality grade
-    - the amount of issues addressed in this iteration
-    - the amount of issues still to address to reach 100% grade
+4. In `./reports/01-implementation_iterations_quality.md`, in grading table, log row with:
+    - iteration number
+    - quality grade
+    - issues addressed in this iteration
+    - issues still to address to reach 100% grade
 
 5. Commit all changes
 
@@ -21,21 +21,21 @@
 # Implementation Quality Report Guide
 
 Use this guide to produce comparable quality reports for code implementations.
-All reports following this guide can be compared to each other and to the example in
+All reports following this guide comparable to each other and to example in
 `.ai/tasks/quality-report-example.md`.
 
 ---
 
 ## 1. Inputs Required
 
-Before writing the report, gather for each implementation being evaluated:
+Before writing report, gather for each implementation being evaluated:
 
 1. **Source code** — all `src/` and `tests/` files
 2. **Test results** — coverage percentage, PHPStan output, test pass/fail
 3. **Commit history** — number of commits, commit style, per-task vs bundled
 4. **Interactions report** (if available) — agent session flow, stalls, recovery actions
-5. **The reference standards** — `.ai/context/ARCHITECTURE.md`, `.ai/team/workflows/IMPLEMENTATION.md`
-6. **Prior iteration reports** (if this is an incremental evaluation)
+5. **Reference standards** — `.ai/context/ARCHITECTURE.md`, `.ai/team/workflows/IMPLEMENTATION.md`
+6. **Prior iteration reports** (if this is incremental evaluation)
 
 ---
 
@@ -74,14 +74,14 @@ Every report MUST use this structure with these exact section numbers and titles
 
 ### Optional Additional Sections (for iterative evaluations)
 
-When the report covers an iteration that builds on prior work, add:
+When report covers iteration that builds on prior work, add:
 
 ```markdown
 ## 8. Conclusions
-<Achievements and regressions of the latest iteration.>
+<Achievements and regressions of latest iteration.>
 
 ## 9. Root-Cause Analysis
-<Traces each weakness to specific gaps in .ai/ files. Only for the latest iteration.>
+<Traces each weakness to specific gaps in .ai/ files. Only for latest iteration.>
 ```
 
 ---
@@ -90,7 +90,7 @@ When the report covers an iteration that builds on prior work, add:
 
 ### Section 1: Approach Overview
 
-For each implementation, write a subsection with:
+For each implementation, write subsection with:
 
 1. **Title format**: `### V<N> — <Descriptive Label>` (e.g., "V12 — DeepSeek V3 0324")
 2. **Architecture summary** (2–4 sentences): domain model approach, port design, CQRS usage
@@ -98,34 +98,34 @@ For each implementation, write a subsection with:
 4. **Bug handling decision**: "The team chose to **fix/preserve** the known bug"
 5. **File counts**: `**Source files: X | Test files: Y | Total: Z**`
 
-If many prior iterations exist, reference the previous report rather than repeating:
-`See quality-report-v<N>.md for the full evolution from V1 through V<N>.`
+If many prior iterations exist, reference previous report rather than repeating:
+`See quality-report-v<N>.md for full evolution from V1 through V<N>.`
 
 ### Section 2: Comparison by Dimension
 
-Use a markdown table. The left column is the dimension name, subsequent columns are implementations.
+Use markdown table. Left column = dimension name, subsequent columns = implementations.
 
 **Required dimensions** (include all that apply):
 
-| Category | Dimensions to evaluate |
-|----------|----------------------|
-| Domain | Domain richness, Bug handling, Level calc location |
-| Ports | Port design, Port DTO typing |
-| Application | CQRS/Message-bus, Application DTO |
+| Category       | Dimensions to evaluate                                                               |
+|----------------|--------------------------------------------------------------------------------------|
+| Domain         | Domain richness, Bug handling, Level calc location                                   |
+| Ports          | Port design, Port DTO typing                                                         |
+| Application    | CQRS/Message-bus, Application DTO                                                    |
 | Infrastructure | Infrastructure test strategy, Input validation, URL safety, Defensive infrastructure |
-| Testing | Test coverage, Test directory split, Named test doubles, End-to-end smoke test |
-| Code style | FQN usage, `assert()` usage, Classes `final`, Dead production code |
-| Process | Commits, Developer session stalls, Reviewer invocations |
-| Metadata | Composer metadata, Output formatting, LLM used |
+| Testing        | Test coverage, Test directory split, Named test doubles, End-to-end smoke test       |
+| Code style     | FQN usage, `assert()` usage, Classes `final`, Dead production code                   |
+| Process        | Commits, Developer session stalls, Reviewer invocations                              |
+| Metadata       | Composer metadata, Output formatting, LLM used                                       |
 
 Include only dimensions where at least one implementation differs from another.
-Use **bold** to highlight the latest iteration's values.
+Use **bold** to highlight latest iteration's values.
 
 ### Section 3: Strong Points
 
 For each implementation, list 4–8 bullet points. Each bullet:
 
-- Starts with a **bold label** (2–4 words)
+- Starts with **bold label** (2–4 words)
 - Explains what was done well
 - Explains why it matters (what failure it prevents or what quality it enables)
 
@@ -139,10 +139,10 @@ Example:
 
 For each implementation, list all weaknesses. Each bullet:
 
-- Starts with a **bold label**
-- Includes a **point deduction** in parentheses: `(-X.XX)`
-- References the specific rule or standard violated
-- States the observable symptom
+- Starts with **bold label**
+- Includes **point deduction** in parentheses: `(-X.XX)`
+- References specific rule or standard violated
+- States observable symptom
 
 Example:
 ```markdown
@@ -156,10 +156,10 @@ Example:
 Use a simple two-column table:
 
 ```markdown
-| Solution   | Grade            |
-|------------|------------------|
-| **V1**     | **73 / 100**     |
-| **V2**     | **68 / 100**     |
+| Solution | Grade        |
+|----------|--------------|
+| **V1**   | **73 / 100** |
+| **V2**   | **68 / 100** |
 ```
 
 Include ALL iterations ever evaluated (carry forward from prior reports).
@@ -198,9 +198,9 @@ Two subsections:
 End with a "Remaining Gap to 100" table:
 
 ```markdown
-| Gap | Points | Fix |
-|-----|--------|-----|
-| <weakness> | -X.XX | <proposed change to .ai/ files> |
+| Gap        | Points | Fix                             |
+|------------|--------|---------------------------------|
+| <weakness> | -X.XX  | <proposed change to .ai/ files> |
 ```
 
 ### Section 9: Root-Cause Analysis (optional, for iterative reports)
@@ -229,31 +229,31 @@ End with a summary table:
 
 ## 4. Grading Methodology
 
-### The Grade Scale
+### Grade Scale
 
-| Range | Meaning |
-|-------|---------|
-| 95–100 | Production-ready. All architecture rules followed. Full coverage. Clean process. |
-| 90–94 | High quality. Minor style or process issues. No architectural violations. |
-| 80–89 | Good. Some architectural gaps (missing VOs, leaky ports, incomplete coverage). |
-| 70–79 | Competent. Correct output but significant architectural or testing gaps. |
-| 60–69 | Functional. Works but violates multiple architecture rules. |
-| Below 60 | Incomplete. Missing layers, broken tests, or incorrect output. |
+| Range    | Meaning                                                                          |
+|----------|----------------------------------------------------------------------------------|
+| 95–100   | Production-ready. All architecture rules followed. Full coverage. Clean process. |
+| 90–94    | High quality. Minor style or process issues. No architectural violations.        |
+| 80–89    | Good. Some architectural gaps (missing VOs, leaky ports, incomplete coverage).   |
+| 70–79    | Competent. Correct output but significant architectural or testing gaps.         |
+| 60–69    | Functional. Works but violates multiple architecture rules.                      |
+| Below 60 | Incomplete. Missing layers, broken tests, or incorrect output.                   |
 
 ### Point Deduction Scale
 
-Deductions are applied to a base of 100. The sum of all deductions = 100 - grade.
+Deductions applied to base of 100. Sum of all deductions = 100 - grade.
 
-| Severity | Points | Examples |
-|----------|--------|----------|
-| Critical | -5 to -15 | Incorrect output, broken tests, missing entire layer |
-| Major | -2 to -5 | Anemic domain, leaky port, no test coverage on a layer, hidden dependencies |
-| Moderate | -1 to -2 | Missing URL encoding, test suite mislabeling, dead code, commit bundling |
-| Minor | -0.1 to -1 | FQN usage, non-final classes, cosmetic choices, session stalls |
+| Severity | Points     | Examples                                                                    |
+|----------|------------|-----------------------------------------------------------------------------|
+| Critical | -5 to -15  | Incorrect output, broken tests, missing entire layer                        |
+| Major    | -2 to -5   | Anemic domain, leaky port, no test coverage on a layer, hidden dependencies |
+| Moderate | -1 to -2   | Missing URL encoding, test suite mislabeling, dead code, commit bundling    |
+| Minor    | -0.1 to -1 | FQN usage, non-final classes, cosmetic choices, session stalls              |
 
 ### What to Evaluate (Checklist)
 
-Score the implementation against these criteria. Each maps to a potential deduction:
+Score implementation against these criteria. Each maps to potential deduction:
 
 **Architecture (max ~30 points at risk)**
 - [ ] Domain uses Value Objects (not primitives) for domain concepts
@@ -304,17 +304,17 @@ Score the implementation against these criteria. Each maps to a potential deduct
 
 ## 5. Comparability Rules
 
-To ensure reports can be compared across different implementations:
+Ensure reports comparable across different implementations:
 
-1. **Always use the same section structure** — sections 1–7 are mandatory; 8–9 are optional
+1. **Always use same section structure** — sections 1–7 mandatory; 8–9 optional
 2. **Always carry forward all prior grades** — Section 5 must include every iteration ever graded
-3. **Always use the same deduction scale** — Minor: 0.1–1, Moderate: 1–2, Major: 2–5, Critical: 5–15
-4. **Always reference ARCHITECTURE.md as the standard** — deductions are for violations of stated rules
-5. **Always justify every point** — no deduction without a specific rule reference or observable symptom
-6. **Grade the code as delivered, not as intended** — if a fix was planned but not applied, it's still a deduction
-7. **Compare apples to apples** — when implementations use different plans, note this in Section 1 but grade against the same ARCHITECTURE.md standard
-8. **Never grade on effort, session time, or LLM cost** — only on the quality of the delivered code
-9. **Account for accepted trade-offs** — if the plan explicitly accepts a limitation (e.g., `file_get_contents`), reduce the deduction (cosmetic: -0.1 to -0.15) but still note it
+3. **Always use same deduction scale** — Minor: 0.1–1, Moderate: 1–2, Major: 2–5, Critical: 5–15
+4. **Always reference ARCHITECTURE.md as standard** — deductions for violations of stated rules
+5. **Always justify every point** — no deduction without specific rule reference or observable symptom
+6. **Grade code as delivered, not as intended** — if fix planned but not applied, still deduction
+7. **Compare apples to apples** — when implementations use different plans, note in Section 1 but grade against same ARCHITECTURE.md standard
+8. **Never grade on effort, session time, or LLM cost** — only on quality of delivered code
+9. **Account for accepted trade-offs** — if plan explicitly accepts limitation (e.g., `file_get_contents`), reduce deduction (cosmetic: -0.1 to -0.15) but still note it
 
 ---
 
@@ -324,8 +324,8 @@ To ensure reports can be compared across different implementations:
 - **Be traceable**: reference line numbers, file paths, or rule citations
 - **Be balanced**: every implementation has both strengths and weaknesses
 - **Be concise**: bullets, not paragraphs. Tables, not prose where possible
-- **Be fair**: the same violation in two implementations gets the same deduction
-- **Be cumulative**: when a later iteration fixes a prior weakness, note it as a strength; when it introduces a new one, note it as a regression
+- **Be fair**: same violation in two implementations gets same deduction
+- **Be cumulative**: when later iteration fixes prior weakness, note it as strength; when it introduces new one, note it as regression
 
 ---
 
@@ -333,10 +333,10 @@ To ensure reports can be compared across different implementations:
 
 - [ ] All mandatory sections (1–7) present with correct numbering
 - [ ] Section 2 table includes all implementations being compared
-- [ ] Every deduction in Section 4 has a point value and rule reference
+- [ ] Every deduction in Section 4 has point value and rule reference
 - [ ] Section 5 includes ALL iterations ever evaluated
-- [ ] Section 6 point accounting sums to the exact gap between iterations
-- [ ] Summary is concise (1–3 sentences per implementation)
+- [ ] Section 6 point accounting sums to exact gap between iterations
+- [ ] Summary concise (1–3 sentences per implementation)
 - [ ] If iterative: Sections 8–9 present with gap-to-fix mapping
-- [ ] Report is self-contained (reader doesn't need to open source code to understand findings)
-- [ ] Grades are consistent with the deduction scale (deductions sum correctly)
+- [ ] Report self-contained (reader doesn't need to open source code to understand findings)
+- [ ] Grades consistent with deduction scale (deductions sum correctly)

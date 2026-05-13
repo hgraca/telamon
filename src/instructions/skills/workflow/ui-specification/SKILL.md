@@ -9,13 +9,13 @@ Produce implementation-ready UI specifications covering design tokens, screen-le
 
 ## When to Apply
 
-- When the orchestrator requests visual design work
-- When the UX Designer hands off wireframes or interaction flows needing visual treatment
-- When specifying new UI components or visual patterns
+- Orchestrator requests visual design work
+- UX Designer hands off wireframes or interaction flows needing visual treatment
+- Specifying new UI components or visual patterns
 
 ## UI Spec
 
-Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
+Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
 
 ### Template
 
@@ -32,7 +32,7 @@ Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-m
 > |---|---|---|
 > | e.g. `color-action-primary` | `#1A73E8` | Primary CTA buttons and links |
 >
-> _If none: "No new tokens. All values reference the existing design system."_
+> _If none: "No new tokens. All values reference existing design system."_
 >
 > ## Screen Specs
 >
@@ -59,14 +59,14 @@ Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-m
 >
 > ### Pattern: <Name>
 > - **What it is**:
-> - **Why it's needed**:
+> - **Why needed**:
 > - **Where it applies**:
 > - **Tokens**: Associated tokens.
 >
 > ## Tools used
 >
 > ### SKILLS
-> List skills used by the agent while working on the task, or "None."
+> List skills used by agent while working on task, or "None."
 >
 > ### MCP tools
-> List MCP tools used by the agent while working on the task, or "None."
+> List MCP tools used by agent while working on task, or "None."

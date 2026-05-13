@@ -5,7 +5,7 @@ description: "Evaluates quality of completed work and runs post-iteration retros
 
 # Skill: Evaluation and Monitoring
 
-Structured quality evaluation of completed work and post-iteration retrospectives. Ensures that quality is assessed systematically, not just through "tests pass and reviewer approved."
+Structured quality evaluation of completed work and post-iteration retrospectives. Ensures quality assessed systematically, not just through "tests pass and reviewer approved."
 
 ## When to Apply
 
@@ -15,28 +15,28 @@ Structured quality evaluation of completed work and post-iteration retrospective
 
 ## Honesty gate (MUST)
 
-Every claim in the retrospective about a deliverable, agent action, or workflow event MUST cite either:
+Every claim in retrospective about deliverable, agent action, or workflow event MUST cite either:
 
-1. **The artefact's path AND a verifying observation** (line number, content excerpt) the author obtained via `read`, OR
-2. **The absence of an expected artefact**, confirmed via `glob` or `ls` (cite the empty-result tool call).
+1. **Artefact's path AND verifying observation** (line number, content excerpt) author obtained via `read`, OR
+2. **Absence of expected artefact**, confirmed via `glob` or `ls` (cite empty-result tool call).
 
-The retrospective MUST NOT make causal claims about subagent behaviour ("the critic hallucinated", "the architect skipped X", "the PO over-scoped Y") without citing the artefact that demonstrates the behaviour. If a behaviour is asserted to be missing, the assertion MUST cite a tool call (`grep`, `glob`, `read`) whose result is consistent with the absence claim.
+Retrospective MUST NOT make causal claims about subagent behaviour ("critic hallucinated", "architect skipped X", "PO over-scoped Y") without citing artefact demonstrating behaviour. If behaviour asserted missing, assertion MUST cite tool call (`grep`, `glob`, `read`) whose result consistent with absence claim.
 
-**Format requirement**: each "what went wrong" claim in the retrospective MUST include a parenthetical citation in the form `(per <path>:<line> | per <tool-call-result>)`. Example:
+**Format requirement**: each "what went wrong" claim in retrospective MUST include parenthetical citation in form `(per <path>:<line> | per <tool-call-result>)`. Example:
 
-> "Architect skipped the Pre-FINISHED Hygiene Gate (per `interactions.md:42` showing FINISHED signal without prior hygiene-report file; per `glob 'storage/.../iteration-N/.ai/.../hygiene-*.md'` returning no matches)."
+> "Architect skipped Pre-FINISHED Hygiene Gate (per `interactions.md:42` showing FINISHED signal without prior hygiene-report file; per `glob 'storage/.../iteration-N/.ai/.../hygiene-*.md'` returning no matches)."
 
-**Validation**: a retrospective entry without supporting citation is invalid. The retrospective author (orchestrator) MUST either support the claim with a citation or remove it before filing the retrospective. The orchestrator MUST NOT defer this check to a later iteration's quality-report — the gate fires at retrospective-write time.
+**Validation**: retrospective entry without supporting citation is invalid. Retrospective author (orchestrator) MUST either support claim with citation or remove before filing. Orchestrator MUST NOT defer this check to later iteration's quality-report — gate fires at retrospective-write time.
 
 ### Per-Agent count claims (MUST)
 
-Every "total invocations" or per-agent count claim in the retrospective MUST cite the source of the count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with the underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. The retrospective author MUST run the Per-Agent reconciliation procedure (per `plan` SKILL Step 8 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
+Every "total invocations" or per-agent count claim in retrospective MUST cite source of count: either `(per interactions.md Per-Agent Totals table)` or `(per delegation_count: X PO + Y architect + ...)` with underlying counts from `interactions.md`. Counts not citing source-of-truth are invalid. Retrospective author MUST run Per-Agent reconciliation procedure (per `plan` SKILL Step 8 `Per-Agent Totals reconciliation across all closing artefacts`) before writing any agent-count claim.
 
-**Prose-vs-table cross-check (MUST)**: Every numeric claim in retrospective free-prose (paragraphs, bullets, "What Went Well" / "What Needs Improvement" / "Process Observations") about an agent count, invocation count, stall count, critic-round count, re-delegation count, or task count MUST match the corresponding cell in the reconciliation table or be flagged with an inline `[reconciliation-note: <one-line rationale>]` tag explaining the discrepancy (e.g. `[reconciliation-note: prose excludes the rejected critic R1 first attempt; table includes it per Per-Agent Totals procedure]`).
+**Prose-vs-table cross-check (MUST)**: Every numeric claim in retrospective free-prose (paragraphs, bullets, "What Went Well" / "What Needs Improvement" / "Process Observations") about agent count, invocation count, stall count, critic-round count, re-delegation count, or task count MUST match corresponding cell in reconciliation table or be flagged with inline `[reconciliation-note: <one-line rationale>]` tag explaining discrepancy (e.g. `[reconciliation-note: prose excludes rejected critic R1 first attempt; table includes it per Per-Agent Totals procedure]`).
 
-The retrospective author MUST run a prose-vs-table cross-check before filing the retrospective: for each numeric claim in free-prose that names a count category (agent, invocation, stall, critic-round, re-delegation, task), look up the same category in the reconciliation table and confirm the values match (or that an inline `[reconciliation-note:]` tag explains the divergence). Counts in free-prose without either match or tag are invalid.
+Retrospective author MUST run prose-vs-table cross-check before filing: for each numeric claim in free-prose that names count category (agent, invocation, stall, critic-round, re-delegation, task), look up same category in reconciliation table and confirm values match (or inline `[reconciliation-note:]` tag explains divergence). Counts in free-prose without either match or tag are invalid.
 
-**Validation**: a retrospective with prose count `K` and table count `K' ≠ K` for the same category, without a `[reconciliation-note:]` tag bridging the two, is invalid. Either the prose number must be corrected to match the table, or the divergence must be explained inline. The orchestrator MUST NOT defer this check to a later iteration's quality-report — the gate fires at retrospective-write time.
+**Validation**: retrospective with prose count `K` and table count `K' ≠ K` for same category, without `[reconciliation-note:]` tag bridging two, is invalid. Either prose number must be corrected to match table, or divergence explained inline. Orchestrator MUST NOT defer this check to later iteration's quality-report — gate fires at retrospective-write time.
 
 ## Post-Task Quality Rubric
 
@@ -58,7 +58,7 @@ After each task is implemented, reviewed, and committed, the orchestrator evalua
 
 ## Post-Iteration Retrospective
 
-After all tasks in a backlog are completed (`telamon.implement_story` skill step 3), the orchestrator produces a retrospective:
+After all tasks in backlog completed (`telamon.implement_story` skill step 3), orchestrator produces retrospective:
 
 ### Template
 
@@ -101,16 +101,16 @@ Save to `<issue-folder>/RETRO-YYYY-MM-DD.md`. After writing, run `format-md` on 
 
 ## Monitoring During Implementation
 
-The orchestrator should track these signals during implementation (no formal report needed — just awareness):
+Orchestrator should track these signals during implementation (no formal report needed — just awareness):
 
 - **Iteration velocity** — Are later tasks taking longer than earlier ones? May indicate context overflow or growing complexity.
 - **Review rejection rate** — Are most reviews requesting changes? May indicate unclear plans or insufficient delegation context.
-- **Test failure rate** — Are developers spending most time fixing tests rather than implementing? May indicate tests were written with incorrect assumptions.
+- **Test failure rate** — Are developers spending most time fixing tests rather than implementing? May indicate tests written with incorrect assumptions.
 - **Escalation frequency** — Are agents frequently escalating? May indicate plans need more detail.
 
-If any signal trends negatively across 3+ tasks, the orchestrator should pause and address the root cause before continuing.
+If any signal trends negatively across 3+ tasks, orchestrator should pause and address root cause before continuing.
 
 ## MUST
 
-- After producing a retrospective, immediately invoke the `telamon.address_retro` skill with the retro file path as input. Do not defer to a later session or skip this step.
-- The `address_retro` skill must process all three retro sections: **What Needs Improvement**, **Process Observations**, and **Follow-Up Tasks**. Explicitly acknowledge each section — even if no actionable items exist, state "No actionable items" rather than silently skipping.
+- After producing retrospective, immediately invoke `telamon.address_retro` skill with retro file path as input. Do not defer to later session or skip this step.
+- `address_retro` skill must process all three retro sections: **What Needs Improvement**, **Process Observations**, and **Follow-Up Tasks**. Explicitly acknowledge each section — even if no actionable items exist, state "No actionable items" rather than silently skipping.

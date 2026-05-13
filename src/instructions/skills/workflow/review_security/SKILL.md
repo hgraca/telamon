@@ -7,41 +7,41 @@ description: "PHP security review methodology: STRIDE threat modelling, OWASP To
 
 ## When to Apply
 
-- Performing a security review of PHP code
-- Building a threat model for a feature or system
+- Performing security review of PHP code
+- Building threat model for feature or system
 - Auditing authentication or authorisation systems
 - Reviewing dependencies for vulnerabilities
 - Evaluating code for OWASP Top 10 vulnerabilities
 
 ## Before You Start
 
-1. Read the architecture document — understand system boundaries and data flows
-2. Identify the trust boundaries: where does external data enter?
-3. Clarify scope: what system, feature, or module is being reviewed?
+1. Read architecture document — understand system boundaries and data flows
+2. Identify trust boundaries: where does external data enter?
+3. Clarify scope: what system, feature, or module being reviewed?
 4. Check past security findings — have similar issues been found before?
 
 ## 1. Threat Modelling (Before Code Review)
 
 Use STRIDE to systematically identify threats:
 
-| Category | Question |
-|---|---|
-| **S**poofing | Can an attacker impersonate a legitimate user or system? |
-| **T**ampering | Can data be modified in transit or at rest without detection? |
-| **R**epudiation | Can a user deny having performed an action? |
-| **I**nformation Disclosure | Can sensitive data be accessed by unauthorized parties? |
-| **D**enial of Service | Can the system be made unavailable to legitimate users? |
-| **E**levation of Privilege | Can a user gain higher permissions than intended? |
+| Category                   | Question                                                   |
+|----------------------------|------------------------------------------------------------|
+| **S**poofing               | Can attacker impersonate legitimate user or system?        |
+| **T**ampering              | Can data modified in transit or at rest without detection? |
+| **R**epudiation            | Can user deny having performed action?                     |
+| **I**nformation Disclosure | Can sensitive data accessed by unauthorized parties?       |
+| **D**enial of Service      | Can system made unavailable to legitimate users?           |
+| **E**levation of Privilege | Can user gain higher permissions than intended?            |
 
 ### Threat Model Output Format
 
 ```
-**Asset:** <what is at risk>
+**Asset:** <what at risk>
 **Threat:** <STRIDE category — specific threat>
 **Likelihood:** High / Medium / Low
 **Impact:** High / Medium / Low
 **Current controls:** <what exists>
-**Gap:** <what is missing>
+**Gap:** <what missing>
 **Recommendation:** <specific action>
 ```
 
@@ -71,8 +71,8 @@ Use STRIDE to systematically identify threats:
 
 ### Cross-Site Scripting (XSS)
 
-- [ ] All output in templates is escaped: `htmlspecialchars()` or template engine equivalent
-- [ ] Content Security Policy headers are set
+- [ ] All output in templates escaped: `htmlspecialchars()` or template engine equivalent
+- [ ] Content Security Policy headers set
 - [ ] `X-XSS-Protection` header present
 - [ ] DOM manipulation does not use `innerHTML` with user data
 
@@ -89,19 +89,19 @@ Use STRIDE to systematically identify threats:
 - [ ] Session timeout configured
 - [ ] Secure + HttpOnly + SameSite flags on session cookies
 - [ ] Login attempts rate-limited
-- [ ] Password reset tokens are single-use, time-limited, and invalidated on use
+- [ ] Password reset tokens single-use, time-limited, invalidated on use
 
 ### Authorisation
 
 - [ ] Every endpoint checks authorisation — not just authentication
-- [ ] Vertical privilege escalation: can a regular user access admin functions?
-- [ ] Horizontal privilege escalation: can user A access user B's data?
+- [ ] Vertical privilege escalation: can regular user access admin functions?
+- [ ] Horizontal privilege escalation: can user A access user B data?
 - [ ] Direct object references use indirect references or authorisation checks
 
 ### File Handling
 
 - [ ] Uploaded files validated by content type, not just extension
-- [ ] Upload directory is outside webroot or has no execute permissions
+- [ ] Upload directory outside webroot or has no execute permissions
 - [ ] Filenames sanitised before storage
 - [ ] Path traversal: `../` sequences removed from file paths
 
@@ -169,11 +169,11 @@ git log --all --full-history -- "*.env" "*.key" "*.pem"
 
 When reviewing auth systems:
 
-1. **Map the full auth flow** — where does the user prove identity?
-2. **Map the full authz flow** — where does the system check permissions?
-3. **Test escalation paths** — what happens if you skip a step?
+1. **Map full auth flow** — where does user prove identity?
+2. **Map full authz flow** — where does system check permissions?
+3. **Test escalation paths** — what happens if you skip step?
 4. **Check token lifecycle** — created, validated, refreshed, invalidated
-5. **Check multi-tenancy** — is there any path where tenant A can reach tenant B?
+5. **Check multi-tenancy** — any path where tenant A can reach tenant B?
 
 ## 6. Severity Classification
 
@@ -189,8 +189,8 @@ When reviewing auth systems:
 **[SEVERITY: CRITICAL/HIGH/MEDIUM/LOW/INFO]**
 **Finding:** <title>
 **Location:** <file>:<line>
-**Description:** What the vulnerability is
-**Impact:** What an attacker can do
+**Description:** What vulnerability is
+**Impact:** What attacker can do
 **Evidence:** Code snippet or proof of concept (no active exploitation)
 **Remediation:** Specific fix with code example
 **References:** CVE/CWE if applicable
@@ -198,18 +198,18 @@ When reviewing auth systems:
 
 ## 8. Reporting Rules
 
-- Never report a finding without evidence (code location, line number)
-- Always include a specific remediation — not just "fix the SQL injection" but a code example
-- Group related findings — do not report 20 instances of the same XSS pattern separately
-- Always distinguish between a confirmed vulnerability and a potential risk
-- Include positive findings: what the codebase does well
+- Never report finding without evidence (code location, line number)
+- Always include specific remediation — not just "fix SQL injection" but code example
+- Group related findings — do not report 20 instances of same XSS pattern separately
+- Always distinguish between confirmed vulnerability and potential risk
+- Include positive findings: what codebase does well
 
 ## 9. Audit Summary Format
 
 End every review with:
 
 1. **Total findings by severity** — table showing count per severity level
-2. **Top 3 most critical items** — the three findings that need immediate attention
+2. **Top 3 most critical items** — three findings needing immediate attention
 3. **Quick wins** — easy fixes with high security impact
-4. **Systemic issues** — patterns that need architectural change, not just point fixes
-5. **Positive findings** — what the codebase does well from a security perspective
+4. **Systemic issues** — patterns needing architectural change, not just point fixes
+5. **Positive findings** — what codebase does well from security perspective

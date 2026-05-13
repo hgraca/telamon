@@ -5,29 +5,29 @@ description: "Addresses retrospective findings by suggesting workflow improvemen
 
 # Skill: Address Retrospective
 
-Turn retrospective findings into concrete workflow improvements. Parse a retro file, extract improvement items, propose changes to workflow/skill/agent files, get approval per suggestion, implement approved ones.
+Turn retro findings into concrete workflow improvements. Parse retro file, extract improvement items, propose changes to workflow/skill/agent files, get approval per suggestion, implement approved ones.
 
 ## When to Apply
 
-- After the `telamon.retrospective` skill produces a retro file
-- When the `/address-retro` command is invoked with a retro file path
-- When the orchestrator identifies actionable improvements in a retrospective
+- After `telamon.retrospective` skill produces retro file
+- When `/address-retro` command invoked with retro file path
+- When orchestrator identifies actionable improvements in retrospective
 
 ## Input
 
-A retro file path (`$1`). The file follows the `telamon.retrospective` template and contains at minimum a **What Needs Improvement** section with actionable items.
+Retro file path (`$1`). File follows `telamon.retrospective` template. Contains at minimum **What Needs Improvement** section with actionable items.
 
 ## Procedure
 
-### Step 1: Parse the retro file
+### Step 1: Parse retro file
 
-Read the retro file at the provided path. Extract all items from:
+Read retro file at provided path. Extract all items from:
 
-1. **What Needs Improvement** section — each bullet is a candidate improvement. Items with an `**Action**:` annotation are highest priority.
-2. **Process Observations** section — look for patterns that suggest systemic issues (high re-delegations, review iterations, escalations, blockers).
-3. **Follow-Up Tasks** section — any items that describe process or workflow changes (not feature work).
+1. **What Needs Improvement** section — each bullet = candidate improvement. Items with `**Action**:` annotation highest priority.
+2. **Process Observations** section — look for patterns suggesting systemic issues (high re-delegations, review iterations, escalations, blockers).
+3. **Follow-Up Tasks** section — items describing process or workflow changes (not feature work).
 
-Ignore items that are about specific code changes, bugs, or feature work — those belong in a backlog, not workflow improvements.
+Ignore items about specific code changes, bugs, or feature work — those belong in backlog, not workflow improvements.
 
 ### Step 2: Analyze and propose
 
@@ -43,43 +43,43 @@ For each extracted improvement:
 
 2. **Read target files** — understand current content before proposing changes.
 
-3. **Draft a concrete suggestion** — specify:
+3. **Draft concrete suggestion** — specify:
    - What file to change
    - What section to modify (quote existing text)
-   - What the new text should be
-   - Why this change addresses the retro finding
+   - What new text should be
+   - Why this change addresses retro finding
 
 ### Step 3: Present suggestions for approval
 
-Present each suggestion to the human stakeholder in this format:
+Present each suggestion to human stakeholder in this format:
 
 > ### Suggestion N: \<title\>
 >
-> **Retro finding**: \<quote from the retro file\>
+> **Retro finding**: \<quote from retro file\>
 >
 > **Target file**: \<path\>
 >
-> **Change**: \<description of the change\>
+> **Change**: \<description of change\>
 >
-> **Rationale**: \<why this addresses the finding\>
+> **Rationale**: \<why this addresses finding\>
 
-Ask for approval of each suggestion individually. Options:
+Ask approval per suggestion. Options:
 - **Approve** — implement as proposed
 - **Modify** — implement with requested changes
-- **Skip** — do not implement this suggestion
+- **Skip** — do not implement
 
 ### Step 4: Implement approved suggestions
 
 For each approved suggestion:
 
-1. Apply the change to the target file(s).
-2. If the change affects a skill referenced by agent roles, verify the reference is still valid.
-3. Record the change as a decision using the `telamon.remember_lessons_learned` skill.
-4. **Commit the changeset** — use `git add <specific-files>` (never `git add -A` or `git add .`), verify `git diff --staged --stat`, then commit with a descriptive message.
+1. Apply change to target file(s).
+2. If change affects skill referenced by agent roles, verify reference still valid.
+3. Record change as decision using `telamon.remember_lessons_learned` skill.
+4. **Commit changeset** — use `git add <specific-files>` (never `git add -A` or `git add .`), verify `git diff --staged --stat`, then commit with descriptive message.
 
 ### Step 5: Summary
 
-Output a summary to the human stakeholder:
+Output summary to human stakeholder:
 
 > ### Address Retro Summary
 >
@@ -100,13 +100,13 @@ Output a summary to the human stakeholder:
 - Changes to workflow skills, agent definitions, command definitions, bootstrap files, memory management skills, and development convention skills.
 - Adding new rules, constraints, steps, or guardrails to existing workflows.
 - Reordering steps, adding checklists, or tightening acceptance criteria.
-- Adding new skills if the retro reveals a missing workflow capability.
+- Adding new skills if retro reveals missing workflow capability.
 
 ### Out of scope
 
-- Production code changes — those go in a backlog, not workflow improvements.
+- Production code changes — those go in backlog, not workflow improvements.
 - Changes to MCP server configuration or Docker infrastructure.
-- Changes to files with "no-vcs" in the name.
+- Changes to files with "no-vcs" in name.
 
 ## MUST
 
@@ -118,6 +118,6 @@ Output a summary to the human stakeholder:
 ## MUST NOT
 
 - Apply changes without explicit approval.
-- Modify production code — this skill is for meta/workflow improvements only.
+- Modify production code — this skill for meta/workflow improvements only.
 - Remove existing constraints or guardrails without strong justification.
-- Create duplicate skills when an existing skill can be extended.
+- Create duplicate skills when existing skill can be extended.

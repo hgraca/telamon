@@ -3,4 +3,4 @@ description: Address retrospective findings by suggesting and implementing workf
 agent: telamon/telamon
 ---
 
-Follow the `telamon.address_retro` skill to address the retrospective findings in: $1
+Follow `telamon.address_retro` skill to address retrospective findings in: $1

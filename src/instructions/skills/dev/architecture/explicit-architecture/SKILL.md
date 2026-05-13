@@ -7,15 +7,15 @@ description: "Project directory structure and dependency rules: DDD + Hexagonal 
 
 ## When to Apply
 
-- Understanding the project directory structure and where files belong
+- Understanding project directory structure and where files belong
 - Placing new classes, interfaces, or modules
 - Checking dependency direction between layers
-- Reviewing whether code is in the correct layer
+- Reviewing whether code is in correct layer
 
 In this document:
 
 - `<root>` is `app/` for Laravel projects, otherwise `src/`.
-- `/` is the namespace separator, it might be different depending on the programming language.
+- `/` is namespace separator, might differ by programming language.
 
 ## Directory Structure
 
@@ -33,16 +33,16 @@ In this document:
     Component/<ComponentYName>/             # Can not depend on <ComponentXName>
       <SubComponentYA>/                     # Same inner structure as <ComponentXName>, can depend on <SubComponentYB>
       <SubComponentYB>/                     # Same inner structure as <ComponentXName>, can depend on <SubComponentYA>
-    Port/<ToolName>/                        # Interfaces the core needs
+    Port/<ToolName>/                        # Interfaces core needs
   Infrastructure/<ToolName>/<AdapterName>/  # Implements ports
   Presentation/{Api,Web,Cli}/               # Thin delivery layer
 ```
 
-Shared Kernel: events, query objects, DTOs, value objects that cross component boundaries.
+Shared Kernel: events, query objects, DTOs, value objects crossing component boundaries.
 
-A component may have subcomponents when the domain is large.
+Component may have subcomponents when domain is large.
 
-The `Core/Component/` grouping is required even for single-component projects — it establishes boundaries for future growth. Do not flatten `Domain/`, `Application/`, or `Port/` to the source root.
+`Core/Component/` grouping required even for single-component projects — establishes boundaries for future growth. Do not flatten `Domain/`, `Application/`, or `Port/` to source root.
 
 **Legacy:** anything in `<root>/` outside this structure is legacy, unless explicitly mentioned otherwise.
             Never place new files in legacy namespaces.
@@ -54,7 +54,7 @@ The `Core/Component/` grouping is required even for single-component projects �
                   ^
 Presentation -> Application -> Port <- Infrastructure
                     |           |          |
-                language-overlay (treated as the language runtime)
+                language-overlay (treated as language runtime)
 ```
 
 ## See also

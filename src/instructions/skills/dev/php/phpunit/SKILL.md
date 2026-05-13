@@ -14,8 +14,8 @@ description: "PHPUnit conventions: test attributes, avoiding risky/slow warnings
 
 ## Test Philosophy
 
-- The PHPUnit output must report zero warnings, zero notices, and zero risky tests. Every section below explains how to prevent a specific issue type.
-- Every test must have a reason to exist — "What bug would this catch?"
+- PHPUnit output must report zero warnings, zero notices, and zero risky tests. Every section below explains how to prevent specific issue type.
+- Every test must have reason to exist — "What bug would this catch?"
 - Tests should be obvious, not clever.
 - Test behavior, not implementation.
 - Never write tests that only verify class structure through reflection. Tests must exercise code paths and assert observable behavior.
@@ -37,16 +37,16 @@ Do not use `@test`, `@dataProvider`, or `@group` annotations — they are deprec
 
 ## Preventing Risky Test Warnings
 
-PHPUnit flags a test as **risky** when it detects side effects that were not cleaned up.
+PHPUnit flags test as **risky** when it detects side effects not cleaned up.
 
 ### Error and exception handlers
 
-**Problem**: frameworks like Laravel register custom error/exception handlers via `set_error_handler()` and `set_exception_handler()` during bootstrap. PHPUnit detects these were pushed onto the handler stack but never removed, producing:
+**Problem**: frameworks like Laravel register custom error/exception handlers via `set_error_handler()` and `set_exception_handler()` during bootstrap. PHPUnit detects these pushed onto handler stack but never removed, producing:
 
 > *Test code or tested code did not remove its own error handlers*  
 > *Test code or tested code did not remove its own exception handlers*
 
-**Solution**: snapshot the handler stack depth before booting the framework, then pop exactly the handlers that were added.
+**Solution**: snapshot handler stack depth before booting framework, then pop exactly handlers that were added.
 
 ```php
 private int $errorHandlerDepthBeforeBoot = 0;
@@ -59,12 +59,12 @@ protected function setUp(): void
     $this->errorHandlerDepthBeforeBoot = $this->snapshotErrorHandlerDepth();
     $this->exceptionHandlerDepthBeforeBoot = $this->snapshotExceptionHandlerDepth();
 
-    // ... boot the framework / application ...
+    // ... boot framework / application ...
 }
 
 protected function tearDown(): void
 {
-    // ... tear down the framework / application ...
+    // ... tear down framework / application ...
 
     $added = $this->snapshotErrorHandlerDepth() - $this->errorHandlerDepthBeforeBoot;
     for ($i = 0; $i < $added; $i++) {
@@ -80,9 +80,9 @@ protected function tearDown(): void
 }
 ```
 
-The snapshot helpers drain the stack non-destructively (collect all handlers, then re-install them in reverse order) to count the current depth.
+Snapshot helpers drain stack non-destructively (collect all handlers, then re-install in reverse order) to count current depth.
 
-**Why not `set_error_handler($previousHandler)`?** Because `set_error_handler()` *pushes* a new entry — it does not replace. Calling `set_error_handler(PHPUnit's handler)` makes the stack one level deeper, not the same. Always use `restore_error_handler()` / `restore_exception_handler()` to pop.
+**Why not `set_error_handler($previousHandler)`?** Because `set_error_handler()` *pushes* new entry — it does not replace. Calling `set_error_handler(PHPUnit's handler)` makes stack one level deeper, not same. Always use `restore_error_handler()` / `restore_exception_handler()` to pop.
 
 ### Other common risky-test causes
 
@@ -92,11 +92,11 @@ The snapshot helpers drain the stack non-destructively (collect all handlers, th
 
 ## Preventing Slow Test Warnings
 
-This project uses `ergebnis/phpunit-slow-test-detector`. The global threshold is 0.500 seconds.
+This project uses `ergebnis/phpunit-slow-test-detector`. Global threshold is 0.500 seconds.
 
 ### `#[MaximumDuration]` attribute
 
-For tests that take longer (real broker I/O, `sleep()` for TTL expiry, etc.), add a per-method threshold:
+For tests taking longer (real broker I/O, `sleep()` for TTL expiry, etc.), add per-method threshold:
 
 ```php
 use Ergebnis\PHPUnit\SlowTestDetector\Attribute\MaximumDuration;
@@ -106,30 +106,30 @@ use Ergebnis\PHPUnit\SlowTestDetector\Attribute\MaximumDuration;
 public function it_consumes_from_the_queue(): void { }
 ```
 
-**`MaximumDuration` targets methods only** (`#[\Attribute(\Attribute::TARGET_METHOD)]`). It cannot be applied at the class level — PHP silently ignores misapplied attributes and the detector will not read it.
+**`MaximumDuration` targets methods only** (`#[\Attribute(\Attribute::TARGET_METHOD)]`). Cannot be applied at class level — PHP silently ignores misapplied attributes and detector will not read it.
 
 ### Budget guidelines
 
-| Test type | Budget |
-|---|---|
-| Unit test (no I/O) | Global default (0.500s) — no attribute needed |
-| Integration test with real DB | Global default, or `#[MaximumDuration(1_000)]` if timing is tight |
-| Test with `sleep()` for TTL/timeout | Sleep duration + 1s margin (e.g., `sleep(2)` → `#[MaximumDuration(3_000)]`) |
-| E2e test with real brokers (Redis, Kafka) | `#[MaximumDuration(5_000)]` |
-| E2e test consuming from Kafka | `#[MaximumDuration(10_000)]` — Kafka consumer timeout adds latency |
-| Kafka connector integration test | `#[MaximumDuration(20_000)]` — full broker round-trip |
+| Test type                                 | Budget                                                                      |
+|-------------------------------------------|-----------------------------------------------------------------------------|
+| Unit test (no I/O)                        | Global default (0.500s) — no attribute needed                               |
+| Integration test with real DB             | Global default, or `#[MaximumDuration(1_000)]` if timing tight              |
+| Test with `sleep()` for TTL/timeout       | Sleep duration + 1s margin (e.g., `sleep(2)` → `#[MaximumDuration(3_000)]`) |
+| E2e test with real brokers (Redis, Kafka) | `#[MaximumDuration(5_000)]`                                                 |
+| E2e test consuming from Kafka             | `#[MaximumDuration(10_000)]` — Kafka consumer timeout adds latency          |
+| Kafka connector integration test          | `#[MaximumDuration(20_000)]` — full broker round-trip                       |
 
-### When to add the attribute
+### When to add attribute
 
-Add `#[MaximumDuration]` when writing the test, not after the slow warning appears. If a test interacts with a real broker, network service, or uses `sleep()`, it will be slow — tag it proactively.
+Add `#[MaximumDuration]` when writing test, not after slow warning appears. If test interacts with real broker, network service, or uses `sleep()`, it will be slow — tag it proactively.
 
 ## Preventing PHPUnit Notices (Mock vs Stub)
 
-PHPUnit 12+ emits a notice when a mock object has no expectations configured:
+PHPUnit 12+ emits notice when mock object has no expectations configured:
 
-> *No expectations were configured for the mock object*
+> *No expectations were configured for mock object*
 
-**Fix**: if you only need a stand-in object that returns values, use `createStub()` instead of `createMock()`:
+**Fix**: if you only need stand-in object returning values, use `createStub()` instead of `createMock()`:
 
 ```php
 // BAD — triggers notice in PHPUnit 12+
@@ -143,11 +143,11 @@ $logger->method('info')->willReturn(null);
 
 Use `createMock()` only when you actually call `->expects()`.
 
-Do not use `#[AllowMockObjectsWithoutExpectations]` — it suppresses the notice instead of fixing the root cause.
+Do not use `#[AllowMockObjectsWithoutExpectations]` — it suppresses notice instead of fixing root cause.
 
 ### Shared test doubles in `setUp()`
 
-When `setUp()` creates a test double shared across multiple test methods, use `createStub()` by default. Tests that need expectations create a local mock and re-initialize the SUT:
+When `setUp()` creates test double shared across multiple test methods, use `createStub()` by default. Tests needing expectations create local mock and re-initialize SUT:
 
 ```php
 use PHPUnit\Framework\MockObject\Stub;
@@ -167,7 +167,7 @@ private function initSut(SomeInterface&Stub $dependency): void
     $this->sut = new SystemUnderTest($dependency);
 }
 
-// Test needing expectations — local mock overrides the stub:
+// Test needing expectations — local mock overrides stub:
 #[Test]
 public function it_calls_the_dependency_exactly_once(): void
 {
@@ -180,21 +180,21 @@ public function it_calls_the_dependency_exactly_once(): void
 }
 ```
 
-Type the shared property as `SomeInterface&Stub`, not as `SomeInterface&MockObject`. This tells PHPStan the property has both the interface methods and the `->method()` / `->willReturn()` stub methods. The `initSut()` parameter must also use `&Stub` — `MockObject` extends `Stub`, so passing a mock to a `&Stub` parameter works.
+Type shared property as `SomeInterface&Stub`, not as `SomeInterface&MockObject`. This tells PHPStan property has both interface methods and `->method()` / `->willReturn()` stub methods. `initSut()` parameter must also use `&Stub` — `MockObject` extends `Stub`, so passing mock to `&Stub` parameter works.
 
 ## E2E Testing for Framework-Agnostic Libraries
 
-When a library is designed to work across multiple frameworks (e.g., Laravel and Symfony), e2e tests must exercise the full stack without coupling to any one framework.
+When library designed to work across multiple frameworks (e.g., Laravel and Symfony), e2e tests must exercise full stack without coupling to any one framework.
 
 ### Architecture: Application Factory pattern
 
-1. **Define a framework-agnostic interface** (`EndToEndApplicationFactory`) in `tests/e2e/` with methods for all test operations: dispatching, consuming, asserting queue state, managing locks, rate limiters, circuit breakers, etc.
+1. **Define framework-agnostic interface** (`EndToEndApplicationFactory`) in `tests/e2e/` with methods for all test operations: dispatching, consuming, asserting queue state, managing locks, rate limiters, circuit breakers, etc.
 
-2. **Implement per framework** in `tests/e2e/<Framework>/` (e.g., `tests/e2e/Laravel/LaravelEndToEndApplicationFactory`). Only the factory implementation imports framework classes.
+2. **Implement per framework** in `tests/e2e/<Framework>/` (e.g., `tests/e2e/Laravel/LaravelEndToEndApplicationFactory`). Only factory implementation imports framework classes.
 
-3. **Write tests against the interface** in `tests/e2e/TestCase/`. Test files import nothing from any framework — only from `tests/e2e/` and the library's own ports.
+3. **Write tests against interface** in `tests/e2e/TestCase/`. Test files import nothing from any framework — only from `tests/e2e/` and library's own ports.
 
-4. **Resolve the factory at runtime** via an environment variable (e.g., `E2E_APPLICATION_FACTORY`), defaulting to one framework.
+4. **Resolve factory at runtime** via environment variable (e.g., `E2E_APPLICATION_FACTORY`), defaulting to one framework.
 
 ```
 tests/e2e/
@@ -213,10 +213,10 @@ tests/e2e/
 
 ### Key rules
 
-- **Zero framework imports in test files** — only the factory interface and the library's own ports
-- **Separate e2e resolvers from unit test resolvers** — unit tests typically use a database broker for queue inspection (`DB::select('select * from jobs')`); e2e tests use real brokers (Redis, Kafka). Sharing resolvers between them causes cross-contamination
-- **Handler cleanup in the base test case** — see "Preventing Risky Test Warnings" above
-- **Architecture rule exclusion** — if the project enforces "every test class must have a corresponding production unit", exclude `tests/e2e/` from that rule since e2e tests by design have no 1:1 production counterpart
+- **Zero framework imports in test files** — only factory interface and library's own ports
+- **Separate e2e resolvers from unit test resolvers** — unit tests typically use database broker for queue inspection (`DB::select('select * from jobs')`); e2e tests use real brokers (Redis, Kafka). Sharing resolvers between them causes cross-contamination
+- **Handler cleanup in base test case** — see "Preventing Risky Test Warnings" above
+- **Architecture rule exclusion** — if project enforces "every test class must have corresponding production unit", exclude `tests/e2e/` from that rule since e2e tests by design have no 1:1 production counterpart
 
 ### Factory lifecycle
 
@@ -225,17 +225,17 @@ setUp()     → boot() → reset() → [run test]
 tearDown()  → tearDown() → [restore handlers] → parent::tearDown()
 ```
 
-- `boot()`: create the application, configure brokers
+- `boot()`: create application, configure brokers
 - `reset()`: flush queues, truncate tables, drain topics — called before each test for isolation
 - `tearDown()`: clean up application resources
 
 ### Broker-specific considerations
 
-| Broker | Queue inspection | Consumption | Notes |
-|---|---|---|---|
-| Database | `DB::select()` on `jobs` table | `Queue::pop()` | Full introspection available |
-| Redis | `LRANGE` for pending, `ZCARD`/`ZRANGE` for delayed | `Queue::pop()` | Payloads are JSON with `attempts` field |
-| Kafka | No peek capability | `KafkaQueue::pop()` with consumer timeout | Use consume + side-effect assertions instead of queue inspection |
+| Broker   | Queue inspection                                   | Consumption                               | Notes                                                            |
+|----------|----------------------------------------------------|-------------------------------------------|------------------------------------------------------------------|
+| Database | `DB::select()` on `jobs` table                     | `Queue::pop()`                            | Full introspection available                                     |
+| Redis    | `LRANGE` for pending, `ZCARD`/`ZRANGE` for delayed | `Queue::pop()`                            | Payloads are JSON with `attempts` field                          |
+| Kafka    | No peek capability                                 | `KafkaQueue::pop()` with consumer timeout | Use consume + side-effect assertions instead of queue inspection |
 
 ## See also
 

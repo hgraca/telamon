@@ -1,12 +1,12 @@
 # JSON Schemas
 
-This document defines the JSON schemas used by skill-creator.
+This document defines JSON schemas used by skill-creator.
 
 ---
 
 ## evals.json
 
-Defines the evals for a skill. Located at `evals/evals.json` within the skill directory.
+Defines evals for a skill. Located at `evals/evals.json` within skill directory.
 
 ```json
 {
@@ -198,7 +198,7 @@ Output from the executor agent. Located at `<run-dir>/outputs/metrics.json`.
 
 Wall clock timing for a run. Located at `<run-dir>/timing.json`.
 
-**How to capture:** When a subagent task completes, the task notification includes `total_tokens` and `duration_ms`. Save these immediately — they are not persisted anywhere else and cannot be recovered after the fact.
+**How to capture:** When subagent task completes, notification includes `total_tokens` and `duration_ms`. Save immediately — not persisted elsewhere, cannot recover after fact.
 
 ```json
 {
@@ -302,7 +302,7 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
   - `delta`: Difference strings like `"+0.50"`, `"+13.0"`, `"+1700"`
 - `notes`: Freeform observations from the analyzer
 
-**Important:** The viewer reads these field names exactly. Using `config` instead of `configuration`, or putting `pass_rate` at the top level of a run instead of nested under `result`, will cause the viewer to show empty/zero values. Always reference this schema when generating benchmark.json manually.
+**Important:** Viewer reads these field names exactly. Using `config` instead of `configuration`, or putting `pass_rate` at top level of run instead of nested under `result`, causes viewer to show empty/zero values. Always reference this schema when generating benchmark.json manually.
 
 ---
 

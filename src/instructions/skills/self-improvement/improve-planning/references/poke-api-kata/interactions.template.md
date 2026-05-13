@@ -11,10 +11,10 @@ Records all inter-agent interactions during the planning (and optionally impleme
 
 ### Agents Involved
 
-| Agent | Role |
-|---|---|
+| Agent       | Role                                                       |
+|-------------|------------------------------------------------------------|
 | **<agent>** | <one-line description of what this agent did this session> |
-| ... | ... |
+| ...         | ...                                                        |
 
 ---
 
@@ -56,11 +56,11 @@ ASCII or mermaid diagram of the agent interaction graph for this session. Show t
 
 ```
 Human Stakeholder
-    |
+|-----|
     | (start task)
     v
    <orchestrator> -----> <agent> (<purpose>)
-    |
+|-----|
     ...
 ```
 
@@ -68,35 +68,35 @@ Human Stakeholder
 
 ## Summary Statistics
 
-| Metric | Value |
-|---|---|
-| Total agent interactions | <N> |
-| Unique agents involved | <N> (<list>) |
-| Planning interactions | <N> |
-| Implementation interactions | <N> |
-| Architect invocations | <N> |
-| Critic invocations | <N> |
-| Critic rounds | <N> |
-| Developer invocations | <N> |
-| Re-delegations (failed/interrupted attempts) | <N> |
-| Tasks completed | <N> |
-| Total commits | <N> |
-| Tests at completion | <N> tests, <N> assertions |
-| Code coverage | <%> of src/ |
-| Static analysis | <pass/fail> at <level> |
+| Metric                                       | Value                     |
+|----------------------------------------------|---------------------------|
+| Total agent interactions                     | <N>                       |
+| Unique agents involved                       | <N> (<list>)              |
+| Planning interactions                        | <N>                       |
+| Implementation interactions                  | <N>                       |
+| Architect invocations                        | <N>                       |
+| Critic invocations                           | <N>                       |
+| Critic rounds                                | <N>                       |
+| Developer invocations                        | <N>                       |
+| Re-delegations (failed/interrupted attempts) | <N>                       |
+| Tasks completed                              | <N>                       |
+| Total commits                                | <N>                       |
+| Tests at completion                          | <N> tests, <N> assertions |
+| Code coverage                                | <%> of src/               |
+| Static analysis                              | <pass/fail> at <level>    |
 
 ### Per-Task Breakdown (implementation only)
 
-| Task | Session | Tests | Commit |
-|---|---|---|---|
+| Task          | Session       | Tests          | Commit  |
+|---------------|---------------|----------------|---------|
 | <id> — <name> | <session ref> | <test summary> | `<sha>` |
-| ... | ... | ... | ... |
+| ...           | ...           | ...            | ...     |
 
 ### Key Decisions
 
-| Decision | Rationale |
-|---|---|
-| <decision> | <why> |
+| Decision   | Rationale |
+|------------|-----------|
+| <decision> | <why>     |
 
 ### Agent Processing Time
 
@@ -104,33 +104,33 @@ Exclude human stakeholder wait time. Estimate from observed interaction duration
 
 #### Planning Phase
 
-| Interaction | Agent(s) | Approx. Duration | Notes |
-|---|---|---|---|
-| 1. <name> | <agent> | ~Nm | <notes> |
-| **Planning subtotal** | | **~Nm** | |
+| Interaction           | Agent(s) | Approx. Duration | Notes   |
+|-----------------------|----------|------------------|---------|
+| 1. <name>             | <agent>  | ~Nm              | <notes> |
+| **Planning subtotal** |          | **~Nm**          |         |
 
 #### Implementation Phase (omit if not implemented)
 
-| Interaction | Agent | Approx. Duration | Notes |
-|---|---|---|---|
-| <N>. <name> | <agent> | ~Nm | <notes> |
-| **Implementation subtotal** | | **~Nm** | |
+| Interaction                 | Agent   | Approx. Duration | Notes   |
+|-----------------------------|---------|------------------|---------|
+| <N>. <name>                 | <agent> | ~Nm              | <notes> |
+| **Implementation subtotal** |         | **~Nm**          |         |
 
 #### Per-Agent Totals
 
-| Agent | Total Time | Invocations | Notes |
-|---|---|---|---|
-| <agent> | ~Nm | <N> | <notes> |
-| **Total agent processing** | **~Nm** | **<N> subagent invocations** | |
+| Agent                      | Total Time | Invocations                  | Notes   |
+|----------------------------|------------|------------------------------|---------|
+| <agent>                    | ~Nm        | <N>                          | <notes> |
+| **Total agent processing** | **~Nm**    | **<N> subagent invocations** |         |
 
 #### Session Totals
 
-| Metric | Value |
-|---|---|
-| **Planning phase** | ~Nm |
-| **Implementation phase** | ~Nm |
-| **Total session (agent processing)** | **~Nm** |
-| Human stakeholder wait time | excluded |
+| Metric                               | Value    |
+|--------------------------------------|----------|
+| **Planning phase**                   | ~Nm      |
+| **Implementation phase**             | ~Nm      |
+| **Total session (agent processing)** | **~Nm**  |
+| Human stakeholder wait time          | excluded |
 
 ---
 

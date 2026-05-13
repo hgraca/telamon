@@ -5,12 +5,12 @@ description: "Audits a codebase for pattern drift, inconsistencies, and architec
 
 # Skill: Codebase Audit
 
-Detect pattern drift, inconsistencies, and architectural erosion holistically across a codebase — not scoped to a single changeset (that is the reviewer's job).
+Detect pattern drift, inconsistencies, and architectural erosion holistically across codebase — not scoped to single changeset (that is reviewer's job).
 
 ## When to Apply
 
-- When requested by a stakeholder, another agent, or as part of a milestone review
-- When performing a holistic assessment of codebase health and consistency
+- Requested by stakeholder, another agent, or as part of milestone review
+- Performing holistic assessment of codebase health and consistency
 
 ## Inputs
 
@@ -20,13 +20,13 @@ Detect pattern drift, inconsistencies, and architectural erosion holistically ac
 
 ## Audit Report
 
-Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
+Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
 
 ### Template
 
 > # Codebase Audit Report
 >
-> **Scope**: What was audited.
+> **Scope**: What audited.
 >
 > ## Strengths
 >
@@ -38,19 +38,19 @@ Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`. After writing, run `format-md`
 >
 > ### Finding <n>: <Title>
 > - **Severity**: CRITICAL | IMPORTANT | MINOR
-> - **Pattern**: The convention or rule being violated.
+> - **Pattern**: Convention or rule being violated.
 > - **Evidence**: File paths and line numbers (at least two data points).
 > - **Problem found**:
 > - **Why it matters**:
-> - **Recommendation**: Specific, incremental fix (never a wholesale rewrite).
+> - **Recommendation**: Specific, incremental fix (never wholesale rewrite).
 >
 > ## Tools used
 >
 > ### SKILLS
-> List skills used by the agent while creating the report, or "None."
+> List skills used by agent while creating report, or "None."
 >
 > ### MCP tools
-> List MCP tools used by the agent while creating the report, or "None."
+> List MCP tools used by agent while creating report, or "None."
 
 ### Severity Definitions
 
@@ -58,4 +58,4 @@ Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`. After writing, run `format-md`
 - **IMPORTANT** — Will cause problems at scale or under growth.
 - **MINOR** — Cosmetic/stylistic inconsistency with no functional impact.
 
-When in doubt between severities, choose the higher one.
+When in doubt between severities, choose higher one.

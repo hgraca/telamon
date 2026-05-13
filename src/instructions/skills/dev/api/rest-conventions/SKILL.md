@@ -20,7 +20,7 @@ Status: Accepted | Date: April 3, 2026
 - Resource names: plural, lowercase, kebab-case nouns
 - Resource identifiers: UUID v7
 - Nested resources: max one level deep (strong parent-child ownership only)
-- Deeper nesting forbidden — use filtering on the child resource
+- Deeper nesting forbidden — use filtering on child resource
 
 ```
 GET    /api/v1/bookings
@@ -34,14 +34,14 @@ GET    /api/v1/invoices/{id}/line-items
 
 ## HTTP Methods
 
-| Method | Route | Semantics | Idempotent | Status |
-|--------|-------|-----------|------------|--------|
-| `GET` | `/resources` | Paginated list | Yes | `200` |
-| `POST` | `/resources` | Create | No | `201` |
-| `GET` | `/resources/{id}` | Retrieve | Yes | `200` |
-| `PUT` | `/resources/{id}` | Full update | Yes | `200` |
-| `PATCH` | `/resources/{id}` | Partial update | No* | `200` |
-| `DELETE` | `/resources/{id}` | Delete | Yes | `204` |
+| Method   | Route             | Semantics      | Idempotent | Status |
+|----------|-------------------|----------------|------------|--------|
+| `GET`    | `/resources`      | Paginated list | Yes        | `200`  |
+| `POST`   | `/resources`      | Create         | No         | `201`  |
+| `GET`    | `/resources/{id}` | Retrieve       | Yes        | `200`  |
+| `PUT`    | `/resources/{id}` | Full update    | Yes        | `200`  |
+| `PATCH`  | `/resources/{id}` | Partial update | No*        | `200`  |
+| `DELETE` | `/resources/{id}` | Delete         | Yes        | `204`  |
 
 \* Design `PATCH` handlers for idempotency where possible.
 
@@ -93,10 +93,10 @@ POST /api/v1/invoices/{id}/actions/finalize
 
 ## Pagination (Cursor-Based)
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `per_page` | Items per page (max 100) | 25 |
-| `cursor` | Opaque base64 token | — |
+| Parameter  | Description              | Default |
+|------------|--------------------------|---------|
+| `per_page` | Items per page (max 100) | 25      |
+| `cursor`   | Opaque base64 token      | —       |
 
 - `meta.cursor.next` is `null` when no more results
 - First request omits `cursor`
@@ -115,14 +115,14 @@ Content-Type: `application/problem+json`
 }
 ```
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `type` | Yes | Stable, machine-readable problem identifier |
-| `title` | Yes | Short human-readable summary (same for all occurrences of this type) |
-| `status` | Yes | HTTP status code |
-| `detail` | No | Occurrence-specific explanation |
-| `instance` | No | URI identifying this occurrence |
-| `errors` | No | Field-level validation errors (extension member) |
+| Field      | Required | Description                                                          |
+|------------|----------|----------------------------------------------------------------------|
+| `type`     | Yes      | Stable, machine-readable problem identifier                          |
+| `title`    | Yes      | Short human-readable summary (same for all occurrences of this type) |
+| `status`   | Yes      | HTTP status code                                                     |
+| `detail`   | No       | Occurrence-specific explanation                                      |
+| `instance` | No       | URI identifying this occurrence                                      |
+| `errors`   | No       | Field-level validation errors (extension member)                     |
 
 ## Filtering, Sorting, Searching
 
@@ -155,14 +155,14 @@ GET /api/v1/transfer-bookings?filter[search][custom-fields]=airport&filter[statu
 
 ## Naming Conventions
 
-| Concern | Convention | Example |
-|---------|-----------|---------|
-| URL segments | kebab-case, plural noun | `/transfer-bookings` |
-| JSON keys | snake_case | `pickup_at` |
-| Query params | snake_case | `per_page`, `filter[status]` |
-| Path params | snake_case | `{booking_id}` |
-| Action names | kebab-case verb | `/actions/mark-as-read` |
-| Problem type URIs | kebab-case | `/problems/validation-error` |
+| Concern           | Convention              | Example                      |
+|-------------------|-------------------------|------------------------------|
+| URL segments      | kebab-case, plural noun | `/transfer-bookings`         |
+| JSON keys         | snake_case              | `pickup_at`                  |
+| Query params      | snake_case              | `per_page`, `filter[status]` |
+| Path params       | snake_case              | `{booking_id}`               |
+| Action names      | kebab-case verb         | `/actions/mark-as-read`      |
+| Problem type URIs | kebab-case              | `/problems/validation-error` |
 
 ## Versioning
 
