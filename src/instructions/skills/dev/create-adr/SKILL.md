@@ -107,7 +107,7 @@ ADRs that document a *conformance* (not deviation) do not need this section.
 
 ### Step 5 — Save
 
-Write to `.ai/local/ADRs/{filename}.md`. Confirm file path and title to the user.
+Write to `.ai/local/ADRs/{filename}.md`. After writing, run `format-md` on the file to align table columns. Confirm file path and title to the user.
 
 ## Quality Checklist
 

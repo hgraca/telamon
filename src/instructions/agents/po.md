@@ -56,7 +56,7 @@ Do not attempt to infer the deliverable path. Do not begin work. The orchestrato
 
 ### Backlog Grooming
 
-- Create task backlog in `<issue-folder>/backlog.md` from the stakeholder's brief.
+- Create task backlog in `<issue-folder>/backlog.md` from the stakeholder's brief. After writing, run `format-md` on the file to align table columns.
 - Break epics/stories into clear, small, prioritized tasks with requirements and acceptance criteria.
 - Identify task dependencies and ordering.
 - Evaluate cost/benefit trade-offs for bugs discovered during planning — justify why incorrect output is acceptable, or include the bug in the backlog.

@@ -16,7 +16,7 @@ Produce a structured summary report at the end of a planning stage.
 
 1. Read all artifacts in the `<issue-folder>` (backlog, architecture specs, critic reviews, UI/UX specs, decisions).
 2. Fill in every section of the template below — do NOT invent a custom format.
-3. Write the result to `<issue-folder>/summary.md`.
+3. Write the result to `<issue-folder>/summary.md`. After writing, run `format-md` on the file to align table columns.
 4. Output the summary to the human stakeholder, as properly formatted Markdown.
 
 ## Template

@@ -56,7 +56,7 @@ The Pre-FINISHED Hygiene Gate (below) executes the mechanical check that enforce
 
 ## Plan Output
 
-Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. This file contains BOTH the architecture specification and the implementation plan in one document — see the architect's Deliverables section in `src/instructions/agents/architect.md` for the rationale and filename rules.
+Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns. This file contains BOTH the architecture specification and the implementation plan in one document — see the architect's Deliverables section in `src/instructions/agents/architect.md` for the rationale and filename rules.
 
 ### Plan Template
 

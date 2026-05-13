@@ -15,7 +15,7 @@ Document test results, bugs found, production code changes, and coverage assessm
 
 ## Test Report
 
-Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`.
+Save to `<issue-folder>/TEST-REPORT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
 
 ### Template
 

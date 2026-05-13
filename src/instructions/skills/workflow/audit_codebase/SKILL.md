@@ -20,7 +20,7 @@ Detect pattern drift, inconsistencies, and architectural erosion holistically ac
 
 ## Audit Report
 
-Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`.
+Save to `<issue-folder>/AUDIT-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
 
 ### Template
 

@@ -19,6 +19,8 @@ and would trip up future agents or developers.
 
 ### 1. Write to `.ai/telamon/memory/brain/gotchas.md`
 
+After writing, run `format-md` on the file to align table columns.
+
 Append one entry using this format:
 
 ```markdown

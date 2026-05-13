@@ -15,7 +15,7 @@ Produce implementation-ready UI specifications covering design tokens, screen-le
 
 ## UI Spec
 
-Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`.
+Save to `<issue-folder>/UI-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
 
 ### Template
 

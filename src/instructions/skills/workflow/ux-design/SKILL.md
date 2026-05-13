@@ -15,7 +15,7 @@ Produce UX specifications defining user flows, screen interaction specs, and sta
 
 ## UX Specification
 
-Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`.
+Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
 
 ### Template
 
@@ -85,7 +85,7 @@ Save to `<issue-folder>/UX-SPEC-YYYY-MM-DD-NNN.md`.
 
 ## UX Validation Report
 
-Save to `<issue-folder>/UX-VALIDATION-YYYY-MM-DD-NNN.md`.
+Save to `<issue-folder>/UX-VALIDATION-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on the file to align table columns.
 
 ### Template
 

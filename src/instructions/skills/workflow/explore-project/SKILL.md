@@ -76,7 +76,7 @@ If a category has no findings, omit it. Do not pad.
 
 ### Step 4: Write the description
 
-Write the result to `.ai/telamon/memory/project-rules/description.md`, overwriting the previous content.
+Write the result to `.ai/telamon/memory/project-rules/description.md`, overwriting the previous content. After writing, run `format-md` on the file to align table columns.
 
 Follow the template below. Adjust section titles to fit the project, but keep the section order: *purpose →
 layout → architecture → lifecycle/workflows → conventions → rough edges → pointers*. This order is what an

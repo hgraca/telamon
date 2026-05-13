@@ -62,7 +62,7 @@ After all tasks in a backlog are completed (`telamon.implement_story` skill step
 
 ### Template
 
-Save to `<issue-folder>/RETRO-YYYY-MM-DD.md`.
+Save to `<issue-folder>/RETRO-YYYY-MM-DD.md`. After writing, run `format-md` on the file to align table columns.
 
 > # Retrospective
 >
