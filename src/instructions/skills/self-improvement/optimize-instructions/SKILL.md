@@ -187,6 +187,30 @@ For findings, use this format per finding:
 > - **Problem**: what is wrong
 > - **Fix**: concrete rewrite or action
 
+### Step 6: Compress with caveman skill
+
+After producing the optimized file, load the `caveman` skill and apply it to the instruction file to reduce token consumption.
+
+1. Load the `caveman` skill
+2. Apply **full** intensity to the instruction file content:
+   - Drop articles (a/an/the), filler words (just/really/basically/actually/simply), pleasantries, hedging
+   - Use fragments where meaning stays clear
+   - Replace verbose phrases with short synonyms (e.g., "implement a solution for" → "fix")
+   - Keep technical terms exact — never abbreviate code symbols, function names, API names, error strings
+   - Keep code blocks, templates, and structured output formats unchanged
+3. Apply **ultra** intensity to prose sections only (not code, templates, or structured data):
+   - Abbreviate common prose words (DB/auth/config/req/res/fn/impl)
+   - Strip conjunctions where causality is clear from context
+   - Use arrows (→) for causality chains
+   - Replace multi-word phrases with single words where unambiguous
+4. Verify the compressed file preserves all technical substance — every rule, constraint, template field, and procedure step must remain present and unambiguous
+5. Write the compressed version back to the same file path
+
+**Auto-clarity override**: Do NOT compress sections that would become ambiguous:
+- Security warnings and irreversible action confirmations
+- Multi-step sequences where fragment order or omitted conjunctions risk misread
+- Any section where compression creates technical ambiguity
+
 ## Guiding Principle
 
 Agent output is always a proposal. Human validates and approves all instruction changes.
