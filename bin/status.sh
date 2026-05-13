@@ -51,15 +51,15 @@ if env.is_enabled GRAPHITI_ENABLED; then
   docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-graphiti$" \
     && _ok "Graphiti" || _no "Graphiti"
 fi
-command -v uv       &>/dev/null && _ok "uv"       || _no "uv"
-command -v node     &>/dev/null && _ok "Node.js"  || _no "Node.js"
-command -v graphify &>/dev/null && _ok "Graphify" || _no "Graphify"
-command -v rtk      &>/dev/null && _ok "RTK"      || _no "RTK"
-command -v opencode &>/dev/null && _ok "opencode" || _no "opencode"
-[[ -f "${TELAMON_ROOT}/storage/opencode.jsonc" ]] && _ok "storage/opencode.jsonc" || _no "storage/opencode.jsonc"
-[[ -d "${TELAMON_ROOT}/storage/secrets" ]]        && _ok "storage/secrets/"        || _no "storage/secrets/ (run 'make install' to create)"
-[[ -d "${TELAMON_ROOT}/storage/state" ]]          && _ok "storage/state/"          || _no "storage/state/ (run 'make install' to create)"
-[[ -d "${TELAMON_ROOT}/src/skills" ]]             && _ok "Telamon skills (src/skills)" || _no "Telamon skills (src/skills)"
+command -v uv       &>/dev/null && _ok "uv"        || _no "uv"
+command -v node     &>/dev/null && _ok "Node.js"   || _no "Node.js"
+command -v graphify &>/dev/null && _ok "Graphify"  || _no "Graphify"
+command -v rtk      &>/dev/null && _ok "RTK"       || _no "RTK"
+command -v opencode &>/dev/null && _ok "opencode"  || _no "opencode"
+[[ -f "${TELAMON_ROOT}/storage/opencode.jsonc" ]]  && _ok "storage/opencode.jsonc"                   || _no "storage/opencode.jsonc"
+[[ -d "${TELAMON_ROOT}/storage/secrets" ]]         && _ok "storage/secrets/"                         || _no "storage/secrets/ (run 'make install' to create)"
+[[ -d "${TELAMON_ROOT}/storage/state" ]]           && _ok "storage/state/"                           || _no "storage/state/ (run 'make install' to create)"
+[[ -d "${TELAMON_ROOT}/src/instructions/skills" ]] && _ok "Telamon skills (src/instructions/skills)" || _no "Telamon skills (src/instructions/skills)"
 echo
 
 # =============================================================================
