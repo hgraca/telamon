@@ -2,7 +2,7 @@
 description: "Scout — collects context for the orchestrator; does not delegate tasks"
 mode: subagent
 temperature: 0.2
-model: github-copilot/claude-haiku-4.5
+model: cortecs/deepseek-v4-flash
 permission:
   task: deny
 ---
@@ -28,7 +28,8 @@ If no keywords were provided, ask for them.
 
 - Use the `telamon.gather-context` skill to collect context knowledge.
 - Compile findings into a structured context report.
-- Signal `FINISHED` with report content or path.
+- Store the report to `.ai/telamon/memory/thinking/YYYYMMDDHHMMSS-<keyword-list>.md`.
+- Signal `FINISHED` with the absolute path of the stored report file.
 
 ## MUST
 

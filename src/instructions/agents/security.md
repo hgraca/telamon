@@ -2,7 +2,7 @@
 description: "Security Engineer — performs security audits, threat modelling, vulnerability assessment, and secure code review without modifying code"
 mode: subagent
 temperature: 0.1
-model: github-copilot/claude-opus-4.7
+model: cortecs/deepseek-v4-flash
 permission:
   edit: deny
   task: deny

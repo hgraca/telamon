@@ -2,7 +2,7 @@
 description: "UI Designer — designs the visual language of product and admin interfaces, focuses on look, feel, and hierarchy"
 mode: subagent
 temperature: 0.8
-model: github-copilot/claude-opus-4.7
+model: cortecs/deepseek-v4-flash
 permission:
   bash: deny
   task: deny

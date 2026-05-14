@@ -2,7 +2,7 @@
 description: "Telamon — orchestrates all work, classifies requests, routes to specialists, leads planning and implementation workflows, makes product decisions"
 mode: primary
 temperature: 0.2
-model: github-copilot/claude-opus-4.7
+model: cortecs/deepseek-v4-flash
 permission:
   bash: allow
   task: allow
