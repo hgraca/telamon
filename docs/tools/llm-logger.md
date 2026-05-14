@@ -1,28 +1,30 @@
 ---
 layout: page
 title: LLM Logger
-description: Logs every LLM user request to disk for debugging and analysis.
+description: Logs every LLM user request and assistant response to disk for debugging and analysis.
 nav_section: docs
 ---
 
 # LLM Logger Plugin
 
-Logs every user message sent to the LLM to disk — one file per message.
+Logs every user message and assistant response to disk — one file per message.
 
 ## How It Works
 
-The plugin uses a single hook:
+The plugin uses two hooks:
 
 - **`chat.message`** — fires once per user message with the full message body and parts (text, file attachments, agent invocations). Captures the user side of every LLM exchange.
+- **`event`** (filtered) — listens for `message.updated` events with `info.role === "assistant"` and `info.time.completed` set, then fetches the full message + parts via `client.session.message(...)` and writes one log file per assistant message. Repeated `message.updated` events for the same `messageID` are deduplicated via an in-memory `Set`.
 
-Assistant responses and system prompts are NOT captured by this plugin. opencode v1.14.50's `chat.message` hook is user-message-only, and the `experimental.*` system-prompt hooks crash startup in this opencode version.
+System prompts are NOT captured by this plugin. The `experimental.chat.system.transform` hook crashes startup in opencode v1.14.50.
 
 ## File Layout
 
 ```
 .ai/telamon/logs/llm-logger/
 └── <YYYYMMDDHHMMSS>-<sessionID>/
-    └── <timestamp>-<seq>-request-<messageID>.json
+    ├── <timestamp>-<seq>-request-<messageID>.json   ← user message
+    └── <timestamp>-<seq>-response-<messageID>.json  ← assistant message
 ```
 
 - `<YYYYMMDDHHMMSS>` — folder timestamp (first message of the session).
@@ -36,8 +38,10 @@ Assistant responses and system prompts are NOT captured by this plugin. opencode
 Each file contains:
 
 - **Session metadata**: session ID, message ID, agent name, model, variant
-- **Message info**: id, role, agent, modelID, providerID, cost, tokens, finish, error
+- **Message info**: id, role, agent, modelID, providerID, cost, tokens, finish, error, time (created/completed)
 - **Parts**: text content, tool calls (tool name + callID + state), file attachments (mime, filename, url)
+
+For assistant messages, if the `client.session.message(...)` fetch fails, the plugin falls back to writing a metadata-only log (no parts) so the event is never silently dropped.
 
 ## Privacy
 
