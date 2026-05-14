@@ -5,8 +5,8 @@ import path from "path"
  * graphify-report — read graph.json and produce Markdown summary + word deep-dive.
  *
  * Two modes:
- *   1. Summary only: graphify_report()
- *   2. Word deep-dive: graphify_report({ words: "planning,workflow" })
+ *   1. Summary only: graphify-report()
+ *   2. Word deep-dive: graphify-report({ words: "planning,workflow" })
  *
  * Delegates to the colocated Python script (graphify-report.py).
  * The script holds the pure analysis logic and is independently testable from the CLI.

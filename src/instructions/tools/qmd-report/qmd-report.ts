@@ -5,9 +5,9 @@ import path from "path"
  * qmd-report — search the project memory vault via QMD and return full file contents as Markdown.
  *
  * Usage:
- *   qmd_report({ query: "planning workflow" })
- *   qmd_report({ query: ["planning", "workflow"] })
- *   qmd_report({ query: "planning workflow", collection: "telamon", max_results: 5 })
+ *   qmd-report({ query: "planning workflow" })
+ *   qmd-report({ query: ["planning", "workflow"] })
+ *   qmd-report({ query: "planning workflow", collection: "telamon", max_results: 5 })
  *
  * Delegates to the colocated Python script (qmd-report.py).
  * The script holds the pure analysis logic and is independently testable from the CLI.
