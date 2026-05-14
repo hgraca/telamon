@@ -7,6 +7,7 @@ This document defines JSON schemas used by skill-creator.
 ## evals.json
 
 Defines evals for a skill. Located at `evals/evals.json` within skill directory.
+Uses `assertions` field (matching agentskills.io convention).
 
 ```json
 {
@@ -17,7 +18,7 @@ Defines evals for a skill. Located at `evals/evals.json` within skill directory.
       "prompt": "User's example prompt",
       "expected_output": "Description of expected result",
       "files": ["evals/files/sample1.pdf"],
-      "expectations": [
+      "assertions": [
         "The output includes X",
         "The skill used script Y"
       ]
@@ -32,7 +33,7 @@ Defines evals for a skill. Located at `evals/evals.json` within skill directory.
 - `evals[].prompt`: The task to execute
 - `evals[].expected_output`: Human-readable description of success
 - `evals[].files`: Optional list of input file paths (relative to skill root)
-- `evals[].expectations`: List of verifiable statements
+- `evals[].assertions`: List of verifiable statements (agentskills.io convention)
 
 ---
 

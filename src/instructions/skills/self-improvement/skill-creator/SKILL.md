@@ -63,39 +63,50 @@ Check available MCPs — if useful for research (searching docs, finding similar
 
 Based on user interview, fill in these components:
 
-- **name**: Skill identifier
-- **description**: When to trigger, what it does. Primary triggering mechanism — include both what skill does AND specific contexts for when to use. All "when to use" info goes here, not in body. Note: agents tend to "undertrigger" skills. To combat this, make descriptions a bit "pushy". Instead of "How to build simple fast dashboard to display internal data.", write "How to build simple fast dashboard to display internal data. Use this skill whenever user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if not explicitly asking for 'dashboard.'"
-- **compatibility**: Required tools, dependencies (optional, rarely needed)
+- **name**: Skill identifier. Must match parent directory name. Max 64 chars. Lowercase letters, numbers, and hyphens only. Must not start or end with hyphen. No consecutive hyphens.
+- **description**: When to trigger, what it does. Max 1024 chars. Primary triggering mechanism — include both what skill does AND specific contexts for when to use. All "when to use" info goes here, not in body. Note: agents tend to "undertrigger" skills. To combat this, make descriptions a bit "pushy". Instead of "How to build simple fast dashboard to display internal data.", write "How to build simple fast dashboard to display internal data. Use this skill whenever user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if not explicitly asking for 'dashboard.'"
+- **compatibility**: Required tools, dependencies (optional, 1-500 chars, rarely needed)
+- **license**: License name or reference to bundled license file (optional)
+- **metadata**: Arbitrary key-value mapping (optional, e.g. author, version)
+- **allowed-tools**: Space-separated pre-approved tools (optional, experimental)
 - **rest of skill**
 
 ### Skill Writing Guide
 
-#### Anatomy of a Skill
+#### Anatomy of a Skill (agentskills.io spec)
 
 ```
 skill-name/
 ├── SKILL.md (required)
 │   ├── YAML frontmatter (name, description required)
 │   └── Markdown instructions
-└── Bundled Resources (optional)
-    ├── scripts/    - Executable code for deterministic/repetitive tasks
-    ├── references/ - Docs loaded into context as needed
-    └── assets/     - Files used in output (templates, icons, fonts)
+├── scripts/    - Executable code for deterministic/repetitive tasks
+├── references/ - Docs loaded into context as needed
+└── assets/     - Files used in output (templates, icons, fonts)
 ```
+
+**SKILL.md frontmatter fields:**
+
+| Field           | Required | Constraints                                                                                       |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `name`          | Yes      | Max 64 chars. Lowercase, numbers, hyphens only. Must match parent dir name. No leading/trailing/consecutive hyphens. |
+| `description`   | Yes      | Max 1024 chars. Non-empty. Describes what skill does AND when to use it.                          |
+| `license`       | No       | License name or reference to bundled license file.                                                |
+| `compatibility` | No       | Max 500 chars. Environment requirements (product, packages, network access).                      |
+| `metadata`      | No       | Arbitrary key-value mapping.                                                                      |
+| `allowed-tools` | No       | Space-separated pre-approved tools. (Experimental)                                                |
 
 #### Progressive Disclosure
 
 Skills use a three-level loading system:
-1. **Metadata** (name + description) - Always in context (~100 words)
-2. **SKILL.md body** - In context whenever skill triggers (<500 lines ideal)
+1. **Metadata** (name + description) - Always in context (~100 tokens)
+2. **SKILL.md body** - In context whenever skill triggers (<500 lines, <5000 tokens recommended)
 3. **Bundled resources** - As needed (unlimited, scripts can execute without loading)
 
-These word counts are approximate and you can feel free to go longer if needed.
-
 **Key patterns:**
-- Keep SKILL.md under 500 lines; if you're approaching this limit, add an additional layer of hierarchy along with clear pointers about where the model using the skill should go next to follow up.
-- Reference files clearly from SKILL.md with guidance on when to read them
-- For large reference files (>300 lines), include a table of contents
+- Keep SKILL.md under 500 lines; if approaching this limit, add hierarchy with clear pointers about where to go next.
+- Reference files clearly from SKILL.md with guidance on when to read them.
+- For large reference files (>300 lines), include a table of contents.
 
 **Domain organization**: When a skill supports multiple domains/frameworks, organize by variant:
 ```
@@ -107,6 +118,29 @@ cloud-deploy/
     └── azure.md
 ```
 The agent reads only the relevant reference file.
+
+#### File References
+
+When referencing other files in your skill, use **relative paths from the skill root**:
+
+```markdown
+See [the reference guide](references/REFERENCE.md) for details.
+
+Run the extraction script:
+scripts/extract.py
+```
+
+Keep file references one level deep from SKILL.md. Avoid deeply nested reference chains.
+
+#### Validation
+
+After creating a skill, validate it with the [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) tool:
+
+```bash
+skills-ref validate ./my-skill
+```
+
+This checks that SKILL.md frontmatter is valid and follows all naming conventions.
 
 #### Principle of Lack of Surprise
 
@@ -138,6 +172,105 @@ Output: feat(auth): implement JWT-based authentication
 
 Explain to model why things are important instead of heavy-handed MUSTs. Use theory of mind, make skill general not super-narrow to specific examples. Start with draft, look at it with fresh eyes, improve.
 
+### Best Practices (from agentskills.io)
+
+#### Start from real expertise
+
+Effective skills are grounded in real domain-specific context, not generic LLM knowledge. Two approaches:
+
+**Extract from a hands-on task**: Complete a real task with an agent, providing context and corrections. Then extract the reusable pattern. Pay attention to steps that worked, corrections you made, input/output formats, and project-specific context you provided.
+
+**Synthesize from existing project artifacts**: Feed internal docs, runbooks, API specs, code review comments, and real failure cases into the creation process. Project-specific material beats generic references.
+
+#### Spending context wisely
+
+Once a skill activates, its full body loads into context. Every token competes for attention.
+
+**Add what the agent lacks, omit what it knows**: Focus on project-specific conventions, domain-specific procedures, non-obvious edge cases, and particular tools/APIs. Don't explain what a PDF is or how HTTP works.
+
+**Design coherent units**: Scope skills like functions — encapsulate a coherent unit of work that composes well. Too narrow forces multiple skills to load. Too broad makes activation imprecise.
+
+**Aim for moderate detail**: Concise, stepwise guidance with a working example outperforms exhaustive documentation. When covering every edge case, consider whether most are better handled by the agent's own judgment.
+
+#### Calibrating control
+
+Match specificity to fragility:
+
+- **Give freedom** when multiple approaches are valid. Explain *why* — an agent that understands purpose makes better context-dependent decisions.
+- **Be prescriptive** when operations are fragile, consistency matters, or a specific sequence must be followed.
+
+**Provide defaults, not menus**: Pick a default tool/approach and mention alternatives briefly rather than presenting equal options.
+
+**Favor procedures over declarations**: Teach the agent *how to approach* a class of problems, not *what to produce* for one instance. A method for any analytical query beats a specific SQL query.
+
+#### Patterns for effective instructions
+
+**Gotchas sections**: Highest-value content — concrete corrections to mistakes the agent will make without being told. Environment-specific facts that defy reasonable assumptions. When an agent makes a mistake you correct, add the correction here.
+
+```markdown
+## Gotchas
+- The `users` table uses soft deletes. Queries must include `WHERE deleted_at IS NULL`.
+- The user ID is `user_id` in DB, `uid` in auth service, `accountId` in billing API.
+```
+
+**Templates for output format**: Provide a template rather than describing format in prose. Agents pattern-match well against concrete structures.
+
+**Checklists for multi-step workflows**: Explicit checklists help the agent track progress and avoid skipping steps.
+
+```markdown
+## Form processing workflow
+Progress:
+- [ ] Step 1: Analyze the form (run `scripts/analyze_form.py`)
+- [ ] Step 2: Create field mapping (edit `fields.json`)
+- [ ] Step 3: Validate mapping (run `scripts/validate_fields.py`)
+- [ ] Step 4: Fill the form (run `scripts/fill_form.py`)
+- [ ] Step 5: Verify output (run `scripts/verify_output.py`)
+```
+
+**Validation loops**: Do the work, run a validator, fix issues, repeat until validation passes.
+
+**Plan-validate-execute**: For batch/destructive operations, create an intermediate plan, validate against a source of truth, then execute.
+
+**Bundling reusable scripts**: If the agent independently reinvents the same logic each run, write a tested script once and bundle it in `scripts/`.
+
+### Scripts Guidance (from agentskills.io)
+
+#### One-off commands
+
+When an existing package does what you need, reference it directly without a `scripts/` directory:
+
+| Runner     | Example                                             | Ships with |
+|------------|-----------------------------------------------------|------------|
+| `uvx`      | `uvx ruff@0.8.0 check .`                            | uv         |
+| `npx`      | `npx eslint@9 --fix .`                              | Node.js    |
+| `pipx`     | `pipx run 'black==24.10.0' .`                       | pipx       |
+| `bunx`     | `bunx eslint@9 --fix .`                             | Bun        |
+| `deno run` | `deno run npm:create-vite@6 my-app`                 | Deno       |
+| `go run`   | `go run golang.org/x/tools/cmd/goimports@v0.28.0 .` | Go         |
+
+**Tips**: Pin versions for reproducibility. State prerequisites in SKILL.md. Move complex commands into scripts.
+
+#### Self-contained scripts
+
+Bundle reusable logic in `scripts/` with inline dependency declarations:
+
+- **Python (PEP 723)**: Declare deps in `# /// script` TOML block. Run with `uv run scripts/extract.py`.
+- **Deno**: Use `npm:` import specifiers. Run with `deno run scripts/extract.ts`.
+- **Bun**: Pin versions in import path. Run with `bun run scripts/extract.ts`.
+- **Ruby**: Use `bundler/inline`. Run with `ruby scripts/extract.rb`.
+
+#### Designing scripts for agentic use
+
+- **Avoid interactive prompts** — agents cannot respond to TTY prompts. Accept all input via CLI flags, env vars, or stdin.
+- **Document usage with `--help`** — primary way agent learns your script's interface.
+- **Write helpful error messages** — say what went wrong, what was expected, what to try.
+- **Use structured output** — JSON, CSV over free-form text. Send data to stdout, diagnostics to stderr.
+- **Idempotency** — "create if not exists" safer than "create and fail on duplicate."
+- **Dry-run support** — `--dry-run` flag for destructive operations.
+- **Meaningful exit codes** — distinct codes for different failure types.
+- **Safe defaults** — destructive operations should require explicit confirmation flags.
+- **Predictable output size** — default to summary, support `--offset` or `--output` flags.
+
 ### Test Cases
 
 After writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
@@ -159,6 +292,14 @@ Save test cases to `evals/evals.json`. Don't write assertions yet — just the p
 ```
 
 See `references/schemas.md` for the full schema (including the `assertions` field, which you'll add later).
+
+**Tips for good test prompts:**
+- Vary phrasing, level of detail, and formality
+- Cover edge cases (malformed input, unusual requests, ambiguous instructions)
+- Use realistic context — file paths, column names, personal context
+- Avoid vague prompts like "process this data"
+
+---
 
 ## Running and evaluating test cases
 
@@ -334,6 +475,19 @@ Optional, requires subagents, most users won't need it. Human review loop usuall
 
 The description field in SKILL.md frontmatter is the primary mechanism that determines whether the agent invokes a skill. After creating or improving a skill, offer to optimize the description for better triggering accuracy.
 
+### How skill triggering works
+
+Agents use progressive disclosure. At startup, they load only `name` and `description` of each skill. When a user's task matches a description, the agent reads the full SKILL.md. The description carries the entire burden of triggering.
+
+Important nuance: agents typically only consult skills for tasks requiring knowledge beyond what they can handle alone. Simple one-step requests may not trigger even with perfect description match. Complex, multi-step, or specialized queries reliably trigger when description matches.
+
+### Writing effective descriptions
+
+- **Use imperative phrasing**: "Use this skill when..." rather than "This skill does..."
+- **Focus on user intent, not implementation**: Describe what user is trying to achieve.
+- **Err on the side of being pushy**: Explicitly list contexts where skill applies, including cases where user doesn't name the domain directly.
+- **Keep it concise**: A few sentences to a short paragraph. Max 1024 chars.
+
 ### Step 1: Generate trigger eval queries
 
 Create 20 eval queries — mix of should-trigger and should-not-trigger. Save as JSON:
@@ -392,12 +546,6 @@ Use model ID from system prompt (powering current session) so triggering test ma
 While running, periodically tail output to give user updates on iteration and scores.
 
 Handles full optimization loop automatically. Splits eval set into 60% train, 40% held-out test, evaluates current description (running each query 3 times for reliable trigger rate), calls the agent to propose improvements based on failures. Re-evaluates each new description on both train and test, iterating up to 5 times. When done, opens HTML report in browser with results per iteration and returns JSON with `best_description` — selected by test score rather than train score to avoid overfitting.
-
-### How skill triggering works
-
-Skills appear in the agent's `available_skills` list with name + description. The agent decides whether to consult skill based on description. Important: the agent only consults skills for tasks it can't easily handle alone — simple one-step queries like "read this PDF" may not trigger even if description matches perfectly, because the agent handles them directly with basic tools. Complex, multi-step, or specialized queries reliably trigger skills when description matches.
-
-This means eval queries should be substantive enough that the agent would actually benefit from consulting a skill. Simple queries like "read file X" are poor test cases — won't trigger regardless of description quality.
 
 ### Step 4: Apply result
 
