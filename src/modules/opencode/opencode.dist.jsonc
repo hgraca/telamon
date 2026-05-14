@@ -167,23 +167,10 @@
       "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
       "enabled": true
     },
-    "git": {
-      "type": "local",
-      "command": ["uvx", "mcp-server-git"],
-      "enabled": true
-    },
     "ast-grep": {
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],
       "enabled": true
-    },
-    "qmd": {
-      "type": "local",
-      "command": ["qmd", "mcp"],
-      "enabled": true,
-      "environment": {
-        "QMD_LLAMA_GPU": "true"
-      }
     }
   }
 }

@@ -27,9 +27,9 @@ Selects right search tool for question. Different tools excel at different queri
 | File path lookup by pattern                            | `Glob`                  | Fast glob matching (`**/*.ts`, `src/**/Handler.php`)   |
 | Exact string or regex in file contents                 | `Grep`                  | Regex search across files, filterable by extension     |
 | AST structural pattern matching                        | `ast-grep`              | Matches code by AST structure, not text                |
-| Cross-file relationships, architecture                 | `graphify` (MCP)        | Knowledge graph with communities, god nodes, paths     |
-| Full directory context for audit/analysis              | `repomix` (MCP)         | Packs files into single structured dump                |
-| Markdown notes/docs in memory vault                    | `qmd_*` (MCP)           | Hybrid lex+vec+rerank over indexed `.md` collections   |
+| Cross-file relationships, architecture                 | `graphify` (CLI+MCP)    | Knowledge graph with communities, god nodes, paths     |
+| Full directory context for audit/analysis              | `repomix` (CLI)         | Packs files into single structured dump                |
+| Markdown notes/docs in memory vault                    | `qmd` (CLI)             | Hybrid lex+vec+rerank over indexed `.md` collections   |
 
 ## Detailed Guidance
 
@@ -55,7 +55,7 @@ Semantic + keyword hybrid search. Best general-purpose code finder.
 - Filter by `directory` or `fileType` when you know area
 - Use `codebase_peek` first when you only need to know WHERE code is, then `Read` to get content
 
-### graphify (MCP)
+### graphify (CLI + MCP)
 
 Knowledge graph with cross-file relationships, community detection, and graph traversal.
 
@@ -66,21 +66,28 @@ Knowledge graph with cross-file relationships, community detection, and graph tr
 - Refactoring spanning multiple files
 - Searching mixed content (code + docs + PDFs + recordings)
 
-**Tools:**
-- `graphify_query_graph` — BFS/DFS traversal from concept
+**CLI tools:**
+- `graphify query "<question>"` — BFS/DFS traversal from concept
+- `graphify explain "<node>"` — full details for specific node
+- `graphify path "<src>" "<dst>"` — shortest path between two concepts
+- `graphify-report` (custom tool) — god nodes, communities, graph stats
+
+**MCP tools** (for structured graph introspection):
 - `graphify_get_node` — full details for specific node
 - `graphify_get_neighbors` — direct connections of node
 - `graphify_get_community` — all nodes in community cluster
 - `graphify_god_nodes` — most-connected nodes (core abstractions)
+- `graphify_graph_stats` — summary statistics
 - `graphify_shortest_path` — path between two concepts
 
 **Tips:**
-- Use BFS (`mode: bfs`) for broad context ("what connects to X?")
-- Use DFS (`mode: dfs`) to trace specific dependency chain
-- Check `god_nodes` first when exploring unfamiliar architecture
-- Set `token_budget` to control output size
+- Use `graphify query` (BFS default) for broad context ("what connects to X?")
+- Use `graphify query --dfs` to trace specific dependency chain
+- Run `graphify-report` first when exploring unfamiliar architecture (god nodes, stats)
+- Use `--budget N` to cap output at N tokens
+- For structured queries (neighbors, community membership), use MCP tools
 
-### repomix (MCP)
+### repomix (CLI)
 
 Packs directory contents into single structured file for full-context analysis.
 
@@ -92,15 +99,16 @@ Packs directory contents into single structured file for full-context analysis.
 - Need complete module context for review or refactoring plan
 
 **Tools:**
-- `repomix_pack_codebase` — pack local directory
-- `repomix_pack_remote_repository` — pack GitHub repo
-- `repomix_grep_repomix_output` — search within packed output
-- `repomix_read_repomix_output` — read sections of packed output
+- `repomix pack <dir>` — pack local directory (outputs XML/MD/JSON/plain)
+- `repomix pack --remote <url>` — pack GitHub repo
+- `repomix pack --include "src/Auth/**"` — filter by patterns
+- `repomix pack --compress` — Tree-sitter compression (~70% token savings)
 
 **Tips:**
-- Use `includePatterns` to focus on relevant files (`"src/Auth/**"`)
-- Use `compress: true` for large repos (Tree-sitter compression, ~70% token savings)
+- Use `--include` to focus on relevant files (`"src/Auth/**"`)
+- Use `--compress` for large repos (Tree-sitter compression, ~70% token savings)
 - Never use both repomix AND codebase-index for same files — wastes tokens
+- Output to file: `repomix pack <dir> --output output.xml` then read with `Read`
 
 ### Glob
 
@@ -130,31 +138,35 @@ Regex content search across files.
 - Use `include` to narrow: `"*.php"`, `"*.{ts,tsx}"`
 - Returns file paths + line numbers, sorted by modification time
 
-### qmd (MCP)
+### qmd (CLI)
 
 Hybrid markdown search over memory vault — combines BM25 keyword (`lex`), semantic vector (`vec`), and hypothetical-document (`hyde`) search with LLM reranking.
 
 **Use when:**
 - Searching `.md` content under `.ai/telamon/memory/` (brain notes, ADRs, PDRs, gotchas, patterns, work artefacts, decisions, retrospectives)
 - Looking up past lessons, decisions, or context from vault
-- Reading vault files by canonical path (`qmd_get` works on gitignored `.ai/` paths where `Glob` does not)
+- Reading vault files by canonical path (`qmd get` works on gitignored `.ai/` paths where `Glob` does not)
 - Concept search across notes ("how did we decide X?", "what's auth pattern?")
 
 **Tools:**
-- `qmd_query` — hybrid lex+vec+hyde search across collections
-- `qmd_get` — read single document by path or docid
-- `qmd_multi_get` — batch fetch by glob or comma-separated paths
-- `qmd_status` — list indexed collections and health
+- `qmd query "question"` — hybrid search with auto-expansion + reranking
+- `qmd query $'lex: ...\nvec: ...'` — structured query document
+- `qmd search "keywords"` — BM25 only (no LLM, faster)
+- `qmd get <path>` — read single document by path
+- `qmd multi-get <pattern>` — batch fetch by glob or comma-separated paths
+- `qmd status` — list indexed collections and health
 
 **Indexed collections:**
 - `telamon` — entire memory vault (brain, work, project-rules, reference, thinking, bootstrap)
 - Root: `<project>/.ai/telamon/memory` (symlink into `storage/projects-memory/<project>/`)
 
 **Tips:**
-- For exact term/path lookup, use `lex` only: `[{ "type": "lex", "query": "PDRs gotcha" }]`
-- For concept search, combine `lex` + `vec` for best recall
-- Filter by `collections: ["telamon"]` to scope to this project's vault
-- Prefer `qmd_*` over `Glob`/`Grep` for ANY `.md` content search inside `.ai/telamon/memory/` — qmd's index is canonical view of vault, and `Glob`/`Grep` may miss gitignored vault paths
+- For exact term/path lookup: `qmd search "PDRs gotcha"`
+- For concept search: `qmd query "how did we decide X?"`
+- For structured queries: `qmd query $'lex: PDRs\ngotcha\nvec: what patterns do we have for auth?'`
+- Use `--json --explain` to see score traces: `qmd query --json --explain "question"`
+- **Set env vars** when running qmd CLI directly: `XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "..."` — redirects cache to Telamon storage and enables GPU acceleration
+- Prefer `qmd` over `Glob`/`Grep` for ANY `.md` content search inside `.ai/telamon/memory/` — qmd's index is canonical view of vault, and `Glob`/`Grep` may miss gitignored vault paths
 - For non-vault markdown (e.g. project-root `README.md`, `docs/**/*.md`), `Glob`/`Grep`/`Read` are still right tools — qmd does not index those
 
 ### ast-grep
@@ -173,7 +185,7 @@ AST-based structural pattern matching.
 
 ## Decision Flowchart
 
-1. **Searching `.md` content under `.ai/telamon/memory/`?** → `qmd_query` / `qmd_get`
+1. **Searching `.md` content under `.ai/telamon/memory/`?** → `qmd query` / `qmd get`
 2. **Know exact file path?** → `Read`
 3. **Know file name pattern?** → `Glob`
 4. **Know exact string to find?** → `Grep`
@@ -181,5 +193,5 @@ AST-based structural pattern matching.
 6. **Need to find code by meaning?** → `codebase_search` / `codebase_peek`
 7. **Need to find definition?** → `implementation_lookup`
 8. **Need callers/callees?** → `call_graph`
-9. **Need cross-file architecture?** → `graphify`
-10. **Need full directory context?** → `repomix`
+9. **Need cross-file architecture?** → `graphify query` / `graphify-report` / MCP tools
+10. **Need full directory context?** → `repomix pack`

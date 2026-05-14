@@ -5,7 +5,7 @@ description: "Pack directory contents into single compressed context for LLM con
 
 # Repomix
 
-Packs directories or file sets into structured XML with Tree-sitter compression (~70% token reduction vs reading files individually). Runs as MCP server via `npx -y repomix --mcp`.
+Packs directories or file sets into structured XML with Tree-sitter compression (~70% token reduction vs reading files individually). Runs as CLI via `repomix pack`.
 
 ## When to Use
 
@@ -20,16 +20,17 @@ Packs directories or file sets into structured XML with Tree-sitter compression 
 
 **NEVER use both Repomix AND codebase-index for same files** — duplicate context wastes tokens.
 
-## MCP Tools
+## CLI Usage
 
-Repomix MCP server exposes tools for:
-
-- **Pack directory** — compress directory (or file list) into XML context
-- **File tree** — read directory structure without file contents
-- **Search** — search within packed codebase
-
-Verify exact tool names via Repomix docs: https://github.com/yamadashy/repomix  
-Or inspect what `npx -y repomix --mcp` exposes at runtime.
+```bash
+repomix pack <directory>                          # Pack directory, output XML to stdout
+repomix pack <directory> --output output.xml      # Write to file
+repomix pack <directory> --style markdown          # Markdown output
+repomix pack <directory> --style json              # JSON output
+repomix pack <directory> --compress                # Tree-sitter compression (~70% token savings)
+repomix pack <directory> --include "src/Auth/**"   # Filter by include patterns
+repomix pack --remote <github-url>                 # Pack remote GitHub repo
+```
 
 ## Output Format
 

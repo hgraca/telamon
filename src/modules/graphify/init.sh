@@ -95,8 +95,8 @@ else
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}⏱${TEXT_CLEAR}  Duration         : ${DURATION}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}Available tools:${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  query_graph · get_node · get_neighbors${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  get_community · god_nodes · shortest_path${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  graphify query · graphify path · graphify explain${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  graphify-report (custom tool)${TEXT_CLEAR}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}└───────────────────────────────────────────────────────┘${TEXT_CLEAR}"
   fi
   rm -f "${TMPOUT}"

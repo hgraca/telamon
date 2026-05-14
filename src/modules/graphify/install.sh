@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Install graphify (codebase knowledge graph tool) via uv,
-# and register its OpenCode plugin in storage/opencode.jsonc.
+# register its OpenCode plugin and MCP server in storage/opencode.jsonc.
+#
+# The MCP server exposes structured graph introspection tools (get_node,
+# get_neighbors, get_community, god_nodes, graph_stats, shortest_path)
+# that have no CLI equivalent. The CLI handles query/path/explain.
 
 set -euo pipefail
 
@@ -40,6 +44,8 @@ log "Stored TELAMON_ROOT: ${TELAMON_ROOT}"
 opencode.upsert_plugin ".opencode/plugins/telamon/graphify.js"
 
 # ── Register MCP server ──────────────────────────────────────────────────────
+# Exposes structured graph introspection tools (get_node, get_neighbors,
+# get_community, god_nodes, graph_stats, shortest_path) that have no CLI equivalent.
 opencode.upsert_mcp "graphify" '{
   "type": "local",
   "command": ["bash", ".opencode/graphify-serve.sh", "graphify-out/graph.json"],

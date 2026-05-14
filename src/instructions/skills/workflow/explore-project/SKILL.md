@@ -31,12 +31,14 @@ verify against codebase (source of truth). Note assertions to confirm or refute 
 Build mental model by reading files in this order. Stop expanding into folder once its purpose clear —
 exhaustive reads wasteful.
 
-0. **Knowledge graph (if available)**: if `graphify` MCP tools present, query graph first for fast
-   architectural overview — compresses relationship-heavy parts into few tool calls.
-   Run `graphify_graph_stats` to confirm graph populated, then `graphify_god_nodes` to surface core
-   abstractions, and `graphify_query_graph` for any concept-level question (e.g. "entry points", "data stores",
-   "auth"). Treat graph output as hypothesis layer — still verify against codebase. If `graphify`
-   unavailable or graph empty/stale, skip and proceed with file-based survey. See `telamon.graphify`.
+0. **Knowledge graph (if available)**: if `graphify-out/graph.json` exists, query graph first for fast
+   architectural overview — compresses relationship-heavy parts into few calls.
+   Run `graphify-report` to confirm graph populated and surface god nodes, communities, and stats.
+   Then use `graphify query "<question>"` (CLI) or MCP tools (`graphify_god_nodes`,
+   `graphify_graph_stats`, `graphify_query_graph`) for concept-level questions (e.g. "entry points",
+   "data stores", "auth"). Treat graph output as hypothesis layer — still verify against codebase.
+   If `graphify` unavailable or graph empty/stale, skip and proceed with file-based survey.
+   See `telamon.graphify`.
 1. **Top-level orientation**: `README.md`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `package.json` / `composer.json` /
    `pyproject.toml` / `Cargo.toml`, `.gitignore`, `docker-compose.yml`, `.env.dist`.
 2. **Directory shape**: list root and one level deep. Identify which folders hold source, tests, config,

@@ -11,7 +11,7 @@
 #   storage/qmd/models/        — GGUF model cache (~2 GB, downloaded on first use)
 #
 # The absolute storage path is written to storage/secrets/qmd-cache-home so that
-# opencode.jsonc can inject it as XDG_CACHE_HOME for the `qmd mcp` server.
+# the CLI uses it as XDG_CACHE_HOME (set via environment in agent sessions).
 #
 # Models auto-downloaded on first use (~2 GB total):
 #   - 300 MB  embeddinggemma   (embedding)
@@ -36,10 +36,8 @@ else
   skip "QMD ($(XDG_CACHE_HOME="${TELAMON_ROOT}/storage" qmd --version 2>/dev/null || echo 'installed'))"
 fi
 
-# ── Write storage path to secrets so opencode.jsonc can reference it ──────────
-# opencode resolves {file:.ai/telamon/secrets/qmd-cache-home} relative to the project
-# root (where opencode.jsonc is symlinked). The symlink .ai/telamon/secrets →
-# <telamon-root>/storage/secrets makes this file visible from every project.
+# ── Write storage path to secrets for CLI XDG_CACHE_HOME ──────────────────────
+# Agents set XDG_CACHE_HOME from this file when running qmd CLI commands.
 QMD_CACHE_SECRET="${TELAMON_ROOT}/storage/secrets/qmd-cache-home"
 mkdir -p "${TELAMON_ROOT}/storage/secrets"
 
@@ -92,15 +90,6 @@ else
   QMD_GPU_VALUE="false"
   log "GPU acceleration: disabled (no GPU detected)"
 fi
-
-# ── Register QMD MCP server in opencode.jsonc ─────────────────────────────────
-# The {file:.ai/telamon/secrets/qmd-cache-home} reference is resolved by opencode
-# relative to the project root (where opencode.jsonc is symlinked). The symlink
-# .ai/telamon/secrets → <telamon-root>/storage/secrets makes the secret visible there.
-step "Registering QMD MCP in storage/opencode.jsonc ..."
-opencode.upsert_mcp "qmd" \
-  "{\"type\":\"local\",\"command\":[\"qmd\",\"mcp\"],\"enabled\":true,\"environment\":{\"XDG_CACHE_HOME\":\"{file:.ai/telamon/secrets/qmd-cache-home}\",\"QMD_LLAMA_GPU\":\"${QMD_GPU_VALUE}\"}}"
-log "QMD MCP registered"
 
 # ── Pre-download models in background (~2 GB) ────────────────────────────────
 # Running a dummy query triggers all 3 model downloads (query expansion,

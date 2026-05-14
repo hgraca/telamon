@@ -6,7 +6,7 @@ compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobi
 metadata:
   author: tobi
   version: "2.0.0"
-allowed-tools: Bash(qmd:*), mcp__qmd__*
+allowed-tools: Bash(qmd:*)
 ---
 
 # QMD - Quick Markdown Search
@@ -17,17 +17,32 @@ Local search engine for markdown content.
 
 !`qmd status 2>/dev/null || echo "Not installed: npm install -g @tobilu/qmd"`
 
-## MCP: `query`
+## CLI Usage
 
-```json
-{
-  "searches": [
-    { "type": "lex", "query": "CAP theorem consistency" },
-    { "type": "vec", "query": "tradeoff between consistency and availability" }
-  ],
-  "collections": ["docs"],
-  "limit": 10
-}
+Set environment before running qmd commands to use Telamon's storage and GPU:
+
+```bash
+export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
+export QMD_LLAMA_GPU=true
+
+qmd query "CAP theorem consistency"              # Auto-expand + rerank
+qmd query $'lex: CAP theorem\nvec: tradeoff between consistency and availability'  # Structured
+qmd search "CAP theorem"                          # BM25 only (no LLM)
+qmd get "#abc123"                                 # By docid
+qmd multi-get "journals/2026-*.md" -l 40          # Batch pull snippets
+qmd status                                        # Collections and health
+```
+
+Or inline for one-off commands:
+
+```bash
+XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "question"
+```
+
+Or inline for one-off commands:
+
+```bash
+XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "question"
 ```
 
 ### Query Types
@@ -105,35 +120,6 @@ Note: `-term` only works in lex queries, not vec/hyde.
 ```
 
 Omit to search all collections.
-
-## Other MCP Tools
-
-| Tool        | Use                              |
-|-------------|----------------------------------|
-| `get`       | Retrieve doc by path or `#docid` |
-| `multi_get` | Retrieve multiple by glob/list   |
-| `status`    | Collections and health           |
-
-## CLI
-
-```bash
-qmd query "question"              # Auto-expand + rerank
-qmd query $'lex: X\nvec: Y'       # Structured
-qmd query $'expand: question'     # Explicit expand
-qmd query --json --explain "q"    # Show score traces (RRF + rerank blend)
-qmd search "keywords"             # BM25 only (no LLM)
-qmd get "#abc123"                 # By docid
-qmd multi-get "journals/2026-*.md" -l 40  # Batch pull snippets by glob
-qmd multi-get notes/foo.md,notes/bar.md   # Comma-separated list, preserves order
-```
-
-## HTTP API
-
-```bash
-curl -X POST http://localhost:8181/query \
-  -H "Content-Type: application/json" \
-  -d '{"searches": [{"type": "lex", "query": "test"}]}'
-```
 
 ## Setup
 

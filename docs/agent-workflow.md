@@ -92,8 +92,8 @@ Before any user request, Telamon runs a mandatory start sequence.
 | looks like, 50-100 words)                                     |
 |---------------------------------------------------------------|
 | Initialize: ensure QMD index is up to date                    |
-| Query: qmd_query with searches array                          |
-| Retrieve: qmd_get by path or docid                            |
+| Query: qmd query "question"                                   |
+| Retrieve: qmd get <path>                                      |
 |---------------------------------------------------------------|
 | Used later for: vault semantic search ("did we ever..."),     |
 | specs, ADRs, requirements lookup                              |

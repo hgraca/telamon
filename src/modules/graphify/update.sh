@@ -24,6 +24,35 @@ uv tool upgrade graphifyy 2>/dev/null \
 step "Restoring MCP dependency..."
 uv tool install graphifyy --with mcp --force 2>/dev/null || true
 
+# ── Remove obsolete graphify scheduled jobs (created by old schedule.sh) ─────
+TELAMON_ROOT="${TELAMON_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
+for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
+  [[ -d "${storage_dir}" ]] || continue
+  [[ -f "${storage_dir}.project-path" ]] || continue
+  proj="$(cat "${storage_dir}.project-path")"
+  PROJECT_NAME=$(basename "${proj}")
+  JOB_NAME="graphify-update-${PROJECT_NAME}"
+
+  if [[ "$(uname)" == "Linux" ]]; then
+    TIMER_FILE="${HOME}/.config/systemd/user/${JOB_NAME}.timer"
+    SERVICE_FILE="${HOME}/.config/systemd/user/${JOB_NAME}.service"
+    if [[ -f "${TIMER_FILE}" || -f "${SERVICE_FILE}" ]]; then
+      systemctl --user stop "${JOB_NAME}.timer" 2>/dev/null || true
+      systemctl --user disable "${JOB_NAME}.timer" 2>/dev/null || true
+      rm -f "${TIMER_FILE}" "${SERVICE_FILE}"
+      systemctl --user daemon-reload 2>/dev/null || true
+      log "Removed obsolete systemd timer: ${JOB_NAME}"
+    fi
+  elif [[ "$(uname)" == "Darwin" ]]; then
+    PLIST_FILE="${HOME}/Library/LaunchAgents/com.telamon.${JOB_NAME}.plist"
+    if [[ -f "${PLIST_FILE}" ]]; then
+      launchctl unload "${PLIST_FILE}" 2>/dev/null || true
+      rm -f "${PLIST_FILE}"
+      log "Removed obsolete launchd job: com.telamon.${JOB_NAME}"
+    fi
+  fi
+done
+
 # ── Fix stale graphify-serve.sh symlinks (legacy install/tools/modules path migration) ──
 TELAMON_ROOT="${TELAMON_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
 CORRECT_TARGET="${TELAMON_ROOT}/src/modules/graphify/serve-wrapper.sh"
@@ -51,34 +80,6 @@ for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
     if [[ "${_target}" == *"${STALE_PATTERN}"* ]]; then
       ln -sf "${CORRECT_TARGET}" "${_proj_link}"
       log "Fixed stale .opencode/graphify-serve.sh symlink ($(basename "${proj}"))"
-    fi
-  fi
-done
-
-# ── Remove obsolete graphify scheduled jobs (created by old schedule.sh) ─────
-for storage_dir in "${TELAMON_ROOT}/storage/graphify"/*/; do
-  [[ -d "${storage_dir}" ]] || continue
-  [[ -f "${storage_dir}.project-path" ]] || continue
-  proj="$(cat "${storage_dir}.project-path")"
-  PROJECT_NAME=$(basename "${proj}")
-  JOB_NAME="graphify-update-${PROJECT_NAME}"
-
-  if [[ "$(uname)" == "Linux" ]]; then
-    TIMER_FILE="${HOME}/.config/systemd/user/${JOB_NAME}.timer"
-    SERVICE_FILE="${HOME}/.config/systemd/user/${JOB_NAME}.service"
-    if [[ -f "${TIMER_FILE}" || -f "${SERVICE_FILE}" ]]; then
-      systemctl --user stop "${JOB_NAME}.timer" 2>/dev/null || true
-      systemctl --user disable "${JOB_NAME}.timer" 2>/dev/null || true
-      rm -f "${TIMER_FILE}" "${SERVICE_FILE}"
-      systemctl --user daemon-reload 2>/dev/null || true
-      log "Removed obsolete systemd timer: ${JOB_NAME}"
-    fi
-  elif [[ "$(uname)" == "Darwin" ]]; then
-    PLIST_FILE="${HOME}/Library/LaunchAgents/com.telamon.${JOB_NAME}.plist"
-    if [[ -f "${PLIST_FILE}" ]]; then
-      launchctl unload "${PLIST_FILE}" 2>/dev/null || true
-      rm -f "${PLIST_FILE}"
-      log "Removed obsolete launchd job: com.telamon.${JOB_NAME}"
     fi
   fi
 done

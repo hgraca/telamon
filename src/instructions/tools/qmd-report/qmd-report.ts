@@ -60,7 +60,9 @@ export default tool({
       cmd.push("--query", q)
     }
 
-    const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
+    // Pass TELAMON_ROOT so the Python script can find the qmd cache path
+    const env = { ...process.env }
+    const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"], env })
     const stdout = await new Response(proc.stdout).text()
     const stderr = await new Response(proc.stderr).text()
     const exitCode = await proc.exited

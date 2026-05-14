@@ -15,11 +15,34 @@ import os
 import shutil
 
 
+def _resolve_telamon_root():
+    """Resolve TELAMON_ROOT from env or secrets file."""
+    root = os.environ.get("TELAMON_ROOT", "")
+    if root:
+        return root
+    # Fallback: try to read from secrets file relative to this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Walk up to find telamon root (src/instructions/tools/qmd-report/ -> ../../..)
+    candidate = os.path.abspath(os.path.join(script_dir, "..", "..", ".."))
+    secrets_file = os.path.join(candidate, "storage", "secrets", "telamon-root")
+    if os.path.isfile(secrets_file):
+        with open(secrets_file) as f:
+            return f.read().strip()
+    return ""
+
+
 def run_qmd(args):
     """Run qmd CLI and return stdout. Returns None on failure."""
     qmd_path = shutil.which("qmd")
     if not qmd_path:
         return None, "qmd CLI not found. Install with: npm install -g @tobilu/qmd"
+
+    # Set environment for QMD: redirect cache to Telamon storage, enable GPU
+    env = os.environ.copy()
+    telamon_root = _resolve_telamon_root()
+    if telamon_root:
+        env["XDG_CACHE_HOME"] = os.path.join(telamon_root, "storage")
+    env.setdefault("QMD_LLAMA_GPU", "true")
 
     try:
         result = subprocess.run(
@@ -27,6 +50,7 @@ def run_qmd(args):
             capture_output=True,
             text=True,
             timeout=30,
+            env=env,
         )
         if result.returncode != 0:
             return None, result.stderr.strip() or result.stdout.strip()
