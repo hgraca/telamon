@@ -42,6 +42,7 @@ Commands:
   module list            Show all registered modules
   module sync            Re-wire all modules into all initialized projects
   submodule              Deprecated alias for 'module' — use 'telamon module' instead
+  tool <name> [args]     Run a Telamon tool script (e.g. graphify-report, qmd-report)
   uninstall              Completely remove Telamon
   help                   Show this help
 EOF
@@ -92,6 +93,33 @@ case "${CMD}" in
     esac
     ;;
 
+  tool)
+    shift
+    TOOL_NAME="${1:-}"
+    if [[ -z "${TOOL_NAME}" ]]; then
+      echo "Usage: telamon tool <name> [args]" >&2
+      echo "Available tools:" >&2
+      for f in "${TELAMON_ROOT}/src/instructions/tools/"*/; do
+        TOOL_DIR="$(basename "$f")"
+        TOOL_SH="${f}${TOOL_DIR}.sh"
+        [[ -x "${TOOL_SH}" ]] && echo "  ${TOOL_DIR}" >&2
+      done
+      exit 1
+    fi
+    TOOL_SCRIPT="${TELAMON_ROOT}/src/instructions/tools/${TOOL_NAME}/${TOOL_NAME}.sh"
+    if [[ ! -x "${TOOL_SCRIPT}" ]]; then
+      echo "Error: unknown tool '${TOOL_NAME}'" >&2
+      echo "Available tools:" >&2
+      for f in "${TELAMON_ROOT}/src/instructions/tools/"*/; do
+        TOOL_DIR="$(basename "$f")"
+        TOOL_SH="${f}${TOOL_DIR}.sh"
+        [[ -x "${TOOL_SH}" ]] && echo "  ${TOOL_DIR}" >&2
+      done
+      exit 1
+    fi
+    shift
+    exec "${TOOL_SCRIPT}" "$@"
+    ;;
   uninstall) make -C "${TELAMON_ROOT}" uninstall ;;
   init|reset|purge)
     PROJ="${2:-.}"
