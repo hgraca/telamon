@@ -4,7 +4,9 @@
 Usage:
   python3 qmd-report.py --query "planning workflow"
   python3 qmd-report.py --query "planning" --query "workflow"
-  python3 qmd-report.py --query "planning workflow" --collection telamon --max-results 5
+  python3 qmd-report.py --query "planning workflow" --collection my-project --max-results 5
+  # Collection defaults to "telamon" if not specified (overridden by TS wrapper which
+  # resolves the project name from .ai/telamon/telamon.jsonc)
 
 Output: Markdown with search summary and full file contents for each match.
 """

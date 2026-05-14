@@ -1,5 +1,6 @@
 import { tool } from "@opencode-ai/plugin"
 import path from "path"
+import fs from "fs"
 
 /**
  * qmd-report — search the project memory vault via QMD and return full file contents as Markdown.
@@ -7,10 +8,10 @@ import path from "path"
  * Usage:
  *   qmd-report({ query: "planning workflow" })
  *   qmd-report({ query: ["planning", "workflow"] })
- *   qmd-report({ query: "planning workflow", collection: "telamon", max_results: 5 })
+ *   qmd-report({ query: "planning workflow", collection: "my-project", max_results: 5 })
  *
+ * The collection defaults to the project name from .ai/telamon/telamon.jsonc.
  * Delegates to the colocated Python script (qmd-report.py).
- * The script holds the pure analysis logic and is independently testable from the CLI.
  *
  * Wiring (same pattern as format-md.ts):
  *   - This file lives at <telamon-root>/src/instructions/tools/qmd-report/qmd-report.ts
@@ -19,6 +20,19 @@ import path from "path"
  *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
  *     so Bun's upward module resolution from this file's real path finds it.
  */
+
+function resolveProjectCollection(): string {
+  // Try reading project name from .ai/telamon/telamon.jsonc relative to CWD
+  const configPath = path.join(process.cwd(), ".ai", "telamon", "telamon.jsonc")
+  try {
+    const raw = fs.readFileSync(configPath, "utf8")
+    const config = JSON.parse(raw)
+    if (config.project_name) return config.project_name
+  } catch {
+    // Fall through to default
+  }
+  return "telamon"
+}
 
 export default tool({
   description:
@@ -32,8 +46,7 @@ export default tool({
     collection: tool.schema
       .string()
       .optional()
-      .default("telamon")
-      .describe("QMD collection to search (default: telamon — the project memory vault)"),
+      .describe("QMD collection to search (default: auto-detected from .ai/telamon/telamon.jsonc project_name)"),
     max_results: tool.schema
       .number()
       .optional()
@@ -42,6 +55,7 @@ export default tool({
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "qmd-report.py")
+    const collection = args.collection ?? resolveProjectCollection()
 
     const cmd = [
       "python3",
@@ -49,7 +63,7 @@ export default tool({
       "--format",
       "markdown",
       "--collection",
-      args.collection ?? "telamon",
+      collection,
       "--max-results",
       String(args.max_results ?? 5),
     ]
