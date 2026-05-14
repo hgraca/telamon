@@ -48,8 +48,8 @@ Local search engine for markdown content.
 
 **vec (semantic)**
 - Full natural language question
-- Be specific: `"how does rate limiter handle burst traffic"`
-- Include context: `"in payment service, how are refunds processed"`
+- Be specific: `"how does the rate limiter handle burst traffic"`
+- Include context: `"in the payment service, how are refunds processed"`
 
 **hyde (hypothetical document)**
 - Write 50-100 words of what *answer* looks like
