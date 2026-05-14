@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, beforeEach, afterAll } from "bun:test";
 import { mkdirSync, rmSync, readFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
-import { LlmLoggerPlugin, _resetState } from "../../src/instructions/plugins/llm-logger.js";
+import { LlmLoggerPlugin } from "../../src/instructions/plugins/llm-logger.js";
 
 let tmpDir: string;
 let baseDir: string;
@@ -13,7 +13,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  _resetState();
+  LlmLoggerPlugin._resetState();
   if (existsSync(baseDir)) {
     rmSync(baseDir, { recursive: true, force: true });
   }
@@ -154,7 +154,7 @@ describe("LlmLoggerPlugin", () => {
     expect(folderB!.split("/").pop()!).toMatch(/^\d{14}-session-b$/);
   });
 
-  test("handles tool_use and tool_result parts", async () => {
+  test("handles tool parts (real opencode shape)", async () => {
     const hooks = await LlmLoggerPlugin({ directory: tmpDir } as any);
     const handler = hooks["chat.message"]!;
 
@@ -165,10 +165,10 @@ describe("LlmLoggerPlugin", () => {
         parts: [
           { type: "text", text: "Let me check that." },
           {
-            type: "tool_use",
-            toolName: "bash",
-            toolCallID: "call-1",
-            input: { command: "ls -la" },
+            type: "tool",
+            tool: "bash",
+            callID: "call-1",
+            state: { status: "running", input: { command: "ls -la" } },
           },
         ] as any[],
       },
@@ -177,9 +177,10 @@ describe("LlmLoggerPlugin", () => {
     const files = logFiles("session-3");
     const log = readLog("session-3", files[0]) as any;
     expect(log.parts).toHaveLength(2);
-    expect(log.parts[1].type).toBe("tool_use");
+    expect(log.parts[1].type).toBe("tool");
     expect(log.parts[1].toolName).toBe("bash");
-    expect(log.parts[1].input.command).toBe("ls -la");
+    expect(log.parts[1].callID).toBe("call-1");
+    expect(log.parts[1].state.input.command).toBe("ls -la");
   });
 
   test("skips write when sessionID or messageID is missing", async () => {
