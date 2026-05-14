@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync, readdirSync } from "fs";
+import { describe, test, expect, beforeAll, beforeEach, afterAll } from "bun:test";
+import { mkdirSync, rmSync, readFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
-import { LlmLoggerPlugin } from "../../src/instructions/plugins/llm-logger.ts";
+import { LlmLoggerPlugin, _resetState } from "../../src/instructions/plugins/llm-logger.js";
 
 let tmpDir: string;
 let baseDir: string;
@@ -12,14 +12,17 @@ beforeAll(() => {
   baseDir = join(tmpDir, ".ai/telamon/logs/llm-logger");
 });
 
+beforeEach(() => {
+  _resetState();
+  if (existsSync(baseDir)) {
+    rmSync(baseDir, { recursive: true, force: true });
+  }
+});
+
 afterAll(() => {
   rmSync(tmpDir, { recursive: true, force: true });
 });
 
-/**
- * Find the session folder inside baseDir whose name ends with `-<sessionID>`.
- * This handles the YYYYMMDDHHMMSS-<sessionID> naming scheme.
- */
 function sessionFolder(sessionID: string): string | null {
   if (!existsSync(baseDir)) return null;
   const entries = readdirSync(baseDir);
@@ -67,7 +70,7 @@ describe("LlmLoggerPlugin", () => {
 
     const files = logFiles("session-1");
     expect(files.length).toBe(1);
-    expect(files[0]).toMatch(/^\d+-request-msg-001\.json$/);
+    expect(files[0]).toMatch(/^\d+-\d+-request-msg-001\.json$/);
 
     const log = readLog("session-1", files[0]) as any;
     expect(log.type).toBe("chat.message");
@@ -80,7 +83,6 @@ describe("LlmLoggerPlugin", () => {
     expect(log.parts[0].type).toBe("text");
     expect(log.parts[0].text).toBe("Hello, can you help me?");
 
-    // Verify folder name has timestamp prefix
     const folder = sessionFolder("session-1");
     expect(folder).not.toBeNull();
     const folderName = folder!.split("/").pop()!;
@@ -93,7 +95,7 @@ describe("LlmLoggerPlugin", () => {
 
     await handler(
       {
-        sessionID: "session-1",
+        sessionID: "session-assistant",
         messageID: "msg-002",
         agent: "telamon/telamon",
         model: { providerID: "github-copilot", modelID: "claude-opus-4.6" },
@@ -101,7 +103,7 @@ describe("LlmLoggerPlugin", () => {
       {
         message: {
           id: "msg-002",
-          sessionID: "session-1",
+          sessionID: "session-assistant",
           role: "assistant",
           agent: "telamon/telamon",
           modelID: "claude-opus-4.6",
@@ -116,13 +118,10 @@ describe("LlmLoggerPlugin", () => {
       },
     );
 
-    const files = logFiles("session-1");
-    expect(files.length).toBe(2);
+    const files = logFiles("session-assistant");
+    expect(files.length).toBe(1);
 
-    const responseFile = files.find((f) => f.includes("response-msg-002"));
-    expect(responseFile).toBeDefined();
-
-    const log = readLog("session-1", responseFile!) as any;
+    const log = readLog("session-assistant", files[0]) as any;
     expect(log.role).toBe("assistant");
     expect(log.message.cost).toBe(0.002);
     expect(log.message.tokens.input).toBe(100);
@@ -147,7 +146,6 @@ describe("LlmLoggerPlugin", () => {
     expect(logFiles("session-a").length).toBe(1);
     expect(logFiles("session-b").length).toBe(1);
 
-    // Verify both folders have timestamp prefixes
     const folderA = sessionFolder("session-a");
     const folderB = sessionFolder("session-b");
     expect(folderA).not.toBeNull();
@@ -188,19 +186,15 @@ describe("LlmLoggerPlugin", () => {
     const hooks = await LlmLoggerPlugin({ directory: tmpDir } as any);
     const handler = hooks["chat.message"]!;
 
-    // No sessionID
     await handler(
       { messageID: "m1" } as any,
       { message: { role: "user" } as any, parts: [] as any[] },
     );
-
-    // No messageID
     await handler(
       { sessionID: "session-x" } as any,
       { message: { role: "user" } as any, parts: [] as any[] },
     );
 
-    // Neither should have created a session-x folder
     expect(sessionFolder("session-x")).toBeNull();
   });
 });
