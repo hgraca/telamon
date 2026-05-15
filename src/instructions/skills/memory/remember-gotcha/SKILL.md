@@ -18,7 +18,7 @@ Write gotcha entry moment you hit trap, constraint, or recurring bug that is non
 
 ### 1. Decide destination
 
-- Reusable across projects (tech-specific trap) → `latent/global/<technology>/`
+- Reusable across projects (tech-specific trap) → `latent/global/<technology>/` — pick the most specific matching bucket from the classification table in `telamon.memory_management` skill (section 2)
 - Specific to this project's domain or architecture → `latent/project/`
 
 See routing rules in `telamon.memory_management` skill (section 2).
@@ -33,7 +33,7 @@ File template:
 ---
 date: YYYY-MM-DD
 tags: ["latent", "global"]
-keywords: ["word1", "word2", ...]
+keywords: ["word1", "word2"]   <- 1-5 focused terms; bucket name first
 source: <session or context>
 ---
 

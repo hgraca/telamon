@@ -55,7 +55,7 @@ Create new files in appropriate latent/ folder per routing table in `telamon.mem
 |------------------------------------------------|-------------------------------|-----------------------------------------------------|
 | Product decision, stakeholder answer, new rule | `latent/PDRs/`                | New file per item, decision + rationale             |
 | Architecture/technical decision                | `latent/ADRs/`                | New file per item, decision + rationale             |
-| Lesson reusable across projects (tech-specific)| `latent/global/<technology>/` | New file per item, lesson + context + scope         |
+| Lesson reusable across projects (tech-specific)| `latent/global/<technology>/` | New file per item, lesson + context + scope. Pick most specific bucket from classification table in `telamon.memory_management` skill (section 2). |
 | Lesson specific to this project                | `latent/project/`             | New file per item, lesson + context + scope         |
 
 **Quality gate**: Only save entries that are specific, actionable, and include context. Generic observations ("be careful with X") not worth saving.

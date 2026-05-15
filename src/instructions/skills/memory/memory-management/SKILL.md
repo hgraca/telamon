@@ -23,7 +23,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
     PDRs/                    <- product decisions, stakeholder answers (one file per item)
     ADRs/                    <- architecture/technical decisions (one file per item)
     global/                  <- lessons reusable across projects (one file per item)
-      <technology>/          <- e.g. php/, laravel/, k8s/, docker/, shell/, opencode/, telamon/
+      <technology>/          <- see Section 2 for full bucket list and classification rules
     project/                 <- lessons specific to this project (one file per item)
   work/
     active/                  <- in-progress work notes (3 issues max)
@@ -56,15 +56,46 @@ Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `tags`,
 **Routing rules:**
 - Create a new file per item — never append to existing files
 - File name: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md` (timestamp = item date, NN = sequence within same second)
-- Include YAML frontmatter: `date`, `tags`, `keywords` (15 relevant words), `source`
+- Include YAML frontmatter: `date`, `tags`, `keywords` (1–5 focused terms — tool names, concept names, domain terms), `source`
 - One entry per insight
 - Include dates in entries
 
 **global/ vs project/ decision rule:**
 - `global/<tech>/` — lesson applies to the technology/tool regardless of project (e.g. a Docker gotcha, a Laravel pattern, a shell trick). Another project using the same tech would benefit.
 - `project/` — lesson is specific to this project's domain, architecture, or conventions. Not useful elsewhere.
-- When in doubt between two tech buckets (e.g. `php/` vs `laravel/`), the more specific wins (`laravel/`).
-- Common technology buckets: `php`, `laravel`, `symfony`, `phpunit`, `javascript`, `python`, `docker`, `k8s`, `kafka`, `git`, `shell`, `opencode`, `telamon`.
+- **Specificity rule**: when content fits two buckets, the more specific wins (e.g. `laravel` beats `php`; `argocd` beats `k8s`; `kafka` beats `java`; `bun` beats `javascript`; `signoz` beats `otel`).
+- **Classification signals** — match against filename + title + body (first match wins):
+
+| Bucket       | Match when content mentions…                                                                 |
+|--------------|----------------------------------------------------------------------------------------------|
+| `qmd`        | qmd, XDG_CACHE_HOME, hybrid search, tobiqmd                                                 |
+| `graphify`   | graphify, knowledge graph, god nodes                                                         |
+| `promptfoo`  | promptfoo, eval assertion, rubric assertion                                                  |
+| `pentagi`    | pentagi                                                                                      |
+| `ogham`      | ogham                                                                                        |
+| `obsidian`   | obsidian                                                                                     |
+| `argocd`     | argocd, argoproj, sync-wave, ServerSideDiff                                                  |
+| `istio`      | istio, VirtualService, istiod, envoy                                                         |
+| `signoz`     | signoz                                                                                       |
+| `otel`       | opentelemetry, otel demo, otel collector, otlp                                               |
+| `kafka`      | kafka, rdkafka, PARTITION_EOF, consumer_group, KafkaQueue                                    |
+| `helm`       | helm chart, helm upgrade, helm install, helm release                                         |
+| `k8s`        | kubernetes, k8s, k3d, kubectl, StatefulSet, CronJob, ConfigMap, kustomize, klipper, inotify |
+| `bun`        | bun test, bun esm, mock.module, bun run                                                      |
+| `npm`        | npm install, npm ENOTEMPTY                                                                   |
+| `uv`         | uv tool, uv install, uv upgrade                                                              |
+| `mcp`        | mcp server, mcp tool, mcp client, mcp protocol, json-rpc, stdio transport, mcp-server-git   |
+| `opencode`   | opencode, plugin api, plugin hook, opencode.jsonc, slash command, session.idle               |
+| `telamon`    | telamon, issue folder, planning stage, memory vault, recall_memories, remember_session       |
+| `laravel`    | laravel, artisan, eloquent, workbench                                                        |
+| `phpunit`    | phpunit, mockery, createMock, createStub, AllowMockObjects                                   |
+| `php`        | php, symfony, composer, readonly class, set_error_handler                                    |
+| `git`        | git commit, git apply, git stash, git blob, git hook, pre-commit hook, blob corruption      |
+| `docker`     | docker, docker-compose, container, docker bridge                                             |
+| `shell`      | bash, shell, makefile, posix, pipefail, set -e, heredoc, symlink                            |
+| `javascript` | javascript, typescript, node.js, esm, commonjs                                              |
+
+If no bucket matches, use `project/`.
 
 ## 3. Retrieval Rules
 
@@ -113,7 +144,7 @@ File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
 - NN: integer starting at 01, resets per timestamp — orders files created within the same second
 - Subject: max 10 words, hyphen-separated, lowercase, no special chars
 
-Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. Include domain terms, tool names, concept names.
+Keywords: 1–5 focused terms — tool names, concept names, domain terms that help an agent find this entry when working on a related task. Exclude stop words, generic verbs, and filler. Always include the bucket name (e.g. `"qmd"`, `"argocd"`) as the first keyword.
 
 ### Entry body
 
