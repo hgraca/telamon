@@ -39,9 +39,15 @@ export default tool({
       .optional()
       .default("graphify-out/graph.json")
       .describe("Path to graph.json relative to project root (default: graphify-out/graph.json)"),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "graphify-report.py")
+    const fmt = args.format ?? "json"
 
     const cmd = [
       "python3",
@@ -51,7 +57,7 @@ export default tool({
       "--top-n",
       String(args.top_n ?? 10),
       "--format",
-      "markdown",
+      fmt,
     ]
 
     if (args.words) {
@@ -65,6 +71,14 @@ export default tool({
 
     if (exitCode !== 0) {
       return `graphify-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
     }
 
     return stdout.trim()

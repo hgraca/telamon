@@ -52,16 +52,22 @@ export default tool({
       .optional()
       .default(5)
       .describe("Maximum number of matching files to return (default: 5)"),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "qmd-report.py")
     const collection = args.collection ?? resolveProjectCollection()
+    const fmt = args.format ?? "json"
 
     const cmd = [
       "python3",
       script,
       "--format",
-      "markdown",
+      fmt,
       "--collection",
       collection,
       "--max-results",
@@ -83,6 +89,14 @@ export default tool({
 
     if (exitCode !== 0) {
       return `qmd-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
     }
 
     return stdout.trim()

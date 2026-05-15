@@ -28,11 +28,17 @@ export default tool({
       .describe(
         "One or more directory paths to inspect. Each is resolved relative to the project root if relative, or used as-is if absolute. E.g. ['src/components'] or ['src/components', 'src/utils'].",
       ),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable tree output)"),
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "tree-report.sh")
+    const fmt = args.format ?? "json"
 
-    const cmd = ["bash", script, ...args.paths]
+    const cmd = ["bash", script, "--format", fmt, ...args.paths]
 
     const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
     const stdout = await new Response(proc.stdout).text()
@@ -41,6 +47,14 @@ export default tool({
 
     if (exitCode !== 0) {
       return `tree-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
     }
 
     return stdout.trim()

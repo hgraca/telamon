@@ -10,12 +10,14 @@
 #   telamon tool codebase-index-report --query "rate limiter"   # explicit flag
 #   telamon tool codebase-index-report "rate limiter" --file-type ts
 #   telamon tool codebase-index-report "rate limiter" --directory src/utils
+#   telamon tool codebase-index-report "rate limiter" --markdown  # force markdown output
+#   telamon tool codebase-index-report "rate limiter" --json      # force JSON output
 #
 # Positional args are converted to --query flags. Explicit --flags pass through
 # with their values.
 #
 # Defaults:
-#   --format: markdown
+#   --format: markdown (shell default; JS tool defaults to json)
 # =============================================================================
 
 set -euo pipefail
@@ -31,6 +33,7 @@ if [[ ! -f "${TOOL_SCRIPT}" ]]; then
 fi
 
 # Parse args: positional → --query, explicit --flags pass through with values
+# --markdown and --json are convenience aliases for --format markdown|json
 HAS_FORMAT=false
 ARGS=()
 NEXT_IS_VALUE=false
@@ -41,6 +44,12 @@ for arg in "$@"; do
     if [[ "${NEXT_IS_FLAG}" == "--format" ]]; then HAS_FORMAT=true; fi
     NEXT_IS_VALUE=false
     NEXT_IS_FLAG=""
+  elif [[ "${arg}" == "--markdown" ]]; then
+    ARGS+=("--format" "markdown")
+    HAS_FORMAT=true
+  elif [[ "${arg}" == "--json" ]]; then
+    ARGS+=("--format" "json")
+    HAS_FORMAT=true
   elif [[ "${arg}" == --* ]]; then
     ARGS+=("${arg}")
     NEXT_IS_VALUE=true

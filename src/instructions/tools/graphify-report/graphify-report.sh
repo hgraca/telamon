@@ -9,12 +9,14 @@
 #   telamon tool graphify-report planning workflow       # positional → --words
 #   telamon tool graphify-report --words planning,workflow  # explicit flag
 #   telamon tool graphify-report --graph-path path/to/graph.json
+#   telamon tool graphify-report planning --markdown     # force markdown output
+#   telamon tool graphify-report planning --json         # force JSON output
 #
 # Positional args are joined with commas as --words. Explicit --flags pass
 # through with their values.
 #
 # Defaults:
-#   --format: markdown
+#   --format: markdown (shell default; JS tool defaults to json)
 # =============================================================================
 
 set -euo pipefail
@@ -30,6 +32,7 @@ if [[ ! -f "${TOOL_SCRIPT}" ]]; then
 fi
 
 # Parse args: positional → --words, explicit --flags pass through with values
+# --markdown and --json are convenience aliases for --format markdown|json
 HAS_FORMAT=false
 POSITIONAL=()
 ARGS=()
@@ -41,6 +44,12 @@ for arg in "$@"; do
     if [[ "${NEXT_IS_FLAG}" == "--format" ]]; then HAS_FORMAT=true; fi
     NEXT_IS_VALUE=false
     NEXT_IS_FLAG=""
+  elif [[ "${arg}" == "--markdown" ]]; then
+    ARGS+=("--format" "markdown")
+    HAS_FORMAT=true
+  elif [[ "${arg}" == "--json" ]]; then
+    ARGS+=("--format" "json")
+    HAS_FORMAT=true
   elif [[ "${arg}" == --* ]]; then
     ARGS+=("${arg}")
     NEXT_IS_VALUE=true

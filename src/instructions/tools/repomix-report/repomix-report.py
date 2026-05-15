@@ -32,17 +32,21 @@ def resolve_telamon_root():
     return ""
 
 
-def run_repomix(directories, compress, include_patterns, ignore_patterns, top_files_length):
-    """Run repomix to pack the given directories, outputting markdown to stdout."""
+def run_repomix(directories, compress, include_patterns, ignore_patterns, top_files_length, fmt="markdown"):
+    """Run repomix to pack the given directories, outputting markdown or JSON to stdout."""
     repomix_path = shutil.which("repomix")
     if not repomix_path:
-        print("❌ repomix CLI not found. Install with: npm install -g repomix", file=sys.stderr)
+        msg = "repomix CLI not found. Install with: npm install -g repomix"
+        if fmt == "json":
+            print(json.dumps({"status": "error", "code": "REPOMIX_NOT_FOUND", "message": msg}))
+        else:
+            print(f"❌ {msg}", file=sys.stderr)
         sys.exit(1)
 
     # repomix takes directories as positional args
     cmd = [repomix_path] + directories
 
-    # Always markdown, always stdout
+    # Always markdown style from repomix; we wrap in JSON if needed
     cmd.extend(["--style", "markdown", "--stdout"])
 
     if compress:
@@ -58,23 +62,52 @@ def run_repomix(directories, compress, include_patterns, ignore_patterns, top_fi
         cmd.extend(["--top-files-len", str(top_files_length)])
 
     try:
-        # Stream stdout directly, capture stderr for error reporting
-        result = subprocess.run(
-            cmd,
-            capture_output=False,
-            stdout=sys.stdout,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=120,
-        )
-        if result.returncode != 0:
-            print(f"❌ Repomix failed: {result.stderr.strip()}", file=sys.stderr)
-            sys.exit(1)
+        if fmt == "json":
+            # Capture stdout to wrap in JSON envelope
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode != 0:
+                print(json.dumps({
+                    "status": "error",
+                    "code": "REPOMIX_FAILED",
+                    "message": result.stderr.strip(),
+                }))
+                sys.exit(1)
+            print(json.dumps({
+                "status": "ok",
+                "directories": directories,
+                "content": result.stdout,
+            }, indent=2))
+        else:
+            # Stream stdout directly for markdown mode
+            result = subprocess.run(
+                cmd,
+                capture_output=False,
+                stdout=sys.stdout,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode != 0:
+                print(f"❌ Repomix failed: {result.stderr.strip()}", file=sys.stderr)
+                sys.exit(1)
     except FileNotFoundError:
-        print("❌ repomix CLI not found. Install with: npm install -g repomix", file=sys.stderr)
+        msg = "repomix CLI not found. Install with: npm install -g repomix"
+        if fmt == "json":
+            print(json.dumps({"status": "error", "code": "REPOMIX_NOT_FOUND", "message": msg}))
+        else:
+            print(f"❌ {msg}", file=sys.stderr)
         sys.exit(1)
     except subprocess.TimeoutExpired:
-        print("❌ repomix packing timed out after 120s", file=sys.stderr)
+        msg = "repomix packing timed out after 120s"
+        if fmt == "json":
+            print(json.dumps({"status": "error", "code": "TIMEOUT", "message": msg}))
+        else:
+            print(f"❌ {msg}", file=sys.stderr)
         sys.exit(1)
 
 
@@ -109,6 +142,12 @@ def main():
         default=10,
         help="Number of largest files to show in metrics (default: 10)",
     )
+    parser.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="Output format (default: markdown)",
+    )
     args = parser.parse_args()
 
     compress = not args.no_compress
@@ -118,7 +157,10 @@ def main():
     for d in args.dir:
         abs_d = os.path.abspath(os.path.join(os.getcwd(), d))
         if not os.path.isdir(abs_d):
-            print(f"❌ Directory not found: {d}", file=sys.stderr)
+            if args.format == "json":
+                print(json.dumps({"status": "error", "code": "DIR_NOT_FOUND", "message": f"Directory not found: {d}"}))
+            else:
+                print(f"❌ Directory not found: {d}", file=sys.stderr)
             sys.exit(1)
         resolved_dirs.append(abs_d)
 
@@ -128,6 +170,7 @@ def main():
         args.include_patterns or None,
         args.ignore_patterns or None,
         args.top_files_length,
+        args.format,
     )
 
 

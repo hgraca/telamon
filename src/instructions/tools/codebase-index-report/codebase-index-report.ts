@@ -42,15 +42,21 @@ export default tool({
       .string()
       .optional()
       .describe("Filter by directory path (e.g. 'src/utils', 'lib')"),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "codebase-index-report.py")
+    const fmt = args.format ?? "json"
 
     const cmd = [
       "python3",
       script,
       "--format",
-      "markdown",
+      fmt,
       "--max-results",
       String(args.max_results ?? 5),
     ]
@@ -75,6 +81,14 @@ export default tool({
 
     if (exitCode !== 0) {
       return `codebase-index-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
     }
 
     return stdout.trim()

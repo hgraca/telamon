@@ -47,13 +47,21 @@ export default tool({
       .optional()
       .default(10)
       .describe("Number of largest files to show in metrics (default: 10)"),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable repomix output)"),
   },
   async execute(args) {
     const script = path.join(import.meta.dir, "repomix-report.py")
+    const fmt = args.format ?? "json"
 
     const cmd = [
       "python3",
       script,
+      "--format",
+      fmt,
       "--top-files-length",
       String(args.top_files_length ?? 10),
     ]
@@ -81,6 +89,14 @@ export default tool({
 
     if (exitCode !== 0) {
       return `repomix-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
     }
 
     return stdout.trim()

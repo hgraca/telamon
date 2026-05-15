@@ -9,13 +9,15 @@
 #   telamon tool qmd-report "planning workflow"         # multi-word query
 #   telamon tool qmd-report billing --collection core   # explicit collection
 #   telamon tool qmd-report --query billing             # explicit flag
+#   telamon tool qmd-report billing --markdown          # force markdown output
+#   telamon tool qmd-report billing --json              # force JSON output
 #
 # Positional args are converted to --query flags. Explicit --flags pass through
 # with their values.
 #
 # Defaults (from .ai/telamon/telamon.jsonc):
 #   --collection: project_name
-#   --format:     markdown
+#   --format:     markdown (shell default; JS tool defaults to json)
 # =============================================================================
 
 set -euo pipefail
@@ -41,6 +43,7 @@ if [[ -f "${TELAMON_CONFIG}" ]]; then
 fi
 
 # Parse args: positional → --query, explicit --flags pass through with values
+# --markdown and --json are convenience aliases for --format markdown|json
 # Inject defaults for --collection and --format if not explicitly provided
 HAS_COLLECTION=false
 HAS_FORMAT=false
@@ -54,6 +57,12 @@ for arg in "$@"; do
     if [[ "${NEXT_IS_FLAG}" == "--format" ]]; then HAS_FORMAT=true; fi
     NEXT_IS_VALUE=false
     NEXT_IS_FLAG=""
+  elif [[ "${arg}" == "--markdown" ]]; then
+    ARGS+=("--format" "markdown")
+    HAS_FORMAT=true
+  elif [[ "${arg}" == "--json" ]]; then
+    ARGS+=("--format" "json")
+    HAS_FORMAT=true
   elif [[ "${arg}" == --* ]]; then
     ARGS+=("${arg}")
     NEXT_IS_VALUE=true

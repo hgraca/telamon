@@ -9,11 +9,14 @@
 #   telamon tool repomix-report src/components src/utils          # multiple dirs
 #   telamon tool repomix-report --dir src/components              # explicit flag
 #   telamon tool repomix-report src --no-compress                 # disable compression
+#   telamon tool repomix-report src --markdown                    # force markdown output
+#   telamon tool repomix-report src --json                        # force JSON output
 #
 # Positional args are converted to --dir flags. Explicit --flags pass through
 # with their values.
 #
-# Always outputs markdown to stdout (no file written).
+# Defaults:
+#   --format: markdown (shell default; JS tool defaults to json)
 # =============================================================================
 
 set -euo pipefail
@@ -29,18 +32,35 @@ if [[ ! -f "${TOOL_SCRIPT}" ]]; then
 fi
 
 # Parse args: positional → --dir, explicit --flags pass through with values
+# --markdown and --json are convenience aliases for --format markdown|json
+HAS_FORMAT=false
 ARGS=()
 NEXT_IS_VALUE=false
+NEXT_IS_FLAG=""
 for arg in "$@"; do
   if $NEXT_IS_VALUE; then
     ARGS+=("${arg}")
+    if [[ "${NEXT_IS_FLAG}" == "--format" ]]; then HAS_FORMAT=true; fi
     NEXT_IS_VALUE=false
+    NEXT_IS_FLAG=""
+  elif [[ "${arg}" == "--markdown" ]]; then
+    ARGS+=("--format" "markdown")
+    HAS_FORMAT=true
+  elif [[ "${arg}" == "--json" ]]; then
+    ARGS+=("--format" "json")
+    HAS_FORMAT=true
   elif [[ "${arg}" == --* ]]; then
     ARGS+=("${arg}")
     NEXT_IS_VALUE=true
+    NEXT_IS_FLAG="${arg}"
   else
     ARGS+=("--dir" "${arg}")
   fi
 done
+
+# Inject default format
+if ! $HAS_FORMAT; then
+  ARGS+=("--format" "markdown")
+fi
 
 exec python3 "${TOOL_SCRIPT}" "${ARGS[@]}"
