@@ -21,6 +21,7 @@
 install_telamon_hook() {
   local hook_name="$1"
   local hook_body="$2"
+  local tool_name="${3:-}"
 
   local proj="${PROJ:?install_telamon_hook requires PROJ env var}"
   local hooks_dir="${proj}/.git/hooks"
@@ -31,8 +32,14 @@ install_telamon_hook() {
   fi
 
   local hook_file="${hooks_dir}/${hook_name}"
-  local marker_start="# ── TELAMON START ──"
-  local marker_end="# ── TELAMON END ──"
+  local marker_start marker_end
+  if [[ -n "${tool_name}" ]]; then
+    marker_start="# ── TELAMON ${tool_name} START ──"
+    marker_end="# ── TELAMON ${tool_name} END ──"
+  else
+    marker_start="# ── TELAMON START ──"
+    marker_end="# ── TELAMON END ──"
+  fi
 
   # Per-module fingerprint: first non-empty line of the body. Used to remove
   # only this module's previously-installed section while preserving sections

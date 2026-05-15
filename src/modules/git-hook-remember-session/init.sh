@@ -30,6 +30,6 @@ fi
 # Background + disown — prevents MCP git server from waiting on child
 # processes (Python subprocess waits until inherited FDs close).
 BODY="bash \"${RUNNER}\" \"${PROJ}\" >/dev/null 2>&1 & disown"
-install_telamon_hook "post-commit" "${BODY}"
+install_telamon_hook "post-commit" "${BODY}" "REMEMBER-SESSION"
 
 log "remember-session post-commit hook installed in ${PROJ}"

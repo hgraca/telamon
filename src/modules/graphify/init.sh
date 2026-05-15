@@ -116,7 +116,7 @@ fi"
 # post-commit: rebuild graph in the background.
 POST_COMMIT_BODY="bash \"${GRAPHIFY_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown"
 
-PROJ="${PROJ_ABS}" install_telamon_hook "post-checkout" "${POST_CHECKOUT_BODY}" \
+PROJ="${PROJ_ABS}" install_telamon_hook "post-checkout" "${POST_CHECKOUT_BODY}" "GRAPHIFY" \
   || warn "Failed to install graphify post-checkout hook"
-PROJ="${PROJ_ABS}" install_telamon_hook "post-commit"   "${POST_COMMIT_BODY}" \
+PROJ="${PROJ_ABS}" install_telamon_hook "post-commit"   "${POST_COMMIT_BODY}" "GRAPHIFY" \
   || warn "Failed to install graphify post-commit hook"

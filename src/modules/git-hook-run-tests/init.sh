@@ -30,6 +30,6 @@ fi
 
 # Foreground — a non-zero exit aborts the commit so the LLM sees the failure.
 BODY="bash \"${RUNNER}\" \"${PROJ}\" || exit 1"
-install_telamon_hook "pre-commit" "${BODY}"
+install_telamon_hook "pre-commit" "${BODY}" "RUN-TESTS"
 
 log "run-tests pre-commit hook installed in ${PROJ}"
