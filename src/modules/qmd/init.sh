@@ -90,6 +90,27 @@ else
     || warn "qmd collection add failed for ${NAME} — retry: qmd collection add ${BRAIN} --name ${NAME} --mask '**/*.md'"
 fi
 
+# ── Register the shared global collection ─────────────────────────────────────
+# latent/global is a symlink to storage/memory/global — QMD does not follow
+# symlinks (fast-glob followSymbolicLinks: false), so the global knowledge base
+# must be registered as its own collection pointing at the real directory.
+# A single 'global' collection is shared across all projects; re-running init
+# on subsequent projects is a safe no-op.
+GLOBAL_DIR="${TELAMON_ROOT}/storage/memory/global"
+
+if qmd collection list 2>/dev/null | grep -q "^global "; then
+  skip "QMD collection already registered: global"
+else
+  if [[ -d "${GLOBAL_DIR}" ]]; then
+    step "Registering QMD collection: global ..."
+    qmd collection add "${GLOBAL_DIR}" --name global --mask "**/*.md" 2>/dev/null \
+      && log "Collection registered: global" \
+      || warn "qmd collection add failed for global — retry: qmd collection add ${GLOBAL_DIR} --name global --mask '**/*.md'"
+  else
+    warn "Global memory dir not found at ${GLOBAL_DIR} — skipping global collection"
+  fi
+fi
+
 step "Adding QMD context for ${NAME} ..."
 qmd context add "qmd://${NAME}" "${DESCRIPTION}" 2>/dev/null || true
 
