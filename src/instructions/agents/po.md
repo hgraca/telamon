@@ -79,7 +79,7 @@ When temporary file needed, use `telamon.thinking` skill.
 
 - When human stakeholder answers project question, record it in `brain/PDRs/`.
 - When given new rule, record it in `brain/PDRs/`.
-- When making product decision, append it to `brain/PDRs/` with rationale.
+- When making product decision, create new file in `brain/PDRs/` with rationale.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
 - Provide specific, actionable answers — not vague guidance.
