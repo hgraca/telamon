@@ -70,10 +70,10 @@ Before any user request, Telamon runs a mandatory start sequence.
 | +---------------------------+-------------------------------+ |                        |                           |     |
 |                                                               | latent/key_decisions.md | Before arch work or       |     |
 |                                                               |                        | stakeholder answer lookup |     |
-|                                                               | latent/patterns.md      | Before writing new code   |     |
-|                                                               | latent/gotchas.md       | Before touching known     |     |
+|                                                               | latent/global/ and latent/project/      | Before writing new code   |     |
+|                                                               | latent/global/ and latent/project/       | Before touching known     |     |
 |                                                               |                        | problem areas             |     |
-|                                                               | latent/memories.md      | Do NOT read at start;     |     |
+|                                                               | latent/global/ and latent/project/      | Do NOT read at start;     |     |
 |                                                               |                        | search via QMD            |     |
 |                                                               |                        | when needed later         |     |
 | +---------------------------+-------------------------------+ |                        |                           |     |
@@ -429,7 +429,7 @@ After any work that changes files — whether handled directly or returned from 
 |-------------------------------------|
 | If gotcha encountered:              |
 | Load remember_gotcha skill          |
-| Write to latent/gotchas.md           |
+| Write to latent/global/ and latent/project/           |
   +---------------------------------------+
 |-----|
        v
@@ -549,7 +549,7 @@ These fire at specific moments during any workflow above — they are cross-cutt
 |-----|
         +── Hit a non-obvious trap, constraint, or recurring bug?
               YES ──> Skill: remember_gotcha
-                      Write to latent/gotchas.md
+                      Write to latent/global/ and latent/project/
 
   AFTER COMPLETING A TASK:
 |-----|
@@ -557,7 +557,7 @@ These fire at specific moments during any workflow above — they are cross-cutt
    +-------------------------------+
 | Skill: remember_task       |
 | Review discoveries, update |
-| latent/memories.md with     |
+| latent/global/ and latent/project/ with     |
 | structured lessons         |
    +-------------------------------+
 

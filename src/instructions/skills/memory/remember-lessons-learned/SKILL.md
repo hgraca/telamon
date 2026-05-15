@@ -15,7 +15,7 @@ As you work, capture knowledge moment it arises. Do not defer to end of session.
 | Decision made (architecture, technical)         | New file in `latent/ADRs/`                                          |
 | Human stakeholder answers question              | Categorize → new file in `latent/PDRs/` or `latent/ADRs/`          |
 | New rule given by stakeholder                   | Categorize → new file in `latent/PDRs/` or `latent/ADRs/`          |
-| Bug fixed (non-trivial)                         | Use `telamon.remember_gotcha` skill to new file in `latent/gotchas/` |
+| Bug fixed (non-trivial)                         | Use `telamon.remember_gotcha` skill to new file in `latent/global/<technology>/ or latent/project/` |
 | Pattern established                             | New file in `latent/patterns/`                                      |
 
 ## How to categorize decision

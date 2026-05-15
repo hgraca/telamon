@@ -157,9 +157,9 @@ The agent saves to `latent/` notes (human-readable, curated):
 
 | Event                  | Action                                           |
 |------------------------|--------------------------------------------------|
-| Non-trivial bug fixed  | Appended to `latent/gotchas.md`                   |
+| Non-trivial bug fixed  | Appended to `latent/global/ and latent/project/`                   |
 | Architectural decision | Appended to `latent/ADRs.md`                      |
-| Pattern established    | Appended to `latent/patterns.md`                  |
+| Pattern established    | Appended to `latent/global/ and latent/project/`                  |
 | Session ends           | Work notes archived from `active/` to `archive/` |
 
 The **remember-session plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.

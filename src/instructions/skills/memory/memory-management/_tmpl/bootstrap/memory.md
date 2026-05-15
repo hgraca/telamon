@@ -34,8 +34,7 @@ Memory storage has exactly **two triggers**:
 
 ## See also
 
-- [[memories]]
 - [[PDRs]]
 - [[ADRs]]
-- [[patterns]]
-- [[gotchas]]
+- [[global]]
+- [[project]]

@@ -22,11 +22,11 @@ Verify vault matches expected layout:
 For each file in `latent/`:
 - Content current? Flag stale or contradictory entries.
 - File naming follows `YYYYMMDDHHMMSS-NN-<subject>.md` pattern (NN = integer starting at 01, resets per timestamp)?
-- `memories/` — entries have context and scope?
+- `global/<tech>/` — entries reusable across projects, tech-specific, with context?
 - `PDRs/` — entries have rationale, not just decision?
 - `ADRs/` — entries have rationale, not just decision?
-- `patterns/` — patterns actionable and specific?
-- `gotchas/` — gotchas reproducible with fix or workaround?
+
+- `project/` — entries project-specific with domain context?
 
 ## 3. Check Thinking/ Hygiene
 

@@ -20,11 +20,11 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
   latent/
-    memories/                <- categorized lessons learned (one file per item)
-    PDRs/                    <- product decisions, stakeholder answers
-    ADRs/                    <- architecture/technical decisions
-    patterns/                <- established codebase patterns
-    gotchas/                 <- known traps and constraints
+    PDRs/                    <- product decisions, stakeholder answers (one file per item)
+    ADRs/                    <- architecture/technical decisions (one file per item)
+    global/                  <- lessons reusable across projects (one file per item)
+      <technology>/          <- e.g. php/, laravel/, k8s/, docker/, shell/, opencode/, telamon/
+    project/                 <- lessons specific to this project (one file per item)
   work/
     active/                  <- in-progress work notes (3 issues max)
     archive/YYYY/MM/DD       <- completed work notes by year/month/day
@@ -33,41 +33,25 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
 
-Each latent/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`. Each file has YAML frontmatter with `date`, `tags`, `keywords`, and `source` fields. Body starts after frontmatter — no frontmatter in body.
-.ai/telamon/memory/
-  bootstrap/                 <- always-on context (loaded like AGENTS.md)
-  latent/
-    memories/                <- categorized lessons learned (one file per item)
-    PDRs/                    <- product decisions, stakeholder answers (one file per item)
-    ADRs/                    <- architecture/technical decisions (one file per item)
-    patterns/                <- established codebase patterns (one file per item)
-    gotchas/                 <- known traps and constraints (one file per item)
-  work/
-    active/                  <- in-progress work notes (3 issues max)
-    archive/YYYY/MM/DD       <- completed work notes by year/month/day
-    incidents/               <- incident docs
-  reference/                 <- architecture maps, flow docs, codebase knowledge
-  thinking/                  <- scratchpad for drafts (promote or delete)
-```
+Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `tags`, `keywords`, `source`). Body starts after frontmatter — no frontmatter in body.
 
 ## 2. Routing Table
 
-| Content                                        | Destination                                           |
-|------------------------------------------------|-------------------------------------------------------|
-| Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
-| Product decision + rationale                   | `latent/PDRs/` (new file per item, see section 5)      |
-| Human stakeholder answer to project question   | `latent/PDRs/` (new file per item)                     |
-| New rule from stakeholder                      | `latent/PDRs/` (new file per item)                     |
-| Architecture or technical decision + rationale | `latent/ADRs/` (new file per item)                     |
-| Established codebase pattern                   | `latent/patterns/` (new file per item)                 |
-| Trap, constraint, or recurring bug             | `latent/gotchas/` (new file per item)                  |
-| Categorized lesson learned                     | `latent/memories/` (new file per item)                 |
-| In-progress work note                          | `work/active/`                                        |
-| Completed work note                            | `work/archive/YYYY/`                                  |
-| Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                 |
-| Architecture map or flow doc                   | `reference/`                                          |
-| Draft or reasoning scratchpad                  | `thinking/` (promote or delete, see section 7)        |
-| Partial-progress checkpoint                    | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`      |
+| Content                                        | Destination                                                      |
+|------------------------------------------------|------------------------------------------------------------------|
+| Agent bootstrap instructions (always-on)       | `bootstrap/`                                                     |
+| Product decision + rationale                   | `latent/PDRs/` (new file per item, see section 5)               |
+| Human stakeholder answer to project question   | `latent/PDRs/` (new file per item)                              |
+| New rule from stakeholder                      | `latent/PDRs/` (new file per item)                              |
+| Architecture or technical decision + rationale | `latent/ADRs/` (new file per item)                              |
+| Lesson reusable across projects (tech-specific)| `latent/global/<technology>/` (new file per item)               |
+| Lesson specific to this project                | `latent/project/` (new file per item)                           |
+| In-progress work note                          | `work/active/`                                                   |
+| Completed work note                            | `work/archive/YYYY/`                                             |
+| Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                            |
+| Architecture map or flow doc                   | `reference/`                                                     |
+| Draft or reasoning scratchpad                  | `thinking/` (promote or delete, see section 7)                  |
+| Partial-progress checkpoint                    | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`                |
 
 **Routing rules:**
 - Create a new file per item — never append to existing files
@@ -75,6 +59,12 @@ Each latent/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDH
 - Include YAML frontmatter: `date`, `tags`, `keywords` (15 relevant words), `source`
 - One entry per insight
 - Include dates in entries
+
+**global/ vs project/ decision rule:**
+- `global/<tech>/` — lesson applies to the technology/tool regardless of project (e.g. a Docker gotcha, a Laravel pattern, a shell trick). Another project using the same tech would benefit.
+- `project/` — lesson is specific to this project's domain, architecture, or conventions. Not useful elsewhere.
+- When in doubt between two tech buckets (e.g. `php/` vs `laravel/`), the more specific wins (`laravel/`).
+- Common technology buckets: `php`, `laravel`, `symfony`, `phpunit`, `javascript`, `python`, `docker`, `k8s`, `kafka`, `git`, `shell`, `opencode`, `telamon`.
 
 ## 3. Retrieval Rules
 
@@ -92,24 +82,23 @@ Each latent/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDH
 - Never write: files in vault root (only subfolders)
 - Never write: agent instructions outside `bootstrap/` expecting auto-load
 
-## 5. Brain Note Quality Criteria
+## 5. Latent Note Quality Criteria
 
-| Folder       | Good entry has                                  |
-|--------------|-------------------------------------------------|
-| `PDRs/`      | Decision + rationale (not just decision)        |
-| `ADRs/`      | Decision + rationale (not just decision)        |
-| `patterns/`  | Actionable, specific pattern with when to apply |
-| `gotchas/`   | Reproducible problem + fix or workaround        |
-| `memories/`  | Specific, actionable lesson with context and scope      |
+| Folder          | Good entry has                                                   |
+|-----------------|------------------------------------------------------------------|
+| `PDRs/`         | Decision + rationale (not just decision)                         |
+| `ADRs/`         | Decision + rationale (not just decision)                         |
+| `global/<tech>` | Reusable across projects; tech-specific; actionable with context |
+| `project/`      | Project-specific; includes domain/architecture context           |
 
-## 6. Brain Item File Format
+## 6. Latent Item File Format
 
-Each brain item is a standalone `.md` file with YAML frontmatter:
+Each latent item is a standalone `.md` file with YAML frontmatter:
 
 ```markdown
 ---
 date: YYYY-MM-DD
-tags: ["brain", "<category>"]
+tags: ["latent", "<global|project>"]
 keywords: ["word1", "word2", ...]
 source: <origin-file-or-session>
 ---
@@ -126,14 +115,14 @@ File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
 
 Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. Include domain terms, tool names, concept names.
 
-### Memory entry body (memories/ folder)
+### Entry body
 
 ```markdown
 ## <title>
 - **Date**: YYYY-MM-DD
 - **Context**: What triggered this lesson.
-- **Lesson**: Reusable takeaway.
-- **Scope**: Where this applies (component, layer, or project-wide).
+- **Lesson**: Reusable takeaway (or problem + fix for gotchas; pattern + when-to-apply for patterns).
+- **Scope**: Where this applies (technology, component, layer, or project-wide).
 - **Status**: ACTIVE
 ```
 
@@ -142,7 +131,7 @@ Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. 
 - **Include context** -- future agents need to understand *why*
 - **Scope it** -- lesson about Invoice component must say so
 
-### Pruning (when memories/ exceeds 100 files)
+### Pruning (when global/<tech>/ or project/ exceeds 100 files)
 - Mark entries as `SUPERSEDED` (note the superseding file name) when newer entry replaces them
 - Delete superseded files after one more session
 - Review files older than 6 months for continued relevance
@@ -165,7 +154,7 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 ## 8. Wrap-Up (on "wrap up" / "wrapping up")
 
-1. Promote session learnings to appropriate `latent/<category>/` folder (new file per item)
+1. Promote session learnings to appropriate `latent/global/<tech>/` or `latent/project/` folder (new file per item)
 2. Archive completed `work/active/` notes -> `work/archive/YYYY/`
 3. Verify every new vault note has at least one `[[wikilink]]`
 4. Tell user what was promoted and saved

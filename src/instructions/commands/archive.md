@@ -36,8 +36,8 @@ For each reference found, update link path from `work/active/` to `work/archive/
 ## 5. Promote Lessons
 
 Scan archived note for:
-- Gotchas or traps → append to `.ai/telamon/memory/latent/gotchas/`
-- Reusable patterns → append to `.ai/telamon/memory/latent/patterns/`
+- Gotchas or traps → append to `.ai/telamon/memory/latent/global/<technology>/ or latent/project/`
+- Reusable patterns → append to `.ai/telamon/memory/latent/global/<technology>/ or latent/project/`
 - Standing product decisions → add to `.ai/telamon/memory/latent/PDRs/`
 - Standing architecture decisions → add to `.ai/telamon/memory/latent/ADRs/`
 

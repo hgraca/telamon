@@ -32,11 +32,10 @@ When you need information, use right tool for question type:
 
 | Question type                            | Tool                                                                      |
 |------------------------------------------|---------------------------------------------------------------------------|
-| Lessons learned (categorized)            | QMD search (`latent/memories/`)                                            |
-| Product decisions + stakeholder answers  | QMD search (`latent/PDRs/`)                                                |
-| Architectural/technical decisions        | QMD search (`latent/ADRs/`)                                                |
-| Codebase patterns                        | QMD search (`latent/patterns/`)                                            |
-| Known traps and constraints              | QMD search (`latent/gotchas/`)                                             |
+| Reusable lessons (tech-specific)         | QMD search (`latent/global/<technology>/`)                                |
+| Project-specific lessons                 | QMD search (`latent/project/`)                                            |
+| Product decisions + stakeholder answers  | QMD search (`latent/PDRs/`)                                               |
+| Architectural/technical decisions        | QMD search (`latent/ADRs/`)                                               |
 | Vault semantic search ("did we ever...") | Use `telamon.qmd` skill                                                   |
 | Architecture, relationships, god nodes   | Use `telamon.graphify` skill                                              |
 | Code by meaning ("find auth logic")      | codebase-index (ask naturally)                                            |

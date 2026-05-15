@@ -21,11 +21,11 @@ Ask yourself:
 
 ## 2. Route to correct brain file
 
-- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `latent/gotchas/`)
-- **All other lessons** → create new file in `.ai/telamon/memory/latent/memories/` using entry format from `telamon.memory_management` skill (section 6)
+- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `latent/global/<technology>/ or latent/project/`)
+- **All other lessons** → create new file in `.ai/telamon/memory/latent/global/<technology>/ or latent/project/` using entry format from `telamon.memory_management` skill (section 6)
 
 One entry per lesson -- do not bundle multiple takeaways.
 
 ## 3. Pruning
 
-When `memories/` exceeds 100 files, follow pruning rules in `telamon.memory_management` skill (section 6).
+When `global/<tech>/` or `project/` exceeds 100 files, follow pruning rules in `telamon.memory_management` skill (section 6).
