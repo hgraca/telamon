@@ -33,7 +33,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
 
-Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `tags`, `keywords`, `source`). Body starts after frontmatter — no frontmatter in body.
+Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywords` only). Body starts after frontmatter — no metadata in body.
 
 ## 2. Routing Table
 
@@ -56,7 +56,7 @@ Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `tags`,
 **Routing rules:**
 - Create a new file per item — never append to existing files
 - File name: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md` (timestamp = item date, NN = sequence within same second)
-- Include YAML frontmatter: `date`, `tags`, `keywords` (1–5 focused terms — tool names, concept names, domain terms), `source`
+- Include YAML frontmatter: `date`, `keywords` (1–5 focused terms — tool names, concept names, domain terms)
 - One entry per insight
 - Include dates in entries
 
@@ -124,19 +124,17 @@ If no bucket matches, use `project/`.
 
 ## 6. Latent Item File Format
 
-Each latent item is a standalone `.md` file with YAML frontmatter:
+Each latent item is a standalone `.md` file:
 
 ```markdown
 ---
 date: YYYY-MM-DD
-tags: ["latent", "<global|project>"]
-keywords: ["word1", "word2", ...]
-source: <origin-file-or-session>
+keywords: ["keyword1", "keyword2"]
 ---
 
 ## <Title>
 
-<body content>
+<body — plain prose or bullets, no metadata labels>
 ```
 
 File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
@@ -148,19 +146,18 @@ Keywords: 1–5 focused terms — tool names, concept names, domain terms that h
 
 ### Entry body
 
+Write the actual problem, solution, or learning as plain prose or bullets. No metadata labels (`Date:`, `Module:`, `Status:`, `Scope:`, `Context:`, `Source:`) in the body — the title and keywords carry that context. Include enough detail that a future agent can act on the entry without reading anything else.
+
 ```markdown
 ## <title>
-- **Date**: YYYY-MM-DD
-- **Context**: What triggered this lesson.
-- **Lesson**: Reusable takeaway (or problem + fix for gotchas; pattern + when-to-apply for patterns).
-- **Scope**: Where this applies (technology, component, layer, or project-wide).
-- **Status**: ACTIVE
+
+<What happened or what the trap is. What the fix or pattern is. Why it matters.>
 ```
 
 ### Entry quality rules
-- **Specific, not generic** -- "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
-- **Include context** -- future agents need to understand *why*
-- **Scope it** -- lesson about Invoice component must say so
+- **Specific, not generic** — "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
+- **Self-contained** — future agents need to understand *why* without reading other files
+- **No scaffolding** — no `- **Date**: ...`, `- **Status**: ACTIVE`, `- **Scope**: ...` lines
 
 ### Pruning (when global/<tech>/ or project/ exceeds 100 files)
 - Mark entries as `SUPERSEDED` (note the superseding file name) when newer entry replaces them

@@ -32,18 +32,12 @@ File template:
 ```markdown
 ---
 date: YYYY-MM-DD
-tags: ["latent", "global"]
-keywords: ["word1", "word2"]   <- 1-5 focused terms; bucket name first
-source: <session or context>
+keywords: ["keyword1", "keyword2"]   <- 1-5 focused terms; bucket name first
 ---
 
 ## <Short descriptive title>
 
-- **Date**: YYYY-MM-DD
-- **Context**: <What triggered this — tool, API, platform, config quirk.>
-- **Lesson**: <What went wrong, why it's non-obvious, and context where it occurs. Include fix or workaround. File paths, commands, or code if helpful.>
-- **Scope**: <Technology or project area where this applies.>
-- **Status**: ACTIVE
+<What went wrong, why it's non-obvious, and the context where it occurs. Include fix or workaround. File paths, commands, or code if helpful. No metadata labels.>
 ```
 
 Quality criteria (from `telamon.memory_management` skill, section 5):
