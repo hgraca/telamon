@@ -196,9 +196,6 @@ src/
     git-hook-remember-session/
       remember-session-hook-runner.sh  # post-commit hook: captures learnings to memory
       init.sh                          # installs the post-commit hook into a project
-    git-hook-run-tests/
-      run-tests-hook-runner.sh         # pre-commit hook: runs `make test DRY_RUN=--dry-run` before opencode commits
-      init.sh                          # installs the pre-commit hook into a project
   skills/
     memory/                  # memory & context management skills
     dev/                     # development convention skills
