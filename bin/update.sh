@@ -552,19 +552,21 @@ if command -v cass &>/dev/null; then
   fi
 fi
 
-# ── Vault directory migration: storage/obsidian/ → storage/projects-memory/ ───
-# The vault was previously stored under storage/obsidian/. Rename silently.
+# ── Vault directory migration: storage/obsidian/ → storage/memory/projects/ ───
+# The vault was previously stored under storage/obsidian/ then storage/projects-memory/.
+# storage/projects-memory is now a symlink to storage/memory/projects/.
 _OLD_VAULT_DIR="${TELAMON_ROOT}/storage/obsidian"
-_NEW_VAULT_DIR="${TELAMON_ROOT}/storage/projects-memory"
+_NEW_VAULT_DIR="${TELAMON_ROOT}/storage/memory/projects"
 _VAULT_MIGRATED=0
 if [[ -d "${_OLD_VAULT_DIR}" && ! -d "${_NEW_VAULT_DIR}" ]]; then
-  step "Migrating vault directory: storage/obsidian/ → storage/projects-memory/ ..."
+  step "Migrating vault directory: storage/obsidian/ → storage/memory/projects/ ..."
+  mkdir -p "${TELAMON_ROOT}/storage/memory"
   mv "${_OLD_VAULT_DIR}" "${_NEW_VAULT_DIR}"
   log "Vault directory renamed"
   _VAULT_MIGRATED=1
 elif [[ -d "${_OLD_VAULT_DIR}" && -d "${_NEW_VAULT_DIR}" ]]; then
   # Both exist — merge projects from old into new
-  step "Merging remaining projects from storage/obsidian/ into storage/projects-memory/ ..."
+  step "Merging remaining projects from storage/obsidian/ into storage/memory/projects/ ..."
   for _proj_dir in "${_OLD_VAULT_DIR}"/*/; do
     [[ -d "${_proj_dir}" ]] || continue
     _pname="$(basename "${_proj_dir}")"
@@ -594,7 +596,7 @@ _fix_memory_link() {
   local _target
   _target="$(readlink "${_link}")"
   if [[ "${_target}" == *"/storage/obsidian/"* ]]; then
-    local _new_target="${_target/storage\/obsidian\//storage\/projects-memory\/}"
+    local _new_target="${_target/storage\/obsidian\//storage\/memory\/projects\/}"
     if [[ -d "${_new_target}" ]]; then
       rm "${_link}"
       ln -s "${_new_target}" "${_link}"
@@ -807,7 +809,7 @@ fi
 # key_decisions.md was split into PDRs.md (product decisions) and ADRs.md
 # (architecture/technical decisions). Rename existing file to PDRs.md and
 # create ADRs.md if missing.
-for _brain_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/brain; do
+for _brain_dir in "${TELAMON_ROOT}/storage/memory/projects"/*/brain; do
   [[ -d "${_brain_dir}" ]] || continue
   _project_name="$(basename "$(dirname "${_brain_dir}")")"
 

@@ -158,7 +158,7 @@ Hybrid markdown search over memory vault — combines BM25 keyword (`lex`), sema
 
 **Indexed collections:**
 - `telamon` — entire memory vault (brain, work, reference, thinking, bootstrap)
-- Root: `<project>/.ai/telamon/memory` (symlink into `storage/projects-memory/<project>/`)
+- Root: `<project>/.ai/telamon/memory` (symlink into `storage/memory/projects/<project>/`)
 
 **Tips:**
 - For exact term/path lookup: `qmd search "PDRs gotcha"`

@@ -23,17 +23,17 @@ VAULT_TMPL="${TELAMON_ROOT}/src/instructions/skills/memory/memory-management/_tm
 # ── Resolve vault root and symlink target ─────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   VAULT_ROOT="${PROJ}/.ai/telamon/memory"
-  SYMLINK_PATH="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
+  SYMLINK_PATH="${TELAMON_ROOT}/storage/memory/projects/${PROJECT_NAME}"
   SYMLINK_TARGET="${VAULT_ROOT}"
 else
-  VAULT_ROOT="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
+  VAULT_ROOT="${TELAMON_ROOT}/storage/memory/projects/${PROJECT_NAME}"
   SYMLINK_PATH="${PROJ}/.ai/telamon/memory"
   SYMLINK_TARGET="${VAULT_ROOT}"
 fi
 
 # ── Create directory scaffold ─────────────────────────────────────────────────
 DIRS=(
-  "${VAULT_ROOT}/brain"
+  "${VAULT_ROOT}/latent"
   "${VAULT_ROOT}/work/active"
   "${VAULT_ROOT}/work/archive"
   "${VAULT_ROOT}/work/incidents"
@@ -77,13 +77,25 @@ done
 
 # ── Cross-symlink between project and Telamon storage ─────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
-  # storage/projects-memory/<name> → project/.ai/telamon/memory
+  # storage/memory/projects/<name> → project/.ai/telamon/memory
   mkdir -p "$(dirname "${SYMLINK_PATH}")"
-  ensure_symlink "${SYMLINK_PATH}" "${SYMLINK_TARGET}" "storage/projects-memory/${PROJECT_NAME}"
+  ensure_symlink "${SYMLINK_PATH}" "${SYMLINK_TARGET}" "storage/memory/projects/${PROJECT_NAME}"
 else
-  # project/.ai/telamon/memory → storage/projects-memory/<name>
+  # project/.ai/telamon/memory → storage/memory/projects/<name>
   mkdir -p "$(dirname "${SYMLINK_PATH}")"
   ensure_symlink "${SYMLINK_PATH}" "${SYMLINK_TARGET}" ".ai/telamon/memory"
+fi
+
+# ── Global knowledge symlink ──────────────────────────────────────────────────
+# latent/global → storage/memory/global (shared tech knowledge across all projects)
+GLOBAL_SRC="${TELAMON_ROOT}/storage/memory/global"
+GLOBAL_LINK="${VAULT_ROOT}/latent/global"
+mkdir -p "${GLOBAL_SRC}"
+if [[ -L "${GLOBAL_LINK}" || -e "${GLOBAL_LINK}" ]]; then
+  skip "latent/global symlink (already exists)"
+else
+  ln -s "${GLOBAL_SRC}" "${GLOBAL_LINK}"
+  log "Symlinked latent/global → storage/memory/global"
 fi
 
 info "Memory vault ready for '${PROJECT_NAME}' (${MEMORY_OWNER} mode)"

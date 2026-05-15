@@ -241,5 +241,8 @@ storage/                     # runtime data — git-ignored except opencode.json
   ollama/                    # Ollama model cache
   graphify/                  # Graphify output cache
   qmd/                       # QMD index and cache
-  projects-memory/           # per-project memory vaults
+  memory/
+    projects/                  # per-project memory vaults
+    global/                    # shared global tech knowledge (across all projects)
+  projects-memory/             # backward-compat symlink → memory/projects/
 ```

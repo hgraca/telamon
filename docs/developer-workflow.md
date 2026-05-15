@@ -119,7 +119,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 
 `telamon init` wires up a project with all Telamon tools:
 
-- Creates the memory vault with `bootstrap/`, `latent/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/projects-memory/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/projects-memory/<project-name>`.
+- Creates the memory vault with `bootstrap/`, `latent/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/memory/projects/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/memory/projects/<project-name>`.
 - Control vault ownership with the `--memory-owner` flag:
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory

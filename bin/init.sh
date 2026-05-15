@@ -290,7 +290,7 @@ fi
 # the canonical project map for future agent sessions. Idempotent: skip when the
 # description is already populated. Symlink-transparent: bash's `-s` test follows
 # symlinks, so MEMORY_OWNER=telamon (where the file lives under
-# storage/projects-memory/<name>/bootstrap/ and is exposed via the
+# storage/memory/projects/<name>/bootstrap/ and is exposed via the
 # .ai/telamon/memory symlink) is handled identically to MEMORY_OWNER=project.
 # Missing `opencode` → warn + continue (exploration is enhancement, not a hard
 # requirement). `opencode run` failure → warn + continue. Init never aborts here.
@@ -332,7 +332,7 @@ unset _DESC_FILE
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   BRAIN_DIR="${PROJ}/.ai/telamon/memory/brain"
 else
-  BRAIN_DIR="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}/brain"
+  BRAIN_DIR="${TELAMON_ROOT}/storage/memory/projects/${PROJECT_NAME}/brain"
 fi
 echo
 log "Project '${PROJECT_NAME}' initialised."

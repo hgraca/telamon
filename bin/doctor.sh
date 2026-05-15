@@ -178,7 +178,7 @@ if command -v qmd &>/dev/null; then
   fi
 
   # Check QMD collections exist (one per project, named after the project)
-  for vault_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/; do
+  for vault_dir in "${TELAMON_ROOT}/storage/memory/projects"/*/; do
     if [[ -d "${vault_dir}" ]]; then
       collection_name="$(basename "${vault_dir%/}")"
       doc_count=$(find "${vault_dir}" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')

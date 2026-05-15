@@ -153,7 +153,7 @@ ok "Initial commit created"
 # -- run telamon init with project-side memory ownership -----------------------
 log "Running 'telamon init' (memory ownership: project-side)..."
 # TELAMON_MEMORY_OWNER=project signals init to keep memory inside the project
-# instead of symlinking to storage/projects-memory/. If the init script does not
+# instead of symlinking to storage/memory/projects/. If the init script does not
 # support this env var, the user will see a clear error and can adjust.
 TELAMON_MEMORY_OWNER=project telamon init "${ITER_DIR}"
 ok "Project initialised"

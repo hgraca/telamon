@@ -6,14 +6,14 @@
 # (memories, ADRs, PDRs, gotchas, patterns) that benefit from semantic search.
 # Work archives, thinking/, reference/, and bootstrap/ are excluded.
 #
-# The vault lives at <telamon-root>/storage/projects-memory/<project-name>/ and
+# The vault lives at <telamon-root>/storage/memory/projects/<project-name>/ and
 # is symlinked into the project at <project>/.ai/telamon/memory/. The collection
 # is registered using the symlink path so it works uniformly across both
 # memory-owner modes (telamon and project).
 #
 # A SINGLE collection is registered per project, named after the project:
 #
-#   <project>   <project>/.ai/telamon/memory/brain   — latent/ only (all .md files)
+#   <project>   <project>/.ai/telamon/memory/latent   — latent/ only (all .md files)
 #
 # Collections are registered in Telamon-managed index at
 # <telamon-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
@@ -62,7 +62,7 @@ fi
 # Register against the latent/ path inside the project vault so only structured
 # knowledge items are indexed (not work archives, thinking/, reference/, bootstrap/).
 VAULT="${PWD}/.ai/telamon/memory"
-BRAIN="${VAULT}/brain"
+BRAIN="${VAULT}/latent"
 
 if [[ ! -d "${VAULT}" ]]; then
   warn "Vault not found at ${VAULT} — run 'make init PROJ=<path>' first"
@@ -79,7 +79,7 @@ fi
 # exists. We check first and skip if already registered.
 
 NAME="${PROJECT_NAME}"
-DESCRIPTION="brain knowledge for ${PROJECT_NAME} — memories, ADRs, PDRs, gotchas, patterns"
+DESCRIPTION="latent knowledge for ${PROJECT_NAME} — memories, ADRs, PDRs, gotchas, patterns"
 
 if qmd collection list 2>/dev/null | grep -q "^${NAME} "; then
   skip "QMD collection already registered: ${NAME}"
