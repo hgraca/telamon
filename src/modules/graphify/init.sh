@@ -6,12 +6,8 @@
 # to <telamon-root>/storage/graphify via a symlink so all output is centralised
 # and never scattered across the project tree.
 #
-# The plugin entry (".opencode/plugins/telamon/graphify.js") is already present in
-# storage/opencode.jsonc (added by graphify/install.sh during `make install`).
-# Projects receive the plugin JS via the .opencode/plugins/telamon symlink created
-# by `make init` — no copying is needed.
-# For projects with their own opencode config it flows in via merge-config.py
-# in bin/init.sh.
+# The graphify context injection plugin was retired — context priming is now
+# handled by a single context priming tool at session start.
 #
 # The graphify skill is shipped as a static file in src/instructions/skills/memory/_tools/graphify/SKILL.md
 # and is made available to projects via the .opencode/skills/telamon symlink created

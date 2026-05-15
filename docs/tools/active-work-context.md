@@ -1,33 +1,27 @@
 ---
 layout: page
 title: Active Work Context
-description: OpenCode plugin that injects active work items at session start and prompts the user to continue, archive, or start new work.
+description: Retired experiment — was an OpenCode plugin that injected active work items at session start.
 nav_section: docs
 ---
 
-Active Work Context — Session-Start Work Resumption
+# Active Work Context — Retired
 
-An OpenCode plugin that injects a summary of active work items into the first bash call of each session. If active tasks exist, the agent asks the user whether to continue one, archive one, or start something new.
+**Status:** Retired experiment. Removed because it made the session go off topic. This functionality should be done as part of the memory audit skill instead.
 
-- Automatic — fires on the first bash call of each session
-- Scans `.ai/telamon/memory/work/active/` for task directories
-- Extracts task name, title, and short description from each `README.md`
-- Injects context via the same echo-prefix pattern as [Diff Context](diff-context)
+**Type:** Was a built-in OpenCode plugin (`src/instructions/plugins/active-work-context.js`)
 
-**Type:** Built-in OpenCode plugin (`src/instructions/plugins/active-work-context.js`)
+## What it did
 
-## How it works
+Injected a summary of active work items into the first bash call of each session. If active tasks existed, the agent would ask the user whether to continue one, archive one, or start something new.
 
-1. On the first `tool.execute.before` event where the tool is `bash`:
-   - Reads all subdirectories under `.ai/telamon/memory/work/active/`
-   - For each subdirectory with a `README.md`, extracts the title (first line after YAML frontmatter) and a short description (first paragraph after the title, max 200 chars)
-   - Builds a context block listing all active items
-   - Prepends the context to the bash command output
-   - Includes an instruction for the agent to ask the user what to do
-2. Fires only once per session (uses an `injected` flag)
-3. If no active work items exist, skips silently
+- Scanned `.ai/telamon/memory/work/active/` for task directories
+- Extracted task name, title, and short description from each `README.md`
 
-## Related
+## Reasoning
 
-- [Diff Context](diff-context) — Injects git change summary at session start
-- [Session Capture](remember-session) — Auto-promotes learnings before compaction
+The plugin's context injection at session start frequently derailed the session's focus. Active work context is better handled on-demand by the memory audit skill, which can present work items in a controlled, user-initiated manner.
+
+## Source
+
+Removed from the codebase. Available in git history at `src/instructions/plugins/active-work-context.js`.

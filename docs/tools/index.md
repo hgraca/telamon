@@ -9,11 +9,9 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 ## Memory & session
 
-| Tool                                       | Description                                              |
-|--------------------------------------------|----------------------------------------------------------|
-| [Session Capture](remember-session)         | Auto-promotes learnings to memory before compaction      |
-| [Diff Context](diff-context)               | Injects git change summary at session start              |
-| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user |
+| Tool                                | Description                                         |
+|-------------------------------------|-----------------------------------------------------|
+| [Session Capture](remember-session) | Auto-promotes learnings to memory before compaction |
 
 ## Codebase understanding
 
@@ -60,15 +58,12 @@ Every tool Telamon installs and manages — all local, all automatic.
 
 Plugins are OpenCode extensions that run automatically. They fire on specific events (session start, agent turn, bash call) to inject context or capture knowledge.
 
-| Plugin                                     | What it does                                                                           | Source                                                                                                     |
-|--------------------------------------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| [Session Capture](remember-session)         | Promotes learnings to memory after each commit (git post-commit hook)                  | [`remember-session-hook-runner.sh`](https://github.com/hgraca/telamon/blob/main/src/modules/git-hook-remember-session/remember-session-hook-runner.sh) |
-| [Pre-Commit Test Gate](run-tests)           | Runs `make test DRY_RUN=--dry-run` before opencode-driven commits; aborts on failure                     | [`run-tests-hook-runner.sh`](https://github.com/hgraca/telamon/blob/main/src/modules/git-hook-run-tests/run-tests-hook-runner.sh) |
-| [Diff Context](diff-context)               | Injects git change summary on first bash call                                          | [`diff-context.js`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/diff-context.js)               |
-| [Graphify](graphify)                       | Injects god nodes and communities at session start                                     | [`graphify.js`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/graphify.js)                       |
-| [RTK](rtk)                                 | Compresses bash output before it reaches the LLM                                       | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/rtk.ts)                                 |
-| RTK Dedupe                                 | Deduplicates repeated output chunks from RTK                                           | [`rtk-dedupe.ts`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/rtk-dedupe.ts)                   |
-| [Active Work Context](active-work-context) | Injects active work items at session start, prompts user to continue/archive/start new | [`active-work-context.js`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/active-work-context.js) |
+| Plugin                              | What it does                                                                         | Source                                                                                                                                                 |
+|-------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Session Capture](remember-session) | Promotes learnings to memory after each commit (git post-commit hook)                | [`remember-session-hook-runner.sh`](https://github.com/hgraca/telamon/blob/main/src/modules/git-hook-remember-session/remember-session-hook-runner.sh) |
+| [Pre-Commit Test Gate](run-tests)   | Runs `make test DRY_RUN=--dry-run` before opencode-driven commits; aborts on failure | [`run-tests-hook-runner.sh`](https://github.com/hgraca/telamon/blob/main/src/modules/git-hook-run-tests/run-tests-hook-runner.sh)                      |
+| [RTK](rtk)                          | Compresses bash output before it reaches the LLM                                     | [`rtk.ts`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/rtk.ts)                                                                |
+| RTK Dedupe                          | Deduplicates repeated output chunks from RTK                                         | [`rtk-dedupe.ts`](https://github.com/hgraca/telamon/blob/main/src/instructions/plugins/rtk-dedupe.ts)                                                  |
 
 Plugin source code lives in [`src/instructions/plugins/`](https://github.com/hgraca/telamon/tree/main/src/plugins).
 
@@ -91,13 +86,15 @@ Some tools run models locally — no cloud API calls for these operations:
 
 ## Retired (evaluated and removed)
 
-| Tool                           | Description                                                            |
-|--------------------------------|------------------------------------------------------------------------|
-| [Cass](cass)                   | Conversation History Search                                            |
-| [Discord](discord)             | Discord bot (remote-opencode) — couldn't stabilize                     |
-| [Ogham](ogham)                 | Semantic memory store (pgvector) — replaced by QMD                     |
-| [Obsidian](obsidian)           | Knowledge vault via MCP — replaced by QMD                              |
-| [Script Runner](script-runner) | Generic `/script` runner — replaced by thin `/command` script wrappers |
+| Tool                                       | Description                                                                                                   |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [Cass](cass)                               | Conversation History Search                                                                                   |
+| [Discord](discord)                         | Discord bot (remote-opencode) — couldn't stabilize                                                            |
+| [Ogham](ogham)                             | Semantic memory store (pgvector) — replaced by QMD                                                            |
+| [Obsidian](obsidian)                       | Knowledge vault via MCP — replaced by QMD                                                                     |
+| [Script Runner](script-runner)             | Generic `/script` runner — replaced by thin `/command` script wrappers                                        |
+| [Active Work Context](active-work-context) | Injected active work items at session start — made session go off topic; should be part of memory audit skill |
+| [Diff Context](diff-context)               | Injected git change summary at session start — moved to single context priming tool                           |
 
 ## More
 

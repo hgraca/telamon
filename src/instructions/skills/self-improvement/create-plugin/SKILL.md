@@ -40,7 +40,7 @@ Clarify before writing:
 2. **Which hook(s)?** — See hook table in Step 1.
 3. **Local or global?** — `.opencode/plugins/` (project) vs `~/.config/opencode/plugins/` (global).
 4. **Dependencies?** — npm packages needed? Add to `.opencode/package.json`.
-5. **Caching strategy?** — Expensive computation (git log, graphify) needs TTL cache.
+5. **Caching strategy?** — Expensive computation (git log, knowledge graph) needs TTL cache.
 6. **Gating strategy?** — When to skip (clean repo, chit-chat turn, first turn only).
 7. **Secrets?** — Never embed. Load from env vars or secret store.
 8. **Token budget?** — Max bytes injected per turn. Truncate or gate if exceeded.
@@ -56,7 +56,7 @@ Clarify before writing:
 
 | Hook                                      | Purpose                                      | When                                             |
 |-------------------------------------------|----------------------------------------------|--------------------------------------------------|
-| `chat.params`                             | Inject into system prompt before LLM request | Context injection (git diff, graphify, env info) |
+| `chat.params`                             | Inject into system prompt before LLM request | Context injection (git diff, knowledge graph, env info) |
 | `tool.execute.before`                     | Intercept/modify/block tool calls            | Security (env protection), arg transformation    |
 | `tool.execute.after`                      | React to tool results                        | Logging, metrics, notifications                  |
 | `session.idle`                            | Fire when idle                               | Notifications, cache refresh, cleanup            |
@@ -192,7 +192,7 @@ export const DiffContextPlugin: Plugin = async ({ project, $ }) => {
       }
 
       const block = [
-        "## Recent changes (diff-context plugin)",
+        "## Recent changes (context plugin)",
         "",
         "```",
         cached.value,
@@ -431,7 +431,7 @@ if (!config.enabled) return
 
 ### Step 7: Determinism & reproducibility
 
-- **Pin and snapshot:** If plugin shells out to tools (git, graphify CLI, jq),
+- **Pin and snapshot:** If plugin shells out to tools (git, knowledge graph CLI, jq),
   capture tool version in log line. Behaviour changes between sessions →
   correlate.
 - **Stable ordering:** Multiple plugins contributing to `input.system` → run in
@@ -458,7 +458,7 @@ if (!config.enabled) return
 
 #### Snapshot tests on injected output
 
-Given fixture inputs (mocked git repo, mocked graphify response), assert exact
+Given fixture inputs (mocked git repo, mocked knowledge graph response), assert exact
 string injected. Catches regressions where refactor silently changes model view.
 
 #### Dry-run mode

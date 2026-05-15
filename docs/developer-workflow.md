@@ -138,8 +138,8 @@ Via the `telamon.recall_memories` skill, the agent automatically:
 
 - Reads `brain/` notes for project decisions, patterns, and gotchas
 - Searches QMD for relevant past context
-- Receives Graphify god nodes, communities, and surprising connections (injected by the opencode plugin)
-- Receives a git change summary since the last session (injected by the diff-context plugin)
+- Receives Graphify god nodes, communities, and surprising connections (via the graphify-report tool)
+- Receives a git change summary since the last session (via the context priming tool)
 - Builds the codebase index if missing
 - Refreshes the QMD vault index
 
@@ -158,7 +158,7 @@ The agent saves to `brain/` notes (human-readable, curated):
 | Event                  | Action                                           |
 |------------------------|--------------------------------------------------|
 | Non-trivial bug fixed  | Appended to `brain/gotchas.md`                   |
-| Architectural decision | Appended to `brain/ADRs.md`                    |
+| Architectural decision | Appended to `brain/ADRs.md`                      |
 | Pattern established    | Appended to `brain/patterns.md`                  |
 | Session ends           | Work notes archived from `active/` to `archive/` |
 

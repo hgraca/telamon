@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install graphify (codebase knowledge graph tool) via uv,
-# register its OpenCode plugin and MCP server in storage/opencode.jsonc.
+# register its MCP server in storage/opencode.jsonc.
 #
 # The MCP server exposes structured graph introspection tools (get_node,
 # get_neighbors, get_community, god_nodes, graph_stats, shortest_path)
@@ -37,11 +37,6 @@ fi
 # ── Store Telamon root for MCP environment injection ─────────────────────────
 echo -n "${TELAMON_ROOT}" > "${TELAMON_ROOT}/storage/secrets/telamon-root"
 log "Stored TELAMON_ROOT: ${TELAMON_ROOT}"
-
-# ── Register OpenCode plugin in storage/opencode.jsonc ────────────────────────
-# The plugin JS lives in src/instructions/plugins/graphify.js (Telamon source of truth).
-# Projects receive it via the .opencode/plugins/telamon symlink created by `make init`.
-opencode.upsert_plugin ".opencode/plugins/telamon/graphify.js"
 
 # ── Register MCP server ──────────────────────────────────────────────────────
 # Exposes structured graph introspection tools (get_node, get_neighbors,

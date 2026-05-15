@@ -12,7 +12,7 @@ Builds a structural knowledge graph of the codebase. Identifies god nodes, archi
 - **Auto-build**: `telamon init` builds the graph. Existing graphs are skipped.
 - **Scheduled updates**: platform-native timer runs `graphify . --update` every 30 minutes
 - **MCP server**: tools include `query_graph`, `get_node`, `get_neighbors`, `get_community`, `god_nodes`, `graph_stats`, `shortest_path`
-- **Context injection**: opencode plugin injects god nodes and communities into the first tool call of each session
+- **Context injection**: god nodes and communities are surfaced via the graphify-report tool and the context priming tool at session start
 
 Particularly valuable for large legacy codebases where nobody has a complete mental model.
 

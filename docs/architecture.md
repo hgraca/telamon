@@ -43,10 +43,7 @@ flowchart TB
 
         subgraph plugins["OpenCode Plugins (always-on)"]
             p_sc["remember-session"]
-            p_gf["graphify"]
             p_rd["rtk-dedupe"]
-            p_dc["diff-context"]
-            p_aw["active-work-context"]
         end
 
         subgraph agents["Agent Roles (src/instructions/agents/)"]
@@ -67,30 +64,30 @@ flowchart TB
 
 ## What each tool provides at each stage
 
-| Stage                         | Tool                | Role                                                              |
-|-------------------------------|---------------------|-------------------------------------------------------------------|
-| **Session start**             | `brain/` notes      | Loads goals, decisions, patterns, and known gotchas               |
-| **Session start**             | QMD                 | Semantic search — surfaces related context before diving in       |
-| **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections        |
-| **Session start**             | Diff-context plugin | Injects git change summary since last session                     |
-| **Session start**             | Active-work-context | Injects active work items, prompts user to continue/archive       |
-| **Understanding code**        | Graphify MCP        | Structural map: layers, god nodes, module relationships           |
-| **Finding code**              | Codebase Index      | Semantic search: *"where is the auth logic?"*                     |
-| **Reading many files**        | Repomix             | Packs directory into compressed context (~70% token reduction)    |
-| **Finding code**              | ast-grep            | Structural search: find code by AST pattern                       |
-| **Finding vault notes**       | QMD                 | Semantic search: *"did we ever deal with X?"*                     |
-| **Looking up docs**           | Context7            | Queries library/framework documentation                           |
-| **Browser debugging**         | Chrome DevTools     | Inspects DOM, console, network, performance                       |
-| **Browser testing**           | Playwright          | Automates browser interactions and assertions                     |
-| **GitHub integration**        | `gh` CLI            | Manages issues, PRs, code search, reviews                         |
-| **Writing code**              | RTK                 | Compresses bash output to save tokens                             |
-| **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                         |
-| **After significant work**    | `brain/` notes      | Stores new decisions, patterns, bug fixes                         |
-| **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review    |
-| **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)                  |
-| **End of session**            | `brain/` notes      | Saves session summary; archives completed work notes              |
-| **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions                 |
-| **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata          |
+| Stage                         | Tool                | Role                                                           |
+|-------------------------------|---------------------|----------------------------------------------------------------|
+| **Session start**             | `brain/` notes      | Loads goals, decisions, patterns, and known gotchas            |
+| **Session start**             | QMD                 | Semantic search — surfaces related context before diving in    |
+| **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections     |
+| **Session start**             | Diff-context plugin | Injects git change summary since last session                  |
+| **Session start**             | Active-work-context | Injects active work items, prompts user to continue/archive    |
+| **Understanding code**        | Graphify MCP        | Structural map: layers, god nodes, module relationships        |
+| **Finding code**              | Codebase Index      | Semantic search: *"where is the auth logic?"*                  |
+| **Reading many files**        | Repomix             | Packs directory into compressed context (~70% token reduction) |
+| **Finding code**              | ast-grep            | Structural search: find code by AST pattern                    |
+| **Finding vault notes**       | QMD                 | Semantic search: *"did we ever deal with X?"*                  |
+| **Looking up docs**           | Context7            | Queries library/framework documentation                        |
+| **Browser debugging**         | Chrome DevTools     | Inspects DOM, console, network, performance                    |
+| **Browser testing**           | Playwright          | Automates browser interactions and assertions                  |
+| **GitHub integration**        | `gh` CLI            | Manages issues, PRs, code search, reviews                      |
+| **Writing code**              | RTK                 | Compresses bash output to save tokens                          |
+| **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                      |
+| **After significant work**    | `brain/` notes      | Stores new decisions, patterns, bug fixes                      |
+| **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review |
+| **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)               |
+| **End of session**            | `brain/` notes      | Saves session summary; archives completed work notes           |
+| **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions              |
+| **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata       |
 
 ---
 
@@ -101,12 +98,12 @@ flowchart TB
 The installer writes one plain-text file per secret into `storage/secrets/` (git-ignored).
 These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern — the agent never sees raw secrets in config, only file pointers.
 
-| File                 | Contents                              |
-|----------------------|---------------------------------------|
-| `graphify-python`    | Path to graphify's Python interpreter |
-| `telamon-root`       | Path to the Telamon root directory    |
-| `gh_pat`             | GitHub personal access token (used by `gh` CLI) |
-| `qmd-cache-home`     | XDG_CACHE_HOME override for QMD       |
+| File              | Contents                                        |
+|-------------------|-------------------------------------------------|
+| `graphify-python` | Path to graphify's Python interpreter           |
+| `telamon-root`    | Path to the Telamon root directory              |
+| `gh_pat`          | GitHub personal access token (used by `gh` CLI) |
+| `qmd-cache-home`  | XDG_CACHE_HOME override for QMD                 |
 
 ### Docker services
 
@@ -192,14 +189,9 @@ src/
     ux-designer.md           # UX designer — user flows, interaction specs
   commands/                  # slash commands (one .md per command)
   plugins/                   # OpenCode plugins
-    graphify.js              # injects graph context into first tool call
     rtk.ts                   # RTK token compression integration
     rtk-dedupe.ts            # deduplicates RTK output
-    diff-context.js          # injects git change summary on first bash call
-    active-work-context.js   # injects active work items at session start
     session-id-export.js     # exports OPENCODE_SESSION_ID to env + per-PID file
-    lib/
-      readme-utils.js        # shared utilities for README.md parsing
   modules/
     git-hook-remember-session/
       remember-session-hook-runner.sh  # post-commit hook: captures learnings to memory
@@ -235,7 +227,7 @@ src/
     repomix/                 # Repomix MCP installer, init, update, doctor
     promptfoo/               # promptfoo eval framework installer, init, update
     remember-session/         # remember-session opencode plugin + init
-    diff-context/            # diff-context opencode plugin registration
+    diff-context/            # diff-context opencode plugin registration (retired)
     cli/                     # telamon CLI + desktop menu entry installer
 
 test/
