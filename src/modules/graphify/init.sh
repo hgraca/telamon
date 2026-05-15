@@ -58,30 +58,40 @@ fi
 if [[ -f "graphify-out/graph.json" ]]; then
   skip "Graph already built"
 else
-  # Sync .gitignore → .graphifyignore before building
+  # Build .graphifyignore: start from .gitignore, then restrict indexing to
+  # src/ or app/ (whichever exists) by excluding everything else at root level.
+  # graphify always writes graphify-out/ relative to the path argument, so we
+  # always pass "." to keep output at the project root — and use .graphifyignore
+  # to control which files are actually indexed.
+  _MARKER="# ── AUTO-GENERATED FROM .gitignore ──"
+  _content="$(printf '%s\n# Do not edit this section manually — it is regenerated on each commit.\n# Add custom patterns below the END marker.\n\n' "${_MARKER}")"
   if [[ -f ".gitignore" ]]; then
-    _MARKER="# ── AUTO-GENERATED FROM .gitignore ──"
-    _content="$(printf '%s\n# Do not edit this section manually — it is regenerated on each commit.\n# Add custom patterns below the END marker.\n\n' "${_MARKER}")"
     _content+="$(cat .gitignore)"
-    _content+="$(printf '\n\n# ── END AUTO-GENERATED ──\n')"
-    printf '%s' "${_content}" > .graphifyignore
-    log "Created .graphifyignore from .gitignore"
+  fi
+  _content+="$(printf '\n\n# ── END AUTO-GENERATED ──\n')"
+
+  # Restrict to src/ or app/ if present
+  if [[ -d "src" ]]; then
+    _GRAPHIFY_SRC="src"
+    _content+="$(printf '\n# ── SOURCE SCOPE (auto) ──\n# Index only src/ — exclude everything else at root level\n/*\n!/src\n/src/graphify-out\n# ── END SOURCE SCOPE ──\n')"
+    log "Restricting graphify index to src/"
+  elif [[ -d "app" ]]; then
+    _GRAPHIFY_SRC="app"
+    _content+="$(printf '\n# ── SOURCE SCOPE (auto) ──\n# Index only app/ — exclude everything else at root level\n/*\n!/app\n/app/graphify-out\n# ── END SOURCE SCOPE ──\n')"
+    log "Restricting graphify index to app/"
+  else
+    _GRAPHIFY_SRC="."
+    log "No src/ or app/ found — indexing project root"
   fi
 
-  # Determine source root: prefer src/ then app/, fall back to project root
-  if [[ -d "src" ]]; then
-    GRAPHIFY_SRC="src"
-  elif [[ -d "app" ]]; then
-    GRAPHIFY_SRC="app"
-  else
-    GRAPHIFY_SRC="."
-  fi
+  printf '%s' "${_content}" > .graphifyignore
+  log "Created .graphifyignore"
 
   DATE_STR=$(date '+%-d %b %Y, %H:%M')
-  info "${DATE_STR} — Building initial knowledge graph (indexing ${GRAPHIFY_SRC}/)..."
+  info "${DATE_STR} — Building initial knowledge graph (indexing ${_GRAPHIFY_SRC}/)..."
   TMPOUT=$(mktemp)
   START_SECS=${SECONDS}
-  graphify update "${GRAPHIFY_SRC}" 2>&1 | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
+  graphify update . 2>&1 | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
   ELAPSED=$(( SECONDS - START_SECS ))
 
   if [[ ${GRAPH_EXIT} -ne 0 ]]; then

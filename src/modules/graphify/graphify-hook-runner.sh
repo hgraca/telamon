@@ -51,21 +51,34 @@ fi
 
 # ── Sync .gitignore → .graphifyignore (skip gitignored paths/files) ──────────
 # Graphify uses .graphifyignore (gitignore syntax) to exclude files.
-# We auto-generate it from .gitignore so graphify respects the same patterns.
+# We auto-generate it from .gitignore so graphify respects the same patterns,
+# then append source-scope rules to restrict indexing to src/ or app/.
+# graphify always writes graphify-out/ relative to the path argument, so we
+# always pass "." — source scoping is done via .graphifyignore exclusions.
 _GRAPHIFYIGNORE="${PROJECT_PATH}/.graphifyignore"
 _GITIGNORE="${PROJECT_PATH}/.gitignore"
 _MARKER="# ── AUTO-GENERATED FROM .gitignore ──"
+
+# Determine source scope
+if [[ -d "${PROJECT_PATH}/src" ]]; then
+  _SCOPE_BLOCK="$(printf '\n# ── SOURCE SCOPE (auto) ──\n# Index only src/ — exclude everything else at root level\n/*\n!/src\n/src/graphify-out\n# ── END SOURCE SCOPE ──')"
+elif [[ -d "${PROJECT_PATH}/app" ]]; then
+  _SCOPE_BLOCK="$(printf '\n# ── SOURCE SCOPE (auto) ──\n# Index only app/ — exclude everything else at root level\n/*\n!/app\n/app/graphify-out\n# ── END SOURCE SCOPE ──')"
+else
+  _SCOPE_BLOCK=""
+fi
 
 if [[ -f "${_GITIGNORE}" ]]; then
   _new_content="$(printf '%s\n# Do not edit this section manually — it is regenerated on each commit.\n# Add custom patterns below the END marker.\n\n' "${_MARKER}")"
   _new_content+="$(cat "${_GITIGNORE}")"
   _new_content+="$(printf '\n\n# ── END AUTO-GENERATED ──')"
+  _new_content+="${_SCOPE_BLOCK}"
 
   if [[ -f "${_GRAPHIFYIGNORE}" ]]; then
-    # Preserve any custom patterns added after the END marker
+    # Preserve any custom patterns added after the END marker (but before SOURCE SCOPE)
     _custom=""
     if grep -q "# ── END AUTO-GENERATED ──" "${_GRAPHIFYIGNORE}" 2>/dev/null; then
-      _custom="$(sed -n '/^# ── END AUTO-GENERATED ──$/,$ { /^# ── END AUTO-GENERATED ──$/d; p; }' "${_GRAPHIFYIGNORE}")"
+      _custom="$(sed -n '/^# ── END AUTO-GENERATED ──$/,/^# ── SOURCE SCOPE/{ /^# ── END AUTO-GENERATED ──$/d; /^# ── SOURCE SCOPE/d; p; }' "${_GRAPHIFYIGNORE}" 2>/dev/null || true)"
     fi
     printf '%s\n%s\n' "${_new_content}" "${_custom}" > "${_GRAPHIFYIGNORE}"
   else
@@ -73,16 +86,9 @@ if [[ -f "${_GITIGNORE}" ]]; then
   fi
 fi
 
-# Determine source root: prefer src/ then app/, fall back to project root
-if [[ -d "${PROJECT_PATH}/src" ]]; then
-  GRAPHIFY_SRC="${PROJECT_PATH}/src"
-elif [[ -d "${PROJECT_PATH}/app" ]]; then
-  GRAPHIFY_SRC="${PROJECT_PATH}/app"
-else
-  GRAPHIFY_SRC="${PROJECT_PATH}"
-fi
-
 # Launch graphify update in background.
+# Always pass "." so graphify-out/ stays at the project root (where the symlink
+# to central storage lives). Source scoping is handled via .graphifyignore above.
 # The subshell writes its own PID as its first action (fixes race condition:
 # previously $! was written after backgrounding, but the subshell could finish
 # and remove the PID file before the parent wrote it).
@@ -91,8 +97,8 @@ fi
   echo "${BASHPID}" > "${PID_FILE}"
 
   cd "${PROJECT_PATH}" || exit 0
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update started (indexing ${GRAPHIFY_SRC})" >> "${LOG_FILE}"
-  graphify update "${GRAPHIFY_SRC}" >> "${LOG_FILE}" 2>&1
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update started" >> "${LOG_FILE}"
+  graphify update . >> "${LOG_FILE}" 2>&1
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update finished (exit $?)" >> "${LOG_FILE}"
 
   # Only remove PID file if it still contains our PID (guards against a newer
