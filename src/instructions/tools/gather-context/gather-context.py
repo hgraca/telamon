@@ -18,6 +18,7 @@ import json
 import os
 import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -87,39 +88,127 @@ def run_graphify(keywords: list[str], top_n: int, graph_path: str) -> dict:
         return {"status": "error", "code": "GRAPHIFY_PARSE_ERROR", "output": out}
 
 
+# ---------------------------------------------------------------------------
+# Folder auto-collapse
+# ---------------------------------------------------------------------------
+
+def auto_collapse_folders(raw_folders: list[str], project_root: Path) -> list[str]:
+    """Return the minimal set of ancestor dirs that cover all raw_folders.
+
+    Algorithm:
+      1. Collect all valid leaf dirs (exist on disk).
+      2. Build a coverage map: ancestor → set of leaf indices it covers.
+      3. For each leaf, find its deepest ancestor that covers ≥2 leaves
+         (i.e. shares at least one sibling leaf). That is the tightest
+         meaningful grouping for that leaf.
+      4. Collect unique best-ancestors as candidates.
+      5. Remove any candidate that is a strict child of another candidate
+         (the parent already covers it — prefer the shallower grouping).
+      6. Return sorted list of candidates that exist on disk.
+    """
+    leaves: list[Path] = []
+    for f in raw_folders:
+        abs_f = project_root / f
+        if abs_f.is_dir():
+            leaves.append(Path(f))
+
+    if not leaves:
+        return []
+    if len(leaves) == 1:
+        return [str(leaves[0])]
+
+    # Build coverage map
+    ancestor_coverage: dict[str, set[int]] = defaultdict(set)
+    for idx, leaf in enumerate(leaves):
+        parts = leaf.parts
+        for depth in range(1, len(parts) + 1):
+            ancestor = str(Path(*parts[:depth]))
+            ancestor_coverage[ancestor].add(idx)
+
+    # For each leaf, find its deepest ancestor covering ≥2 leaves
+    leaf_best: dict[int, str] = {}
+    for idx, leaf in enumerate(leaves):
+        parts = leaf.parts
+        best = str(leaf)  # fallback: unique leaf kept as-is
+        for depth in range(len(parts), 0, -1):
+            ancestor = str(Path(*parts[:depth]))
+            if len(ancestor_coverage[ancestor]) >= 2:
+                best = ancestor
+                break
+        leaf_best[idx] = best
+
+    candidates: set[str] = set(leaf_best.values())
+
+    # Remove any candidate that is a strict child of another candidate
+    final: set[str] = set()
+    for c in candidates:
+        has_ancestor_in_candidates = any(
+            c != other and c.startswith(other + os.sep)
+            for other in candidates
+        )
+        if not has_ancestor_in_candidates:
+            final.add(c)
+
+    result = [s for s in final if (project_root / s).is_dir()]
+    return sorted(result)
+
+
+# ---------------------------------------------------------------------------
+# File relations extraction
+# ---------------------------------------------------------------------------
+
+def extract_file_relations(graphify_data: dict) -> list[dict]:
+    """Extract file-to-file relations from graphify word_matches.
+
+    Returns list of {from_file, relation, to_file} dicts, deduplicated,
+    sorted by from_file then relation.
+    """
+    word_matches = graphify_data.get("word_matches", {}).get("matches", [])
+    seen: set[tuple[str, str, str]] = set()
+    relations: list[dict] = []
+
+    for m in word_matches:
+        from_file = m.get("source", "")
+        if not from_file:
+            continue
+        for nb in m.get("neighbors", []):
+            to_file = nb.get("source", "")
+            relation = nb.get("relation", "")
+            if not to_file or not relation or to_file == from_file:
+                continue
+            key = (from_file, relation, to_file)
+            if key not in seen:
+                seen.add(key)
+                relations.append({
+                    "from_file": from_file,
+                    "relation": relation,
+                    "to_file": to_file,
+                })
+
+    relations.sort(key=lambda r: (r["from_file"], r["relation"], r["to_file"]))
+    return relations
+
+
 def extract_relevant_folders(graphify_data: dict, project_root: Path) -> list[str]:
-    """Extract unique parent folders from graphify word_matches and god_nodes source files."""
-    folders: set[str] = set()
+    """Extract raw leaf dirs from graphify matches, then auto-collapse."""
+    raw: set[str] = set()
 
     def add_source(source: str) -> None:
         if not source:
             return
-        # source_file is relative to project root
         p = Path(source)
-        # Take the parent directory (or the path itself if it's already a dir)
         folder = str(p.parent) if p.suffix else str(p)
         if folder and folder != ".":
-            folders.add(folder)
+            raw.add(folder)
 
-    # Word matches (most relevant — directly keyword-matched)
     word_matches = graphify_data.get("word_matches", {}).get("matches", [])
     for m in word_matches:
         add_source(m.get("source", ""))
         for nb in m.get("neighbors", []):
             add_source(nb.get("source", ""))
 
-    # God nodes (most connected — always useful for orientation)
-    for g in graphify_data.get("god_nodes", []):
-        add_source(g.get("source", ""))
-
-    # Filter to folders that actually exist under project root
-    valid: list[str] = []
-    for f in sorted(folders):
-        abs_f = project_root / f
-        if abs_f.is_dir():
-            valid.append(f)
-
-    return valid
+    # Do NOT include god_nodes — they add noise unrelated to the keywords
+    return auto_collapse_folders(sorted(raw), project_root)
 
 
 def run_tree(folders: list[str], project_root: Path) -> dict:
@@ -151,51 +240,49 @@ def format_qmd_md(qmd_data: dict) -> str:
         return "_No memory vault matches found._\n"
     lines = []
     for r in results:
-        path = r.get("path", "")
+        # QMD JSON schema: file, title, score, snippet (content requires qmd get)
+        file_path = r.get("file", "")
+        title = r.get("title", "") or file_path
         score = r.get("score", "")
-        content = r.get("content", "").strip()
-        lines.append(f"## {path} (score: {score})\n\n{content}\n")
+        snippet = r.get("snippet", "").strip()
+        header = f"## {title}"
+        if file_path and file_path != title:
+            header += f" — `{file_path}`"
+        score_str = f" (score: {score:.2f})" if isinstance(score, float) else f" (score: {score})"
+        lines.append(f"{header}{score_str}")
+        lines.append("")
+        if snippet:
+            lines.append(snippet)
+            lines.append("")
     return "\n".join(lines)
 
 
-def format_graphify_md(graphify_data: dict, folders: list[str]) -> str:
-    if graphify_data.get("status") == "error":
-        return f"_Graphify error: {graphify_data.get('code')} — {graphify_data.get('output', '')}_\n"
-
+def format_relations_md(relations: list[dict], folders: list[str]) -> str:
+    """Format file-to-file relations and relevant folders."""
     lines = []
 
-    # Stats
-    stats = graphify_data.get("stats", {})
-    if stats:
-        lines += [
-            "## Graph Summary",
-            "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
-            f"| Nodes | {stats.get('total_nodes', '?')} |",
-            f"| Edges | {stats.get('total_edges', '?')} |",
-            f"| Communities | {stats.get('total_communities', '?')} |",
-            "",
-        ]
-
-    # Relevant folders
+    # Relevant folders (collapsed)
     if folders:
-        lines += ["## Relevant Folders", ""]
+        lines += ["## Relevant Areas", ""]
         for f in folders:
             lines.append(f"- `{f}`")
         lines.append("")
 
-    # Word matches summary
-    wm = graphify_data.get("word_matches", {})
-    matches = wm.get("matches", [])
-    if matches:
-        lines += [f"## Keyword Matches ({wm.get('total_matches', len(matches))} nodes)", ""]
-        for m in matches[:10]:  # cap at 10 for readability
-            label = m.get("label", "")
-            source = m.get("source", "")
-            degree = m.get("degree", "")
-            lines.append(f"- **{label}** · `{source}` · degree={degree}")
+    # File relations
+    if relations:
+        lines += ["## Code Relations", ""]
+        lines += [
+            "| From | Relation | To |",
+            "|------|----------|----|",
+        ]
+        for r in relations:
+            from_f = r["from_file"].replace("|", "\\|")
+            to_f = r["to_file"].replace("|", "\\|")
+            rel = r["relation"]
+            lines.append(f"| `{from_f}` | {rel} | `{to_f}` |")
         lines.append("")
+    elif folders:
+        lines += ["## Code Relations", "", "_No inter-file relations found for these keywords._", ""]
 
     return "\n".join(lines)
 
@@ -303,8 +390,9 @@ def main() -> None:
     # 2. Graphify
     graphify_data = run_graphify(keywords, args.top_n, args.graph_path)
 
-    # 3. Extract folders from graphify output
+    # 3. Extract collapsed folders and file relations from graphify output
     folders = extract_relevant_folders(graphify_data, project_root)
+    relations = extract_file_relations(graphify_data)
 
     # 4. Tree (only if we have folders)
     tree_data: dict = {"status": "ok", "directories": []}
@@ -317,6 +405,7 @@ def main() -> None:
             "status": "ok",
             "keywords": keywords,
             "relevant_folders": folders,
+            "file_relations": relations,
             "memory": qmd_data,
             "graph": graphify_data,
             "trees": tree_data,
@@ -324,12 +413,12 @@ def main() -> None:
         print(json.dumps(result, indent=2))
     else:
         parts = [
-            f"# Context Priming: {', '.join(keywords)}",
+            f"# Gather Context: {', '.join(keywords)}",
             "",
             "---",
             "",
             md_section("Memory Vault", format_qmd_md(qmd_data)),
-            md_section("Codebase Graph", format_graphify_md(graphify_data, folders)),
+            md_section("Codebase Graph", format_relations_md(relations, folders)),
             md_section("Directory Trees", format_tree_md(tree_data)),
         ]
         print("\n".join(parts))
