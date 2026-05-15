@@ -5,8 +5,10 @@ description: Memory skill guide — when to use each skill during a session
 
 ## Session — Memory Skills
 
-### Session start (mandatory):
-Load the `telamon.recall_memories` skill — recalls past context, reads brain/ notes, initializes knowledge tools.
+### Session start:
+For non-trivial requests about the project, call the `gather-context` tool with keywords from the request — it gathers memory vault notes, codebase graph context, and directory trees in one step.
+
+Load `telamon.recall_memories` only when you need a full brain/ notes read without a specific topic (e.g. switching projects, or when gather-context is insufficient).
 
 ### While working:
 No manual memory triggers needed. The remember-session plugin fires `telamon.remember_session` automatically on idle.

@@ -5,7 +5,9 @@ description: "Recall context at session start. Read brain/ notes, update vault i
 
 # Recall Memories
 
-Run at beginning of every session, regardless of workflow. Even standalone tasks must start here.
+Use when you need a full brain/ notes read without a specific topic — e.g. switching projects, or when `gather-context` tool is insufficient for the current request.
+
+For non-trivial project requests, prefer calling the `gather-context` tool with topic keywords instead — it gathers memory vault notes, codebase graph context, and directory trees in one targeted step.
 
 ## 1. Recall past context
 

@@ -20,7 +20,7 @@ When implementing, follow `telamon.implement_story` skill, invoking @tester, @de
 
 - When delegating work to subagent or receiving status signals, use `telamon.agent-communication`
 - When session stalls, delegation fails, or unexpected situation arises, use `telamon.exception-handling`
-- When starting session, use `telamon.recall_memories`
+- When user request is non-trivial and about the project, call `gather-context` tool as first step with keywords extracted from the request before doing any other work
 - When context nears limit or opencode triggers compaction, use `telamon.remember_checkpoint`
 - When user says "wrap up", "remember session" or "capture session", use `telamon.remember_session`
 - When evaluating quality of completed work or running post-iteration retrospectives, use `telamon.retrospective`
@@ -165,6 +165,7 @@ Wait for human stakeholder's decision before continuing. Doing subagent's work t
 
 - Delegate backlog creation to @po — PO produces `<issue-folder>/backlog.md` with prioritized tasks and acceptance criteria.
 - Refine backlog through questions to human stakeholder (relay NEEDS_INPUT signals from @po).
+- **Backlog status tracking**: whenever a story changes state, update its `Status` cell in the backlog summary table: `TODO` → `DOING` (when work starts) → `DONE` (when committed and verified). Run `format-md` on `backlog.md` after each update.
 - Coordinate with Architect, UI Designer, and/or UX Designer as needed.
 - Invoke @po, @architect, @ui-designer, @ux-designer as subagents, consolidate feedback, drive plan to finality.
 - Approve or reject final plan.
