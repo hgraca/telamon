@@ -1,0 +1,70 @@
+import { tool } from "@opencode-ai/plugin"
+import path from "path"
+
+/**
+ * git-report — snapshot current git state: branch, status, staged diff, recent commits,
+ * and commits ahead of the default remote branch.
+ *
+ * Usage:
+ *   git-report()
+ *   git-report({ format: "markdown" })
+ *   git-report({ log_count: 20 })
+ *
+ * Delegates to the colocated Python script (git-report.py).
+ *
+ * Wiring (same pattern as repomix-report.ts):
+ *   - This file lives at <telamon-root>/src/instructions/tools/git-report/git-report.ts
+ *   - init.sh creates a flat symlink at <project>/.opencode/tools/git-report.ts
+ *     pointing to this file.
+ *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
+ *     so Bun's upward module resolution from this file's real path finds it.
+ */
+
+export default tool({
+  description:
+    "Return a git state snapshot: current branch, default remote branch, recent commits, working-tree status, staged diff (summary + full), and commits ahead of origin/HEAD. Use this to understand what has changed before committing, reviewing, or planning next steps.",
+  args: {
+    log_count: tool.schema
+      .number()
+      .optional()
+      .default(10)
+      .describe("Number of recent commits to show (default: 10)"),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")
+      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
+  },
+  async execute(args) {
+    const script = path.join(import.meta.dir, "git-report.py")
+    const fmt = args.format ?? "json"
+
+    const cmd = [
+      "python3",
+      script,
+      "--format",
+      fmt,
+      "--log-count",
+      String(args.log_count ?? 10),
+    ]
+
+    const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
+    const stdout = await new Response(proc.stdout).text()
+    const stderr = await new Response(proc.stderr).text()
+    const exitCode = await proc.exited
+
+    if (exitCode !== 0) {
+      return `git-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+    }
+
+    if (fmt === "json") {
+      try {
+        return JSON.parse(stdout.trim())
+      } catch {
+        return stdout.trim()
+      }
+    }
+
+    return stdout.trim()
+  },
+})

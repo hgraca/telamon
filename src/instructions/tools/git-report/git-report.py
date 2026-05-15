@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""git-report — snapshot current git state and output markdown or JSON.
+
+Captures: current branch, default remote branch, recent commits, working-tree
+status, staged diff (summary + full), and commits ahead of origin/HEAD.
+
+Usage:
+  python3 git-report.py
+  python3 git-report.py --format markdown
+  python3 git-report.py --log-count 20
+"""
+import argparse
+import json
+import subprocess
+import sys
+
+
+def run(cmd: list[str], cwd: str | None = None) -> tuple[str, int]:
+    """Run a shell command, return (stdout, returncode). Never raises."""
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=cwd,
+        )
+        return result.stdout.strip(), result.returncode
+    except subprocess.TimeoutExpired:
+        return "(timeout)", 1
+    except FileNotFoundError:
+        return "(git not found)", 1
+
+
+def collect(log_count: int) -> dict:
+    """Collect all git state into a structured dict."""
+    # Ensure origin/HEAD is resolved (best-effort, ignore failure)
+    run(["git", "remote", "set-head", "origin", "--auto"])
+
+    current_branch, _ = run(["git", "branch", "--show-current"])
+    default_branch, rc = run(["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"])
+    if rc != 0:
+        default_branch = "(unknown — run: git remote set-head origin --auto)"
+
+    recent_commits, _ = run(["git", "log", "--oneline", f"-{log_count}"])
+    status, _ = run(["git", "status"])
+    staged_stat, _ = run(["git", "diff", "--staged", "--stat"])
+    staged_diff, _ = run(["git", "diff", "--staged"])
+
+    ahead_commits = ""
+    if "unknown" not in default_branch:
+        ahead_commits, _ = run(
+            ["git", "log", "--oneline", "HEAD", f"^{default_branch}", "--no-merges"]
+        )
+
+    return {
+        "current_branch": current_branch,
+        "default_branch": default_branch,
+        "recent_commits": recent_commits,
+        "status": status,
+        "staged_stat": staged_stat,
+        "staged_diff": staged_diff,
+        "ahead_commits": ahead_commits,
+    }
+
+
+def render_markdown(data: dict) -> str:
+    """Render collected git state as a markdown report."""
+    lines = []
+
+    lines.append(f"## Git Report")
+    lines.append("")
+    lines.append(f"**Current branch:** `{data['current_branch']}`  ")
+    lines.append(f"**Default remote branch:** `{data['default_branch']}`")
+    lines.append("")
+
+    lines.append("### Recent Commits")
+    lines.append("")
+    if data["recent_commits"]:
+        for line in data["recent_commits"].splitlines():
+            lines.append(f"- {line}")
+    else:
+        lines.append("_(no commits)_")
+    lines.append("")
+
+    lines.append("### Status")
+    lines.append("")
+    lines.append("```")
+    lines.append(data["status"] or "(clean)")
+    lines.append("```")
+    lines.append("")
+
+    lines.append("### Staged Changes (summary)")
+    lines.append("")
+    if data["staged_stat"]:
+        lines.append("```")
+        lines.append(data["staged_stat"])
+        lines.append("```")
+    else:
+        lines.append("_(nothing staged)_")
+    lines.append("")
+
+    lines.append("### Staged Changes (full diff)")
+    lines.append("")
+    if data["staged_diff"]:
+        lines.append("```diff")
+        lines.append(data["staged_diff"])
+        lines.append("```")
+    else:
+        lines.append("_(nothing staged)_")
+    lines.append("")
+
+    lines.append("### Commits Ahead of Default Branch")
+    lines.append("")
+    if data["ahead_commits"]:
+        for line in data["ahead_commits"].splitlines():
+            lines.append(f"- {line}")
+    else:
+        lines.append("_(none — branch is up to date or default branch unknown)_")
+
+    return "\n".join(lines)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="git-report tool")
+    parser.add_argument(
+        "--log-count",
+        type=int,
+        default=10,
+        help="Number of recent commits to show (default: 10)",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="Output format (default: markdown)",
+    )
+    args = parser.parse_args()
+
+    data = collect(args.log_count)
+
+    if args.format == "json":
+        print(json.dumps({"status": "ok", **data}, indent=2))
+    else:
+        print(render_markdown(data))
+
+
+if __name__ == "__main__":
+    main()
