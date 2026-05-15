@@ -45,8 +45,8 @@ exhaustive reads wasteful.
    scripts, docs, vendored code, runtime data.
 3. **Entry points**: scripts in `bin/`, `scripts/`, `cmd/`, framework bootstraps (`public/index.php`,
    `src/main.ts`, `manage.py`, `main.go`, …).
-4. **Architecture artefacts**: `docs/architecture*.md`, ADRs (`docs/adr/`, `.ai/adr/`), `.ai/telamon/memory/brain/ADRs.md`,
-   `.ai/telamon/memory/brain/PDRs.md`.
+4. **Architecture artefacts**: `docs/architecture*.md`, ADRs (`docs/adr/`, `.ai/adr/`), `.ai/telamon/memory/brain/ADRs/`,
+   `.ai/telamon/memory/brain/PDRs/`.
 5. **Source tree**: sample one or two representative files per major component to confirm patterns (layering,
    naming, framework usage). Use `repomix` or `codebase-peek` to bulk-scan when many files belong to same
    concern — see `telamon.search_code` for tool selection.

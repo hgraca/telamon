@@ -21,8 +21,8 @@ Ask yourself:
 
 ## 2. Route to correct brain file
 
-- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `brain/gotchas.md`)
-- **All other lessons** → append to `.ai/telamon/memory/brain/memories.md` using M-XXX-NNN entry format from `telamon.memory_management` skill (section 6)
+- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `brain/gotchas/`)
+- **All other lessons** → append to `.ai/telamon/memory/brain/memories/` using M-XXX-NNN entry format from `telamon.memory_management` skill (section 6)
 
 One entry per lesson -- do not bundle multiple takeaways.
 

@@ -36,10 +36,10 @@ For each reference found, update link path from `work/active/` to `work/archive/
 ## 5. Promote Lessons
 
 Scan archived note for:
-- Gotchas or traps → append to `.ai/telamon/memory/brain/gotchas.md`
-- Reusable patterns → append to `.ai/telamon/memory/brain/patterns.md`
-- Standing product decisions → add to `.ai/telamon/memory/brain/PDRs.md`
-- Standing architecture decisions → add to `.ai/telamon/memory/brain/ADRs.md`
+- Gotchas or traps → append to `.ai/telamon/memory/brain/gotchas/`
+- Reusable patterns → append to `.ai/telamon/memory/brain/patterns/`
+- Standing product decisions → add to `.ai/telamon/memory/brain/PDRs/`
+- Standing architecture decisions → add to `.ai/telamon/memory/brain/ADRs/`
 
 ## 6. Report
 

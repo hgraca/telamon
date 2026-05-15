@@ -50,7 +50,7 @@ Orchestrator MUST treat stalled response (narration without matching tool call) 
 Memory capture handled **automatically** by remember-session plugin on idle. Agents do NOT need to manually invoke memory skills before returning.
 
 Exceptions:
-- **PDRs/ADRs**: When stakeholder answers question or makes decision, PO and Architect should record immediately in `brain/PDRs.md` or `brain/ADRs.md` (too important to defer).
+- **PDRs/ADRs**: When stakeholder answers question or makes decision, PO and Architect should record immediately in `brain/PDRs/` or `brain/ADRs/` (too important to defer).
 - **Checkpoint**: If context nears overflow, use `telamon.remember_checkpoint`.
 
 ## Delegation Format

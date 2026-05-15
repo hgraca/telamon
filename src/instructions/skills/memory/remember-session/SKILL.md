@@ -49,15 +49,15 @@ Also check:
 
 ## 2. Route to brain notes
 
-Append new entries to appropriate brain/ file per routing table in `telamon.memory_management` skill (section 2):
+Create new files in appropriate brain/ folder per routing table in `telamon.memory_management` skill (section 2):
 
 | Finding                                        | Destination         | Format                                                              |
 |------------------------------------------------|---------------------|---------------------------------------------------------------------|
-| Product decision, stakeholder answer, new rule | `brain/PDRs.md`     | Decision + rationale                                                |
-| Architecture/technical decision                | `brain/ADRs.md`     | Decision + rationale                                                |
-| Trap, constraint, recurring bug                | `brain/gotchas.md`  | Problem + fix/workaround                                            |
-| Established pattern                            | `brain/patterns.md` | Pattern + when to apply                                             |
-| Reusable lesson                                | `brain/memories.md` | M-XXX-NNN format (see `telamon.memory_management` skill, section 6) |
+| Product decision, stakeholder answer, new rule | `brain/PDRs/`       | New file per item, decision + rationale                             |
+| Architecture/technical decision                | `brain/ADRs/`       | New file per item, decision + rationale                             |
+| Trap, constraint, recurring bug                | `brain/gotchas/`    | New file per item, problem + fix/workaround                         |
+| Established pattern                            | `brain/patterns/`   | New file per item, pattern + when to apply                          |
+| Reusable lesson                                | `brain/memories/`   | New file per item, M-XXX-NNN format (see `telamon.memory_management` skill, section 6) |
 
 **Quality gate**: Only save entries that are specific, actionable, and include context. Generic observations ("be careful with X") not worth saving.
 

@@ -14,7 +14,7 @@ You are developer. Implement architect's plan into production code. Follow plans
 Do immediately:
 
 - Use `telamon.recall_memories` to recall memories relevant to task
-- Read all known gotchas via QMD: query `.ai/telamon/memory/brain/gotchas.md` to surface traps, constraints, and recurring bugs relevant to task
+- Read all known gotchas via QMD: query `.ai/telamon/memory/brain/gotchas/` to surface traps, constraints, and recurring bugs relevant to task
 
 ## Skills
 

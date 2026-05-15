@@ -20,11 +20,28 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
   brain/
-    memories.md              <- categorized lessons learned (M-XXX-NNN format)
-    PDRs.md                  <- product decisions, stakeholder answers
-    ADRs.md                  <- architecture/technical decisions
-    patterns.md              <- established codebase patterns
-    gotchas.md               <- known traps and constraints
+    memories/                <- categorized lessons learned (M-XXX-NNN format)
+    PDRs/                    <- product decisions, stakeholder answers
+    ADRs/                    <- architecture/technical decisions
+    patterns/                <- established codebase patterns
+    gotchas/                 <- known traps and constraints
+  work/
+    active/                  <- in-progress work notes (3 issues max)
+    archive/YYYY/MM/DD       <- completed work notes by year/month/day
+    incidents/               <- incident docs
+  reference/                 <- architecture maps, flow docs, codebase knowledge
+  thinking/                  <- scratchpad for drafts (promote or delete)
+```
+
+Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`. Each file has YAML frontmatter with `date`, `tags`, `keywords`, and `source` fields. Body starts after frontmatter — no frontmatter in body.
+.ai/telamon/memory/
+  bootstrap/                 <- always-on context (loaded like AGENTS.md)
+  brain/
+    memories/                <- categorized lessons learned (one file per item, M-XXX-NNN format)
+    PDRs/                    <- product decisions, stakeholder answers (one file per item)
+    ADRs/                    <- architecture/technical decisions (one file per item)
+    patterns/                <- established codebase patterns (one file per item)
+    gotchas/                 <- known traps and constraints (one file per item)
   work/
     active/                  <- in-progress work notes (3 issues max)
     archive/YYYY/MM/DD       <- completed work notes by year/month/day
@@ -38,13 +55,13 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 | Content                                        | Destination                                           |
 |------------------------------------------------|-------------------------------------------------------|
 | Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
-| Product decision + rationale                   | `brain/PDRs.md`                                       |
-| Human stakeholder answer to project question   | `brain/PDRs.md`                                       |
-| New rule from stakeholder                      | `brain/PDRs.md`                                       |
-| Architecture or technical decision + rationale | `brain/ADRs.md`                                       |
-| Established codebase pattern                   | `brain/patterns.md`                                   |
-| Trap, constraint, or recurring bug             | `brain/gotchas.md`                                    |
-| Categorized lesson learned                     | `brain/memories.md` (M-XXX-NNN format, see section 6) |
+| Product decision + rationale                   | `brain/PDRs/` (new file per item, see section 5)      |
+| Human stakeholder answer to project question   | `brain/PDRs/` (new file per item)                     |
+| New rule from stakeholder                      | `brain/PDRs/` (new file per item)                     |
+| Architecture or technical decision + rationale | `brain/ADRs/` (new file per item)                     |
+| Established codebase pattern                   | `brain/patterns/` (new file per item)                 |
+| Trap, constraint, or recurring bug             | `brain/gotchas/` (new file per item)                  |
+| Categorized lesson learned                     | `brain/memories/` (new file per item, M-XXX-NNN)      |
 | In-progress work note                          | `work/active/`                                        |
 | Completed work note                            | `work/archive/YYYY/`                                  |
 | Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                 |
@@ -53,19 +70,19 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 | Partial-progress checkpoint                    | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`      |
 
 **Routing rules:**
-- Append -- never replace existing content
+- Create a new file per item — never append to existing files
+- File name: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md` (timestamp = item date, NN = sequence within same second)
+- Include YAML frontmatter: `date`, `tags`, `keywords` (15 relevant words), `source`
 - One entry per insight
 - Include dates in entries
 
 ## 3. Retrieval Rules
 
-- bootstrap/ loads automatically at session start -- do not re-read
-- brain/ files are small and always relevant -- read directly, no search needed:
-  - `brain/PDRs.md` -- read before product/stakeholder answer lookup
-  - `brain/ADRs.md` -- read before architecture work
-  - `brain/patterns.md` -- read before writing new code
-  - `brain/gotchas.md` -- read before touching known problem areas
-  - `brain/memories.md` -- search via QMD when you need past lessons; do NOT read at session start
+- bootstrap/ loads automatically at session start — do not re-read
+- brain/ files: use QMD semantic search for all categories — do NOT read entire folders
+  - Use `qmd-report` tool with relevant query terms
+  - QMD returns file content with frontmatter stripped (data only)
+  - Read specific files directly only when you know the exact filename
 - All other files: search before read; max 3 non-brain notes per task; discard results with relevance score < 0.6
 
 ## 4. Writing Constraints
@@ -77,20 +94,42 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 ## 5. Brain Note Quality Criteria
 
-| File          | Good entry has                                  |
-|---------------|-------------------------------------------------|
-| `PDRs.md`     | Decision + rationale (not just decision)        |
-| `ADRs.md`     | Decision + rationale (not just decision)        |
-| `patterns.md` | Actionable, specific pattern with when to apply |
-| `gotchas.md`  | Reproducible problem + fix or workaround        |
-| `memories.md` | M-XXX-NNN format per section 6                  |
+| Folder       | Good entry has                                  |
+|--------------|-------------------------------------------------|
+| `PDRs/`      | Decision + rationale (not just decision)        |
+| `ADRs/`      | Decision + rationale (not just decision)        |
+| `patterns/`  | Actionable, specific pattern with when to apply |
+| `gotchas/`   | Reproducible problem + fix or workaround        |
+| `memories/`  | M-XXX-NNN format per section 6                  |
 
-## 6. Memory Entry Format (memories.md)
+## 6. Brain Item File Format
 
-### Entry template
+Each brain item is a standalone `.md` file with YAML frontmatter:
 
 ```markdown
-### M-<CATEGORY>-NNN: <title>
+---
+date: YYYY-MM-DD
+tags: ["brain", "<category>"]
+keywords: ["word1", "word2", ...]
+source: <origin-file-or-session>
+---
+
+## <Title>
+
+<body content>
+```
+
+File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
+- Timestamp: date of the item (not creation date), `HHMMSS` = `000000` when only date known
+- NN: two-digit sequence number within same timestamp (01, 02, ...)
+- Subject: max 10 words, hyphen-separated, lowercase, no special chars
+
+Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. Include domain terms, tool names, concept names.
+
+### Memory entry body (memories/ folder)
+
+```markdown
+## M-<CATEGORY>-NNN: <title>
 - **Date**: YYYY-MM-DD
 - **Context**: What triggered this lesson.
 - **Lesson**: Reusable takeaway.
@@ -108,18 +147,18 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 | Anti-Patterns          | `M-ANTI`   | Approaches that failed -- what to do instead |
 | Workflow Lessons       | `M-FLOW`   | Agent delegation, communication, tooling     |
 
-Number sequentially within each category. Check existing entries first.
+Number sequentially within each category. Check existing entries via QMD first.
 
 ### Entry quality rules
 - **Specific, not generic** -- "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
 - **Include context** -- future agents need to understand *why*
 - **Scope it** -- lesson about Invoice component must say so
 
-### Pruning (when memories.md exceeds 100 entries)
+### Pruning (when memories/ exceeds 100 files)
 - Mark entries as `SUPERSEDED by M-XXX-NNN` when newer entry replaces them
-- Keep superseded entries for one more session before removing
-- Review entries older than 6 months for continued relevance
-- Only orchestrator or human stakeholder may remove entries
+- Delete superseded files after one more session
+- Review files older than 6 months for continued relevance
+- Only orchestrator or human stakeholder may remove files
 
 ## 7. Thinking/ Lifecycle
 
@@ -138,7 +177,7 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 ## 8. Wrap-Up (on "wrap up" / "wrapping up")
 
-1. Promote session learnings to appropriate `brain/` note
+1. Promote session learnings to appropriate `brain/<category>/` folder (new file per item)
 2. Archive completed `work/active/` notes -> `work/archive/YYYY/`
 3. Verify every new vault note has at least one `[[wikilink]]`
 4. Tell user what was promoted and saved
