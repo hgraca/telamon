@@ -95,7 +95,7 @@ Save to `<issue-folder>/PLAN-ARCH-YYYY-MM-DD-NNN.md`. After writing, run `format
 >
 > ## Constraints
 >
-> Project-wide coding rules applying to every Step in this plan. Source from `telamon.architecture_rules`, `telamon.php_rules`, `telamon.testing`, and any project-specific files under `.ai/<owner>/memory/project-rules/`.
+> Project-wide coding rules applying to every Step in this plan. Source from `telamon.architecture_rules`, `telamon.php_rules`, `telamon.testing`, and any project-specific files under `.ai/<owner>/memory/bootstrap/`.
 >
 > Restate rules inline (do not link out) so reader of any single Step has all rules in immediate view. Bullet list, no prose. Cite source skill name in each bullet so reader can verify currency.
 >

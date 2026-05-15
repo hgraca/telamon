@@ -1,13 +1,13 @@
 ---
 name: telamon.explore-project
-description: "Explores the entire project and produces a technical description at .ai/telamon/memory/project-rules/description.md covering structure, purpose, architecture, conventions, and known inconsistencies. Use when onboarding to a new project, when the description is missing or stale, when the user says 'explore the project', 'describe the project', 'map the codebase', 'document the architecture', or invokes /explore-project. Also use when starting work on an unfamiliar repo and a project map is needed before planning."
+description: "Explores the entire project and produces a technical description at .ai/telamon/memory/bootstrap/project.md covering structure, purpose, architecture, conventions, and known inconsistencies. Use when onboarding to a new project, when the description is missing or stale, when the user says 'explore the project', 'describe the project', 'map the codebase', 'document the architecture', or invokes /explore-project. Also use when starting work on an unfamiliar repo and a project map is needed before planning."
 ---
 
 # Skill: Explore Project
 
 Produce concise, technical project description any agent or human can load at session start to understand
 *what this project is*, *how laid out*, and *where rough edges are*. Output: one file
-`.ai/telamon/memory/project-rules/description.md`.
+`.ai/telamon/memory/bootstrap/project.md`.
 
 Differentiator from `telamon.audit_codebase`: this is one-page map, not findings report. Rough edges
 named in one line each so future work has context — diagnosing and fixing them out of scope.
@@ -23,7 +23,7 @@ named in one line each so future work has context — diagnosing and fixing them
 
 ### Step 1: Check existing state
 
-Read `.ai/telamon/memory/project-rules/description.md` if exists. Treat every claim as hypothesis to
+Read `.ai/telamon/memory/bootstrap/project.md` if exists. Treat every claim as hypothesis to
 verify against codebase (source of truth). Note assertions to confirm or refute during exploration.
 
 ### Step 2: Survey repository
@@ -77,7 +77,7 @@ If category has no findings, omit it. Do not pad.
 
 ### Step 4: Write description
 
-Write result to `.ai/telamon/memory/project-rules/description.md`, overwriting previous content. After writing, run `format-md` on file to align table columns.
+Write result to `.ai/telamon/memory/bootstrap/project.md`, overwriting previous content. After writing, run `format-md` on file to align table columns.
 
 Follow template below. Adjust section titles to fit project, but keep section order: *purpose →
 layout → architecture → lifecycle/workflows → conventions → rough edges → pointers*. This order
@@ -117,7 +117,7 @@ If exploration cannot proceed (repo unreadable, no source detected, write target
 ## Template
 
 > ---
-> tags: [project-rules, description, bootstrap]
+> tags: [bootstrap, project]
 > description: What \<Project\> is, how repo laid out, key conventions and rough edges
 > ---
 >
@@ -186,7 +186,7 @@ See `telamon.search_code` for choosing between them.
 
 ## MUST
 
-- Write final description to `.ai/telamon/memory/project-rules/description.md` and nowhere else.
+- Write final description to `.ai/telamon/memory/bootstrap/project.md` and nowhere else.
 - Overwrite existing file in place — this is canonical project map.
 - Cite real paths for every architectural claim; verify each path exists before writing.
 - Run `telamon.optimize-instructions` pass before compression pass — order matters; compressing
@@ -197,7 +197,7 @@ See `telamon.search_code` for choosing between them.
 
 ## MUST NOT
 
-- Write to any other location, or create supporting files in `project-rules/`.
+- Write to any other location, or create supporting files in `bootstrap/`.
 - Include install/build/test step-by-step instructions — link to canonical doc.
 - Recommend fixes in *Rough edges* section; flag only.
 - Read or describe files marked `no-vcs` or excluded by `ignore.md`.

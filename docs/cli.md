@@ -39,9 +39,9 @@ telamon init ../other-project            # relative path works too
 
 ### init
 
-`telamon init [path]` wires the project for Telamon and, as the **last step**, auto-generates `<PROJ>/.ai/telamon/memory/project-rules/description.md` by invoking the `telamon.explore-project` skill via `opencode run`. The description is the canonical project map that every future agent session reads at bootstrap.
+`telamon init [path]` wires the project for Telamon and, as the **last step**, auto-generates `<PROJ>/.ai/telamon/memory/bootstrap/project.md` by invoking the `telamon.explore-project` skill via `opencode run`. The description is the canonical project map that every future agent session reads at bootstrap.
 
-**Idempotency.** Init checks whether `description.md` already exists and is non-empty. If yes, exploration is skipped. To refresh the description after the repo has drifted, delete (or empty) `description.md` and re-run `telamon init`, or invoke the `telamon.explore-project` skill manually from an agent session.
+**Idempotency.** Init checks whether `project.md` already exists and is non-empty. If yes, exploration is skipped. To refresh the description after the repo has drifted, delete (or empty) `project.md` and re-run `telamon init`, or invoke the `telamon.explore-project` skill manually from an agent session.
 
 **Missing `opencode`.** If `opencode` is not on `PATH`, init prints a warning, skips exploration, and exits 0 — exploration is an enhancement, not a hard requirement.
 
@@ -52,8 +52,8 @@ telamon init ../other-project            # relative path works too
 - `opencode run` failures are logged as warnings, not errors — init still exits 0 so that exploration failure does not block project wiring.
 
 ```bash
-telamon init                              # auto-explores if description.md is missing
-rm .ai/telamon/memory/project-rules/description.md && telamon init   # refresh
+telamon init                              # auto-explores if project.md is missing
+rm .ai/telamon/memory/bootstrap/project.md && telamon init   # refresh
 ```
 
 ### recover-memories

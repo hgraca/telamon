@@ -69,7 +69,7 @@ fi
 # exists. We check first and skip if already registered.
 
 NAME="${PROJECT_NAME}"
-DESCRIPTION="memory vault for ${PROJECT_NAME} — brain, work, project-rules, reference, thinking, bootstrap"
+DESCRIPTION="memory vault for ${PROJECT_NAME} — brain, work, reference, thinking, bootstrap"
 
 if qmd collection list 2>/dev/null | grep -q "^${NAME} "; then
   skip "QMD collection already registered: ${NAME}"

@@ -49,7 +49,7 @@ awk '
 # Sanity-check: the extracted block must reference the canonical description path.
 # If a future refactor moves the path, this test fails loudly so the developer
 # updates both sides in lockstep.
-if ! grep -qF '_DESC_FILE="${PROJ}/.ai/telamon/memory/project-rules/description.md"' "${BLOCK_FILE}"; then
+if ! grep -qF '_DESC_FILE="${PROJ}/.ai/telamon/memory/bootstrap/project.md"' "${BLOCK_FILE}"; then
   echo -e "  ${RED}✖${RESET}  Extracted block does not contain the expected _DESC_FILE assignment — sentinels or block contents drifted" >&2
   exit 1
 fi
@@ -96,7 +96,7 @@ _run_block() {
   STUB_LOG="$(mktemp -p "${SCRATCH_ROOT}")"
   CAPTURE="$(mktemp -p "${SCRATCH_ROOT}")"
 
-  local desc_path="${PROJ_DIR}/.ai/telamon/memory/project-rules/description.md"
+  local desc_path="${PROJ_DIR}/.ai/telamon/memory/bootstrap/project.md"
   local desc_dir; desc_dir="$(dirname "${desc_path}")"
   mkdir -p "${desc_dir}"
 
@@ -112,18 +112,18 @@ _run_block() {
       ln -s "${SCRATCH_ROOT}/does-not-exist" "${desc_path}"
       ;;
     populated-via-symlink)
-      mkdir -p "${STORAGE_PROJ}/project-rules"
-      printf '%s\n' "pre-existing via symlink" > "${STORAGE_PROJ}/project-rules/description.md"
-      # Replace the project-rules dir with a symlink to the storage-side dir,
+      mkdir -p "${STORAGE_PROJ}/bootstrap"
+      printf '%s\n' "pre-existing via symlink" > "${STORAGE_PROJ}/bootstrap/project.md"
+      # Replace the bootstrap dir with a symlink to the storage-side dir,
       # mirroring MEMORY_OWNER=telamon's vault layout.
       rmdir "${desc_dir}"
-      ln -s "${STORAGE_PROJ}/project-rules" "${desc_dir}"
+      ln -s "${STORAGE_PROJ}/bootstrap" "${desc_dir}"
       ;;
     empty-via-symlink)
-      mkdir -p "${STORAGE_PROJ}/project-rules"
-      : > "${STORAGE_PROJ}/project-rules/description.md"
+      mkdir -p "${STORAGE_PROJ}/bootstrap"
+      : > "${STORAGE_PROJ}/bootstrap/project.md"
       rmdir "${desc_dir}"
-      ln -s "${STORAGE_PROJ}/project-rules" "${desc_dir}"
+      ln -s "${STORAGE_PROJ}/bootstrap" "${desc_dir}"
       ;;
     *)
       _fail "unknown seed_desc '${seed_desc}'"

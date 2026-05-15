@@ -285,12 +285,12 @@ fi
 
 # ──BEGIN telamon.explore-project block──
 # ── Project description (telamon.explore-project) ─────────────────────────────
-# If <PROJ>/.ai/telamon/memory/project-rules/description.md is missing or empty,
+# If <PROJ>/.ai/telamon/memory/bootstrap/project.md is missing or empty,
 # synchronously invoke `opencode run` so the telamon.explore-project skill writes
 # the canonical project map for future agent sessions. Idempotent: skip when the
 # description is already populated. Symlink-transparent: bash's `-s` test follows
 # symlinks, so MEMORY_OWNER=telamon (where the file lives under
-# storage/projects-memory/<name>/project-rules/ and is exposed via the
+# storage/projects-memory/<name>/bootstrap/ and is exposed via the
 # .ai/telamon/memory symlink) is handled identically to MEMORY_OWNER=project.
 # Missing `opencode` → warn + continue (exploration is enhancement, not a hard
 # requirement). `opencode run` failure → warn + continue. Init never aborts here.
@@ -300,7 +300,7 @@ fi
 
 header "Project description"
 
-_DESC_FILE="${PROJ}/.ai/telamon/memory/project-rules/description.md"
+_DESC_FILE="${PROJ}/.ai/telamon/memory/bootstrap/project.md"
 
 if [[ -s "${_DESC_FILE}" ]]; then
   info "Project description already present — skipping exploration"

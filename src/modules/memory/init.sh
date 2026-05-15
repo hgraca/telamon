@@ -40,7 +40,6 @@ DIRS=(
   "${VAULT_ROOT}/reference"
   "${VAULT_ROOT}/thinking"
   "${VAULT_ROOT}/bootstrap"
-  "${VAULT_ROOT}/project-rules"
 )
 
 for dir in "${DIRS[@]}"; do

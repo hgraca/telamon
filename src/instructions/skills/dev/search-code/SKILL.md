@@ -157,7 +157,7 @@ Hybrid markdown search over memory vault — combines BM25 keyword (`lex`), sema
 - `qmd status` — list indexed collections and health
 
 **Indexed collections:**
-- `telamon` — entire memory vault (brain, work, project-rules, reference, thinking, bootstrap)
+- `telamon` — entire memory vault (brain, work, reference, thinking, bootstrap)
 - Root: `<project>/.ai/telamon/memory` (symlink into `storage/projects-memory/<project>/`)
 
 **Tips:**

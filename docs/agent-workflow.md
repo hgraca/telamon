@@ -34,7 +34,7 @@ Before any user request, Telamon runs a mandatory start sequence.
   +-----------------------------+
   | Inline bootstrap files      | Loaded via system prompt:
   | (Instructions from:)        |   .ai/telamon/memory/bootstrap/memory.md
-  |                             |   .ai/telamon/memory/bootstrap/project-rules.md
+  |                             |   .ai/telamon/memory/bootstrap/project.md
   |                             |   .ai/telamon/memory/bootstrap/mcp.md
   |                             |   .ai/telamon/memory/bootstrap/caveman.md
   +-----------------------------+
@@ -47,7 +47,7 @@ Before any user request, Telamon runs a mandatory start sequence.
        v
   +-----------------------------+
 | Read .ai/telamon/memory/ |
-  |   project-rules/**/*.md      | Project-specific rules
+  |   bootstrap/**/*.md          | Bootstrap files (project, ignore, etc.)
   +-----------------------------+
 |-----|
        v
