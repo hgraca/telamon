@@ -13,9 +13,9 @@ For non-trivial project requests, prefer calling the `gather-context` tool with 
 
 Read brain/ notes directly -- see `telamon.memory_management` skill (Retrieval Rules, R2) for list and when to read each file.
 
-## 2. Update vault index
+## 2. Update memories
 
-Use `telamon.qmd` skill to initialize and query vault index.
+Use `telamon.qmd` skill to initialize and query non-bootstrap memories.
 
 ## 3. Self-initialize (check each time, build if missing)
 
