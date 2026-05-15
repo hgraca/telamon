@@ -68,11 +68,20 @@ else
     log "Created .graphifyignore from .gitignore"
   fi
 
+  # Determine source root: prefer src/ then app/, fall back to project root
+  if [[ -d "src" ]]; then
+    GRAPHIFY_SRC="src"
+  elif [[ -d "app" ]]; then
+    GRAPHIFY_SRC="app"
+  else
+    GRAPHIFY_SRC="."
+  fi
+
   DATE_STR=$(date '+%-d %b %Y, %H:%M')
-  info "${DATE_STR} — Building initial knowledge graph..."
+  info "${DATE_STR} — Building initial knowledge graph (indexing ${GRAPHIFY_SRC}/)..."
   TMPOUT=$(mktemp)
   START_SECS=${SECONDS}
-  graphify update . 2>&1 | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
+  graphify update "${GRAPHIFY_SRC}" 2>&1 | tee "${TMPOUT}" && GRAPH_EXIT=0 || GRAPH_EXIT=$?
   ELAPSED=$(( SECONDS - START_SECS ))
 
   if [[ ${GRAPH_EXIT} -ne 0 ]]; then

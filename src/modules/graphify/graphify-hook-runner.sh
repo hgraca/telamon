@@ -73,6 +73,15 @@ if [[ -f "${_GITIGNORE}" ]]; then
   fi
 fi
 
+# Determine source root: prefer src/ then app/, fall back to project root
+if [[ -d "${PROJECT_PATH}/src" ]]; then
+  GRAPHIFY_SRC="${PROJECT_PATH}/src"
+elif [[ -d "${PROJECT_PATH}/app" ]]; then
+  GRAPHIFY_SRC="${PROJECT_PATH}/app"
+else
+  GRAPHIFY_SRC="${PROJECT_PATH}"
+fi
+
 # Launch graphify update in background.
 # The subshell writes its own PID as its first action (fixes race condition:
 # previously $! was written after backgrounding, but the subshell could finish
@@ -82,8 +91,8 @@ fi
   echo "${BASHPID}" > "${PID_FILE}"
 
   cd "${PROJECT_PATH}" || exit 0
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update started" >> "${LOG_FILE}"
-  graphify update . >> "${LOG_FILE}" 2>&1
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update started (indexing ${GRAPHIFY_SRC})" >> "${LOG_FILE}"
+  graphify update "${GRAPHIFY_SRC}" >> "${LOG_FILE}" 2>&1
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] graphify update finished (exit $?)" >> "${LOG_FILE}"
 
   # Only remove PID file if it still contains our PID (guards against a newer
