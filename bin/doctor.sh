@@ -257,6 +257,15 @@ else
   _warn "Repomix config missing (repomix.config.json) — run: bin/init.sh <project>"
 fi
 
+# ── 6b-tree. tree ──────────────────────────────────────────────────────────
+header "tree"
+
+if command -v tree &>/dev/null; then
+  _pass "tree installed ($(tree --version 2>/dev/null | head -1 || echo 'installed'))"
+else
+  _fail "tree: not found — install with: brew install tree (macOS) or apt install tree (Linux)"
+fi
+
 # ── 6c. promptfoo (Agent Evaluation) ──────────────────────────────────────
 header "promptfoo (Agent Evaluation)"
 

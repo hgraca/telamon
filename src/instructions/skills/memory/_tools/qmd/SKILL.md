@@ -6,7 +6,7 @@ compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobi
 metadata:
   author: tobi
   version: "2.0.0"
-allowed-tools: Bash(qmd:*)
+allowed-tools: Bash(qmd:*), mcp__qmd__*
 ---
 
 # QMD - Quick Markdown Search
@@ -17,40 +17,25 @@ Local search engine for markdown content.
 
 !`qmd status 2>/dev/null || echo "Not installed: npm install -g @tobilu/qmd"`
 
-## CLI Usage
+## MCP: `query`
 
-Set environment before running qmd commands to use Telamon's storage and GPU:
-
-```bash
-export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
-export QMD_LLAMA_GPU=true
-
-qmd query "CAP theorem consistency"              # Auto-expand + rerank
-qmd query $'lex: CAP theorem\nvec: tradeoff between consistency and availability'  # Structured
-qmd search "CAP theorem"                          # BM25 only (no LLM)
-qmd get "#abc123"                                 # By docid
-qmd multi-get "journals/2026-*.md" -l 40          # Batch pull snippets
-qmd status                                        # Collections and health
-```
-
-Or inline for one-off commands:
-
-```bash
-XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "question"
-```
-
-Or inline for one-off commands:
-
-```bash
-XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "question"
+```json
+{
+  "searches": [
+    { "type": "lex", "query": "CAP theorem consistency" },
+    { "type": "vec", "query": "tradeoff between consistency and availability" }
+  ],
+  "collections": ["docs"],
+  "limit": 10
+}
 ```
 
 ### Query Types
 
-| Type   | Method | Input                                       |
-|--------|--------|---------------------------------------------|
-| `lex`  | BM25   | Keywords — exact terms, names, code         |
-| `vec`  | Vector | Question — natural language                 |
+| Type | Method | Input |
+|------|--------|-------|
+| `lex` | BM25 | Keywords — exact terms, names, code |
+| `vec` | Vector | Question — natural language |
 | `hyde` | Vector | Answer — hypothetical result (50-100 words) |
 
 ### Writing Good Queries
@@ -67,17 +52,17 @@ XDG_CACHE_HOME="${TELAMON_ROOT}/storage" QMD_LLAMA_GPU=true qmd query "question"
 - Include context: `"in the payment service, how are refunds processed"`
 
 **hyde (hypothetical document)**
-- Write 50-100 words of what *answer* looks like
-- Use vocabulary you expect in result
+- Write 50-100 words of what the *answer* looks like
+- Use the vocabulary you expect in the result
 
 **expand (auto-expand)**
-- Use single-line query (implicit) or `expand: question` on its own line
-- Lets local LLM generate lex/vec/hyde variations
-- Do not mix `expand:` with other typed lines — either standalone expand query or full query document
+- Use a single-line query (implicit) or `expand: question` on its own line
+- Lets the local LLM generate lex/vec/hyde variations
+- Do not mix `expand:` with other typed lines — it's either a standalone expand query or a full query document
 
 ### Intent (Disambiguation)
 
-When query term ambiguous, add `intent` to steer results:
+When a query term is ambiguous, add `intent` to steer results:
 
 ```json
 {
@@ -88,27 +73,27 @@ When query term ambiguous, add `intent` to steer results:
 }
 ```
 
-Intent affects expansion, reranking, chunk selection, and snippet extraction. Does not search on its own — steering signal that disambiguates queries like "performance" (web-perf vs team health vs fitness).
+Intent affects expansion, reranking, chunk selection, and snippet extraction. It does not search on its own — it's a steering signal that disambiguates queries like "performance" (web-perf vs team health vs fitness).
 
 ### Combining Types
 
-| Goal                  | Approach                                            |
-|-----------------------|-----------------------------------------------------|
-| Know exact terms      | `lex` only                                          |
-| Don't know vocabulary | Use single-line query (implicit `expand:`) or `vec` |
-| Best recall           | `lex` + `vec`                                       |
-| Complex topic         | `lex` + `vec` + `hyde`                              |
-| Ambiguous query       | Add `intent` to any combination above               |
+| Goal | Approach |
+|------|----------|
+| Know exact terms | `lex` only |
+| Don't know vocabulary | Use a single-line query (implicit `expand:`) or `vec` |
+| Best recall | `lex` + `vec` |
+| Complex topic | `lex` + `vec` + `hyde` |
+| Ambiguous query | Add `intent` to any combination above |
 
-First query gets 2x weight in fusion — put best guess first.
+First query gets 2x weight in fusion — put your best guess first.
 
 ### Lex Query Syntax
 
-| Syntax     | Meaning      | Example                      |
-|------------|--------------|------------------------------|
-| `term`     | Prefix match | `perf` matches "performance" |
-| `"phrase"` | Exact phrase | `"rate limiter"`             |
-| `-term`    | Exclude      | `performance -sports`        |
+| Syntax | Meaning | Example |
+|--------|---------|---------|
+| `term` | Prefix match | `perf` matches "performance" |
+| `"phrase"` | Exact phrase | `"rate limiter"` |
+| `-term` | Exclude | `performance -sports` |
 
 Note: `-term` only works in lex queries, not vec/hyde.
 
@@ -120,6 +105,35 @@ Note: `-term` only works in lex queries, not vec/hyde.
 ```
 
 Omit to search all collections.
+
+## Other MCP Tools
+
+| Tool | Use |
+|------|-----|
+| `get` | Retrieve doc by path or `#docid` |
+| `multi_get` | Retrieve multiple by glob/list |
+| `status` | Collections and health |
+
+## CLI
+
+```bash
+qmd query "question"              # Auto-expand + rerank
+qmd query $'lex: X\nvec: Y'       # Structured
+qmd query $'expand: question'     # Explicit expand
+qmd query --json --explain "q"    # Show score traces (RRF + rerank blend)
+qmd search "keywords"             # BM25 only (no LLM)
+qmd get "#abc123"                 # By docid
+qmd multi-get "journals/2026-*.md" -l 40  # Batch pull snippets by glob
+qmd multi-get notes/foo.md,notes/bar.md   # Comma-separated list, preserves order
+```
+
+## HTTP API
+
+```bash
+curl -X POST http://localhost:8181/query \
+  -H "Content-Type: application/json" \
+  -d '{"searches": [{"type": "lex", "query": "test"}]}'
+```
 
 ## Setup
 
