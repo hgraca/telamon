@@ -64,10 +64,19 @@ def run_qmd(args):
 
 
 def search_qmd(query, collection, max_results):
-    """Search QMD and return list of (docid, score, file_uri, title) tuples."""
+    """Search QMD and return list of (docid, score, file_uri, title) tuples.
+
+    Always includes the shared 'global' collection alongside the project
+    collection so cross-project tech knowledge is surfaced in every search.
+    """
     cmd = ["search", query, "--json", "--all"]
     if collection:
         cmd += ["-c", collection]
+    # Always also search the shared global knowledge base (tech gotchas,
+    # patterns, tool notes reusable across projects). Skip if collection IS
+    # already global to avoid duplicate results.
+    if collection != "global":
+        cmd += ["-c", "global"]
 
     stdout, err = run_qmd(cmd)
     if err:
@@ -119,13 +128,14 @@ def get_file_content(file_uri):
 
 def format_markdown(results, query, collection):
     """Format search results as Markdown with full file contents."""
+    collections_label = collection if collection == "global" else f"{collection} + global"
     lines = [
         "# QMD Memory Search",
         "",
         f"Query: `{query}`",
     ]
     if collection:
-        lines.append(f"Collection: `{collection}`")
+        lines.append(f"Collections: `{collections_label}`")
     lines.append(f"Matches: {len(results)}")
     lines.append("")
 
@@ -222,10 +232,11 @@ def main():
     all_results = all_results[:args.max_results]
 
     if args.format == "json":
+        collections = [args.collection] if args.collection == "global" else [args.collection, "global"]
         output = {
             "status": "ok",
             "query": args.query,
-            "collection": args.collection,
+            "collections": collections,
             "total_matches": len(all_results),
             "results": all_results,
         }

@@ -102,9 +102,10 @@ Note: `-term` only works in lex queries, not vec/hyde.
 ```json
 { "collections": ["docs"] }              // Single
 { "collections": ["docs", "notes"] }     // Multiple (OR)
+{ "collections": ["my-project", "global"] }  // Project + shared global (default for qmd-report)
 ```
 
-Omit to search all collections.
+Omit to search all collections. The `qmd-report` tool always includes the `global` collection automatically alongside the project collection.
 
 ## Other MCP Tools
 

@@ -36,7 +36,7 @@ function resolveProjectCollection(): string {
 
 export default tool({
   description:
-    "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.",
+    "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Always searches both the project collection and the shared 'global' collection (cross-project tech knowledge). Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.",
   args: {
     query: tool.schema
       .array(tool.schema.string())
@@ -46,7 +46,7 @@ export default tool({
     collection: tool.schema
       .string()
       .optional()
-      .describe("QMD collection to search (default: auto-detected from .ai/telamon/telamon.jsonc project_name)"),
+      .describe("Primary QMD collection to search (default: auto-detected from .ai/telamon/telamon.jsonc project_name). The 'global' collection is always included automatically."),
     max_results: tool.schema
       .number()
       .optional()
