@@ -243,7 +243,7 @@ Under new `## Iteration <n>` heading at bottom of file (after last existing `## 
 - Effective fixes (mechanism land rate)
 - Stalls and critic rounds
 - Hypothesis for next iteration
-- Lessons about which kinds of instruction edits work (cite `M-FLOW-NNN` IDs from `latent/global/ or latent/project/` if applicable)
+- Lessons about which kinds of instruction edits work (cite relevant files from `latent/global/` or `latent/project/` if applicable)
 
 #### Verification gate (MUST run before declaring Step 6 complete)
 
