@@ -57,7 +57,7 @@ Create new files in appropriate brain/ folder per routing table in `telamon.memo
 | Architecture/technical decision                | `brain/ADRs/`       | New file per item, decision + rationale                             |
 | Trap, constraint, recurring bug                | `brain/gotchas/`    | New file per item, problem + fix/workaround                         |
 | Established pattern                            | `brain/patterns/`   | New file per item, pattern + when to apply                          |
-| Reusable lesson                                | `brain/memories/`   | New file per item, M-XXX-NNN format (see `telamon.memory_management` skill, section 6) |
+| Reusable lesson                                | `brain/memories/`   | New file per item (see `telamon.memory_management` skill, section 6) |
 
 **Quality gate**: Only save entries that are specific, actionable, and include context. Generic observations ("be careful with X") not worth saving.
 

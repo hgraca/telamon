@@ -21,12 +21,12 @@ Verify vault matches expected layout:
 
 For each file in `brain/`:
 - Content current? Flag stale or contradictory entries.
-- Entries organised by section with clear headings?
-- `memories.md` — entries using M-XXX-NNN format with context and scope?
-- `PDRs.md` — entries have rationale, not just decision?
-- `ADRs.md` — entries have rationale, not just decision?
-- `patterns.md` — patterns actionable and specific?
-- `gotchas.md` — gotchas reproducible with fix or workaround?
+- File naming follows `YYYYMMDDHHMMSS-NN-<subject>.md` pattern (NN = integer starting at 01, resets per timestamp)?
+- `memories/` — entries have context and scope?
+- `PDRs/` — entries have rationale, not just decision?
+- `ADRs/` — entries have rationale, not just decision?
+- `patterns/` — patterns actionable and specific?
+- `gotchas/` — gotchas reproducible with fix or workaround?
 
 ## 3. Check Thinking/ Hygiene
 

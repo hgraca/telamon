@@ -22,10 +22,10 @@ Ask yourself:
 ## 2. Route to correct brain file
 
 - **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `brain/gotchas/`)
-- **All other lessons** → append to `.ai/telamon/memory/brain/memories/` using M-XXX-NNN entry format from `telamon.memory_management` skill (section 6)
+- **All other lessons** → create new file in `.ai/telamon/memory/brain/memories/` using entry format from `telamon.memory_management` skill (section 6)
 
 One entry per lesson -- do not bundle multiple takeaways.
 
 ## 3. Pruning
 
-When memories.md exceeds 100 entries, follow pruning rules in `telamon.memory_management` skill (section 6).
+When `memories/` exceeds 100 files, follow pruning rules in `telamon.memory_management` skill (section 6).

@@ -20,7 +20,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
   brain/
-    memories/                <- categorized lessons learned (M-XXX-NNN format)
+    memories/                <- categorized lessons learned (one file per item)
     PDRs/                    <- product decisions, stakeholder answers
     ADRs/                    <- architecture/technical decisions
     patterns/                <- established codebase patterns
@@ -37,7 +37,7 @@ Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHH
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
   brain/
-    memories/                <- categorized lessons learned (one file per item, M-XXX-NNN format)
+    memories/                <- categorized lessons learned (one file per item)
     PDRs/                    <- product decisions, stakeholder answers (one file per item)
     ADRs/                    <- architecture/technical decisions (one file per item)
     patterns/                <- established codebase patterns (one file per item)
@@ -61,7 +61,7 @@ Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHH
 | Architecture or technical decision + rationale | `brain/ADRs/` (new file per item)                     |
 | Established codebase pattern                   | `brain/patterns/` (new file per item)                 |
 | Trap, constraint, or recurring bug             | `brain/gotchas/` (new file per item)                  |
-| Categorized lesson learned                     | `brain/memories/` (new file per item, M-XXX-NNN)      |
+| Categorized lesson learned                     | `brain/memories/` (new file per item)                 |
 | In-progress work note                          | `work/active/`                                        |
 | Completed work note                            | `work/archive/YYYY/`                                  |
 | Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                 |
@@ -100,7 +100,7 @@ Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHH
 | `ADRs/`      | Decision + rationale (not just decision)        |
 | `patterns/`  | Actionable, specific pattern with when to apply |
 | `gotchas/`   | Reproducible problem + fix or workaround        |
-| `memories/`  | M-XXX-NNN format per section 6                  |
+| `memories/`  | Specific, actionable lesson with context and scope      |
 
 ## 6. Brain Item File Format
 
@@ -121,7 +121,7 @@ source: <origin-file-or-session>
 
 File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
 - Timestamp: date of the item (not creation date), `HHMMSS` = `000000` when only date known
-- NN: two-digit sequence number within same timestamp (01, 02, ...)
+- NN: integer starting at 01, resets per timestamp — orders files created within the same second
 - Subject: max 10 words, hyphen-separated, lowercase, no special chars
 
 Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. Include domain terms, tool names, concept names.
@@ -129,7 +129,7 @@ Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. 
 ### Memory entry body (memories/ folder)
 
 ```markdown
-## M-<CATEGORY>-NNN: <title>
+## <title>
 - **Date**: YYYY-MM-DD
 - **Context**: What triggered this lesson.
 - **Lesson**: Reusable takeaway.
@@ -137,25 +137,13 @@ Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. 
 - **Status**: ACTIVE
 ```
 
-### Categories
-
-| Category               | Prefix     | Example                                      |
-|------------------------|------------|----------------------------------------------|
-| Architecture Decisions | `M-ARCH`   | Layer boundaries, dependency rules           |
-| Testing Patterns       | `M-TEST`   | Test structure, tooling, strategies          |
-| Domain Knowledge       | `M-DOMAIN` | Business rules, domain semantics             |
-| Anti-Patterns          | `M-ANTI`   | Approaches that failed -- what to do instead |
-| Workflow Lessons       | `M-FLOW`   | Agent delegation, communication, tooling     |
-
-Number sequentially within each category. Check existing entries via QMD first.
-
 ### Entry quality rules
 - **Specific, not generic** -- "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
 - **Include context** -- future agents need to understand *why*
 - **Scope it** -- lesson about Invoice component must say so
 
 ### Pruning (when memories/ exceeds 100 files)
-- Mark entries as `SUPERSEDED by M-XXX-NNN` when newer entry replaces them
+- Mark entries as `SUPERSEDED` (note the superseding file name) when newer entry replaces them
 - Delete superseded files after one more session
 - Review files older than 6 months for continued relevance
 - Only orchestrator or human stakeholder may remove files
