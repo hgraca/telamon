@@ -99,12 +99,22 @@ def search_qmd(query, collection, max_results):
     ], None
 
 
+def strip_yaml_frontmatter(content: str) -> str:
+    """Strip YAML frontmatter (--- ... ---) from file content."""
+    if not content.startswith('---'):
+        return content
+    end = content.find('\n---', 3)
+    if end == -1:
+        return content
+    return content[end+4:].lstrip('\n')
+
+
 def get_file_content(file_uri):
-    """Get full content of a file via qmd get."""
+    """Get full content of a file via qmd get, with frontmatter stripped."""
     stdout, err = run_qmd(["get", file_uri])
     if err:
         return None, err
-    return stdout, None
+    return strip_yaml_frontmatter(stdout), None
 
 
 def format_markdown(results, query, collection):

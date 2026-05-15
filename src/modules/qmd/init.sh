@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# Register a single QMD collection for the current project's memory vault and
+# Register a single QMD collection for the current project's brain/ folder and
 # run the initial embedding pass.
+#
+# Only brain/ is indexed — it contains the structured, per-item knowledge files
+# (memories, ADRs, PDRs, gotchas, patterns) that benefit from semantic search.
+# Work archives, thinking/, reference/, and bootstrap/ are excluded.
 #
 # The vault lives at <telamon-root>/storage/projects-memory/<project-name>/ and
 # is symlinked into the project at <project>/.ai/telamon/memory/. The collection
@@ -9,7 +13,7 @@
 #
 # A SINGLE collection is registered per project, named after the project:
 #
-#   <project>   <project>/.ai/telamon/memory   — entire vault (all .md files)
+#   <project>   <project>/.ai/telamon/memory/brain   — brain/ only (all .md files)
 #
 # Collections are registered in Telamon-managed index at
 # <telamon-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
@@ -55,13 +59,19 @@ if [[ -z "${PROJECT_NAME}" ]]; then
   return 0 2>/dev/null || exit 0
 fi
 
-# Register against the symlink path inside the project so it works in both
-# memory-owner modes (telamon and project) without branching.
+# Register against the brain/ path inside the project vault so only structured
+# knowledge items are indexed (not work archives, thinking/, reference/, bootstrap/).
 VAULT="${PWD}/.ai/telamon/memory"
+BRAIN="${VAULT}/brain"
 
 if [[ ! -d "${VAULT}" ]]; then
   warn "Vault not found at ${VAULT} — run 'make init PROJ=<path>' first"
   return 0 2>/dev/null || exit 0
+fi
+
+if [[ ! -d "${BRAIN}" ]]; then
+  warn "brain/ not found at ${BRAIN} — creating empty directory"
+  mkdir -p "${BRAIN}"
 fi
 
 # ── Register the single project collection ────────────────────────────────────
@@ -69,15 +79,15 @@ fi
 # exists. We check first and skip if already registered.
 
 NAME="${PROJECT_NAME}"
-DESCRIPTION="memory vault for ${PROJECT_NAME} — brain, work, reference, thinking, bootstrap"
+DESCRIPTION="brain knowledge for ${PROJECT_NAME} — memories, ADRs, PDRs, gotchas, patterns"
 
 if qmd collection list 2>/dev/null | grep -q "^${NAME} "; then
   skip "QMD collection already registered: ${NAME}"
 else
   step "Registering QMD collection: ${NAME} ..."
-  qmd collection add "${VAULT}" --name "${NAME}" --mask "**/*.md" 2>/dev/null \
+  qmd collection add "${BRAIN}" --name "${NAME}" --mask "**/*.md" 2>/dev/null \
     && log "Collection registered: ${NAME}" \
-    || warn "qmd collection add failed for ${NAME} — retry: qmd collection add ${VAULT} --name ${NAME} --mask '**/*.md'"
+    || warn "qmd collection add failed for ${NAME} — retry: qmd collection add ${BRAIN} --name ${NAME} --mask '**/*.md'"
 fi
 
 step "Adding QMD context for ${NAME} ..."
@@ -99,6 +109,6 @@ else
   warn "This is normal if the models are still downloading."
 fi
 
-info "Vault collection registered for '${PROJECT_NAME}'."
+info "Brain collection registered for '${PROJECT_NAME}'."
 info "Query: qmd query '<question>' -n 10"
 info "Search: qmd search '<keywords>'"
