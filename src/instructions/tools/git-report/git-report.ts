@@ -22,7 +22,7 @@ import path from "path"
 
 export default tool({
   description:
-    "Return a git state snapshot: current branch, default remote branch, recent commits, working-tree status, staged diff (summary + full), and commits ahead of origin/HEAD. Use this to understand what has changed before committing, reviewing, or planning next steps.",
+    "Return a git state snapshot: current branch, default remote branch, recent commits, working-tree status, staged diff (summary + full), commits ahead of origin/HEAD, and index integrity check (missing objects from git fsck). Use this to understand what has changed before committing, reviewing, or planning next steps.",
   args: {
     log_count: tool.schema
       .number()

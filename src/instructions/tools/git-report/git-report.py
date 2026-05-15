@@ -53,6 +53,11 @@ def collect(log_count: int) -> dict:
             ["git", "log", "--oneline", "HEAD", f"^{default_branch}", "--no-merges"]
         )
 
+    fsck_out, _ = run(["git", "fsck", "--full"])
+    fsck_missing = "\n".join(
+        line for line in fsck_out.splitlines() if "missing" in line
+    )
+
     return {
         "current_branch": current_branch,
         "default_branch": default_branch,
@@ -61,6 +66,7 @@ def collect(log_count: int) -> dict:
         "staged_stat": staged_stat,
         "staged_diff": staged_diff,
         "ahead_commits": ahead_commits,
+        "fsck_missing": fsck_missing,
     }
 
 
@@ -117,6 +123,16 @@ def render_markdown(data: dict) -> str:
             lines.append(f"- {line}")
     else:
         lines.append("_(none — branch is up to date or default branch unknown)_")
+    lines.append("")
+
+    lines.append("### Index Integrity (fsck missing objects)")
+    lines.append("")
+    if data["fsck_missing"]:
+        lines.append("```")
+        lines.append(data["fsck_missing"])
+        lines.append("```")
+    else:
+        lines.append("_(no missing objects — index clean)_")
 
     return "\n".join(lines)
 
