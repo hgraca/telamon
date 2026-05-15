@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_session
-description: "Unified memory capture — sole storage trigger (besides checkpoints). Scans session since last watermark, routes findings to brain/ notes, promotes thinking/ drafts. Fires automatically on idle via remember-session plugin, or manually on 'wrap up'."
+description: "Unified memory capture — sole storage trigger (besides checkpoints). Scans session since last watermark, routes findings to latent/ notes, promotes thinking/ drafts. Fires automatically on idle via remember-session plugin, or manually on 'wrap up'."
 ---
 
 # Remember Session
@@ -49,22 +49,22 @@ Also check:
 
 ## 2. Route to brain notes
 
-Create new files in appropriate brain/ folder per routing table in `telamon.memory_management` skill (section 2):
+Create new files in appropriate latent/ folder per routing table in `telamon.memory_management` skill (section 2):
 
 | Finding                                        | Destination         | Format                                                              |
 |------------------------------------------------|---------------------|---------------------------------------------------------------------|
-| Product decision, stakeholder answer, new rule | `brain/PDRs/`       | New file per item, decision + rationale                             |
-| Architecture/technical decision                | `brain/ADRs/`       | New file per item, decision + rationale                             |
-| Trap, constraint, recurring bug                | `brain/gotchas/`    | New file per item, problem + fix/workaround                         |
-| Established pattern                            | `brain/patterns/`   | New file per item, pattern + when to apply                          |
-| Reusable lesson                                | `brain/memories/`   | New file per item (see `telamon.memory_management` skill, section 6) |
+| Product decision, stakeholder answer, new rule | `latent/PDRs/`       | New file per item, decision + rationale                             |
+| Architecture/technical decision                | `latent/ADRs/`       | New file per item, decision + rationale                             |
+| Trap, constraint, recurring bug                | `latent/gotchas/`    | New file per item, problem + fix/workaround                         |
+| Established pattern                            | `latent/patterns/`   | New file per item, pattern + when to apply                          |
+| Reusable lesson                                | `latent/memories/`   | New file per item (see `telamon.memory_management` skill, section 6) |
 
 **Quality gate**: Only save entries that are specific, actionable, and include context. Generic observations ("be careful with X") not worth saving.
 
 ## 3. Promote or discard thinking notes
 
 Follow thinking/ lifecycle rules in `telamon.memory_management` skill (section 7):
-- Contains reusable lesson → promote to brain/, then delete
+- Contains reusable lesson → promote to latent/, then delete
 - Completed work → delete
 - Still live WIP → keep
 

@@ -35,7 +35,7 @@ If developer needs:
 
 ### Step 0: Pre-flight
 
-Read brain/ notes per `telamon.recall_memories` skill. Identify entries relevant to current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
+Read latent/ notes per `telamon.recall_memories` skill. Identify entries relevant to current scope. Include applicable lessons in delegations to Developer, Tester, and Reviewer.
 
 ### Step 1: Provide plan
 

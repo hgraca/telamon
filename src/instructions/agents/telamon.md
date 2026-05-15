@@ -159,7 +159,7 @@ Wait for human stakeholder's decision before continuing. Doing subagent's work t
 ### Activation
 
 - **Trigger**: Human stakeholder provides story, epic, feature request, or business initiative.
-- **Input**: Stakeholder's brief, existing context documents, project's product decisions log (`.ai/telamon/memory/brain/PDRs/`).
+- **Input**: Stakeholder's brief, existing context documents, project's product decisions log (`.ai/telamon/memory/latent/PDRs/`).
 
 ### Responsibilities
 
@@ -236,9 +236,9 @@ When temporary file needed, use `telamon.thinking` skill.
 - Classify every request before acting — do not default to single agent.
 - Provide sufficient context in every delegation — file paths, existing patterns, constraints.
 - Track delegation results — if subagent fails, diagnose before re-delegating.
-- Record decisions, lessons, and patterns — captured automatically by remember-session plugin on idle. For stakeholder answers and new rules, record immediately to `brain/PDRs/` or `brain/ADRs/` (too important to defer). After writing to either file, run `format-md` on file to align table columns.
+- Record decisions, lessons, and patterns — captured automatically by remember-session plugin on idle. For stakeholder answers and new rules, record immediately to `latent/PDRs/` or `latent/ADRs/` (too important to defer). After writing to either file, run `format-md` on file to align table columns.
 - Document global product decisions with rationale — follow `telamon.memory_management` skill (section 2) for routing.
-- When human stakeholder answers project question, categorize as product or architecture and record in corresponding file (`brain/PDRs/` or `brain/ADRs/`). After writing, run `format-md` on file to align table columns.
+- When human stakeholder answers project question, categorize as product or architecture and record in corresponding file (`latent/PDRs/` or `latent/ADRs/`). After writing, run `format-md` on file to align table columns.
 - When given new rule, categorize as product or architecture and record in corresponding file. After writing, run `format-md` on file to align table columns.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.

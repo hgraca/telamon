@@ -51,14 +51,14 @@ log "Vault directory scaffold created"
 TODAY="$(date +%Y-%m-%d)"
 for tmpl_file in "${VAULT_TMPL}/brain"/*.md; do
   [[ -f "${tmpl_file}" ]] || continue
-  dest="${VAULT_ROOT}/brain/$(basename "${tmpl_file}")"
+  dest="${VAULT_ROOT}/latent/$(basename "${tmpl_file}")"
   if [[ -f "${dest}" ]]; then
-    skip "brain/$(basename "${tmpl_file}") (already exists)"
+    skip "latent/$(basename "${tmpl_file}") (already exists)"
   else
     sed -e "s/PROJECT_NAME/${PROJECT_NAME}/g" \
         -e "s/DATE_PLACEHOLDER/${TODAY}/g" \
         "${tmpl_file}" > "${dest}"
-    log "Created brain/$(basename "${tmpl_file}")"
+    log "Created latent/$(basename "${tmpl_file}")"
   fi
 done
 

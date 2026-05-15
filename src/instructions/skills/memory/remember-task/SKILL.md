@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_task
-description: "Record what was learned after completing task. Review discoveries, update brain/ notes with structured lessons. Use after finishing task, fixing non-trivial bug, or completing planning round."
+description: "Record what was learned after completing task. Review discoveries, update latent/ notes with structured lessons. Use after finishing task, fixing non-trivial bug, or completing planning round."
 ---
 
 # Remember Task
@@ -21,8 +21,8 @@ Ask yourself:
 
 ## 2. Route to correct brain file
 
-- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `brain/gotchas/`)
-- **All other lessons** → create new file in `.ai/telamon/memory/brain/memories/` using entry format from `telamon.memory_management` skill (section 6)
+- **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `latent/gotchas/`)
+- **All other lessons** → create new file in `.ai/telamon/memory/latent/memories/` using entry format from `telamon.memory_management` skill (section 6)
 
 One entry per lesson -- do not bundle multiple takeaways.
 

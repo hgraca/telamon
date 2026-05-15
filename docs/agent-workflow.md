@@ -64,16 +64,16 @@ Before any user request, Telamon runs a mandatory start sequence.
   +-------------------------------------------------------------------+
 | Step 1: Recall past context                                   |                        |                           |     |
 |---------------------------------------------------------------|------------------------|---------------------------|-----|
-| a) Read brain/ notes directly (small, always relevant):       |                        |                           |     |
+| a) Read latent/ notes directly (small, always relevant):       |                        |                           |     |
 | +---------------------------+-------------------------------+ |                        |                           |     |
 |                                                               | File                   | When to read              |     |
 | +---------------------------+-------------------------------+ |                        |                           |     |
-|                                                               | brain/key_decisions.md | Before arch work or       |     |
+|                                                               | latent/key_decisions.md | Before arch work or       |     |
 |                                                               |                        | stakeholder answer lookup |     |
-|                                                               | brain/patterns.md      | Before writing new code   |     |
-|                                                               | brain/gotchas.md       | Before touching known     |     |
+|                                                               | latent/patterns.md      | Before writing new code   |     |
+|                                                               | latent/gotchas.md       | Before touching known     |     |
 |                                                               |                        | problem areas             |     |
-|                                                               | brain/memories.md      | Do NOT read at start;     |     |
+|                                                               | latent/memories.md      | Do NOT read at start;     |     |
 |                                                               |                        | search via QMD            |     |
 |                                                               |                        | when needed later         |     |
 | +---------------------------+-------------------------------+ |                        |                           |     |
@@ -425,11 +425,11 @@ After any work that changes files — whether handled directly or returned from 
 |-------------------------------------|
 | Load remember_lessons_learned skill |
 | Save decisions, patterns, bugs      |
-| to brain/ notes                     |
+| to latent/ notes                     |
 |-------------------------------------|
 | If gotcha encountered:              |
 | Load remember_gotcha skill          |
-| Write to brain/gotchas.md           |
+| Write to latent/gotchas.md           |
   +---------------------------------------+
 |-----|
        v
@@ -545,11 +545,11 @@ These fire at specific moments during any workflow above — they are cross-cutt
 |-----|
         +── Decision made, pattern spotted, or non-trivial bug fixed?
         |     YES ──> Skill: remember_lessons_learned
-        |             Save to brain/ notes immediately (don't defer)
+        |             Save to latent/ notes immediately (don't defer)
 |-----|
         +── Hit a non-obvious trap, constraint, or recurring bug?
               YES ──> Skill: remember_gotcha
-                      Write to brain/gotchas.md
+                      Write to latent/gotchas.md
 
   AFTER COMPLETING A TASK:
 |-----|
@@ -557,7 +557,7 @@ These fire at specific moments during any workflow above — they are cross-cutt
    +-------------------------------+
 | Skill: remember_task       |
 | Review discoveries, update |
-| brain/memories.md with     |
+| latent/memories.md with     |
 | structured lessons         |
    +-------------------------------+
 
@@ -571,7 +571,7 @@ These fire at specific moments during any workflow above — they are cross-cutt
 | Skill: remember_checkpoint    |
 |-------------------------------|
 | Step 1: Persist working state |
-| to brain/ notes               |
+| to latent/ notes               |
 | Step 2: Promote learnings     |
 | from thinking/ drafts         |
 | Step 3: Compact context       |
@@ -586,7 +586,7 @@ These fire at specific moments during any workflow above — they are cross-cutt
 | Step 1: Check watermark       |
 | Step 2: Identify what         |
 | happened this session         |
-| Step 3: Route to brain/ notes |
+| Step 3: Route to latent/ notes |
 | Step 4: Promote or discard    |
 | thinking/ drafts              |
 | Step 5: Verify vault links    |

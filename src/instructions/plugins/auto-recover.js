@@ -39,7 +39,7 @@ const RECOVERY_PROMPT_TEXT =
 // These are the substrings we treat as transient and recoverable.
 // Anything else is left alone (the human should see it).
 // Includes upstream opencode bug #13768 (assistant message prefill / must end
-// with a user message) — see brain/gotchas.md L140. Treated as transient so
+// with a user message) — see latent/gotchas.md L140. Treated as transient so
 // the synthetic user-message recovery prompt naturally satisfies the
 // "conversation must end with a user message" constraint.
 const TRANSIENT_RE =

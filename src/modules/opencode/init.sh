@@ -57,7 +57,7 @@ COMMANDS_LINK="${COMMANDS_DIR}/telamon"
 ensure_symlink "${COMMANDS_LINK}" "${TELAMON_ROOT}/src/instructions/commands" ".opencode/commands/telamon"
 
 # ── 5. Per-file flat symlinks .opencode/tools/<name>.ts → src/instructions/tools/<name>/<name>.ts ─
-# Custom tools have two strict location requirements (see brain/gotchas.md
+# Custom tools have two strict location requirements (see latent/gotchas.md
 # "Opencode custom tools require flat layout AND co-located node_modules"):
 #
 #   1. Tool .ts files must be discovered as flat files directly under

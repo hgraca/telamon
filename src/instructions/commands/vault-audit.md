@@ -9,7 +9,7 @@ Deep structural audit of `.ai/telamon/memory/`. Fix fixable; flag what needs use
 ## 1. Check Folder Structure
 
 Verify vault matches expected layout:
-- `brain/` contains exactly: `memories.md`, `PDRs.md`, `ADRs.md`, `patterns.md`, `gotchas.md`
+- `latent/` contains exactly: `memories.md`, `PDRs.md`, `ADRs.md`, `patterns.md`, `gotchas.md`
 - `work/active/` contains only active work notes
 - `work/archive/` contains only completed work notes
 - `work/incidents/` contains only incident notes
@@ -19,7 +19,7 @@ Verify vault matches expected layout:
 
 ## 2. Check Brain Note Quality
 
-For each file in `brain/`:
+For each file in `latent/`:
 - Content current? Flag stale or contradictory entries.
 - File naming follows `YYYYMMDDHHMMSS-NN-<subject>.md` pattern (NN = integer starting at 01, resets per timestamp)?
 - `memories/` — entries have context and scope?
@@ -50,7 +50,7 @@ For each folder in `.ai/telamon/memory/work/active/`:
 For each file in `reference/`:
 - Still accurate? (check against current project conventions)
 - Linked from or referenced by any brain file?
-- Duplicates between `reference/` and `brain/`?
+- Duplicates between `reference/` and `latent/`?
 
 ## 6. Fix and Report
 

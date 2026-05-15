@@ -1,6 +1,6 @@
 ---
 name: telamon.remember_gotcha
-description: "Write gotcha to brain/gotchas/ when trap, constraint, or recurring bug discovered. Use immediately when hitting non-obvious problem others would stumble on."
+description: "Write gotcha to latent/gotchas/ when trap, constraint, or recurring bug discovered. Use immediately when hitting non-obvious problem others would stumble on."
 ---
 
 # Remember Gotcha
@@ -16,7 +16,7 @@ Write gotcha entry moment you hit trap, constraint, or recurring bug that is non
 
 ## Procedure
 
-### 1. Create new file in `.ai/telamon/memory/brain/gotchas/`
+### 1. Create new file in `.ai/telamon/memory/latent/gotchas/`
 
 File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
 
@@ -49,6 +49,6 @@ Entry must reference context via `[[wikilink]]` if it relates to known pattern, 
 
 ## Do NOT use this skill for
 
-- Decisions (use `brain/PDRs/` or `brain/ADRs/` directly, or `telamon.remember_lessons_learned`)
-- Patterns (use `brain/patterns/` directly or `telamon.remember_lessons_learned`)
+- Decisions (use `latent/PDRs/` or `latent/ADRs/` directly, or `telamon.remember_lessons_learned`)
+- Patterns (use `latent/patterns/` directly or `telamon.remember_lessons_learned`)
 - General lessons (use `telamon.remember_task`)

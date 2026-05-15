@@ -85,7 +85,7 @@ telamon recover-memories --full   # full reset — reprocess all sessions from s
 telamon recover-memories --all    # incremental — all initialized projects
 ```
 
-This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to the `brain/` markdown files — the same destinations the remember-session plugin uses live.
+This scans your opencode session database, extracts decisions, patterns, gotchas, and lessons using an LLM, and writes them to the `latent/` markdown files — the same destinations the remember-session plugin uses live.
 
 **When to use it:**
 - First time setting up Telamon on a project that already has session history
@@ -119,7 +119,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 
 `telamon init` wires up a project with all Telamon tools:
 
-- Creates the memory vault with `bootstrap/`, `brain/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/projects-memory/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/projects-memory/<project-name>`.
+- Creates the memory vault with `bootstrap/`, `latent/`, `work/`, `reference/`, and `thinking/` folders. By default (`telamon` mode) the vault lives at `storage/projects-memory/<project-name>/` and a symlink is placed at `<project>/.ai/telamon/memory`. In `project` mode the vault lives at `<project>/.ai/telamon/memory/` and the symlink is placed at `storage/projects-memory/<project-name>`.
 - Control vault ownership with the `--memory-owner` flag:
   - `telamon init --memory-owner=telamon path/to/project` — vault in Telamon storage (default)
   - `telamon init --memory-owner=project path/to/project` — vault in project directory
@@ -136,7 +136,7 @@ If `.ai/telamon/telamon.jsonc` exists with `project_name` set, the installer rea
 
 Via the `telamon.recall_memories` skill, the agent automatically:
 
-- Reads `brain/` notes for project decisions, patterns, and gotchas
+- Reads `latent/` notes for project decisions, patterns, and gotchas
 - Searches QMD for relevant past context
 - Receives Graphify god nodes, communities, and surprising connections (via the graphify-report tool)
 - Receives a git change summary since the last session (via the context priming tool)
@@ -149,17 +149,17 @@ The agent uses Telamon tools transparently:
 
 - Searches the codebase semantically via codebase-index
 - Queries Graphify for architectural context (god nodes, communities, relationships)
-- Reads `brain/` notes to stay aligned with project decisions and patterns
+- Reads `latent/` notes to stay aligned with project decisions and patterns
 
 ### How knowledge is saved
 
-The agent saves to `brain/` notes (human-readable, curated):
+The agent saves to `latent/` notes (human-readable, curated):
 
 | Event                  | Action                                           |
 |------------------------|--------------------------------------------------|
-| Non-trivial bug fixed  | Appended to `brain/gotchas.md`                   |
-| Architectural decision | Appended to `brain/ADRs.md`                      |
-| Pattern established    | Appended to `brain/patterns.md`                  |
+| Non-trivial bug fixed  | Appended to `latent/gotchas.md`                   |
+| Architectural decision | Appended to `latent/ADRs.md`                      |
+| Pattern established    | Appended to `latent/patterns.md`                  |
 | Session ends           | Work notes archived from `active/` to `archive/` |
 
 The **remember-session plugin** handles this automatically before every compaction. On explicit wrap-up it also presents a summary of what was saved.
@@ -177,7 +177,7 @@ telamon recover-memories --dry-run       # preview without making changes
 telamon recover-memories --batch-size 10 # larger batches (default: 5)
 ```
 
-This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to the `brain/` markdown files — the same destinations the remember-session plugin uses.
+This reads the opencode SQLite database (`~/.local/share/opencode/opencode.db`), reconstructs session transcripts, and sends them in batches to an LLM for extraction. Extracted decisions, patterns, gotchas, and lessons are written to the `latent/` markdown files — the same destinations the remember-session plugin uses.
 
 **Recommended first run:** use `--full` to get a clean, deduplicated baseline. Subsequent runs are incremental — only sessions not yet processed are analyzed.
 

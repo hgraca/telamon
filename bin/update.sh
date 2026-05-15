@@ -813,9 +813,9 @@ for _brain_dir in "${TELAMON_ROOT}/storage/projects-memory"/*/brain; do
 
   if [[ -f "${_brain_dir}/key_decisions.md" ]]; then
     mv "${_brain_dir}/key_decisions.md" "${_brain_dir}/PDRs.md"
-    log "${_project_name}: renamed brain/key_decisions.md → brain/PDRs.md"
+    log "${_project_name}: renamed latent/key_decisions.md → latent/PDRs.md"
     echo
-    info "  ⚠  brain/PDRs.md may contain architecture decisions that belong in brain/ADRs.md."
+    info "  ⚠  latent/PDRs.md may contain architecture decisions that belong in latent/ADRs.md."
     info "     Ask Telamon: \"Split architecture decisions from PDRs.md into ADRs.md\""
     echo
   fi
@@ -846,7 +846,7 @@ Alternatives considered: what else was considered
 - [[patterns]]
 - [[gotchas]]
 EOF
-    log "${_project_name}: created brain/ADRs.md"
+    log "${_project_name}: created latent/ADRs.md"
   fi
 done
 

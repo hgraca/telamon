@@ -19,7 +19,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 ```
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
-  brain/
+  latent/
     memories/                <- categorized lessons learned (one file per item)
     PDRs/                    <- product decisions, stakeholder answers
     ADRs/                    <- architecture/technical decisions
@@ -33,10 +33,10 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
 
-Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`. Each file has YAML frontmatter with `date`, `tags`, `keywords`, and `source` fields. Body starts after frontmatter — no frontmatter in body.
+Each latent/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`. Each file has YAML frontmatter with `date`, `tags`, `keywords`, and `source` fields. Body starts after frontmatter — no frontmatter in body.
 .ai/telamon/memory/
   bootstrap/                 <- always-on context (loaded like AGENTS.md)
-  brain/
+  latent/
     memories/                <- categorized lessons learned (one file per item)
     PDRs/                    <- product decisions, stakeholder answers (one file per item)
     ADRs/                    <- architecture/technical decisions (one file per item)
@@ -55,13 +55,13 @@ Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHH
 | Content                                        | Destination                                           |
 |------------------------------------------------|-------------------------------------------------------|
 | Agent bootstrap instructions (always-on)       | `bootstrap/`                                          |
-| Product decision + rationale                   | `brain/PDRs/` (new file per item, see section 5)      |
-| Human stakeholder answer to project question   | `brain/PDRs/` (new file per item)                     |
-| New rule from stakeholder                      | `brain/PDRs/` (new file per item)                     |
-| Architecture or technical decision + rationale | `brain/ADRs/` (new file per item)                     |
-| Established codebase pattern                   | `brain/patterns/` (new file per item)                 |
-| Trap, constraint, or recurring bug             | `brain/gotchas/` (new file per item)                  |
-| Categorized lesson learned                     | `brain/memories/` (new file per item)                 |
+| Product decision + rationale                   | `latent/PDRs/` (new file per item, see section 5)      |
+| Human stakeholder answer to project question   | `latent/PDRs/` (new file per item)                     |
+| New rule from stakeholder                      | `latent/PDRs/` (new file per item)                     |
+| Architecture or technical decision + rationale | `latent/ADRs/` (new file per item)                     |
+| Established codebase pattern                   | `latent/patterns/` (new file per item)                 |
+| Trap, constraint, or recurring bug             | `latent/gotchas/` (new file per item)                  |
+| Categorized lesson learned                     | `latent/memories/` (new file per item)                 |
 | In-progress work note                          | `work/active/`                                        |
 | Completed work note                            | `work/archive/YYYY/`                                  |
 | Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                 |
@@ -79,7 +79,7 @@ Each brain/ subfolder contains one `.md` file per item. File naming: `YYYYMMDDHH
 ## 3. Retrieval Rules
 
 - bootstrap/ loads automatically at session start — do not re-read
-- brain/ files: use QMD semantic search for all categories — do NOT read entire folders
+- latent/ files: use QMD semantic search for all categories — do NOT read entire folders
   - Use `qmd-report` tool with relevant query terms
   - QMD returns file content with frontmatter stripped (data only)
   - Read specific files directly only when you know the exact filename
@@ -152,7 +152,7 @@ Keywords: 10-15 relevant words extracted from title + body. Exclude stop words. 
 
 ### Promote or discard
 For each file in `thinking/`:
-- Contains reusable lesson -> promote to brain/, then **delete**
+- Contains reusable lesson -> promote to latent/, then **delete**
 - Completed work -> **delete**
 - Still live WIP -> keep; rename to `partial-<task>-YYYY-MM-DD.md` if not descriptive
 
@@ -165,7 +165,7 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 ## 8. Wrap-Up (on "wrap up" / "wrapping up")
 
-1. Promote session learnings to appropriate `brain/<category>/` folder (new file per item)
+1. Promote session learnings to appropriate `latent/<category>/` folder (new file per item)
 2. Archive completed `work/active/` notes -> `work/archive/YYYY/`
 3. Verify every new vault note has at least one `[[wikilink]]`
 4. Tell user what was promoted and saved
@@ -175,4 +175,4 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 | Tier      | Store                       | Content                                                      | Writer                               |
 |-----------|-----------------------------|--------------------------------------------------------------|--------------------------------------|
 | Working   | AGENTS.md + session context | Active goals, current task state                             | Human + agent at session start       |
-| Long-term | brain/ notes                | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |
+| Long-term | latent/ notes                | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |

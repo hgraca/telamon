@@ -50,7 +50,7 @@ export OPENCODE_CONFIG_FILE="${STORAGE_CONFIG}"
 # once at src/instructions/tools/node_modules/ covers every tool .ts under that
 # tree. This is telamon-checkout-scoped — NOT per-project — so it lives here
 # (and in opencode/update.sh) rather than in opencode/init.sh.
-# See brain/gotchas.md "Opencode custom tools require flat layout AND
+# See latent/gotchas.md "Opencode custom tools require flat layout AND
 # co-located node_modules" (2026-05-10).
 TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
 if [[ -f "${TOOLS_SRC}/package.json" ]]; then

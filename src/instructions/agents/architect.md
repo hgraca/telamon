@@ -122,7 +122,7 @@ Reasoning narrative welcome in response accompanying plan, but plan file itself 
 
 ## MUST
 
-- When making architecture or technical decision, create new file in `brain/ADRs/` with rationale.
+- When making architecture or technical decision, create new file in `latent/ADRs/` with rationale.
 - Before designing plan, explicitly list assumptions about domain, existing system, and constraints. Present them and wait for confirmation. Wrong assumptions propagating into plan are expensive to fix during implementation.
 - **Propose default for every design question.** When spec contains open design question, always include recommended default with rationale. Reviewer or human stakeholder may override; never punt decision entirely. Flagging uncertainty fine — leaving blank is not. Eliminates avoidable critic re-review iterations on low-stakes choices.
 - If brief has issues, point them out with concrete, quantified downsides and propose alternatives. Do not silently plan around problems.

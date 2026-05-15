@@ -1,17 +1,17 @@
 ---
 name: telamon.recall_memories
-description: "Recall context at session start. Read brain/ notes, update vault index, initialize knowledge tools. Use at beginning of every session."
+description: "Recall context at session start. Read latent/ notes, update vault index, initialize knowledge tools. Use at beginning of every session."
 ---
 
 # Recall Memories
 
-Use when you need a full brain/ notes read without a specific topic — e.g. switching projects, or when `gather-context` tool is insufficient for the current request.
+Use when you need a full latent/ notes read without a specific topic — e.g. switching projects, or when `gather-context` tool is insufficient for the current request.
 
 For non-trivial project requests, prefer calling the `gather-context` tool with topic keywords instead — it gathers memory vault notes, codebase graph context, and directory trees in one targeted step.
 
 ## 1. Recall past context
 
-Read brain/ notes directly -- see `telamon.memory_management` skill (Retrieval Rules, R2) for list and when to read each file.
+Read latent/ notes directly -- see `telamon.memory_management` skill (Retrieval Rules, R2) for list and when to read each file.
 
 ## 2. Update memories
 
@@ -32,11 +32,11 @@ When you need information, use right tool for question type:
 
 | Question type                            | Tool                                                                      |
 |------------------------------------------|---------------------------------------------------------------------------|
-| Lessons learned (categorized)            | QMD search (`brain/memories/`)                                            |
-| Product decisions + stakeholder answers  | QMD search (`brain/PDRs/`)                                                |
-| Architectural/technical decisions        | QMD search (`brain/ADRs/`)                                                |
-| Codebase patterns                        | QMD search (`brain/patterns/`)                                            |
-| Known traps and constraints              | QMD search (`brain/gotchas/`)                                             |
+| Lessons learned (categorized)            | QMD search (`latent/memories/`)                                            |
+| Product decisions + stakeholder answers  | QMD search (`latent/PDRs/`)                                                |
+| Architectural/technical decisions        | QMD search (`latent/ADRs/`)                                                |
+| Codebase patterns                        | QMD search (`latent/patterns/`)                                            |
+| Known traps and constraints              | QMD search (`latent/gotchas/`)                                             |
 | Vault semantic search ("did we ever...") | Use `telamon.qmd` skill                                                   |
 | Architecture, relationships, god nodes   | Use `telamon.graphify` skill                                              |
 | Code by meaning ("find auth logic")      | codebase-index (ask naturally)                                            |

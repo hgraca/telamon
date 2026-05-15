@@ -49,7 +49,7 @@ fi
 # ── Refresh @opencode-ai/plugin for custom tools ──────────────────────────────
 # Re-run bun install so that any version bump in src/instructions/tools/package.json
 # (delivered by a telamon update) gets picked up. Idempotent and fast when nothing
-# has changed. See brain/gotchas.md "Opencode custom tools require flat layout AND
+# has changed. See latent/gotchas.md "Opencode custom tools require flat layout AND
 # co-located node_modules" (2026-05-10).
 TELAMON_ROOT="$(cd "${TOOLS_PATH}/../.." && pwd)"
 TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"

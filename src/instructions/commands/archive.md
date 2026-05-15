@@ -28,7 +28,7 @@ Add `**Archived**: <YYYY-MM-DD>` line to top of file under title.
 ## 4. Update References
 
 Check if other vault files link to this note:
-- Search `.ai/telamon/memory/brain/` for filename
+- Search `.ai/telamon/memory/latent/` for filename
 - Search `.ai/telamon/memory/work/active/` and `.ai/telamon/memory/work/archive/` for filename
 
 For each reference found, update link path from `work/active/` to `work/archive/`.
@@ -36,10 +36,10 @@ For each reference found, update link path from `work/active/` to `work/archive/
 ## 5. Promote Lessons
 
 Scan archived note for:
-- Gotchas or traps → append to `.ai/telamon/memory/brain/gotchas/`
-- Reusable patterns → append to `.ai/telamon/memory/brain/patterns/`
-- Standing product decisions → add to `.ai/telamon/memory/brain/PDRs/`
-- Standing architecture decisions → add to `.ai/telamon/memory/brain/ADRs/`
+- Gotchas or traps → append to `.ai/telamon/memory/latent/gotchas/`
+- Reusable patterns → append to `.ai/telamon/memory/latent/patterns/`
+- Standing product decisions → add to `.ai/telamon/memory/latent/PDRs/`
+- Standing architecture decisions → add to `.ai/telamon/memory/latent/ADRs/`
 
 ## 6. Report
 

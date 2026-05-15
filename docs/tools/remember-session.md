@@ -7,7 +7,7 @@ nav_section: docs
 
 Session Capture — Automatic Memory Capture on Commit
 
-A git post-commit hook that captures session learnings to the vault's `brain/` notes.
+A git post-commit hook that captures session learnings to the vault's `latent/` notes.
 
 - Fires on `git commit` — only when the commit was made from inside an opencode session
 - Targets the originating session by ID (read from `$OPENCODE_SESSION_ID`, exported by the [session-id-export](plugins) plugin on every tool call)

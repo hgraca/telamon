@@ -3,7 +3,7 @@
 #
 # Reads the opencode SQLite database, reconstructs session transcripts for the
 # target project, sends them in batches to an LLM, and writes extracted
-# decisions, patterns, gotchas, and lessons to the brain/ markdown files.
+# decisions, patterns, gotchas, and lessons to the latent/ markdown files.
 #
 # Usage:
 #   recover-memories [path]          # incremental — specific project (default: cwd)
@@ -342,7 +342,7 @@ except Exception as e:
 PYEOF
 )"
 
-    # Append extracted memories to brain/ files
+    # Append extracted memories to latent/ files
     python3 - "${EXTRACTION}" "${BRAIN_DIR}" <<'PYEOF'
 import json, sys, os
 from datetime import datetime

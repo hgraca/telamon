@@ -24,7 +24,7 @@ All ephemeral scratch files, notes, drafts, or WIP content produced during sessi
 
 After task completes or session ends:
 
-1. **Promote**: If file contains lasting value (decision, pattern, gotcha), move content to appropriate brain/ note.
+1. **Promote**: If file contains lasting value (decision, pattern, gotcha), move content to appropriate latent/ note.
 2. **Delete**: Remove files that add no lasting value.
 3. **Flag**: Any `thinking/` file older than 7 days should be reviewed -- promote or delete.
 

@@ -1,5 +1,5 @@
 ---
-description: Capture session knowledge to brain/ notes (manual trigger)
+description: Capture session knowledge to latent/ notes (manual trigger)
 agent: telamon/telamon
 ---
 

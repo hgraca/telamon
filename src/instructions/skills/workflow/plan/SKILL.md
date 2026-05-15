@@ -67,7 +67,7 @@ Use `telamon.thinking` skill for temp files. Promote useful findings from `think
 
 ### Step 0: Pre-flight
 
-1. Read brain/ notes per `telamon.recall_memories` skill. Include applicable lessons in all delegations.
+1. Read latent/ notes per `telamon.recall_memories` skill. Include applicable lessons in all delegations.
 2. **Check existing work folder**: List `.ai/telamon/memory/work/active/`. If folder matches current initiative, reuse — NEVER create new. If multiple folders for same initiative, consolidate into correctly-named one, delete duplicate.
 
 ### Step 1: Detect prompt shape
@@ -111,7 +111,7 @@ Delegate @architect. First sentence MUST be: `Write <work-folder>/PLAN-ARCH-YYYY
 
 #### Spike-during-planning rule
 
-When plan depends on third-party API capability (plugin hooks, SDK features, undocumented runtime behavior) AND brain/ notes do NOT confirm capability: instruct architect to run verification spike DURING planning, NEVER as Task 0 of implementation. Spike in backlog = unverified arch + carried fallback design through review. Skip rule only when architect cites brain/ note (gotcha, ADR, pattern) confirming capability.
+When plan depends on third-party API capability (plugin hooks, SDK features, undocumented runtime behavior) AND latent/ notes do NOT confirm capability: instruct architect to run verification spike DURING planning, NEVER as Task 0 of implementation. Spike in backlog = unverified arch + carried fallback design through review. Skip rule only when architect cites latent/ note (gotcha, ADR, pattern) confirming capability.
 
 #### UI/UX review (if applicable)
 

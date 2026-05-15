@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Register a single QMD collection for the current project's brain/ folder and
+# Register a single QMD collection for the current project's latent/ folder and
 # run the initial embedding pass.
 #
-# Only brain/ is indexed — it contains the structured, per-item knowledge files
+# Only latent/ is indexed — it contains the structured, per-item knowledge files
 # (memories, ADRs, PDRs, gotchas, patterns) that benefit from semantic search.
 # Work archives, thinking/, reference/, and bootstrap/ are excluded.
 #
@@ -13,7 +13,7 @@
 #
 # A SINGLE collection is registered per project, named after the project:
 #
-#   <project>   <project>/.ai/telamon/memory/brain   — brain/ only (all .md files)
+#   <project>   <project>/.ai/telamon/memory/brain   — latent/ only (all .md files)
 #
 # Collections are registered in Telamon-managed index at
 # <telamon-root>/storage/qmd/index.sqlite (XDG_CACHE_HOME override).
@@ -59,7 +59,7 @@ if [[ -z "${PROJECT_NAME}" ]]; then
   return 0 2>/dev/null || exit 0
 fi
 
-# Register against the brain/ path inside the project vault so only structured
+# Register against the latent/ path inside the project vault so only structured
 # knowledge items are indexed (not work archives, thinking/, reference/, bootstrap/).
 VAULT="${PWD}/.ai/telamon/memory"
 BRAIN="${VAULT}/brain"
@@ -70,7 +70,7 @@ if [[ ! -d "${VAULT}" ]]; then
 fi
 
 if [[ ! -d "${BRAIN}" ]]; then
-  warn "brain/ not found at ${BRAIN} — creating empty directory"
+  warn "latent/ not found at ${BRAIN} — creating empty directory"
   mkdir -p "${BRAIN}"
 fi
 
