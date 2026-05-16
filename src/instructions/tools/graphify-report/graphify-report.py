@@ -263,6 +263,62 @@ def find_top_folder_nodes(node_map, adj, top_n=10):
     return collapse_folders(folder_degree, folder_node_count, top_n)
 
 
+def _build_raw_folder_maps(node_map, adj):
+    """Return (folder_degree, folder_node_count) dicts without collapsing."""
+    import os
+
+    folder_degree: dict[str, int] = {}
+    folder_node_count: dict[str, int] = {}
+    for nid, ndata in node_map.items():
+        src = ndata.get("source_file", "")
+        folder = os.path.dirname(src) if src else "."
+        if not folder:
+            folder = "."
+        degree = len(adj.get(nid, []))
+        folder_degree[folder] = folder_degree.get(folder, 0) + degree
+        folder_node_count[folder] = folder_node_count.get(folder, 0) + 1
+    return folder_degree, folder_node_count
+
+
+def find_top_subfolders(parent, folder_degree, folder_node_count, top_n=3):
+    """Return top_n direct children of parent ranked by total degree.
+
+    A direct child is a folder whose path is exactly parent/<one-segment>.
+    """
+    prefix = parent.rstrip("/") + "/"
+    children: dict[str, int] = {}
+    for folder, deg in folder_degree.items():
+        if not folder.startswith(prefix):
+            continue
+        # strip parent prefix and check there is exactly one more segment
+        rest = folder[len(prefix):]
+        if not rest or "/" in rest:
+            continue
+        children[folder] = children.get(folder, 0) + deg
+
+    ranked = sorted(children.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    return [
+        {
+            "rank": i + 1,
+            "folder": f,
+            "total_degree": d,
+            "node_count": folder_node_count.get(f, 0),
+        }
+        for i, (f, d) in enumerate(ranked)
+    ]
+
+
+def find_folder_nodes_with_children(node_map, adj, top_n=3, children_n=3):
+    """Return top_n collapsed folders, each with their top children_n direct sub-folders."""
+    folder_degree, folder_node_count = _build_raw_folder_maps(node_map, adj)
+    top_folders = find_top_folder_nodes(node_map, adj, top_n)
+    for entry in top_folders:
+        entry["top_subfolders"] = find_top_subfolders(
+            entry["folder"], folder_degree, folder_node_count, children_n
+        )
+    return top_folders
+
+
 def find_matching_file_nodes(words, node_map, adj, top_n=10):
     """Among word-matched nodes, return top_n file-level nodes (source_location == L1) by degree."""
     terms = [w.lower().strip() for w in words.split(",") if w.strip()]
@@ -381,19 +437,52 @@ def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes"):
 
 
 def format_top_folder_nodes_md(folder_nodes, title="Most Connected Folder Nodes"):
-    """Format top folder nodes as Markdown table."""
-    lines = [
-        f"## {title}",
-        "",
-        "| # | Folder | Total Degree | Node Count |",
-        "|---|--------|--------------|------------|",
-    ]
+    """Format top folder nodes as Markdown.
+
+    If entries contain 'top_subfolders', renders a two-level view: each top
+    folder as a sub-heading with its children in a nested table.
+    Otherwise renders a flat table.
+    """
+    has_children = any("top_subfolders" in n for n in folder_nodes)
+
+    if not has_children:
+        lines = [
+            f"## {title}",
+            "",
+            "| # | Folder | Total Degree | Node Count |",
+            "|---|--------|--------------|------------|",
+        ]
+        for n in folder_nodes:
+            folder = n["folder"].replace("|", "\\|")
+            lines.append(
+                f"| {n['rank']} | `{folder}` | {n['total_degree']} | {n['node_count']} |"
+            )
+        lines.append("")
+        return "\n".join(lines)
+
+    lines = [f"## {title}", ""]
     for n in folder_nodes:
-        folder = n["folder"].replace("|", "\\|")
-        lines.append(
-            f"| {n['rank']} | `{folder}` | {n['total_degree']} | {n['node_count']} |"
-        )
-    lines.append("")
+        folder = n["folder"]
+        lines += [
+            f"### {n['rank']}. `{folder}`",
+            "",
+            f"Total degree: **{n['total_degree']}** | Nodes: **{n['node_count']}**",
+            "",
+        ]
+        subs = n.get("top_subfolders", [])
+        if subs:
+            lines += [
+                "| # | Sub-folder | Total Degree | Node Count |",
+                "|---|------------|--------------|------------|",
+            ]
+            for s in subs:
+                sub = s["folder"].replace("|", "\\|")
+                lines.append(
+                    f"| {s['rank']} | `{sub}` | {s['total_degree']} | {s['node_count']} |"
+                )
+            lines.append("")
+        else:
+            lines += ["_No direct sub-folders found._", ""]
     return "\n".join(lines)
 
 
@@ -447,7 +536,7 @@ def main():
         top_folder_nodes = find_matching_folder_nodes(args.words, node_map, adj, args.top_n)
     else:
         top_file_nodes = find_top_file_nodes(node_map, adj, args.top_n)
-        top_folder_nodes = find_top_folder_nodes(node_map, adj, args.top_n)
+        top_folder_nodes = find_folder_nodes_with_children(node_map, adj, top_n=3, children_n=3)
 
     if args.format == "json":
         result = {
