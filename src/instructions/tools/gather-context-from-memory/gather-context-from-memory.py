@@ -121,24 +121,13 @@ def format_markdown(results: list[dict]) -> str:
     parts = []
     for r in results:
         file_uri = r.get("file", "")
-        title = r.get("title", "") or file_uri
-        score = r.get("score", "")
-        score_str = f" (score: {score:.2f})" if isinstance(score, float) else ""
-
-        parts.append(f"## {title}{score_str}")
-        parts.append("")
-        if file_uri and file_uri != title:
-            parts.append(f"**File:** `{file_uri}`")
-            parts.append("")
-
         body, err = fetch_file_body(file_uri)
         if err:
-            parts.append(f"_Error reading file: {err}_")
+            parts.append(f"_Error reading file `{file_uri}`: {err}_")
         elif body:
             parts.append(body)
         else:
             parts.append("_(empty file)_")
-
         parts.append("")
         parts.append("---")
         parts.append("")
@@ -220,6 +209,16 @@ def main() -> None:
         else:
             print(f"Error: {err}", file=sys.stderr)
         sys.exit(1)
+
+    # Deduplicate by file URI, preserving highest-score entry for each file
+    seen: set[str] = set()
+    unique_results: list[dict] = []
+    for r in results:
+        file_uri = r.get("file", "")
+        if file_uri not in seen:
+            seen.add(file_uri)
+            unique_results.append(r)
+    results = unique_results
 
     if args.format == "json":
         print(json.dumps(format_json(results, queries, collection), indent=2))
