@@ -98,6 +98,19 @@ if [[ -d "${TOOLS_SRC}" ]]; then
   done
 fi
 
+# Remove broken symlinks in .opencode/tools/ (e.g. tools removed from Telamon).
+_tools_removed=0
+if [[ -d "${TOOLS_DIR}" ]]; then
+  for _link in "${TOOLS_DIR}"/*.ts; do
+    [[ -L "${_link}" ]] || continue
+    if [[ ! -e "${_link}" ]]; then
+      rm "${_link}"
+      log "Removed broken tool symlink: $(basename "${_link}")"
+      _tools_removed=$((_tools_removed + 1))
+    fi
+  done
+fi
+
 # ── 6. Write .ai/telamon/telamon.jsonc ────────────────────────────────────────────────
 TELAMON_CFG="${PROJ}/.ai/telamon/telamon.jsonc"
 
