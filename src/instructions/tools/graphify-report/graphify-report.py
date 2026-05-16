@@ -195,48 +195,6 @@ def find_matching_folder_nodes(words, node_map, adj, top_n=10):
     ]
 
 
-def find_matching_nodes(words, node_map, adj, top_n=10):
-    """Find nodes whose label matches any of the given words, returning top_n by degree."""
-    terms = [w.lower().strip() for w in words.split(",") if w.strip()]
-    matches = []
-    for nid, ndata in node_map.items():
-        label = ndata.get("label", "").lower()
-        score = sum(1 for t in terms if t in label)
-        if score > 0:
-            neighbors = []
-            seen_neighbor_ids = set()
-            for neighbor_id, edge in adj.get(nid, []):
-                if neighbor_id in seen_neighbor_ids:
-                    continue
-                seen_neighbor_ids.add(neighbor_id)
-                neighbor = node_map.get(neighbor_id, {})
-                neighbors.append(
-                    {
-                        "label": neighbor.get("label", neighbor_id),
-                        "relation": edge.get("relation", ""),
-                        "confidence": edge.get("confidence", ""),
-                        "confidence_score": edge.get("confidence_score"),
-                        "source": neighbor.get("source_file", ""),
-                        "file_type": neighbor.get("file_type", ""),
-                        "community": neighbor.get("community"),
-                    }
-                )
-            neighbors.sort(key=lambda x: (x["relation"], x["label"]))
-            matches.append(
-                {
-                    "label": ndata.get("label", nid),
-                    "id": nid,
-                    "source": ndata.get("source_file", ""),
-                    "file_type": ndata.get("file_type", ""),
-                    "community": ndata.get("community"),
-                    "degree": len(adj.get(nid, [])),
-                    "neighbors": neighbors,
-                }
-            )
-    matches.sort(key=lambda x: x["degree"], reverse=True)
-    return matches[:top_n]
-
-
 def format_stats_md(stats):
     """Format stats section as Markdown."""
     conf_pct = stats["confidence_pct"]
@@ -316,43 +274,6 @@ def format_top_folder_nodes_md(folder_nodes, title="Most Connected Folder Nodes"
     return "\n".join(lines)
 
 
-def format_deep_dive_md(matches, query):
-    """Format word-matched nodes (top N by degree) as Markdown sections."""
-    lines = [
-        f"## Deep Dive: `{query}`",
-        "",
-        f"**{len(matches)} matching nodes (top by degree)**",
-        "",
-    ]
-
-    for m in matches:
-        label = m["label"]
-        source = m["source"]
-        ft = m["file_type"]
-        degree = m["degree"]
-        community = m["community"]
-
-        lines.append(f"### {label}")
-        lines.append("")
-        lines.append(
-            f"`{source}` · {ft} · degree={degree} · community={community}"
-        )
-        lines.append("")
-
-        if m["neighbors"]:
-            lines.append("| Relation | → Neighbor | Confidence | Source |")
-            lines.append("|----------|------------|------------|--------|")
-            for nb in m["neighbors"]:
-                nb_label = nb["label"].replace("|", "\\|")
-                nb_source = nb["source"].replace("|", "\\|")
-                lines.append(
-                    f"| {nb['relation']} | {nb_label} | {nb['confidence']} | `{nb_source}` |"
-                )
-            lines.append("")
-
-    return "\n".join(lines)
-
-
 def main():
     import argparse
 
@@ -414,13 +335,6 @@ def main():
             "top_file_nodes": top_file_nodes,
             "top_folder_nodes": top_folder_nodes,
         }
-        if args.words:
-            matches = find_matching_nodes(args.words, node_map, adj, args.top_n)
-            result["word_matches"] = {
-                "query": args.words,
-                "total_matches": len(matches),
-                "matches": matches,
-            }
         print(json.dumps(result, indent=2))
     else:
         # Markdown output
@@ -444,10 +358,6 @@ def main():
             format_top_file_nodes_md(top_file_nodes, title=file_title),
             format_top_folder_nodes_md(top_folder_nodes, title=folder_title),
         ]
-        if args.words:
-            matches = find_matching_nodes(args.words, node_map, adj, args.top_n)
-            parts.append(format_deep_dive_md(matches, args.words))
-
         print("\n".join(parts))
 
 
