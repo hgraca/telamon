@@ -14,12 +14,41 @@ header "opencode-codebase-index Config"
 INDEX_CONFIG="$(pwd)/.opencode/codebase-index.json"
 
 if [[ -f "${INDEX_CONFIG}" ]]; then
-  skip "codebase-index config (already exists)"; exit 0
+  if jq -e 'has("include")' "${INDEX_CONFIG}" >/dev/null 2>&1; then
+    skip "codebase-index config (already exists with include key)"; exit 0
+  fi
+  # Config exists but lacks include key — fall through to patch it
+else
+  mkdir -p "$(pwd)/.opencode"
+  cp "${SCRIPT_DIR}/codebase-index.json" "${INDEX_CONFIG}"
+  log "codebase-index config written → .opencode/codebase-index.json"
 fi
 
-mkdir -p "$(pwd)/.opencode"
-cp "${SCRIPT_DIR}/codebase-index.json" "${INDEX_CONFIG}"
-log "codebase-index config written → .opencode/codebase-index.json"
+# ── Inject include scope if src/ or app/ exists ───────────────────────────────
+_inject_include() {
+  local prefix="$1"
+  local tmp
+  tmp="$(mktemp)"
+  jq --arg p "${prefix}" '. + {"include": [
+    ($p + "/**/*.{ts,tsx,js,jsx,mjs,cjs}"),
+    ($p + "/**/*.{py,pyi}"),
+    ($p + "/**/*.{go,rs,java,kt,scala}"),
+    ($p + "/**/*.{c,cpp,cc,h,hpp}"),
+    ($p + "/**/*.{rb,php,inc,swift}"),
+    ($p + "/**/*.{vue,svelte,astro}"),
+    ($p + "/**/*.{sql,graphql,proto}"),
+    ($p + "/**/*.{yaml,yml,toml}"),
+    ($p + "/**/*.{md,mdx}"),
+    ($p + "/**/*.{sh,bash,zsh}")
+  ]}' "${INDEX_CONFIG}" > "${tmp}" && mv "${tmp}" "${INDEX_CONFIG}"
+  log "codebase-index include scope set → ${prefix}/"
+}
+
+if [[ -d "$(pwd)/src" ]]; then
+  _inject_include "src"
+elif [[ -d "$(pwd)/app" ]]; then
+  _inject_include "app"
+fi
 
 # ── Build initial codebase index ─────────────────────────────────────────────
 if [[ -d "$(pwd)/.opencode/index" ]]; then
