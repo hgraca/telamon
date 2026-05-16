@@ -138,27 +138,15 @@ def format_markdown(results: list[dict]) -> str:
     return "\n".join(parts)
 
 
-def format_json(results: list[dict], queries: list[str], collection: str) -> dict:
-    files = []
+def format_json(results: list[dict]) -> dict:
+    memories = []
     for r in results:
         file_uri = r.get("file", "")
-        if "_body" in r:
-            body, err = r["_body"], None
-        else:
-            body, err = fetch_file_body(file_uri)
-        files.append({
-            "file": file_uri,
-            "title": r.get("title", ""),
-            "score": r.get("score", 0),
-            "body": body if body is not None else "",
-            "error": err,
-        })
+        body = r["_body"] if "_body" in r else fetch_file_body(file_uri)[0]
+        memories.append(body or "")
     return {
-        "status": "ok",
-        "query": queries,
-        "collection": collection,
-        "total_matches": len(files),
-        "files": files,
+        "title": "Memories",
+        "memories": memories,
     }
 
 
@@ -240,7 +228,7 @@ def main() -> None:
     results = unique_results
 
     if args.format == "json":
-        print(json.dumps(format_json(results, queries, collection), indent=2))
+        print(json.dumps(format_json(results), indent=2))
     else:
         print(format_markdown(results))
 
