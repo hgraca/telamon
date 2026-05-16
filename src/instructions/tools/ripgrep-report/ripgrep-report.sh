@@ -94,21 +94,29 @@ fi
 
 # ── Search and score ──────────────────────────────────────────────────────────
 # For each keyword, run rg and collect (folder, match_count) pairs.
-# We use rg --count-matches to get per-file match counts, then aggregate by folder.
+# Folders whose path contains a keyword receive a 3x score bonus.
+# For markdown output, table columns are aligned via format-md.py.
 
-python3 - "${ROOT}" "${TOP}" "${FORMAT}" "${KEYWORDS[@]}" <<'PYEOF'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FMT_SCRIPT="${SCRIPT_DIR}/../format-md/format-md.py"
+
+# Always capture python output; for markdown we post-process with format-md.
+TMP_OUT="$(mktemp /tmp/ripgrep-report-XXXXXX)"
+trap 'rm -f "${TMP_OUT}"' EXIT
+
+python3 - "${ROOT}" "${TOP}" "${FORMAT}" "${KEYWORDS[@]}" > "${TMP_OUT}" <<'PYEOF'
 import sys
 import subprocess
 import json
 import os
 from collections import defaultdict
 
-root   = sys.argv[1]
-top_n  = int(sys.argv[2])
-fmt    = sys.argv[3]
+root     = sys.argv[1]
+top_n    = int(sys.argv[2])
+fmt      = sys.argv[3]
 keywords = sys.argv[4:]
 
-# folder -> {keyword -> match_count, total}
+# folder -> {total, keywords: {kw: count}}
 folder_scores: dict[str, dict] = defaultdict(lambda: {"total": 0, "keywords": defaultdict(int)})
 
 for kw in keywords:
@@ -116,7 +124,7 @@ for kw in keywords:
         result = subprocess.run(
             [
                 "rg",
-                "--count-matches",   # print match count per file
+                "--count-matches",
                 "--no-heading",
                 "--no-messages",
                 "--ignore-case",
@@ -137,7 +145,6 @@ for kw in keywords:
         sys.exit(1)
 
     for line in result.stdout.splitlines():
-        # format: /abs/path/to/file:count
         if ":" not in line:
             continue
         parts = line.rsplit(":", 1)
@@ -148,21 +155,29 @@ for kw in keywords:
             count = int(count_str)
         except ValueError:
             continue
-
         folder = os.path.dirname(filepath)
-        # Normalise: make relative to root
         try:
             rel_folder = os.path.relpath(folder, root)
         except ValueError:
             rel_folder = folder
-
         folder_scores[rel_folder]["total"] += count
         folder_scores[rel_folder]["keywords"][kw] += count
 
-# Sort by total descending, then alphabetically
+# Path-name bonus: folders whose path contains a keyword get 3x score.
+# This surfaces architecturally-named folders above high-volume generic ones.
+PATH_BONUS = 3.0
+
+def effective_score(folder: str, data: dict) -> float:
+    base = data["total"]
+    folder_lower = folder.lower()
+    for kw in keywords:
+        if kw.lower() in folder_lower:
+            return base * PATH_BONUS
+    return float(base)
+
 ranked = sorted(
     folder_scores.items(),
-    key=lambda x: (-x[1]["total"], x[0]),
+    key=lambda x: (-effective_score(x[0], x[1]), x[0]),
 )[:top_n]
 
 if fmt == "json":
@@ -175,6 +190,8 @@ if fmt == "json":
                 "rank": i + 1,
                 "folder": folder,
                 "total_matches": data["total"],
+                "score": round(effective_score(folder, data), 1),
+                "path_bonus": any(kw.lower() in folder.lower() for kw in keywords),
                 "matches_by_keyword": dict(data["keywords"]),
             }
             for i, (folder, data) in enumerate(ranked)
@@ -182,19 +199,26 @@ if fmt == "json":
     }
     print(json.dumps(output, indent=2))
 else:
-    # Markdown output
-    print(f"## Ripgrep Report")
-    print(f"")
+    print("## Ripgrep Report")
+    print("")
     print(f"**Root:** `{root}`  ")
     print(f"**Keywords:** {', '.join(f'`{k}`' for k in keywords)}")
-    print(f"")
+    print("")
     if not ranked:
         print("_No matches found._")
     else:
-        print(f"| Rank | Folder | Total Matches | Per Keyword |")
-        print(f"|------|--------|---------------|-------------|")
+        print("| Rank | Folder | Score | Matches | Per Keyword |")
+        print("|------|--------|-------|---------|-------------|")
         for i, (folder, data) in enumerate(ranked):
             per_kw = ", ".join(f"`{k}`: {v}" for k, v in data["keywords"].items())
-            print(f"| {i+1} | `{folder}` | {data['total']} | {per_kw} |")
+            score  = effective_score(folder, data)
+            star   = " ★" if any(kw.lower() in folder.lower() for kw in keywords) else ""
+            print(f"| {i+1} | `{folder}`{star} | {score:.0f} | {data['total']} | {per_kw} |")
 
 PYEOF
+
+# For markdown: align table columns, then print. For JSON: print as-is.
+if [[ "${FORMAT}" == "markdown" && -f "${FMT_SCRIPT}" ]]; then
+  python3 "${FMT_SCRIPT}" "${TMP_OUT}" >/dev/null 2>&1
+fi
+cat "${TMP_OUT}"

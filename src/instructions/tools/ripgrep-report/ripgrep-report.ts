@@ -93,6 +93,18 @@ export default tool({
       }
     }
 
-    return stdout.trim()
+    // Format markdown tables before returning
+    const os = await import("os")
+    const fs = await import("fs")
+    const tmpFile = path.join(os.tmpdir(), `ripgrep-report-${Date.now()}.md`)
+    try {
+      await Bun.write(tmpFile, stdout.trim())
+      const fmtScript = path.join(import.meta.dir, "..", "format-md", "format-md.py")
+      const fmtProc = Bun.spawn(["python3", fmtScript, tmpFile], { stdio: ["ignore", "pipe", "pipe"] })
+      await fmtProc.exited
+      return (await Bun.file(tmpFile).text()).trim()
+    } finally {
+      try { fs.unlinkSync(tmpFile) } catch { /* ignore */ }
+    }
   },
 })
