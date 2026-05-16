@@ -180,19 +180,48 @@ def keyword_prefix(folder: str, kw: str) -> str | None:
 def canonical_folder(folder: str) -> str:
     """Return the merge-target for this folder: the shortest prefix that
     contains a keyword segment, or the folder itself if none match."""
+    best = None
     for kw in keywords:
         prefix = keyword_prefix(folder, kw)
         if prefix is not None:
-            return prefix
-    return folder
+            if best is None or len(prefix) < len(best):
+                best = prefix
+    return best if best is not None else folder
 
-# Merge: accumulate all folder_scores into their canonical (prefix) folder.
+# Pass 1: accumulate all folder_scores into their canonical (prefix) folder.
 merged_scores: dict[str, dict] = defaultdict(lambda: {"total": 0, "keywords": defaultdict(int)})
 for folder, data in folder_scores.items():
     target = canonical_folder(folder)
     merged_scores[target]["total"] += data["total"]
     for kw, cnt in data["keywords"].items():
         merged_scores[target]["keywords"][kw] += cnt
+
+# Pass 2: collapse any canonical folder that is a strict path-prefix child of
+# another canonical folder into that ancestor.  Repeat until stable so that
+# chains (A → B → C) fully resolve.
+def find_ancestor(folder: str, candidates: set[str]) -> str | None:
+    """Return the longest strict prefix of folder that exists in candidates."""
+    parts = folder.replace("\\", "/").split("/")
+    best = None
+    for i in range(1, len(parts)):
+        prefix = "/".join(parts[:i])
+        if prefix in candidates and prefix != folder:
+            best = prefix  # keep going to find the longest match
+    return best
+
+changed = True
+while changed:
+    changed = False
+    keys = set(merged_scores.keys())
+    for folder in list(merged_scores.keys()):
+        ancestor = find_ancestor(folder, keys)
+        if ancestor is not None:
+            merged_scores[ancestor]["total"] += merged_scores[folder]["total"]
+            for kw, cnt in merged_scores[folder]["keywords"].items():
+                merged_scores[ancestor]["keywords"][kw] += cnt
+            del merged_scores[folder]
+            changed = True
+            break  # restart iteration after mutation
 
 def effective_score(folder: str, data: dict) -> float:
     base = data["total"]
