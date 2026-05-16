@@ -16,48 +16,70 @@ Use at session start to collect targeted context for the orchestrator before wor
 
 ### 1. Identify keywords
 
-Extract topic keywords from orchestrator's delegation prompt. If none provided, use project name and current task area.
+Extract topic keywords from orchestrator's delegation prompt. If none provided, ask for them.
 
-### 2. Gather memory vault context
+### 2. Gather memories
 
-Call `gather-context` tool with extracted keywords:
+Call the tool `search-memories` with the given keywords
 
-```
-gather-context({ keywords: ["<keyword1>", "<keyword2>"], format: "markdown", max_results: 5 })
-```
+### 3. Gather a git status report
 
-Repeat with different keyword sets if first call returns sparse results.
+Call the `git-report` tool
 
-### 3. Gather codebase context (if topic is code-related)
+### 4. Gather codebase relationships knowledge (if topic is code-related)
 
-Use `codebase-index` to find relevant code locations:
+Use the `graphify` skill to understand what are the most relevant folders/modules/nodes related to the given keywords
+
+### 5. Gather codebase patterns and architecture context (if topic is code-related)
+
+Use `codebase-index` MCP, specially `codebase_search`,  to understand the given keywords concepts within
+the context of the codebase, codebase relationships, patterns, architecture, and find relevant code locations:
 - Search by meaning for each keyword
 - Return file paths, symbol names, and brief descriptions
 
-### 4. Gather directory structure (if topic is structural)
+### 6. Gather directory structure (if topic is code-related or structural)
 
-Use `glob` to list relevant directories and files matching the topic area.
+Use the `tree` tool to generate tree views of the most relevant base folders.
+Be careful to not duplicate tree structures by giving it a base folder path and a subfolder of that. 
+In case of overlap, provide only the parent folder.
 
-### 5. Compile context report
+### 7. Compile context report
 
 Produce structured Markdown report with sections:
 
 ```markdown
-# Context Report: <topic>
+# Context Report
 
-## Memory Vault
-<findings from gather-context tool — decisions, patterns, lessons>
+**Keywords**: <keyword-list>
 
-## Codebase Locations
-<relevant files and symbols — omit if not code-related>
+## Memories
+
+<!-- output body of `search-memories` tool -->
+
+## Git status
+
+<!-- output of `git-report` tool -->
+
+## Graphify insights
+
+<!-- report of the `graphify` insights — omit if not code-related -->
+
+## Codebase-index insights
+
+<!-- insights of the `codebase-index` — omit if not code-related -->
 
 ## Directory Structure
-<relevant paths — omit if not structural>
+
+<!-- output of  the `tree` tool — omit if neither code-related nor structural -->
 
 ## Summary
-<2-4 sentences: what is known, what is missing, recommended starting points>
+<!-- 2-4 sentences: what is known, what is missing, recommended follow-up research -->
 ```
 
-### 6. Signal completion
+and:
+- use the `caveman` skill on it to reduce the tokes cost
+- use the `format-md` tool to format it
+
+### 8. Signal completion
 
 Signal `FINISHED` per `telamon.agent-communication` skill. Attach context report path or inline content.

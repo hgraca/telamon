@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""gather-context-from-memory — search the memory vault and return full file bodies.
+"""search-memories — search the memory vault and return full file bodies.
 
-Uses qmd-report to find matching files, then fetches and strips the frontmatter
-from each matched file, assembling all bodies into a single output.
+Searches the QMD memory vault for files matching the given queries, then fetches
+each matched file's full content (frontmatter stripped) and assembles all bodies
+into a single output.
 
 Usage:
-  python3 gather-context-from-memory.py --query "planning workflow"
-  python3 gather-context-from-memory.py --query "planning" --query "workflow"
-  python3 gather-context-from-memory.py --query "billing" --collection core --max-results 10
-  python3 gather-context-from-memory.py --query "billing" --format json
+  python3 search-memories.py --query "planning workflow"
+  python3 search-memories.py --query "planning" --query "workflow"
+  python3 search-memories.py --query "billing" --collection core --max-results 10
+  python3 search-memories.py --query "billing" --format json
 """
 import argparse
 import json
@@ -67,30 +68,49 @@ def run_qmd_cli(args: list[str]) -> tuple[str | None, str | None]:
 
 
 def search_qmd(queries: list[str], collection: str, max_results: int) -> tuple[list[dict] | None, str | None]:
-    """Run qmd-report.py in JSON mode and return the results list."""
-    qmd_report = TELAMON_ROOT / "src" / "instructions" / "tools" / "qmd-report" / "qmd-report.py"
-    cmd = [
-        "python3", str(qmd_report),
-        "--format", "json",
-        "--collection", collection,
-        "--max-results", str(max_results),
-    ]
-    for q in queries:
-        cmd += ["--query", q]
+    """Search QMD for each query and return merged, deduplicated results."""
+    all_results: list[dict] = []
+    seen_files: set[str] = set()
 
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=_qmd_env())
-    if proc.returncode != 0:
-        return None, proc.stderr.strip() or proc.stdout.strip()
+    for query in queries:
+        cmd = ["search", query, "--json", "--all"]
+        if collection:
+            cmd += ["-c", collection]
+        # Always also search the shared global knowledge base
+        if collection != "global":
+            cmd += ["-c", "global"]
 
-    try:
-        data = json.loads(proc.stdout.strip())
-    except json.JSONDecodeError:
-        return None, f"Failed to parse qmd-report output: {proc.stdout[:500]}"
+        stdout, err = run_qmd_cli(cmd)
+        if err:
+            return None, err
 
-    if data.get("status") == "error":
-        return None, data.get("message", str(data))
+        try:
+            data = json.loads(stdout)
+        except json.JSONDecodeError:
+            return None, f"Failed to parse qmd output: {stdout[:500]}"
 
-    return data.get("results", []), None
+        if isinstance(data, dict) and data.get("results"):
+            results = data["results"]
+        elif isinstance(data, list):
+            results = data
+        else:
+            continue
+
+        for r in results:
+            file_uri = r.get("file", "")
+            if file_uri and file_uri not in seen_files:
+                seen_files.add(file_uri)
+                all_results.append({
+                    "docid": r.get("docid", ""),
+                    "score": r.get("score", 0),
+                    "file": file_uri,
+                    "title": r.get("title", ""),
+                    "snippet": r.get("snippet", ""),
+                })
+
+    # Sort by score descending, limit
+    all_results.sort(key=lambda r: r.get("score", 0), reverse=True)
+    return all_results[:max_results], None
 
 
 def strip_yaml_frontmatter(content: str) -> str:
@@ -162,7 +182,7 @@ def resolve_collection(project_root: Path) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="gather-context-from-memory: search memory vault and return full file bodies"
+        description="search-memories: search memory vault and return full file bodies"
     )
     parser.add_argument(
         "--query",
@@ -201,24 +221,17 @@ def main() -> None:
             print(f"Error: {err}", file=sys.stderr)
         sys.exit(1)
 
-    # Deduplicate: first by file URI, then by body content after fetching.
-    # Two distinct files can have identical content (e.g. split vault entries);
-    # body-level dedup ensures each unique piece of knowledge appears once.
-    seen_uris: set[str] = set()
+    # Deduplicate by body content after fetching
     seen_bodies: set[str] = set()
     unique_results: list[dict] = []
     for r in results:
         file_uri = r.get("file", "")
-        if file_uri in seen_uris:
-            continue
-        seen_uris.add(file_uri)
         body, _ = fetch_file_body(file_uri)
         body_key = (body or "").strip()
         if body_key and body_key in seen_bodies:
             continue
         if body_key:
             seen_bodies.add(body_key)
-        # Attach pre-fetched body so format_markdown doesn't fetch again
         r = dict(r)
         r["_body"] = body
         unique_results.append(r)

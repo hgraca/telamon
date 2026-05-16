@@ -33,7 +33,7 @@ exhaustive reads wasteful.
 
 0. **Knowledge graph (if available)**: if `graphify-out/graph.json` exists, query graph first for fast
    architectural overview — compresses relationship-heavy parts into few calls.
-   Run `graphify-report` to confirm graph populated and surface god nodes, communities, and stats.
+   Run `graphify_graph_stats` MCP tool to confirm graph populated and surface god nodes, communities, and stats.
    Then use `graphify query "<question>"` (CLI) or MCP tools (`graphify_god_nodes`,
    `graphify_graph_stats`, `graphify_query_graph`) for concept-level questions (e.g. "entry points",
    "data stores", "auth"). Treat graph output as hypothesis layer — still verify against codebase.

@@ -111,7 +111,7 @@ else
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}Available tools:${TEXT_CLEAR}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  graphify query · graphify path · graphify explain${TEXT_CLEAR}"
-    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  graphify-report (custom tool)${TEXT_CLEAR}"
+    echo -e "  ${TEXT_BOLD}${TEXT_BLUE}│${TEXT_CLEAR}  ${TEXT_DIM}  graphify MCP tools: graphify_god_nodes, graphify_graph_stats, graphify_query_graph${TEXT_CLEAR}"
     echo -e "  ${TEXT_BOLD}${TEXT_BLUE}└───────────────────────────────────────────────────────┘${TEXT_CLEAR}"
   fi
   rm -f "${TMPOUT}"

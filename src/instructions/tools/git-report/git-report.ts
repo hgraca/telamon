@@ -1,5 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import path from "path"
+import os from "os"
+import fs from "fs"
 
 /**
  * git-report — snapshot current git state: branch, status, staged diff, recent commits,
@@ -18,6 +20,9 @@ import path from "path"
  *     pointing to this file.
  *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
  *     so Bun's upward module resolution from this file's real path finds it.
+ *
+ * When format is "markdown", the output is passed through format-md to align
+ * any markdown tables before returning.
  */
 
 export default tool({
@@ -65,6 +70,16 @@ export default tool({
       }
     }
 
-    return stdout.trim()
+    // Format markdown tables before returning
+    const tmpFile = path.join(os.tmpdir(), `git-report-${Date.now()}.md`)
+    try {
+      await Bun.write(tmpFile, stdout.trim())
+      const fmtScript = path.join(import.meta.dir, "..", "format-md", "format-md.py")
+      const fmtProc = Bun.spawn(["python3", fmtScript, tmpFile], { stdio: ["ignore", "pipe", "pipe"] })
+      await fmtProc.exited
+      return (await Bun.file(tmpFile).text()).trim()
+    } finally {
+      try { fs.unlinkSync(tmpFile) } catch { /* ignore */ }
+    }
   },
 })

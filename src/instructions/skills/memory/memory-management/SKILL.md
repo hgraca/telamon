@@ -101,7 +101,7 @@ If no bucket matches, use `project/`.
 
 - bootstrap/ loads automatically at session start — do not re-read
 - latent/ files: use QMD semantic search for all categories — do NOT read entire folders
-  - Use `qmd-report` tool with relevant query terms
+  - Use `search-memories` tool with relevant query terms
   - QMD returns file content with frontmatter stripped (data only)
   - Read specific files directly only when you know the exact filename
 - All other files: search before read; max 3 non-latent notes per task; discard results with relevance score < 0.6

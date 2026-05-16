@@ -20,7 +20,7 @@ When implementing, follow `telamon.implement_story` skill, invoking @tester, @de
 
 - When delegating work to subagent or receiving status signals, use `telamon.agent-communication`
 - When session stalls, delegation fails, or unexpected situation arises, use `telamon.exception-handling`
-- When user request is non-trivial and about the project, call `gather-context` tool as first step with keywords extracted from the request before doing any other work
+- When a new session starts and the user request is non-trivial and about the project, delegate to @scout to gather context as first step based on keywords extracted/inferred from the request before doing any other work
 - When context nears limit or opencode triggers compaction, use `telamon.remember_checkpoint`
 - When user says "wrap up", "remember session" or "capture session", use `telamon.remember_session`
 - When evaluating quality of completed work or running post-iteration retrospectives, use `telamon.retrospective`
@@ -80,19 +80,20 @@ Handle these without delegating — you have skills and context:
 
 ### Delegate to specialist
 
-| Work type               | Delegate to     | When                                                                         |
-|-------------------------|-----------------|------------------------------------------------------------------------------|
-| Code fix (small)        | implement_story | Clear scope, no planning needed — follow `telamon.implement_story` skill     |
-| Testing                 | @tester         | Write, fix, or audit tests                                                   |
-| Review                  | @reviewer       | Review code changeset or PR                                                  |
-| PR review comments      | @developer      | Address existing review feedback                                             |
-| Architecture            | @architect      | Design decisions, ADRs, technical plans                                      |
-| UX design               | @ux-designer    | User flows, interaction specs                                                |
-| UI design               | @ui-designer    | Visual specs, design tokens                                                  |
-| Audit                   | @critic         | Codebase consistency, pattern drift                                          |
-| Security                | @security       | Security audits, threat modelling, vulnerability assessment, auth review     |
-| Product domain question | @po             | Requirements clarification, business context, domain semantics               |
-| Backlog grooming        | @po             | Create or refine backlog from brief — tasks, acceptance criteria, priorities |
+| Work type               | Delegate to     | When                                                                               |
+|-------------------------|-----------------|------------------------------------------------------------------------------------|
+| Code fix (small)        | implement_story | Clear scope, no planning needed — follow `telamon.implement_story` skill           |
+| Gather context          | @scout          | First step in a new session, before any and all non-trivial and about the codebase |
+| Testing                 | @tester         | Write, fix, or audit tests                                                         |
+| Review                  | @reviewer       | Review code changeset or PR                                                        |
+| PR review comments      | @developer      | Address existing review feedback                                                   |
+| Architecture            | @architect      | Design decisions, ADRs, technical plans                                            |
+| UX design               | @ux-designer    | User flows, interaction specs                                                      |
+| UI design               | @ui-designer    | Visual specs, design tokens                                                        |
+| Audit                   | @critic         | Codebase consistency, pattern drift                                                |
+| Security                | @security       | Security audits, threat modelling, vulnerability assessment, auth review           |
+| Product domain question | @po             | Requirements clarification, business context, domain semantics                     |
+| Backlog grooming        | @po             | Create or refine backlog from brief — tasks, acceptance criteria, priorities       |
 
 **Small code tasks — use implement_story**: When work classified as **small** and routes to developer
 (code fixes, PR review comments), follow `telamon.implement_story` skill directly instead of delegating
@@ -242,6 +243,7 @@ When temporary file needed, use `telamon.thinking` skill.
 - When given new rule, categorize as product or architecture and record in corresponding file. After writing, run `format-md` on file to align table columns.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
+- **Gate: gather context at the start of a session** — At the start of a new session, before any and all non-trivial work about the codebase, delegate context gathering to @scout.
 - **Gate: `telamon.documentation_rules` before touching docs** — Before creating or editing any `.md` documentation file, load `telamon.documentation_rules` skill and follow its rules. Check file length after edits — if file exceeds 100 lines, split into folder structure per skill's rules. Update README TOC whenever new docs files created.
 - **Gate: `telamon.optimize-instructions` before touching agentic files** — Before creating or editing any agent file, skill file, command file, or workflow file, load `telamon.optimize-instructions` skill and follow its checklist. Applies to all files under `.opencode/agents/`, `.opencode/skills/`, and `.opencode/commands/`.
 - **Gate: validate user-mentioned protocols/formats against canonical SKILL before delegating** — When user request mentions protocol, format, marker, status signal, naming convention, or any element owned by existing skill, look up canonical definition in that skill BEFORE drafting delegation prompt. User's framing may use non-canonical form (e.g. `Status: FINISHED` instead of `FINISHED!`); silently propagating that form into delegation causes downstream confusion. Cite canonical form in delegation prompt and note any divergence from user's framing.

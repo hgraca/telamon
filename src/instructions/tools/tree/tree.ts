@@ -1,19 +1,21 @@
 import { tool } from "@opencode-ai/plugin"
 import path from "path"
+import os from "os"
+import fs from "fs"
 
 /**
- * tree-report — run `tree` on one or more directories and output markdown to stdout.
+ * tree — run `tree` on one or more directories and output markdown to stdout.
  *
  * Usage:
- *   tree-report({ paths: ["src/components"] })
- *   tree-report({ paths: ["src/components", "src/utils"] })
+ *   tree({ paths: ["src/components"] })
+ *   tree({ paths: ["src/components", "src/utils"] })
  *
  * Always outputs markdown to stdout (no file written).
- * Delegates to the colocated bash script (tree-report.sh).
+ * Delegates to the colocated bash script (tree.sh).
  *
- * Wiring (same pattern as repomix-report.ts):
- *   - This file lives at <telamon-root>/src/instructions/tools/tree-report/tree-report.ts
- *   - init.sh creates a flat symlink at <project>/.opencode/tools/tree-report.ts
+ * Wiring (same pattern as format-md.ts):
+ *   - This file lives at <telamon-root>/src/instructions/tools/tree/tree.ts
+ *   - init.sh creates a flat symlink at <project>/.opencode/tools/tree.ts
  *     pointing to this file.
  *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
  *     so Bun's upward module resolution from this file's real path finds it.
@@ -35,7 +37,7 @@ export default tool({
       .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable tree output)"),
   },
   async execute(args) {
-    const script = path.join(import.meta.dir, "tree-report.sh")
+    const script = path.join(import.meta.dir, "tree.sh")
     const fmt = args.format ?? "json"
 
     const cmd = ["bash", script, "--format", fmt, ...args.paths]
@@ -46,7 +48,7 @@ export default tool({
     const exitCode = await proc.exited
 
     if (exitCode !== 0) {
-      return `tree-report failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
+      return `tree failed (exit ${exitCode})\n${stderr.trim() || stdout.trim() || "(no output)"}`
     }
 
     if (fmt === "json") {
@@ -57,6 +59,16 @@ export default tool({
       }
     }
 
-    return stdout.trim()
+    // Format markdown tables before returning
+    const tmpFile = path.join(os.tmpdir(), `tree-${Date.now()}.md`)
+    try {
+      await Bun.write(tmpFile, stdout.trim())
+      const fmtScript = path.join(import.meta.dir, "..", "format-md", "format-md.py")
+      const fmtProc = Bun.spawn(["python3", fmtScript, tmpFile], { stdio: ["ignore", "pipe", "pipe"] })
+      await fmtProc.exited
+      return (await Bun.file(tmpFile).text()).trim()
+    } finally {
+      try { fs.unlinkSync(tmpFile) } catch { /* ignore */ }
+    }
   },
 })

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # =============================================================================
-# src/instructions/tools/tree-report/tree-report.sh
-# CLI wrapper for the tree-report tool — runs `tree` on one or more directories
+# src/instructions/tools/tree/tree.sh
+# CLI wrapper for the tree tool — runs `tree` on one or more directories
 # and outputs markdown or JSON to stdout.
 #
 # Usage:
-#   tree-report.sh src/components                    # single dir, markdown
-#   tree-report.sh src/components src/utils          # multiple dirs, markdown
-#   tree-report.sh --markdown src/components         # explicit markdown
-#   tree-report.sh --json src/components             # JSON output
-#   tree-report.sh --format json src/components      # explicit --format flag
+#   tree.sh src/components                    # single dir, markdown
+#   tree.sh src/components src/utils          # multiple dirs, markdown
+#   tree.sh --markdown src/components         # explicit markdown
+#   tree.sh --json src/components             # JSON output
+#   tree.sh --format json src/components      # explicit --format flag
 #
 # Each directory gets its own section in the output.
 # Defaults:
@@ -43,7 +43,7 @@ for arg in "$@"; do
 done
 
 if [[ ${#DIRS[@]} -eq 0 ]]; then
-  echo "Usage: tree-report.sh [--markdown|--json|--format markdown|json] <dir> [<dir> ...]" >&2
+  echo "Usage: tree.sh [--markdown|--json|--format markdown|json] <dir> [<dir> ...]" >&2
   exit 1
 fi
 

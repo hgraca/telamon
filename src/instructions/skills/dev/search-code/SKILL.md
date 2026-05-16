@@ -70,7 +70,7 @@ Knowledge graph with cross-file relationships, community detection, and graph tr
 - `graphify query "<question>"` — BFS/DFS traversal from concept
 - `graphify explain "<node>"` — full details for specific node
 - `graphify path "<src>" "<dst>"` — shortest path between two concepts
-- `graphify-report` (custom tool) — god nodes, communities, graph stats
+- `graphify-report` (custom tool) — god nodes, communities, graph stats (removed; use MCP tools instead)
 
 **MCP tools** (for structured graph introspection):
 - `graphify_get_node` — full details for specific node
@@ -83,7 +83,7 @@ Knowledge graph with cross-file relationships, community detection, and graph tr
 **Tips:**
 - Use `graphify query` (BFS default) for broad context ("what connects to X?")
 - Use `graphify query --dfs` to trace specific dependency chain
-- Run `graphify-report` first when exploring unfamiliar architecture (god nodes, stats)
+- Run `graphify_god_nodes` MCP tool first when exploring unfamiliar architecture (god nodes, stats)
 - Use `--budget N` to cap output at N tokens
 - For structured queries (neighbors, community membership), use MCP tools
 
@@ -193,5 +193,5 @@ AST-based structural pattern matching.
 6. **Need to find code by meaning?** → `codebase_search` / `codebase_peek`
 7. **Need to find definition?** → `implementation_lookup`
 8. **Need callers/callees?** → `call_graph`
-9. **Need cross-file architecture?** → `graphify query` / `graphify-report` / MCP tools
+9. **Need cross-file architecture?** → `graphify query` / MCP tools (`graphify_god_nodes`, `graphify_graph_stats`)
 10. **Need full directory context?** → `repomix pack`
