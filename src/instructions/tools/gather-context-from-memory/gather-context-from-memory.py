@@ -144,10 +144,7 @@ def format_json(results: list[dict]) -> dict:
         file_uri = r.get("file", "")
         body = r["_body"] if "_body" in r else fetch_file_body(file_uri)[0]
         memories.append(body or "")
-    return {
-        "title": "Memories",
-        "memories": memories,
-    }
+    return {"memories": memories}
 
 
 # ---------------------------------------------------------------------------
