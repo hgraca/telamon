@@ -75,7 +75,7 @@ if [[ ${#KEYWORDS[@]} -eq 0 ]]; then
   exit 1
 fi
 
-# Resolve root directory
+# Resolve root directory, then narrow to src/ or app/ if present
 if [[ -z "${ROOT}" ]]; then
   ROOT="$(pwd)"
 fi
@@ -84,6 +84,12 @@ ROOT="$(realpath "${ROOT}")"
 if [[ ! -d "${ROOT}" ]]; then
   echo "Error: root directory not found: ${ROOT}" >&2
   exit 1
+fi
+
+if [[ -d "${ROOT}/src" ]]; then
+  ROOT="${ROOT}/src"
+elif [[ -d "${ROOT}/app" ]]; then
+  ROOT="${ROOT}/app"
 fi
 
 # ── Search and score ──────────────────────────────────────────────────────────

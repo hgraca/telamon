@@ -28,7 +28,7 @@ import path from "path"
 
 export default tool({
   description:
-    "Search the codebase for one or more keywords or phrases using ripgrep and return the top 10 most relevant folders ranked by match density. Use this to quickly locate which parts of the codebase are most related to a concept, feature, or domain term.",
+    "Search the codebase for one or more keywords or phrases using ripgrep and return the top 10 most relevant folders ranked by match density. Automatically scopes the search to src/ or app/ (whichever exists at the project root). Use this to quickly locate which parts of the codebase are most related to a concept, feature, or domain term.",
   args: {
     keywords: tool.schema
       .array(tool.schema.string())
@@ -44,7 +44,7 @@ export default tool({
       .string()
       .optional()
       .describe(
-        "Root directory to search. Defaults to the project root (git worktree). Use a subdirectory to narrow the search scope, e.g. 'src/' or 'tests/'.",
+        "Root directory to search. Defaults to the project's src/ or app/ folder (whichever exists at the worktree root). Override only when you need to search a specific subdirectory.",
       ),
     top: tool.schema
       .number()
@@ -56,7 +56,16 @@ export default tool({
     const script = path.join(import.meta.dir, "ripgrep-report.sh")
     const fmt = args.format ?? "json"
     const top = String(args.top ?? 10)
-    const root = args.root ?? context.worktree
+
+    // Resolve search root: explicit arg → src/ → app/ → worktree root
+    let root = args.root ?? context.worktree
+    if (!args.root) {
+      const fs = await import("fs")
+      const srcDir = path.join(context.worktree, "src")
+      const appDir = path.join(context.worktree, "app")
+      if (fs.existsSync(srcDir)) root = srcDir
+      else if (fs.existsSync(appDir)) root = appDir
+    }
 
     const cmd = [
       "bash",
