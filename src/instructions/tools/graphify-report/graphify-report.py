@@ -85,8 +85,8 @@ def find_god_nodes(node_map, adj, top_n=10):
     ]
 
 
-def find_matching_nodes(words, node_map, adj):
-    """Find nodes whose label matches any of the given words."""
+def find_matching_nodes(words, node_map, adj, top_n=10):
+    """Find nodes whose label matches any of the given words, returning top_n by degree."""
     terms = [w.lower().strip() for w in words.split(",") if w.strip()]
     matches = []
     for nid, ndata in node_map.items():
@@ -124,7 +124,7 @@ def find_matching_nodes(words, node_map, adj):
                 }
             )
     matches.sort(key=lambda x: x["degree"], reverse=True)
-    return matches
+    return matches[:top_n]
 
 
 def format_stats_md(stats):
@@ -172,11 +172,11 @@ def format_god_nodes_md(gods):
 
 
 def format_deep_dive_md(matches, query):
-    """Format word-matched nodes as Markdown sections."""
+    """Format word-matched nodes (top N by degree) as Markdown sections."""
     lines = [
         f"## Deep Dive: `{query}`",
         "",
-        f"**{len(matches)} matching nodes**",
+        f"**{len(matches)} matching nodes (top by degree)**",
         "",
     ]
 
@@ -261,7 +261,7 @@ def main():
             "god_nodes": gods,
         }
         if args.words:
-            matches = find_matching_nodes(args.words, node_map, adj)
+            matches = find_matching_nodes(args.words, node_map, adj, args.top_n)
             result["word_matches"] = {
                 "query": args.words,
                 "total_matches": len(matches),
@@ -279,7 +279,7 @@ def main():
             format_god_nodes_md(gods),
         ]
         if args.words:
-            matches = find_matching_nodes(args.words, node_map, adj)
+            matches = find_matching_nodes(args.words, node_map, adj, args.top_n)
             parts.append(format_deep_dive_md(matches, args.words))
 
         print("\n".join(parts))
