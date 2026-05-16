@@ -428,9 +428,10 @@ def top_folders_from_file_nodes(file_nodes, top_n=10, candidate_n=100):
     top_candidates = dict(
         sorted(counts.items(), key=lambda x: x[1], reverse=True)[:candidate_n]
     )
-    # collapse_folders expects (degree_map, node_count_map, top_n);
-    # reuse file_count as both degree and node_count proxies.
-    collapsed = collapse_folders(top_candidates, top_candidates, 3)
+    # Collapse with full candidate set so siblings merge into ancestors,
+    # then take only top_n from the collapsed result.
+    collapsed = collapse_folders(top_candidates, top_candidates, candidate_n)
+    collapsed = collapsed[:top_n]
     # Rename node_count → file_count for clarity
     for entry in collapsed:
         entry["file_count"] = entry.pop("node_count")
@@ -455,7 +456,7 @@ def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes", fold
     lines.append("")
 
     # Append top folders derived from this file list
-    top_folders = top_folders_from_file_nodes(file_nodes, top_n=folder_top_n)
+    top_folders = top_folders_from_file_nodes(file_nodes, top_n=3)
     if top_folders:
         lines += [
             "### Top Folders",
