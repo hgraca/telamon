@@ -121,7 +121,10 @@ def format_markdown(results: list[dict]) -> str:
     parts = []
     for r in results:
         file_uri = r.get("file", "")
-        body, err = fetch_file_body(file_uri)
+        if "_body" in r:
+            body, err = r["_body"], None
+        else:
+            body, err = fetch_file_body(file_uri)
         if err:
             parts.append(f"_Error reading file `{file_uri}`: {err}_")
         elif body:
@@ -139,7 +142,10 @@ def format_json(results: list[dict], queries: list[str], collection: str) -> dic
     files = []
     for r in results:
         file_uri = r.get("file", "")
-        body, err = fetch_file_body(file_uri)
+        if "_body" in r:
+            body, err = r["_body"], None
+        else:
+            body, err = fetch_file_body(file_uri)
         files.append({
             "file": file_uri,
             "title": r.get("title", ""),
@@ -210,14 +216,27 @@ def main() -> None:
             print(f"Error: {err}", file=sys.stderr)
         sys.exit(1)
 
-    # Deduplicate by file URI, preserving highest-score entry for each file
-    seen: set[str] = set()
+    # Deduplicate: first by file URI, then by body content after fetching.
+    # Two distinct files can have identical content (e.g. split vault entries);
+    # body-level dedup ensures each unique piece of knowledge appears once.
+    seen_uris: set[str] = set()
+    seen_bodies: set[str] = set()
     unique_results: list[dict] = []
     for r in results:
         file_uri = r.get("file", "")
-        if file_uri not in seen:
-            seen.add(file_uri)
-            unique_results.append(r)
+        if file_uri in seen_uris:
+            continue
+        seen_uris.add(file_uri)
+        body, _ = fetch_file_body(file_uri)
+        body_key = (body or "").strip()
+        if body_key and body_key in seen_bodies:
+            continue
+        if body_key:
+            seen_bodies.add(body_key)
+        # Attach pre-fetched body so format_markdown doesn't fetch again
+        r = dict(r)
+        r["_body"] = body
+        unique_results.append(r)
     results = unique_results
 
     if args.format == "json":
