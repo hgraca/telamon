@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Write .opencode/codebase-index.json in the current project directory.
-# Idempotent: skipped if the file already exists.
+# Idempotent: skips if config already has an `include` key; patches if config exists without one.
 
 set -euo pipefail
 
@@ -14,7 +14,9 @@ header "opencode-codebase-index Config"
 INDEX_CONFIG="$(pwd)/.opencode/codebase-index.json"
 
 if [[ -f "${INDEX_CONFIG}" ]]; then
-  if jq -e 'has("include")' "${INDEX_CONFIG}" >/dev/null 2>&1; then
+  if ! jq empty "${INDEX_CONFIG}" 2>/dev/null; then
+    warn "codebase-index.json is malformed — skipping include injection"
+  elif jq -e 'has("include")' "${INDEX_CONFIG}" >/dev/null 2>&1; then
     skip "codebase-index config (already exists with include key)"; exit 0
   fi
   # Config exists but lacks include key — fall through to patch it
@@ -24,30 +26,35 @@ else
   log "codebase-index config written → .opencode/codebase-index.json"
 fi
 
-# ── Inject include scope if src/ or app/ exists ───────────────────────────────
-_inject_include() {
-  local prefix="$1"
-  local tmp
-  tmp="$(mktemp)"
-  jq --arg p "${prefix}" '. + {"include": [
-    ($p + "/**/*.{ts,tsx,js,jsx,mjs,cjs}"),
-    ($p + "/**/*.{py,pyi}"),
-    ($p + "/**/*.{go,rs,java,kt,scala}"),
-    ($p + "/**/*.{c,cpp,cc,h,hpp}"),
-    ($p + "/**/*.{rb,php,inc,swift}"),
-    ($p + "/**/*.{vue,svelte,astro}"),
-    ($p + "/**/*.{sql,graphql,proto}"),
-    ($p + "/**/*.{yaml,yml,toml}"),
-    ($p + "/**/*.{md,mdx}"),
-    ($p + "/**/*.{sh,bash,zsh}")
-  ]}' "${INDEX_CONFIG}" > "${tmp}" && mv "${tmp}" "${INDEX_CONFIG}"
-  log "codebase-index include scope set → ${prefix}/"
-}
+if ! command -v jq &>/dev/null; then
+  info "jq not found — skipping include-scope injection (install jq to enable)"
+else
+  # ── Inject include scope if src/ or app/ exists ─────────────────────────────
+  _inject_include() {
+    local prefix="$1"
+    local tmp
+    tmp="$(mktemp)"
+    trap 'rm -f "${tmp}"' RETURN
+    jq --arg p "${prefix}" '. + {"include": [
+      ($p + "/**/*.{ts,tsx,js,jsx,mjs,cjs}"),
+      ($p + "/**/*.{py,pyi}"),
+      ($p + "/**/*.{go,rs,java,kt,scala}"),
+      ($p + "/**/*.{c,cpp,cc,h,hpp}"),
+      ($p + "/**/*.{rb,php,inc,swift}"),
+      ($p + "/**/*.{vue,svelte,astro}"),
+      ($p + "/**/*.{sql,graphql,proto}"),
+      ($p + "/**/*.{yaml,yml,toml}"),
+      ($p + "/**/*.{md,mdx}"),
+      ($p + "/**/*.{sh,bash,zsh}")
+    ]}' "${INDEX_CONFIG}" > "${tmp}" && mv "${tmp}" "${INDEX_CONFIG}"
+    log "codebase-index include scope set → ${prefix}/"
+  }
 
-if [[ -d "$(pwd)/src" ]]; then
-  _inject_include "src"
-elif [[ -d "$(pwd)/app" ]]; then
-  _inject_include "app"
+  if [[ -d "$(pwd)/src" ]]; then
+    _inject_include "src"
+  elif [[ -d "$(pwd)/app" ]]; then
+    _inject_include "app"
+  fi
 fi
 
 # ── Build initial codebase index ─────────────────────────────────────────────
