@@ -263,58 +263,46 @@ def find_top_folder_nodes(node_map, adj, top_n=10):
     return collapse_folders(folder_degree, folder_node_count, top_n)
 
 
-def _build_raw_folder_maps(node_map, adj):
-    """Return (folder_degree, folder_node_count) dicts without collapsing."""
+def find_connected_folders(parent, node_map, adj, top_n=3):
+    """Return top_n folders most connected to nodes inside parent via graph edges.
+
+    For each node inside parent, walk its adjacency list. For each neighbour
+    that lives in a *different* folder, count that cross-folder edge. Rank
+    external folders by total cross-edge count, excluding parent itself.
+    """
     import os
 
-    folder_degree: dict[str, int] = {}
-    folder_node_count: dict[str, int] = {}
-    for nid, ndata in node_map.items():
-        src = ndata.get("source_file", "")
-        folder = os.path.dirname(src) if src else "."
-        if not folder:
-            folder = "."
-        degree = len(adj.get(nid, []))
-        folder_degree[folder] = folder_degree.get(folder, 0) + degree
-        folder_node_count[folder] = folder_node_count.get(folder, 0) + 1
-    return folder_degree, folder_node_count
-
-
-def find_top_subfolders(parent, folder_degree, folder_node_count, top_n=3):
-    """Return top_n direct children of parent ranked by total degree.
-
-    A direct child is a folder whose path is exactly parent/<one-segment>.
-    """
     prefix = parent.rstrip("/") + "/"
-    children: dict[str, int] = {}
-    for folder, deg in folder_degree.items():
-        if not folder.startswith(prefix):
-            continue
-        # strip parent prefix and check there is exactly one more segment
-        rest = folder[len(prefix):]
-        if not rest or "/" in rest:
-            continue
-        children[folder] = children.get(folder, 0) + deg
+    # Collect node IDs that belong to this folder
+    parent_nodes = {
+        nid
+        for nid, ndata in node_map.items()
+        if (os.path.dirname(ndata.get("source_file", "")) or ".") == parent
+        or (os.path.dirname(ndata.get("source_file", "")) or ".").startswith(prefix)
+    }
 
-    ranked = sorted(children.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    edge_count: dict[str, int] = {}
+    for nid in parent_nodes:
+        for neighbour, _edge in adj.get(nid, []):
+            if neighbour in parent_nodes:
+                continue  # same folder — skip
+            ndata = node_map.get(neighbour, {})
+            folder = os.path.dirname(ndata.get("source_file", "")) or "."
+            edge_count[folder] = edge_count.get(folder, 0) + 1
+
+    ranked = sorted(edge_count.items(), key=lambda x: x[1], reverse=True)[:top_n]
     return [
-        {
-            "rank": i + 1,
-            "folder": f,
-            "total_degree": d,
-            "node_count": folder_node_count.get(f, 0),
-        }
-        for i, (f, d) in enumerate(ranked)
+        {"rank": i + 1, "folder": f, "edge_count": c}
+        for i, (f, c) in enumerate(ranked)
     ]
 
 
 def find_folder_nodes_with_children(node_map, adj, top_n=3, children_n=3):
-    """Return top_n collapsed folders, each with their top children_n direct sub-folders."""
-    folder_degree, folder_node_count = _build_raw_folder_maps(node_map, adj)
+    """Return top_n collapsed folders, each with their top children_n connected folders."""
     top_folders = find_top_folder_nodes(node_map, adj, top_n)
     for entry in top_folders:
-        entry["top_subfolders"] = find_top_subfolders(
-            entry["folder"], folder_degree, folder_node_count, children_n
+        entry["top_connected_folders"] = find_connected_folders(
+            entry["folder"], node_map, adj, children_n
         )
     return top_folders
 
@@ -439,11 +427,11 @@ def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes"):
 def format_top_folder_nodes_md(folder_nodes, title="Most Connected Folder Nodes"):
     """Format top folder nodes as Markdown.
 
-    If entries contain 'top_subfolders', renders a two-level view: each top
-    folder as a sub-heading with its children in a nested table.
+    If entries contain 'top_connected_folders', renders a two-level view: each
+    top folder as a sub-heading with its most-connected peer folders in a table.
     Otherwise renders a flat table.
     """
-    has_children = any("top_subfolders" in n for n in folder_nodes)
+    has_children = any("top_connected_folders" in n for n in folder_nodes)
 
     if not has_children:
         lines = [
@@ -469,20 +457,20 @@ def format_top_folder_nodes_md(folder_nodes, title="Most Connected Folder Nodes"
             f"Total degree: **{n['total_degree']}** | Nodes: **{n['node_count']}**",
             "",
         ]
-        subs = n.get("top_subfolders", [])
-        if subs:
+        connected = n.get("top_connected_folders", [])
+        if connected:
             lines += [
-                "| # | Sub-folder | Total Degree | Node Count |",
-                "|---|------------|--------------|------------|",
+                "| # | Connected Folder | Cross-edges |",
+                "|---|-----------------|-------------|",
             ]
-            for s in subs:
+            for s in connected:
                 sub = s["folder"].replace("|", "\\|")
                 lines.append(
-                    f"| {s['rank']} | `{sub}` | {s['total_degree']} | {s['node_count']} |"
+                    f"| {s['rank']} | `{sub}` | {s['edge_count']} |"
                 )
             lines.append("")
         else:
-            lines += ["_No direct sub-folders found._", ""]
+            lines += ["_No connected folders found._", ""]
     return "\n".join(lines)
 
 
@@ -536,7 +524,7 @@ def main():
         top_folder_nodes = find_matching_folder_nodes(args.words, node_map, adj, args.top_n)
     else:
         top_file_nodes = find_top_file_nodes(node_map, adj, args.top_n)
-        top_folder_nodes = find_folder_nodes_with_children(node_map, adj, top_n=3, children_n=3)
+        top_folder_nodes = find_top_folder_nodes(node_map, adj, args.top_n)
 
     if args.format == "json":
         result = {
