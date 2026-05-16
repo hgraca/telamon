@@ -430,7 +430,7 @@ def top_folders_from_file_nodes(file_nodes, top_n=10, candidate_n=100):
     )
     # collapse_folders expects (degree_map, node_count_map, top_n);
     # reuse file_count as both degree and node_count proxies.
-    collapsed = collapse_folders(top_candidates, top_candidates, top_n)
+    collapsed = collapse_folders(top_candidates, top_candidates, 3)
     # Rename node_count → file_count for clarity
     for entry in collapsed:
         entry["file_count"] = entry.pop("node_count")
