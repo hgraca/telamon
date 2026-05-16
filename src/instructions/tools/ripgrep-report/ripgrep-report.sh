@@ -10,7 +10,7 @@
 #   ripgrep-report.sh [--format markdown|json] [--root <dir>] <word|phrase> [...]
 #
 # Options:
-#   --format markdown|json   Output format (default: json)
+#   --format markdown|json   Output format (default: markdown)
 #   --root <dir>             Root directory to search (default: cwd)
 #   --top <n>                Number of top folders to return (default: 10)
 #
@@ -37,7 +37,7 @@ if ! command -v python3 &>/dev/null; then
 fi
 
 # ── Argument parsing ──────────────────────────────────────────────────────────
-FORMAT="json"
+FORMAT="markdown"
 ROOT=""
 TOP=10
 KEYWORDS=()
