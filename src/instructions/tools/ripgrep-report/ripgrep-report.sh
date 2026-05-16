@@ -167,6 +167,33 @@ for kw in keywords:
 # This surfaces architecturally-named folders above high-volume generic ones.
 PATH_BONUS = 3.0
 
+def keyword_prefix(folder: str, kw: str) -> str | None:
+    """Return the folder path truncated at the first segment containing kw,
+    or None if kw is not in the folder path."""
+    kw_lower = kw.lower()
+    parts = folder.replace("\\", "/").split("/")
+    for i, part in enumerate(parts):
+        if kw_lower in part.lower():
+            return "/".join(parts[: i + 1])
+    return None
+
+def canonical_folder(folder: str) -> str:
+    """Return the merge-target for this folder: the shortest prefix that
+    contains a keyword segment, or the folder itself if none match."""
+    for kw in keywords:
+        prefix = keyword_prefix(folder, kw)
+        if prefix is not None:
+            return prefix
+    return folder
+
+# Merge: accumulate all folder_scores into their canonical (prefix) folder.
+merged_scores: dict[str, dict] = defaultdict(lambda: {"total": 0, "keywords": defaultdict(int)})
+for folder, data in folder_scores.items():
+    target = canonical_folder(folder)
+    merged_scores[target]["total"] += data["total"]
+    for kw, cnt in data["keywords"].items():
+        merged_scores[target]["keywords"][kw] += cnt
+
 def effective_score(folder: str, data: dict) -> float:
     base = data["total"]
     folder_lower = folder.lower()
@@ -176,7 +203,7 @@ def effective_score(folder: str, data: dict) -> float:
     return float(base)
 
 ranked = sorted(
-    folder_scores.items(),
+    merged_scores.items(),
     key=lambda x: (-effective_score(x[0], x[1]), x[0]),
 )[:top_n]
 
