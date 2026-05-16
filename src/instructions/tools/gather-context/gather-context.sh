@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # =============================================================================
 # src/instructions/tools/gather-context/gather-context.sh
-# CLI wrapper for the gather-context tool — gathers memory + codebase context
-# for a set of keywords by orchestrating qmd-report, graphify-report, and
-# tree-report.
+# CLI wrapper for the gather-context tool — orchestrates context-gathering
+# tools for a set of keywords.
 #
 # Usage:
 #   gather-context.sh planning workflow          # positional keywords, markdown
 #   gather-context.sh "planning" "workflow"      # quoted keywords
-#   gather-context.sh --keywords planning,workflow
 #   gather-context.sh planning --json            # force JSON output
 #   gather-context.sh planning --markdown        # explicit markdown
 #   gather-context.sh planning --format json     # explicit --format flag
-#   gather-context.sh planning --top-n 5         # fewer god nodes
-#   gather-context.sh planning --max-results 3   # fewer QMD results
+#   gather-context.sh planning --max-results 3   # fewer results
 #
 # Positional args are treated as individual keywords.
 # Defaults:
@@ -33,7 +30,6 @@ if [[ ! -f "${TOOL_SCRIPT}" ]]; then
 fi
 
 # Parse args: positional → keywords, explicit --flags pass through with values
-# --markdown and --json are convenience aliases for --format markdown|json
 HAS_FORMAT=false
 POSITIONAL=()
 ARGS=()
@@ -60,22 +56,19 @@ for arg in "$@"; do
   fi
 done
 
-# Positional args become individual keyword arguments
 for kw in "${POSITIONAL[@]}"; do
   ARGS+=("${kw}")
 done
 
-if [[ ${#POSITIONAL[@]} -eq 0 ]] && ! printf '%s\n' "${ARGS[@]}" | grep -q -- '--keywords'; then
+if [[ ${#POSITIONAL[@]} -eq 0 ]]; then
   echo "Usage: gather-context.sh [--markdown|--json|--format markdown|json] <keyword> [<keyword> ...]" >&2
   exit 1
 fi
 
-# Inject default format (markdown for shell)
 if ! $HAS_FORMAT; then
   ARGS+=("--format" "markdown")
 fi
 
-# Set QMD environment
 export XDG_CACHE_HOME="${TELAMON_ROOT}/storage"
 export QMD_LLAMA_GPU=true
 

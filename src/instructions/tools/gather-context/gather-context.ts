@@ -3,26 +3,23 @@ import path from "path"
 import fs from "fs"
 
 /**
- * gather-context — gather memory + codebase context for a set of keywords.
+ * gather-context — orchestrate context-gathering tools for a set of keywords.
  *
- * Orchestrates three tools in sequence:
- *   1. qmd-report   — search memory vault for relevant notes/decisions
- *   2. graphify-report — find most-connected nodes matching keywords, extract folders
- *   3. tree-report  — show directory trees for the relevant folders
+ * Currently orchestrates:
+ *   1. gather-context-from-memory — search memory vault, return full file bodies
+ *
+ * More tools will be added over time.
  *
  * Usage:
  *   gather-context({ keywords: ["planning", "workflow"] })
  *   gather-context({ keywords: ["memory"], format: "markdown" })
  *
- * Always returns JSON by default (markdown via format: "markdown").
  * Delegates to the colocated Python script (gather-context.py).
  *
- * Wiring (same pattern as tree-report.ts):
+ * Wiring:
  *   - This file lives at <telamon-root>/src/instructions/tools/gather-context/gather-context.ts
  *   - init.sh creates a flat symlink at <project>/.opencode/tools/gather-context.ts
- *     pointing to this file.
- *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
- *     so Bun's upward module resolution from this file's real path finds it.
+ *   - `@opencode-ai/plugin` is at src/instructions/tools/node_modules/
  */
 
 function resolveProjectCollection(): string {
@@ -39,33 +36,23 @@ function resolveProjectCollection(): string {
 
 export default tool({
   description:
-    "Gather memory vault notes and codebase graph context for a set of keywords, then show directory trees for the most relevant folders. Use this at the start of any non-trivial session to prime context about a topic. Orchestrates qmd-report (memory), graphify-report (architecture), and tree-report (directory structure).",
+    "Gather context for a set of keywords by orchestrating multiple context sources. Currently searches the memory vault (notes, decisions, patterns). More sources will be added over time. Use at the start of any non-trivial session to prime context about a topic.",
   args: {
     keywords: tool.schema
       .array(tool.schema.string())
       .describe(
-        "One or more keywords describing the topic or feature area. E.g. ['planning', 'workflow'] or ['memory', 'skill']. Each keyword is searched independently across memory vault and codebase graph.",
+        "One or more keywords or phrases describing the topic. E.g. ['planning', 'workflow'] or ['memory', 'skill'].",
       ),
     format: tool.schema
       .enum(["json", "markdown"])
       .optional()
       .default("json")
-      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
-    top_n: tool.schema
-      .number()
-      .optional()
-      .default(10)
-      .describe("Number of top god nodes to include from graphify (default: 10)"),
+      .describe("Output format: 'json' (default) or 'markdown' (human-readable)"),
     max_results: tool.schema
       .number()
       .optional()
       .default(5)
-      .describe("Maximum number of memory vault results from qmd-report (default: 5)"),
-    graph_path: tool.schema
-      .string()
-      .optional()
-      .default("graphify-out/graph.json")
-      .describe("Path to graph.json relative to project root (default: graphify-out/graph.json)"),
+      .describe("Maximum number of memory vault results (default: 5)"),
     collection: tool.schema
       .string()
       .optional()
@@ -79,16 +66,9 @@ export default tool({
     const cmd = [
       "python3",
       script,
-      "--format",
-      fmt,
-      "--collection",
-      collection,
-      "--top-n",
-      String(args.top_n ?? 10),
-      "--max-results",
-      String(args.max_results ?? 5),
-      "--graph-path",
-      args.graph_path ?? "graphify-out/graph.json",
+      "--format", fmt,
+      "--collection", collection,
+      "--max-results", String(args.max_results ?? 5),
       ...args.keywords,
     ]
 
