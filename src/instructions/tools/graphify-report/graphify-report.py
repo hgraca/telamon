@@ -406,8 +406,19 @@ def format_god_nodes_md(gods):
     return "\n".join(lines)
 
 
-def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes"):
-    """Format top file nodes as Markdown table."""
+def top_folders_from_file_nodes(file_nodes, top_n=10):
+    """Return top_n most common base folder paths from a list of file nodes."""
+    import os
+    counts: dict[str, int] = {}
+    for n in file_nodes:
+        folder = os.path.dirname(n.get("source", "")) or "."
+        counts[folder] = counts.get(folder, 0) + 1
+    ranked = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    return [{"rank": i + 1, "folder": f, "file_count": c} for i, (f, c) in enumerate(ranked)]
+
+
+def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes", folder_top_n=10):
+    """Format top file nodes as Markdown table, followed by top folder summary."""
     lines = [
         f"## {title}",
         "",
@@ -421,8 +432,22 @@ def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes"):
             f"| {n['rank']} | {label} | {n['degree']} | {n['file_type']} | `{source}` |"
         )
     lines.append("")
-    return "\n".join(lines)
 
+    # Append top folders derived from this file list
+    top_folders = top_folders_from_file_nodes(file_nodes, top_n=folder_top_n)
+    if top_folders:
+        lines += [
+            "### Top Folders",
+            "",
+            "| # | Folder | Files |",
+            "|---|--------|-------|",
+        ]
+        for f in top_folders:
+            folder = f["folder"].replace("|", "\\|")
+            lines.append(f"| {f['rank']} | `{folder}` | {f['file_count']} |")
+        lines.append("")
+
+    return "\n".join(lines)
 
 def format_top_folder_nodes_md(folder_nodes, title="Most Connected Folder Nodes"):
     """Format top folder nodes as Markdown.
@@ -520,10 +545,10 @@ def main():
     gods = find_god_nodes(node_map, adj, args.top_n)
 
     if args.words:
-        top_file_nodes = find_matching_file_nodes(args.words, node_map, adj, args.top_n)
+        top_file_nodes = find_matching_file_nodes(args.words, node_map, adj, 100)
         top_folder_nodes = find_matching_folder_nodes(args.words, node_map, adj, 3)
     else:
-        top_file_nodes = find_top_file_nodes(node_map, adj, args.top_n)
+        top_file_nodes = find_top_file_nodes(node_map, adj, 100)
         top_folder_nodes = find_top_folder_nodes(node_map, adj, 3)
 
     # Enrich top 3 folders with their top 3 cross-edge connected folders
@@ -561,8 +586,8 @@ def main():
             f"",
             format_stats_md(stats),
             format_god_nodes_md(gods),
-            format_top_file_nodes_md(top_file_nodes, title=file_title),
             format_top_folder_nodes_md(top_folder_nodes, title=folder_title),
+            format_top_file_nodes_md(top_file_nodes, title=file_title),
         ]
         print("\n".join(parts))
 
