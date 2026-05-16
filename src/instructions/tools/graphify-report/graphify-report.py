@@ -108,12 +108,132 @@ def find_top_file_nodes(node_map, adj, top_n=10):
     return file_nodes[:top_n]
 
 
+def common_prefix_path(a: str, b: str) -> str:
+    """Return the longest common directory-boundary prefix of two paths.
+
+    E.g. common_prefix_path('src/foo/bar', 'src/foo/baz') == 'src/foo'
+         common_prefix_path('src/foo', 'src/foo/bar')     == 'src/foo'
+    """
+    parts_a = a.split("/")
+    parts_b = b.split("/")
+    common = []
+    for pa, pb in zip(parts_a, parts_b):
+        if pa == pb:
+            common.append(pa)
+        else:
+            break
+    return "/".join(common)
+
+
+def collapse_folders(folder_degree: dict, folder_node_count: dict, top_n: int,
+                     max_collapse_levels: int = 2,
+                     min_ancestor_depth: int = 4) -> list:
+    """Collapse the top_n folders so that sibling sub-folders sharing a common
+    ancestor are merged into that ancestor.
+
+    A merge is triggered only when ALL of the following hold:
+      - The common ancestor is shared by the MAJORITY (> half) of the current top_n.
+      - The ancestor depth is ≥ min_ancestor_depth (prevents collapsing to shallow
+        project roots like 'src' or 'app/Core').
+      - The ancestor is within max_collapse_levels of the median member depth
+        (prevents collapsing deeply nested folders to a distant root).
+
+    Algorithm (iterative until stable):
+      1. Take the current top_n by degree.
+      2. For every candidate ancestor prefix shared by ≥ 2 top folders, count
+         how many top folders it covers.
+      3. If the best candidate passes all guards, merge all sub-path members into
+         that ancestor (summing degree and node_count), then repeat.
+      4. Stop when no qualifying candidate exists.
+    """
+    deg = dict(folder_degree)
+    cnt = dict(folder_node_count)
+
+    changed = True
+    while changed:
+        changed = False
+        top = sorted(deg.items(), key=lambda x: x[1], reverse=True)[:top_n]
+        top_folders = [f for f, _ in top]
+        if len(top_folders) < 2:
+            break
+
+        # Build map: ancestor prefix → list of top folders it covers
+        prefix_members: dict[str, list[str]] = {}
+        for i, fa in enumerate(top_folders):
+            for fb in top_folders[i + 1:]:
+                prefix = common_prefix_path(fa, fb)
+                if not prefix or "/" not in prefix:
+                    continue
+                if prefix == fa == fb:
+                    continue
+                if prefix not in prefix_members:
+                    prefix_members[prefix] = []
+                for f in (fa, fb):
+                    if f not in prefix_members[prefix]:
+                        prefix_members[prefix].append(f)
+
+        if not prefix_members:
+            break
+
+        # Pick the prefix covering the most top folders (deepest wins on ties)
+        best_prefix, best_members = max(
+            prefix_members.items(),
+            key=lambda kv: (len(kv[1]), len(kv[0].split("/"))),
+        )
+
+        # Guard 1: must cover majority of current top_n
+        if len(best_members) <= len(top_folders) / 2:
+            break
+
+        # Guard 2: ancestor must be deep enough to be meaningful
+        ancestor_depth = len(best_prefix.split("/"))
+        if ancestor_depth < min_ancestor_depth:
+            break
+
+        # Guard 3: ancestor must be within max_collapse_levels of the median member depth
+        member_depths = sorted(len(f.split("/")) for f in best_members)
+        median_depth = member_depths[len(member_depths) // 2]
+        if median_depth - ancestor_depth > max_collapse_levels:
+            break
+
+        # Merge all top folders that are sub-paths of best_prefix
+        to_merge = [
+            f for f in top_folders
+            if f == best_prefix or f.startswith(best_prefix + "/")
+        ]
+        if len(to_merge) < 2:
+            break
+
+        merged_deg = sum(deg.pop(f, 0) for f in to_merge)
+        merged_cnt = sum(cnt.pop(f, 0) for f in to_merge)
+        merged_deg += deg.pop(best_prefix, 0)
+        merged_cnt += cnt.pop(best_prefix, 0)
+        deg[best_prefix] = merged_deg
+        cnt[best_prefix] = merged_cnt
+        changed = True
+
+    ranked = sorted(deg.items(), key=lambda x: x[1], reverse=True)
+    return [
+        {
+            "rank": i + 1,
+            "folder": folder,
+            "total_degree": d,
+            "node_count": cnt.get(folder, 0),
+        }
+        for i, (folder, d) in enumerate(ranked[:top_n])
+    ]
+
+
 def find_top_folder_nodes(node_map, adj, top_n=10):
-    """Aggregate nodes by source directory, rank folders by total degree."""
+    """Aggregate nodes by source directory, rank folders by total degree.
+
+    Sibling sub-folders that dominate the top_n list are collapsed into their
+    nearest common ancestor so the result shows meaningfully distinct areas.
+    """
     import os
 
-    folder_degree = {}
-    folder_node_count = {}
+    folder_degree: dict[str, int] = {}
+    folder_node_count: dict[str, int] = {}
     for nid, ndata in node_map.items():
         src = ndata.get("source_file", "")
         folder = os.path.dirname(src) if src else ""
@@ -123,16 +243,7 @@ def find_top_folder_nodes(node_map, adj, top_n=10):
         folder_degree[folder] = folder_degree.get(folder, 0) + degree
         folder_node_count[folder] = folder_node_count.get(folder, 0) + 1
 
-    ranked = sorted(folder_degree.items(), key=lambda x: x[1], reverse=True)
-    return [
-        {
-            "rank": i + 1,
-            "folder": folder,
-            "total_degree": deg,
-            "node_count": folder_node_count[folder],
-        }
-        for i, (folder, deg) in enumerate(ranked[:top_n])
-    ]
+    return collapse_folders(folder_degree, folder_node_count, top_n)
 
 
 def find_matching_file_nodes(words, node_map, adj, top_n=10):
@@ -166,12 +277,16 @@ def find_matching_file_nodes(words, node_map, adj, top_n=10):
 
 
 def find_matching_folder_nodes(words, node_map, adj, top_n=10):
-    """Among word-matched nodes, aggregate by source directory and rank by total degree."""
+    """Among word-matched nodes, aggregate by source directory and rank by total degree.
+
+    Sibling sub-folders that dominate the top_n list are collapsed into their
+    nearest common ancestor.
+    """
     import os
 
     terms = [w.lower().strip() for w in words.split(",") if w.strip()]
-    folder_degree = {}
-    folder_node_count = {}
+    folder_degree: dict[str, int] = {}
+    folder_node_count: dict[str, int] = {}
     for nid, ndata in node_map.items():
         label = ndata.get("label", "").lower()
         src = ndata.get("source_file", "").lower()
@@ -183,16 +298,7 @@ def find_matching_folder_nodes(words, node_map, adj, top_n=10):
         folder_degree[folder] = folder_degree.get(folder, 0) + degree
         folder_node_count[folder] = folder_node_count.get(folder, 0) + 1
 
-    ranked = sorted(folder_degree.items(), key=lambda x: x[1], reverse=True)
-    return [
-        {
-            "rank": i + 1,
-            "folder": folder,
-            "total_degree": deg,
-            "node_count": folder_node_count[folder],
-        }
-        for i, (folder, deg) in enumerate(ranked[:top_n])
-    ]
+    return collapse_folders(folder_degree, folder_node_count, top_n)
 
 
 def format_stats_md(stats):
