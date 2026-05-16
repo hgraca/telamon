@@ -175,15 +175,21 @@ def collapse_folders(folder_degree: dict, folder_node_count: dict, top_n: int,
         if not prefix_members:
             break
 
-        # Pick the prefix covering the most top folders (deepest wins on ties)
-        best_prefix, best_members = max(
-            prefix_members.items(),
-            key=lambda kv: (len(kv[1]), len(kv[0].split("/"))),
-        )
-
-        # Guard 1: must cover majority of current top_n
-        if len(best_members) <= len(top_folders) / 2:
+        # Pick the deepest prefix that covers a strict majority of top folders.
+        # Depth-first ensures we collapse at the most specific level rather than
+        # a shallow ancestor that would be rejected by Guard 2.
+        majority = len(top_folders) / 2
+        candidates = [
+            (prefix, members)
+            for prefix, members in prefix_members.items()
+            if len(members) > majority
+        ]
+        if not candidates:
             break
+        best_prefix, best_members = max(
+            candidates,
+            key=lambda kv: (len(kv[0].split("/")), len(kv[1])),
+        )
 
         # Guard 2: ancestor must be deep enough to be meaningful
         ancestor_depth = len(best_prefix.split("/"))
@@ -406,15 +412,30 @@ def format_god_nodes_md(gods):
     return "\n".join(lines)
 
 
-def top_folders_from_file_nodes(file_nodes, top_n=10):
-    """Return top_n most common base folder paths from a list of file nodes."""
+def top_folders_from_file_nodes(file_nodes, top_n=10, candidate_n=100):
+    """Return top_n collapsed folder paths from a list of file nodes.
+
+    Gathers up to candidate_n raw folders by file count, then runs the same
+    collapse_folders logic used for degree-based folder ranking so that sibling
+    sub-folders sharing a common ancestor are merged before the final top_n cut.
+    """
     import os
     counts: dict[str, int] = {}
     for n in file_nodes:
         folder = os.path.dirname(n.get("source", "")) or "."
         counts[folder] = counts.get(folder, 0) + 1
-    ranked = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
-    return [{"rank": i + 1, "folder": f, "file_count": c} for i, (f, c) in enumerate(ranked)]
+    # Trim to candidate_n before collapsing so collapse has enough breadth to merge
+    top_candidates = dict(
+        sorted(counts.items(), key=lambda x: x[1], reverse=True)[:candidate_n]
+    )
+    # collapse_folders expects (degree_map, node_count_map, top_n);
+    # reuse file_count as both degree and node_count proxies.
+    collapsed = collapse_folders(top_candidates, top_candidates, top_n)
+    # Rename node_count → file_count for clarity
+    for entry in collapsed:
+        entry["file_count"] = entry.pop("node_count")
+        entry.pop("total_degree", None)
+    return collapsed
 
 
 def format_top_file_nodes_md(file_nodes, title="Most Connected File Nodes", folder_top_n=10):
