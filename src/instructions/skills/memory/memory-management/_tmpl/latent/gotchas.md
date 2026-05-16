@@ -1,7 +1,7 @@
 ---
 date: DATE_PLACEHOLDER
 description: Known traps, constraints, and hard-won lessons for PROJECT_NAME
-tags: [brain, gotchas]
+tags: [latent, gotchas]
 status: active
 ---
 

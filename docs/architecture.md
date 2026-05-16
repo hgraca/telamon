@@ -167,7 +167,7 @@ Timers are idempotent — re-running `telamon init` does not create duplicates.
 
 ```
 bin/
-  init.sh                    # project initialiser (brain scaffold + symlinks + plugins)
+  init.sh                    # project initialiser (latent scaffold + symlinks + plugins)
   install.sh                 # orchestrator: --pre-docker, --post-docker phases
   update.sh                  # upgrades all Telamon-managed tools to latest versions
   doctor.sh                  # comprehensive health check (connectivity, config, secrets)

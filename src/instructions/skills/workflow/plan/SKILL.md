@@ -61,7 +61,7 @@ Each initiative MUST have exactly one folder. NEVER create second folder for sam
 
 ### Scratch files
 
-Use `telamon.thinking` skill for temp files. Promote useful findings from `thinking/` to brain or issue artifact before session close.
+Use `telamon.thinking` skill for temp files. Promote useful findings from `thinking/` to latent/ or issue artifact before session close.
 
 ## Procedure
 

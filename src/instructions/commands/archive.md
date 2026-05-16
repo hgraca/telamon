@@ -46,4 +46,4 @@ Scan archived note for:
 Summarise:
 - **Archived**: file moved from → to
 - **References updated**: files with updated links
-- **Lessons promoted**: anything added to brain notes
+- **Lessons promoted**: anything added to latent notes

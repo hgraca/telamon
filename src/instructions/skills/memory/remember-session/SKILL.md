@@ -47,7 +47,7 @@ Also check:
 
 **If nothing worth capturing**: update watermark and exit (step 5). Skip steps 2-4.
 
-## 2. Route to brain notes
+## 2. Route to latent notes
 
 Create new files in appropriate latent/ folder per routing table in `telamon.memory_management` skill (section 2):
 

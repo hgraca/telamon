@@ -19,7 +19,7 @@ Ask yourself:
 - Was decision made (or clarified) during this work?
 - Did human stakeholder provide new context?
 
-## 2. Route to correct brain file
+## 2. Route to correct latent file
 
 - **Traps, constraints, or recurring bugs** → use `telamon.remember_gotcha` skill (writes to `latent/global/<technology>/ or latent/project/`)
 - **All other lessons** → create new file in `.ai/telamon/memory/latent/global/<technology>/ or latent/project/` using entry format from `telamon.memory_management` skill (section 6)

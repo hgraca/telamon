@@ -15,7 +15,7 @@
  *     - Control rtk_enabled via fs mock before each test.
  *     - ctx.$ is mocked per-test to control fallback execution results.
  *
- * Cross-test contamination guard (see brain/gotchas.md, "fs mock cache leak"):
+ * Cross-test contamination guard (see latent/gotchas.md, "fs mock cache leak"):
  *   `mock.module("node:fs", …)` installs a process-wide override that bun does
  *   NOT tear down between test files. To prevent this file's mock from breaking
  *   sibling test files, the factory forwards to the REAL node:fs methods

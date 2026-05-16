@@ -143,7 +143,7 @@ Regex content search across files.
 Hybrid markdown search over memory vault — combines BM25 keyword (`lex`), semantic vector (`vec`), and hypothetical-document (`hyde`) search with LLM reranking.
 
 **Use when:**
-- Searching `.md` content under `.ai/telamon/memory/` (brain notes, ADRs, PDRs, gotchas, patterns, work artefacts, decisions, retrospectives)
+- Searching `.md` content under `.ai/telamon/memory/` (latent notes, ADRs, PDRs, gotchas, patterns, work artefacts, decisions, retrospectives)
 - Looking up past lessons, decisions, or context from vault
 - Reading vault files by canonical path (`qmd get` works on gitignored `.ai/` paths where `Glob` does not)
 - Concept search across notes ("how did we decide X?", "what's auth pattern?")
@@ -157,7 +157,7 @@ Hybrid markdown search over memory vault — combines BM25 keyword (`lex`), sema
 - `qmd status` — list indexed collections and health
 
 **Indexed collections:**
-- `telamon` — entire memory vault (brain, work, reference, thinking, bootstrap)
+- `telamon` — entire memory vault (latent, work, reference, thinking, bootstrap)
 - Root: `<project>/.ai/telamon/memory` (symlink into `storage/memory/projects/<project>/`)
 
 **Tips:**

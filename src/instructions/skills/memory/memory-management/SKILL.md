@@ -1,6 +1,6 @@
 ---
 name: telamon.memory_management
-description: "Canonical rules for the .ai/telamon/memory/ vault: folder structure, routing, retrieval, writing constraints, entry format, thinking/ lifecycle, pruning, brain note quality, wrap-up. Use when deciding where to save knowledge, formatting entries, or auditing vault structure."
+description: "Canonical rules for the .ai/telamon/memory/ vault: folder structure, routing, retrieval, writing constraints, entry format, thinking/ lifecycle, pruning, latent note quality, wrap-up. Use when deciding where to save knowledge, formatting entries, or auditing vault structure."
 ---
 
 # Memory Management — Vault Structure & Rules
@@ -11,7 +11,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
 
 - Deciding where to save knowledge
 - Formatting memory entries
-- Auditing vault structure or brain note quality
+- Auditing vault structure or latent note quality
 - When another memory skill references vault rules
 
 ## 1. Vault Structure
@@ -104,7 +104,7 @@ If no bucket matches, use `project/`.
   - Use `qmd-report` tool with relevant query terms
   - QMD returns file content with frontmatter stripped (data only)
   - Read specific files directly only when you know the exact filename
-- All other files: search before read; max 3 non-brain notes per task; discard results with relevance score < 0.6
+- All other files: search before read; max 3 non-latent notes per task; discard results with relevance score < 0.6
 
 ## 4. Writing Constraints
 

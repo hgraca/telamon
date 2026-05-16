@@ -1,7 +1,7 @@
 ---
 date: DATE_PLACEHOLDER
 description: Categorized lessons learned for PROJECT_NAME
-tags: [brain, memories]
+tags: [latent, memories]
 status: active
 ---
 

@@ -330,12 +330,12 @@ unset _DESC_FILE
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
-  BRAIN_DIR="${PROJ}/.ai/telamon/memory/brain"
+  LATENT_DIR="${PROJ}/.ai/telamon/memory/latent"
 else
-  BRAIN_DIR="${TELAMON_ROOT}/storage/memory/projects/${PROJECT_NAME}/brain"
+  LATENT_DIR="${TELAMON_ROOT}/storage/memory/projects/${PROJECT_NAME}/latent"
 fi
 echo
 log "Project '${PROJECT_NAME}' initialised."
-info "Memory notes: ${BRAIN_DIR}/"
-info "Edit ${BRAIN_DIR}/memories.md to record project lessons."
+info "Memory notes: ${LATENT_DIR}/"
+info "Edit ${LATENT_DIR}/memories.md to record project lessons."
 echo -e "  ${TEXT_DIM}⏱  Total init time: $(_fmt_duration ${SECONDS})${TEXT_CLEAR}"

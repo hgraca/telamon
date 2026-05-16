@@ -1,5 +1,5 @@
 ---
-description: Deep structural audit of the memory vault — check folder placement, brain note quality, thinking/ hygiene, and issue folder consistency
+description: Deep structural audit of the memory vault — check folder placement, latent note quality, thinking/ hygiene, and issue folder consistency
 ---
 
 Deep structural audit of `.ai/telamon/memory/`. Fix fixable; flag what needs user input. For vault structure, routing, and quality rules, load `telamon.memory_management` skill.
@@ -17,7 +17,7 @@ Verify vault matches expected layout:
 - `reference/` — reference files current and not duplicated elsewhere?
 - `bootstrap/` — bootstrap files intact (symlinks; verify they resolve)
 
-## 2. Check Brain Note Quality
+## 2. Check Latent Note Quality
 
 For each file in `latent/`:
 - Content current? Flag stale or contradictory entries.
@@ -32,7 +32,7 @@ For each file in `latent/`:
 
 For each file in `thinking/`:
 - Partial-progress note now completed? → delete
-- Contains reusable lesson? → promote to brain, delete draft
+- Contains reusable lesson? → promote to latent, delete draft
 - Genuinely live WIP? → keep, verify filename descriptive
 
 Flag thinking/ file older than 7 days for user review.
@@ -49,7 +49,7 @@ For each folder in `.ai/telamon/memory/work/active/`:
 
 For each file in `reference/`:
 - Still accurate? (check against current project conventions)
-- Linked from or referenced by any brain file?
+- Linked from or referenced by any latent file?
 - Duplicates between `reference/` and `latent/`?
 
 ## 6. Fix and Report

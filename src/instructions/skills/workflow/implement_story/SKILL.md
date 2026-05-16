@@ -19,7 +19,7 @@ Place all artifacts in `<issue-folder>` established during planning (see `telamo
 
 ### Scratch files
 
-When needing temporary file, use `telamon.thinking` skill. Promote useful findings to brain files before closing session.
+When needing temporary file, use `telamon.thinking` skill. Promote useful findings to latent/ files before closing session.
 
 ### Pre-flight check
 

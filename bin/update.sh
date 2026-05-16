@@ -809,12 +809,12 @@ fi
 # key_decisions.md was split into PDRs.md (product decisions) and ADRs.md
 # (architecture/technical decisions). Rename existing file to PDRs.md and
 # create ADRs.md if missing.
-for _brain_dir in "${TELAMON_ROOT}/storage/memory/projects"/*/brain; do
-  [[ -d "${_brain_dir}" ]] || continue
-  _project_name="$(basename "$(dirname "${_brain_dir}")")"
+for _latent_dir in "${TELAMON_ROOT}/storage/memory/projects"/*/latent; do
+  [[ -d "${_latent_dir}" ]] || continue
+  _project_name="$(basename "$(dirname "${_latent_dir}")")"
 
-  if [[ -f "${_brain_dir}/key_decisions.md" ]]; then
-    mv "${_brain_dir}/key_decisions.md" "${_brain_dir}/PDRs.md"
+  if [[ -f "${_latent_dir}/key_decisions.md" ]]; then
+    mv "${_latent_dir}/key_decisions.md" "${_latent_dir}/PDRs.md"
     log "${_project_name}: renamed latent/key_decisions.md → latent/PDRs.md"
     echo
     info "  ⚠  latent/PDRs.md may contain architecture decisions that belong in latent/ADRs.md."
@@ -822,13 +822,13 @@ for _brain_dir in "${TELAMON_ROOT}/storage/memory/projects"/*/brain; do
     echo
   fi
 
-  if [[ ! -f "${_brain_dir}/ADRs.md" ]]; then
+  if [[ ! -f "${_latent_dir}/ADRs.md" ]]; then
     _today="$(date +%Y-%m-%d)"
-    cat > "${_brain_dir}/ADRs.md" <<EOF
+    cat > "${_latent_dir}/ADRs.md" <<EOF
 ---
 date: ${_today}
 description: Architecture and technical decisions for ${_project_name}
-tags: [brain, decisions, architecture]
+tags: [latent, decisions, architecture]
 status: active
 ---
 

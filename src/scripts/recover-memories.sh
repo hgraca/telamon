@@ -104,7 +104,7 @@ fi
 for PROJ in "${PROJECTS[@]}"; do
   header "Recovering memories: $(basename "${PROJ}")"
 
-  BRAIN_DIR="${PROJ}/.ai/telamon/memory/brain"
+  BRAIN_DIR="${PROJ}/.ai/telamon/memory/latent"
   THINKING_DIR="${PROJ}/.ai/telamon/memory/thinking"
   TRACKER_FILE="${THINKING_DIR}/.recover-memories-$(basename "${PROJ}").json"
 
@@ -348,7 +348,7 @@ import json, sys, os
 from datetime import datetime
 
 extraction = json.loads(sys.argv[1])
-brain_dir = sys.argv[2]
+latent_dir = sys.argv[2]
 now = datetime.now().strftime("%Y-%m-%d")
 
 def ensure_file(path, header=""):
@@ -365,28 +365,28 @@ def append_to_file(path, content):
 for d in extraction.get("decisions", []):
     dtype = d.get("type", "architecture")
     target = "ADRs.md" if dtype == "architecture" else "PDRs.md"
-    path = os.path.join(brain_dir, target)
+    path = os.path.join(latent_dir, target)
     ensure_file(path, f"# {'Architecture' if dtype == 'architecture' else 'Product'} Decisions\n")
     entry = f"\n### {d['summary']}\n- **Date**: {now}\n- {d.get('detail', '')}\n"
     append_to_file(path, entry)
 
 # Write patterns
 for p in extraction.get("patterns", []):
-    path = os.path.join(brain_dir, "patterns.md")
+    path = os.path.join(latent_dir, "patterns.md")
     ensure_file(path, "# Patterns\n")
     entry = f"\n### {p['summary']}\n- **Date**: {now}\n- {p.get('detail', '')}\n"
     append_to_file(path, entry)
 
 # Write gotchas
 for g in extraction.get("gotchas", []):
-    path = os.path.join(brain_dir, "gotchas.md")
+    path = os.path.join(latent_dir, "gotchas.md")
     ensure_file(path, "# Gotchas\n")
     entry = f"\n### {g['summary']}\n- **Date**: {now}\n- {g.get('detail', '')}\n"
     append_to_file(path, entry)
 
 # Write lessons to memories.md
 for l in extraction.get("lessons", []):
-    path = os.path.join(brain_dir, "memories.md")
+    path = os.path.join(latent_dir, "memories.md")
     ensure_file(path, "# Memories\n")
     cat = l.get("category", "general")
     entry = f"\n### [{cat}] {l['summary']}\n- **Date**: {now}\n- {l.get('detail', '')}\n"

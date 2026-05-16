@@ -1,7 +1,7 @@
 ---
 date: DATE_PLACEHOLDER
 description: Established coding patterns and conventions for PROJECT_NAME
-tags: [brain, patterns]
+tags: [latent, patterns]
 status: active
 ---
 

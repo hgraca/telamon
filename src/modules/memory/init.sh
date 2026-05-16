@@ -3,7 +3,7 @@
 # src/modules/memory/init.sh
 # Scaffold the memory vault for a project.
 #
-# Creates the vault directory structure, brain files (with placeholder
+# Creates the vault directory structure, latent files (with placeholder
 # substitution), bootstrap symlinks, and cross-symlinks between the project
 # and Telamon storage.
 #
@@ -47,9 +47,9 @@ for dir in "${DIRS[@]}"; do
 done
 log "Vault directory scaffold created"
 
-# ── Copy brain files (with placeholder substitution) ──────────────────────────
+# ── Copy latent files (with placeholder substitution) ─────────────────────────
 TODAY="$(date +%Y-%m-%d)"
-for tmpl_file in "${VAULT_TMPL}/brain"/*.md; do
+for tmpl_file in "${VAULT_TMPL}/latent"/*.md; do
   [[ -f "${tmpl_file}" ]] || continue
   dest="${VAULT_ROOT}/latent/$(basename "${tmpl_file}")"
   if [[ -f "${dest}" ]]; then

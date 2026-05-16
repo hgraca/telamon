@@ -186,26 +186,26 @@ VAULT_TMPL="${TELAMON_ROOT}/src/instructions/skills/memory/memory-management/_tm
 if [[ "${MEMORY_OWNER}" == "project" ]]; then
   _section "1. Vault scaffold (.ai/telamon/memory/ — project mode)"
   VAULT_ROOT="${PROJ}/.ai/telamon/memory"
-  BRAIN_DIR="${VAULT_ROOT}/brain"
+  LATENT_DIR="${VAULT_ROOT}/latent"
 
   # In project mode, .ai/telamon/memory is a real directory
   assert_dir "${VAULT_ROOT}"                     ".ai/telamon/memory/ (real directory)"
-  assert_dir "${BRAIN_DIR}"                      "brain/"
+  assert_dir "${LATENT_DIR}"                     "latent/"
   assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
   assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
   assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
   assert_dir "${VAULT_ROOT}/reference"           "reference/"
   assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 
-  # Brain files with substituted placeholders must be real files (copied)
-  assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
-  assert_file "${BRAIN_DIR}/PDRs.md"             "brain/PDRs.md (real file)"
-  assert_file "${BRAIN_DIR}/ADRs.md"             "brain/ADRs.md (real file)"
-  assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
-  assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
-  assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/PDRs.md"         "${PROJECT_NAME}" "PDRs.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/ADRs.md"         "${PROJECT_NAME}" "ADRs.md contains project name"
+  # Latent files with substituted placeholders must be real files (copied)
+  assert_file "${LATENT_DIR}/memories.md"        "latent/memories.md (real file)"
+  assert_file "${LATENT_DIR}/PDRs.md"            "latent/PDRs.md (real file)"
+  assert_file "${LATENT_DIR}/ADRs.md"            "latent/ADRs.md (real file)"
+  assert_file "${LATENT_DIR}/patterns.md"        "latent/patterns.md (real file)"
+  assert_file "${LATENT_DIR}/gotchas.md"         "latent/gotchas.md (real file)"
+  assert_file_contains "${LATENT_DIR}/memories.md"    "${PROJECT_NAME}" "memories.md contains project name"
+  assert_file_contains "${LATENT_DIR}/PDRs.md"        "${PROJECT_NAME}" "PDRs.md contains project name"
+  assert_file_contains "${LATENT_DIR}/ADRs.md"        "${PROJECT_NAME}" "ADRs.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
   assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \
@@ -222,26 +222,26 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
 
   _section "1. Vault scaffold (storage/projects-memory/${PROJECT_NAME}/ — telamon mode)"
   VAULT_ROOT="${TELAMON_ROOT}/storage/projects-memory/${PROJECT_NAME}"
-  BRAIN_DIR="${VAULT_ROOT}/brain"
+  LATENT_DIR="${VAULT_ROOT}/latent"
 
   # Dirs must be real directories (not symlinks)
   assert_dir "${VAULT_ROOT}"                     "storage/projects-memory/${PROJECT_NAME}/"
-  assert_dir "${BRAIN_DIR}"                      "brain/"
+  assert_dir "${LATENT_DIR}"                     "latent/"
   assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
   assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
   assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
   assert_dir "${VAULT_ROOT}/reference"           "reference/"
   assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 
-  # Brain files with substituted placeholders must be real files (copied)
-  assert_file "${BRAIN_DIR}/memories.md"         "brain/memories.md (real file)"
-  assert_file "${BRAIN_DIR}/PDRs.md"             "brain/PDRs.md (real file)"
-  assert_file "${BRAIN_DIR}/ADRs.md"             "brain/ADRs.md (real file)"
-  assert_file "${BRAIN_DIR}/patterns.md"         "brain/patterns.md (real file)"
-  assert_file "${BRAIN_DIR}/gotchas.md"          "brain/gotchas.md (real file)"
-  assert_file_contains "${BRAIN_DIR}/memories.md"     "${PROJECT_NAME}" "memories.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/PDRs.md"         "${PROJECT_NAME}" "PDRs.md contains project name"
-  assert_file_contains "${BRAIN_DIR}/ADRs.md"         "${PROJECT_NAME}" "ADRs.md contains project name"
+  # Latent files with substituted placeholders must be real files (copied)
+  assert_file "${LATENT_DIR}/memories.md"        "latent/memories.md (real file)"
+  assert_file "${LATENT_DIR}/PDRs.md"            "latent/PDRs.md (real file)"
+  assert_file "${LATENT_DIR}/ADRs.md"            "latent/ADRs.md (real file)"
+  assert_file "${LATENT_DIR}/patterns.md"        "latent/patterns.md (real file)"
+  assert_file "${LATENT_DIR}/gotchas.md"         "latent/gotchas.md (real file)"
+  assert_file_contains "${LATENT_DIR}/memories.md"    "${PROJECT_NAME}" "memories.md contains project name"
+  assert_file_contains "${LATENT_DIR}/PDRs.md"        "${PROJECT_NAME}" "PDRs.md contains project name"
+  assert_file_contains "${LATENT_DIR}/ADRs.md"        "${PROJECT_NAME}" "ADRs.md contains project name"
 
   # Non-placeholder files must be symlinks pointing into _tmpl/
   assert_symlink "${VAULT_ROOT}/bootstrap/memory.md" \

@@ -7,7 +7,7 @@ nav_section: docs
 
 # Obsidian (Retired)
 
-Obsidian served as the knowledge vault interface, accessed via the Obsidian Local REST API community plugin running as an MCP server. Agents read and wrote brain notes, patterns, decisions, and gotchas through the Obsidian API.
+Obsidian served as the knowledge vault interface, accessed via the Obsidian Local REST API community plugin running as an MCP server. Agents read and wrote latent notes, patterns, decisions, and gotchas through the Obsidian API.
 
 **What it provided:**
 
