@@ -521,10 +521,10 @@ def main():
 
     if args.words:
         top_file_nodes = find_matching_file_nodes(args.words, node_map, adj, args.top_n)
-        top_folder_nodes = find_matching_folder_nodes(args.words, node_map, adj, args.top_n)
+        top_folder_nodes = find_matching_folder_nodes(args.words, node_map, adj, 3)
     else:
         top_file_nodes = find_top_file_nodes(node_map, adj, args.top_n)
-        top_folder_nodes = find_top_folder_nodes(node_map, adj, args.top_n)
+        top_folder_nodes = find_top_folder_nodes(node_map, adj, 3)
 
     # Enrich top 3 folders with their top 3 cross-edge connected folders
     for entry in top_folder_nodes[:3]:
