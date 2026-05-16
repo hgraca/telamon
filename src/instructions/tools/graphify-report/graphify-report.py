@@ -213,15 +213,32 @@ def collapse_folders(folder_degree: dict, folder_node_count: dict, top_n: int,
         changed = True
 
     ranked = sorted(deg.items(), key=lambda x: x[1], reverse=True)
-    return [
-        {
-            "rank": i + 1,
+
+    # Post-processing: drop any folder that is a sub-path of a higher-ranked
+    # folder already in the output. This handles cases where the collapse loop
+    # merged the original top-N entries but left behind lower-ranked sub-folders
+    # in the full degree map that bubble up after the merge.
+    kept: list[str] = []
+    result = []
+    rank = 1
+    for folder, d in ranked:
+        dominated = any(
+            folder == k or folder.startswith(k.rstrip("/") + "/")
+            for k in kept
+        )
+        if dominated:
+            continue
+        kept.append(folder)
+        result.append({
+            "rank": rank,
             "folder": folder,
             "total_degree": d,
             "node_count": cnt.get(folder, 0),
-        }
-        for i, (folder, d) in enumerate(ranked[:top_n])
-    ]
+        })
+        rank += 1
+        if rank > top_n:
+            break
+    return result
 
 
 def find_top_folder_nodes(node_map, adj, top_n=10):
