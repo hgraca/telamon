@@ -117,8 +117,8 @@ def fetch_file_body(file_uri: str) -> tuple[str | None, str | None]:
 
 def format_markdown(results: list[dict]) -> str:
     if not results:
-        return "_No memory vault matches found._\n"
-    parts = []
+        return "# Memories\n\n_No memory vault matches found._\n"
+    parts = ["# Memories", ""]
     for r in results:
         file_uri = r.get("file", "")
         if "_body" in r:
