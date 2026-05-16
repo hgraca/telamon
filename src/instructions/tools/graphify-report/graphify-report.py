@@ -526,6 +526,12 @@ def main():
         top_file_nodes = find_top_file_nodes(node_map, adj, args.top_n)
         top_folder_nodes = find_top_folder_nodes(node_map, adj, args.top_n)
 
+    # Enrich top 3 folders with their top 3 cross-edge connected folders
+    for entry in top_folder_nodes[:3]:
+        entry["top_connected_folders"] = find_connected_folders(
+            entry["folder"], node_map, adj, top_n=3
+        )
+
     if args.format == "json":
         result = {
             "status": "ok",
