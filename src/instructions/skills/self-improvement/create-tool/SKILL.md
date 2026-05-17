@@ -298,6 +298,7 @@ Check every gate before signalling completion:
 | 12  | Manual-approval gating for risky operations                                |           |
 | 13  | Tool in correct folder (`.opencode/tools/` or `~/.config/opencode/tools/`) |           |
 | 14  | Changelog entry for capability/permission changes                          |           |
+| 15  | Telamon agentic tool: bash entry point `<tool-name>.sh` exists alongside `.ts` (executable, fire-and-forget if background tool) |           |
 
 Any gate fails → fix before signalling completion.
 
