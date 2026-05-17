@@ -13,28 +13,29 @@ import { readFileSync } from "fs"
 import { join } from "path"
 
 // ─── Module under test ────────────────────────────────────────────────────────
-// This import MUST fail until the developer creates the file.
-// @ts-ignore — intentionally importing a file that does not yet exist
+// AgentCommunicationPlugin lives in the plugin file (only function exports allowed).
+// Helpers/constants live in agent-communication-helpers.js (opencode loader
+// throws "Plugin export is not a function" for any non-function named export).
+import { AgentCommunicationPlugin } from "../../src/instructions/plugins/agent-communication.js"
 import {
-  AgentCommunicationPlugin,
   detectTerminalMarker,
   MARKER_RE,
-} from "../../src/instructions/plugins/agent-communication.js"
+} from "../../src/instructions/plugins/agent-communication-helpers.js"
 
 // ─── Task 4 exports — loaded dynamically so missing exports fail only Task 4 tests ───
-// Developer must add these exports to agent-communication.js:
+// Helpers live in agent-communication-helpers.js:
 //   readCounter(directory: string, slug: string): Record<string, { attempts: number; lastNudge: string }>
 //   writeCounter(directory: string, slug: string, counter: Record<string, ...>): void
 //   pruneCounter(counter: Record<string, ...>, now?: Date): Record<string, ...>
 //   MAX_COUNTER_ENTRIES: number  (= 100)
 //   COUNTER_TTL_MS: number       (= 24 * 60 * 60 * 1000)
 async function getCounterExports() {
-  const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
-  if (!mod.readCounter) throw new Error("Task 4 developer requirement: export readCounter() from agent-communication.js")
-  if (!mod.writeCounter) throw new Error("Task 4 developer requirement: export writeCounter() from agent-communication.js")
-  if (!mod.pruneCounter) throw new Error("Task 4 developer requirement: export pruneCounter() from agent-communication.js")
-  if (mod.MAX_COUNTER_ENTRIES === undefined) throw new Error("Task 4 developer requirement: export MAX_COUNTER_ENTRIES from agent-communication.js")
-  if (mod.COUNTER_TTL_MS === undefined) throw new Error("Task 4 developer requirement: export COUNTER_TTL_MS from agent-communication.js")
+  const mod = await import("../../src/instructions/plugins/agent-communication-helpers.js") as any
+  if (!mod.readCounter) throw new Error("Task 4 developer requirement: export readCounter() from agent-communication-helpers.js")
+  if (!mod.writeCounter) throw new Error("Task 4 developer requirement: export writeCounter() from agent-communication-helpers.js")
+  if (!mod.pruneCounter) throw new Error("Task 4 developer requirement: export pruneCounter() from agent-communication-helpers.js")
+  if (mod.MAX_COUNTER_ENTRIES === undefined) throw new Error("Task 4 developer requirement: export MAX_COUNTER_ENTRIES from agent-communication-helpers.js")
+  if (mod.COUNTER_TTL_MS === undefined) throw new Error("Task 4 developer requirement: export COUNTER_TTL_MS from agent-communication-helpers.js")
   return {
     readCounter: mod.readCounter as (directory: string, slug: string) => Record<string, { attempts: number; lastNudge: string }>,
     writeCounter: mod.writeCounter as (directory: string, slug: string, counter: Record<string, { attempts: number; lastNudge: string }>) => void,
@@ -121,7 +122,7 @@ function parseMarkersFromSkill(skillPath: string): string[] {
 
   const anchorIdx = lines.findIndex((l) =>
     l.startsWith(
-      "Every agent must end its final message with exactly one of these signals",
+      "Every agent MUST end final message with exactly one signal",
     ),
   )
   if (anchorIdx === -1) {
@@ -505,14 +506,13 @@ describe("agent-communication / Task 2 core", () => {
  * Either export satisfies these tests.
  */
 async function getNudgePrompt(): Promise<string> {
-  // Dynamic import avoids hard named-export failure at module load time.
-  // Once the developer adds the export, this resolves correctly.
-  const mod = await import("../../src/instructions/plugins/agent-communication.js") as any
+  // Helpers live in agent-communication-helpers.js (plugin file only exports functions).
+  const mod = await import("../../src/instructions/plugins/agent-communication-helpers.js") as any
   if (typeof mod.NUDGE_PROMPT === "string") return mod.NUDGE_PROMPT
   if (typeof mod.buildNudgePrompt === "function") return mod.buildNudgePrompt()
   throw new Error(
     "Task 3 developer requirement: export NUDGE_PROMPT (string) or buildNudgePrompt() " +
-    "from agent-communication.js so nudge-content tests can assert against the prompt text.",
+    "from agent-communication-helpers.js so nudge-content tests can assert against the prompt text.",
   )
 }
 
