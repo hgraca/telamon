@@ -129,14 +129,14 @@ All latent items are standalone `.md` files. File naming: `YYYYMMDDHHMMSS-<slug>
 - Timestamp: date of the item (`HHMMSS` = `000000` when only date known)
 - Slug: max 10 words, hyphen-separated, lowercase, no special chars
 
-Two frontmatter formats are used depending on folder:
-
 ### ADRs/ and PDRs/ — `keywords` frontmatter, single `##` body
+
+Location: `latent/ADRs/` or `latent/PDRs/` inside the project vault.
 
 ```markdown
 ---
 date: YYYY-MM-DD
-keywords: [keyword1, keyword2]
+keywords: ["keyword1", "keyword2"]
 ---
 
 ## <Decision title>
@@ -147,23 +147,44 @@ keywords: [keyword1, keyword2]
 - `keywords`: 1–5 focused terms (tool names, concept names, domain terms). Always include the primary tool/domain as first keyword.
 - Body: single `##` heading + one prose paragraph. No sub-sections.
 
-### project/ — `tags` frontmatter, `#` title, multiple `##` sections
+### global/<tech>/ — `keywords` frontmatter, single `##` body
+
+Location: `storage/memory/global/<tech>/` (accessed via `latent/global/<tech>/` symlink in each project vault). Use for lessons reusable across projects — the tech bucket determines the subfolder (see section 2 classification table).
 
 ```markdown
 ---
 date: YYYY-MM-DD
-keywords: [keyword1, keyword2]
+keywords: ["<tech>", "keyword2"]
 ---
 
-# <Learning title>
+## <Title>
 
-<Body content. Use multiple ## sections as needed. Be specific and actionable.>
+<One-paragraph description of the lesson — what the trap/pattern/rule is, why it matters, and how to apply or avoid it. Self-contained: no references to other files needed to act on this.>
+```
+
+- `keywords`: first keyword MUST be the bucket name (e.g. `"bun"`, `"argocd"`). 1–5 terms total.
+- Body: single `##` heading + one prose paragraph. No sub-sections.
+- **Do not** add `[[wikilinks]]` — global files are shared across projects and cannot reference project-specific notes.
+
+### project/ — `tags` frontmatter, `#` title, multiple `##` sections
+
+Location: `latent/project/` inside the project vault. Use for lessons specific to this project's domain, architecture, or conventions.
+
+```markdown
+---
+date: YYYY-MM-DD
+keywords: ["keyword1", "keyword2"]
+---
+
+# <Title>
+
+<Body. Use multiple ## sections as needed. Be specific and actionable.>
 ```
 
 - `keywords`: 1–5 focused terms (tool names, concept names, domain terms). Always include the primary tool/domain as first keyword.
 - Body: single `##` heading + one prose paragraph. No sub-sections.
 
-### Entry quality rules (both formats)
+### Entry quality rules (all formats)
 - **Specific, not generic** — "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
 - **Self-contained** — future agents need to understand *why* without reading other files
 - **No scaffolding** — no `- **Date**: ...`, `- **Status**: ACTIVE`, `- **Scope**: ...` lines in body
