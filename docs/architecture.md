@@ -66,7 +66,7 @@ flowchart TB
 
 | Stage                         | Tool                | Role                                                           |
 |-------------------------------|---------------------|----------------------------------------------------------------|
-| **Session start**             | `latent/` notes      | Loads goals, decisions, patterns, and known gotchas            |
+| **Session start**             | `latent/` notes     | Loads goals, decisions, patterns, and known gotchas            |
 | **Session start**             | QMD                 | Semantic search — surfaces related context before diving in    |
 | **Session start**             | Graphify plugin     | Injects god nodes, communities, and surprising connections     |
 | **Session start**             | Diff-context plugin | Injects git change summary since last session                  |
@@ -82,10 +82,10 @@ flowchart TB
 | **GitHub integration**        | `gh` CLI            | Manages issues, PRs, code search, reviews                      |
 | **Writing code**              | RTK                 | Compresses bash output to save tokens                          |
 | **Long sessions**             | Caveman             | Reduces response verbosity ~75% on demand                      |
-| **After significant work**    | `latent/` notes      | Stores new decisions, patterns, bug fixes                      |
+| **After significant work**    | `latent/` notes     | Stores new decisions, patterns, bug fixes                      |
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)               |
-| **End of session**            | `latent/` notes      | Saves session summary; archives completed work notes           |
+| **End of session**            | `latent/` notes     | Saves session summary; archives completed work notes           |
 | **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions              |
 | **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata       |
 
@@ -223,7 +223,7 @@ src/
     codebase-index/          # MCP registration + per-project config
     repomix/                 # Repomix MCP installer, init, update, doctor
     promptfoo/               # promptfoo eval framework installer, init, update
-    remember-session/         # remember-session opencode plugin + init
+    git-hook-remember-session/ # git post-commit hook that fires remember-session inside opencode sessions
     diff-context/            # diff-context opencode plugin registration (retired)
     cli/                     # telamon CLI + desktop menu entry installer
 
