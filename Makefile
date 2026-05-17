@@ -50,12 +50,6 @@ SH=$(EXEC) /bin/bash
 IS_DOCKER := $(shell ./scripts/is-in-docker.sh)
 
 COMPOSE_PROFILES :=
-ifneq ($(shell grep -s '^LANGFUSE_ENABLED=true' .env),)
-  COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile langfuse
-endif
-ifneq ($(shell grep -s '^GRAPHITI_ENABLED=true' .env),)
-  COMPOSE_PROFILES := $(COMPOSE_PROFILES) --profile graphiti
-endif
 
 
 .docker-wrap-%:
@@ -117,8 +111,6 @@ install: ## Install all Telamon tools (first-time setup or reinstall)
 	echo -e "\n\033[1m\033[34m━━━ Pulling Docker images... ━━━\033[0m"
 	docker compose \
 		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
-		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
-		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
 		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Installing remaining tools (requires containers)... ━━━\033[0m"
 	bash bin/install.sh --post-docker
@@ -130,8 +122,6 @@ up: ## Boot Telamon services (does not install — use 'make install' for first-
 	echo -e "\n\033[1m\033[34m━━━ Bringing up services... ━━━\033[0m"
 	docker compose \
 		$$(grep -s '^GPU_ENABLED=true' .env > /dev/null && echo '-f docker-compose.yml -f docker-compose.gpu.yml') \
-		$$(grep -s '^LANGFUSE_ENABLED=true' .env > /dev/null && echo '--profile langfuse') \
-		$$(grep -s '^GRAPHITI_ENABLED=true' .env > /dev/null && echo '--profile graphiti') \
 		up -d --no-recreate
 	echo -e "\n\033[1m\033[34m━━━ Telamon is up. ━━━\033[0m\n"
 	$(MAKE) status

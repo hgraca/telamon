@@ -41,8 +41,6 @@ cd path/to/your-project && opencode
 | **Codebase understanding**    | Graphify (knowledge graph) + Codebase Index (semantic search)                               |
 | **Token efficiency**          | RTK (output compression) + Caveman (terse communication mode)                               |
 | **MCP integrations**          | Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app (GitHub via `gh` CLI)         |
-| **Optional observability**    | Langfuse for token tracking (opt-in)                                                        |
-| **Optional temporal graph**   | Graphiti + Neo4j for architectural evolution (opt-in)                                       |
 
 ---
 
@@ -54,7 +52,6 @@ cd path/to/your-project && opencode
   - [Graphify](docs/tools/graphify.md), [Codebase Index](docs/tools/codebase-index.md), [Repomix](docs/tools/repomix.md) — Codebase understanding
   - [QMD](docs/tools/qmd.md) — Knowledge vault
   - [RTK](docs/tools/rtk.md), [Caveman](docs/tools/caveman.md), [promptfoo](docs/tools/promptfoo.md) — Token efficiency & quality
-  - [Langfuse](docs/tools/langfuse.md), [Graphiti](docs/tools/graphiti.md) — Optional services
   - [Plugins](docs/tools/plugins.md) — OpenCode plugins
   - [Retired experiments](docs/tools/cass.md) — [Cass](docs/tools/cass.md), [Discord](docs/tools/discord.md), [Ogham](docs/tools/ogham.md), [Obsidian](docs/tools/obsidian.md)
 - [Agents](docs/agents.md) — Primary agents, sub-agents, and roles
@@ -82,8 +79,6 @@ cd path/to/your-project && opencode
 - [Caveman](https://github.com/JuliusBrussee/caveman)
 - [Addy Osmani Skills](https://github.com/addyosmani/agent-skills)
 - [PentAGI](https://github.com/vxcontrol/pentagi)
-- [Langfuse](https://langfuse.com)
-- [Graphiti](https://github.com/getzep/graphiti)
 - [Context7](https://context7.com)
 - [Exa](https://exa.ai)
 - [grep.app](https://grep.app)

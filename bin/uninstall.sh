@@ -75,12 +75,6 @@ step "Running docker compose down -v --remove-orphans..."
 # Detect compose profiles (same logic as Makefile) — use string, not array,
 # because bash 3.2 (macOS default) errors on empty arrays with set -u.
 COMPOSE_PROFILES=""
-if grep -s '^LANGFUSE_ENABLED=true' "${TELAMON_ROOT}/.env" &>/dev/null; then
-  COMPOSE_PROFILES="${COMPOSE_PROFILES} --profile langfuse"
-fi
-if grep -s '^GRAPHITI_ENABLED=true' "${TELAMON_ROOT}/.env" &>/dev/null; then
-  COMPOSE_PROFILES="${COMPOSE_PROFILES} --profile graphiti"
-fi
 
 # shellcheck disable=SC2086
 if docker compose ${COMPOSE_PROFILES} down -v --remove-orphans 2>/dev/null; then
@@ -92,7 +86,7 @@ fi
 
 # ── 2. Remove docker volume data dirs ─────────────────────────────────────────
 header "Removing Docker volume data"
-DOCKER_DIRS=(ollama graphify langfuse-pgdata langfuse-clickhouse neo4j-data)
+DOCKER_DIRS=(ollama graphify neo4j-data)
 for dir in "${DOCKER_DIRS[@]}"; do
   path="${TELAMON_ROOT}/storage/${dir}"
   if [[ -d "${path}" ]]; then

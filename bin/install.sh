@@ -93,14 +93,6 @@ load_saved_inputs() {
   PROJECT_NAME="${SAVED_PROJECT_NAME:-${dir_name}}"
 
   export PROJECT_NAME
-
-  # Selectively export optional-service flags for install module guards.
-  # Do NOT use `set -a; source .env` — it would export OPENAI_API_KEY and other secrets globally.
-  # Each install module reads its own secrets from .env via _read_env_value as needed.
-  if [[ -f "${TELAMON_ROOT}/.env" ]]; then
-    export LANGFUSE_ENABLED="$(grep -s '^LANGFUSE_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-    export GRAPHITI_ENABLED="$(grep -s '^GRAPHITI_ENABLED=' "${TELAMON_ROOT}/.env" | cut -d= -f2-)"
-  fi
 }
 
 # ── _read_ini_value ────────────────────────────────────────────────────────────
@@ -220,7 +212,7 @@ PRE_DOCKER_APPS=(homebrew git sqlite3 gh docker tree)
 
 # Phase 2: tools that require the containers to already be running (nomic-embed-text
 #           model must be in Ollama). Called by `make install` after docker compose up.
-POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd langfuse graphiti)
+POST_DOCKER_APPS=(python nodejs opencode codebase-index repomix promptfoo graphify rtk caveman qmd)
 
 pre_docker() {
   for _app in "${PRE_DOCKER_APPS[@]}"; do

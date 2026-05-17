@@ -52,8 +52,6 @@ flowchart TB
         end
 
         subgraph optional["Optional Services (profile-gated)"]
-            o_lf["Langfuse (postgres + redis + clickhouse + web)"]
-            o_gr["Graphiti (neo4j + graphiti API)"]
         end
     end
 
@@ -86,8 +84,6 @@ flowchart TB
 | **Evaluating agent behavior** | promptfoo           | Automated quality checks: routing, plan structure, code review |
 | **After each agent turn**     | Session Capture     | Auto-promotes learnings every 30 min (throttled)               |
 | **End of session**            | `latent/` notes     | Saves session summary; archives completed work notes           |
-| **Observability**             | Langfuse (optional) | Tracks token usage, latency, cost across sessions              |
-| **Temporal knowledge**        | Graphiti (optional) | Stores entities and relationships with temporal metadata       |
 
 ---
 
@@ -113,22 +109,6 @@ These are referenced by `storage/opencode.jsonc` using the `{file:...}` pattern 
 |-----------------------|------------------------|----------------------------------------|
 | `telamon-ollama`      | `ollama/ollama:latest` | 17434                                  |
 | `telamon-ollama-init` | `ollama/ollama:latest` | — (one-shot, pulls `nomic-embed-text`) |
-
-#### Langfuse (profile: `langfuse`)
-
-| Service                       | Image                          | Host port         |
-|-------------------------------|--------------------------------|-------------------|
-| `telamon-langfuse-db`         | `postgres:16`                  | 17433             |
-| `telamon-langfuse-redis`      | `redis:7-alpine`               | — (internal only) |
-| `telamon-langfuse-clickhouse` | `clickhouse/clickhouse-server` | — (internal only) |
-| `telamon-langfuse-web`        | `langfuse/langfuse:latest`     | 17400             |
-
-#### Graphiti + Neo4j (profile: `graphiti`)
-
-| Service            | Image                   | Host port                     |
-|--------------------|-------------------------|-------------------------------|
-| `telamon-neo4j`    | `neo4j:5`               | 17474 (browser), 17687 (bolt) |
-| `telamon-graphiti` | `zepai/graphiti:latest` | 17801                         |
 
 > All host ports are bound to `127.0.0.1` — not accessible from the network.
 
@@ -214,8 +194,6 @@ src/
     python/                  # Python (uv) installer
     nodejs/                  # Node.js installer
     graphify/                # Graphify binary + MCP wrapper + scheduled updates + plugin
-    graphiti/                # Graphiti + Neo4j setup (optional, profile-gated)
-    langfuse/                # Langfuse observability stack (optional, profile-gated)
     caveman/                 # Caveman skill download
     qmd/                     # QMD binary + skill download + vault collection init
     rtk/                     # RTK binary + opencode plugin wiring

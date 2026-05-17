@@ -64,81 +64,6 @@ else
   _fail "Ollama container not running — run: make up"
 fi
 
-# ── Optional: Langfuse ────────────────────────────────────────────────────────
-if env.is_enabled LANGFUSE_ENABLED; then
-  header "Langfuse (LLM observability)"
-
-  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-langfuse-db$"; then
-    _pass "Langfuse Postgres container running (telamon-langfuse-db)"
-  else
-    _fail "Langfuse Postgres container not running — run: make up (LANGFUSE_ENABLED=true)"
-  fi
-
-  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-langfuse-web$"; then
-    _pass "Langfuse web container running (telamon-langfuse-web)"
-    # HTTP health check — use _warn since the service may still be starting
-    if wget -qO- --timeout=5 http://localhost:17400/api/public/health &>/dev/null 2>&1; then
-      _pass "Langfuse HTTP health: http://localhost:17400/api/public/health"
-    else
-      _warn "Langfuse HTTP health check failed — service may still be starting"
-    fi
-  else
-    _fail "Langfuse web container not running — run: make up (LANGFUSE_ENABLED=true)"
-  fi
-
-  # .env secret checks
-  ENV_FILE_LF="${TELAMON_ROOT}/.env"
-  if [[ -f "${ENV_FILE_LF}" ]]; then
-    lf_secret="$(grep -E "^LANGFUSE_SECRET=" "${ENV_FILE_LF}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${lf_secret}" && "${lf_secret}" != "REPLACE_WITH"* ]]; then
-      _pass "LANGFUSE_SECRET is set"
-    else
-      _warn "LANGFUSE_SECRET not set in .env — run: make install"
-    fi
-
-    lf_salt="$(grep -E "^LANGFUSE_SALT=" "${ENV_FILE_LF}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${lf_salt}" && "${lf_salt}" != "REPLACE_WITH"* ]]; then
-      _pass "LANGFUSE_SALT is set"
-    else
-      _warn "LANGFUSE_SALT not set in .env — run: make install"
-    fi
-  fi
-fi
-
-# ── Optional: Graphiti ────────────────────────────────────────────────────────
-if env.is_enabled GRAPHITI_ENABLED; then
-  header "Graphiti (temporal knowledge graph)"
-
-  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-neo4j$"; then
-    _pass "Neo4j container running (telamon-neo4j)"
-  else
-    _fail "Neo4j container not running — run: make up (GRAPHITI_ENABLED=true)"
-  fi
-
-  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^telamon-graphiti$"; then
-    _pass "Graphiti container running (telamon-graphiti)"
-    # HTTP health check — use _warn since the service may still be starting
-    if wget -qO- --timeout=5 http://localhost:17801/healthcheck &>/dev/null 2>&1; then
-      _pass "Graphiti HTTP health: http://localhost:17801/healthcheck"
-    else
-      _warn "Graphiti HTTP health check failed — service may still be starting"
-    fi
-  else
-    _fail "Graphiti container not running — run: make up (GRAPHITI_ENABLED=true)"
-  fi
-
-  # .env secret check
-  ENV_FILE_GR="${TELAMON_ROOT}/.env"
-  if [[ -f "${ENV_FILE_GR}" ]]; then
-    neo4j_pass="$(grep -E "^NEO4J_PASSWORD=" "${ENV_FILE_GR}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${neo4j_pass}" && "${neo4j_pass}" != "REPLACE_WITH"* ]]; then
-      _pass "NEO4J_PASSWORD is set"
-    else
-      _warn "NEO4J_PASSWORD not set in .env — run: make install"
-    fi
-  fi
-fi
-
 # ── 2. Host binaries ──────────────────────────────────────────────────────────
 header "Host tools"
 
@@ -492,10 +417,6 @@ PYEOF
   _check_mcp "ast-grep"
   _check_mcp "git"
   _check_mcp "repomix"
-  # Optional: Graphiti MCP (only when enabled)
-  if env.is_enabled GRAPHITI_ENABLED; then
-    _check_mcp "graphiti"
-  fi
 else
   _fail "storage/opencode.jsonc missing — run: make install"
 fi
@@ -541,32 +462,6 @@ header ".env configuration"
 ENV_FILE="${TELAMON_ROOT}/.env"
 if [[ -f "${ENV_FILE}" ]]; then
   _pass ".env file present"
-
-  # Optional service secrets (only checked when service is enabled)
-  if env.is_enabled LANGFUSE_ENABLED; then
-    lf_secret_env="$(grep -E "^LANGFUSE_SECRET=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${lf_secret_env}" && "${lf_secret_env}" != "REPLACE_WITH"* ]]; then
-      _pass "LANGFUSE_SECRET is set (.env)"
-    else
-      _warn "LANGFUSE_SECRET not set in .env — run: make install"
-    fi
-
-    lf_salt_env="$(grep -E "^LANGFUSE_SALT=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${lf_salt_env}" && "${lf_salt_env}" != "REPLACE_WITH"* ]]; then
-      _pass "LANGFUSE_SALT is set (.env)"
-    else
-      _warn "LANGFUSE_SALT not set in .env — run: make install"
-    fi
-  fi
-
-  if env.is_enabled GRAPHITI_ENABLED; then
-    neo4j_pass_env="$(grep -E "^NEO4J_PASSWORD=" "${ENV_FILE}" | head -1 | cut -d= -f2- | tr -d "\"' " || true)"
-    if [[ -n "${neo4j_pass_env}" && "${neo4j_pass_env}" != "REPLACE_WITH"* ]]; then
-      _pass "NEO4J_PASSWORD is set (.env)"
-    else
-      _warn "NEO4J_PASSWORD not set in .env — run: make install"
-    fi
-  fi
 else
   _fail ".env not found — run: make install  (it copies .env.dist → .env automatically)"
 fi

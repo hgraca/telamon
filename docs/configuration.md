@@ -85,22 +85,4 @@ Patches are applied on demand via the `/patch-opencode` slash command — never 
 
 ## Optional services
 
-### Langfuse (LLM observability)
-
-```bash
-LANGFUSE_ENABLED=true
-LANGFUSE_SECRET=your-random-secret
-LANGFUSE_SALT=your-random-salt
-```
-
-After `telamon up`, open `http://localhost:17400`, create an admin account, and generate API keys.
-
-### Graphiti (temporal knowledge graph)
-
-```bash
-GRAPHITI_ENABLED=true
-NEO4J_PASSWORD=your-neo4j-password
-OPENAI_API_KEY=your-openai-key       # used by Graphiti for entity extraction
-```
-
-> `OPENAI_API_KEY` is only passed to the Graphiti container — it is not exported globally.
+There are currently no optional services. All tools are installed and enabled by default.

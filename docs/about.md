@@ -48,7 +48,6 @@ Telamon principles:
 | **Token efficiency** | RTK (output compression), Caveman (terse mode) |
 | **Multi-agent** | 2 primary agents (Telamon orchestrator + Companion pair programmer), 10 sub-agents, slash commands, 60+ structured skills |
 | **MCP integrations** | Chrome DevTools, Playwright, ast-grep, Context7, Exa, grep.app (GitHub via `gh` CLI) |
-| **Optional** | Langfuse (observability), Graphiti + Neo4j (temporal graph) |
 
 ---
 

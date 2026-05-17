@@ -66,13 +66,6 @@ Plugins are OpenCode extensions that run automatically. They fire on specific ev
 
 Plugin source code lives in [`src/instructions/plugins/`](https://github.com/hgraca/telamon/tree/main/src/plugins).
 
-## Optional services
-
-| Tool                 | Description                                    | Website                                                          |
-|----------------------|------------------------------------------------|------------------------------------------------------------------|
-| [Langfuse](langfuse) | LLM observability — token usage, latency, cost | [langfuse.com](https://langfuse.com)                             |
-| [Graphiti](graphiti) | Temporal knowledge graph backed by Neo4j       | [github.com/getzep/graphiti](https://github.com/getzep/graphiti) |
-
 ## Local LLM requirements
 
 Some tools run models locally — no cloud API calls for these operations:
@@ -95,6 +88,8 @@ Some tools run models locally — no cloud API calls for these operations:
 | [Active Work Context](active-work-context) | Injected active work items at session start — made session go off topic; should be part of memory audit skill |
 | [Diff Context](diff-context)               | Injected git change summary at session start — moved to single context priming tool                           |
 | [Pre-Commit Test Gate](run-tests)          | Ran `make test` before opencode commits — blocks commit for minutes, corrupts git index on timeout            |
+| [Langfuse](langfuse)                       | LLM observability (token usage, latency, cost) — removed; adds Docker complexity for marginal benefit         |
+| [Graphiti](graphiti)                       | Temporal knowledge graph backed by Neo4j — removed; adds Docker complexity for marginal benefit               |
 
 ## More
 
