@@ -102,22 +102,16 @@ export default tool({
   description:
     "Cache and retrieve gather-context reports keyed by a SHA-256 hash of sorted keywords. " +
     "subcommand 'get': returns cached body (frontmatter stripped) if valid, empty string on miss/expiry. " +
-    "subcommand 'store': writes content to cache with TTL-derived expiry frontmatter. Rejects empty content.",
-  args: {
-    subcommand: tool.schema
-      .enum(["get", "store"])
-      .describe("'get' to retrieve cached report; 'store' to write report to cache"),
-    keywords: tool.schema
-      .string()
-      .describe("Topic keywords used to key the cache entry (order-independent). Pass a JSON array string e.g. '[\"auth\",\"jwt\"]' or a single keyword string e.g. 'billing'."),
-    content: tool.schema
-      .string()
-      .optional()
-      .describe("Report content to store (required for 'store' subcommand; must be non-empty)"),
-  },
-  async execute(args) {
+    "subcommand 'store': writes content to cache with TTL-derived expiry frontmatter. Rejects empty content.\n\n" +
+    "Parameters:\n" +
+    "- subcommand (string, required): 'get' to retrieve cached report; 'store' to write report to cache\n" +
+    "- keywords (string, required): topic keywords — JSON array string e.g. '[\"auth\",\"jwt\"]' or single keyword e.g. 'billing'\n" +
+    "- content (string, optional): report content to store (required for 'store'; must be non-empty)",
+  args: {},
+  async execute(rawArgs) {
+    const args = rawArgs as any
     const keywords: string[] = (() => {
-      const raw = args.keywords ?? ""
+      const raw = (args.keywords as string | undefined) ?? ""
       if (!raw) return []
       try {
         const parsed = JSON.parse(raw)
@@ -128,7 +122,7 @@ export default tool({
     const hash = computeHash(keywords)
     const filePath = cachePath(hash)
 
-    if (args.subcommand === "get") {
+    if ((args.subcommand as string) === "get") {
       if (!existsSync(filePath)) return ""
       const raw = await readFile(filePath, "utf8")
       const { ttl_end, body } = parseFrontmatter(raw)
@@ -140,7 +134,7 @@ export default tool({
     }
 
     // store
-    const content = args.content ?? ""
+    const content = (args.content as string | undefined) ?? ""
     if (content.trim().length === 0) {
       return "Error: content must not be empty — cache not written"
     }

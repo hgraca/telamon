@@ -6,43 +6,23 @@ import fs from "fs"
 /**
  * tree — run `tree` on one or more directories and output markdown to stdout.
  *
- * Usage:
- *   tree({ paths: ["src/components"] })
- *   tree({ paths: ["src/components", "src/utils"] })
- *
- * Always outputs markdown to stdout (no file written).
- * Delegates to the colocated bash script (tree.sh).
- *
- * Wiring (same pattern as format-md.ts):
- *   - This file lives at <telamon-root>/src/instructions/tools/tree/tree.ts
- *   - init.sh creates a flat symlink at <project>/.opencode/tools/tree.ts
- *     pointing to this file.
- *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
- *     so Bun's upward module resolution from this file's real path finds it.
+ * Args (passed as raw object — no Zod schema to avoid cross-instance crash, opencode issue #21155):
+ *   paths   string  required  Path or JSON array string e.g. '["src","lib"]' or 'src'
+ *   format  string  optional  "json" (default) or "markdown"
  */
 
 export default tool({
   description:
-    "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.",
-  args: {
-    paths: tool.schema
-      .string()
-      .describe(
-        "One or more directory paths to inspect. Pass a JSON array string e.g. '[\"src/components\",\"src/utils\"]' or a single path string e.g. 'src'. Each is resolved relative to the project root if relative, or used as-is if absolute.",
-      ),
-    format: tool.schema
-      .enum(["json", "markdown"])
-      .optional()
-      .default("json")
-      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable tree output)"),
-  },
-  async execute(args) {
+    "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.\n\nParameters:\n- paths (string, required): directory path or JSON array string e.g. '[\"src/components\",\"src/utils\"]' or 'src'\n- format (string, optional): 'json' (default) or 'markdown'",
+  args: {},
+  async execute(rawArgs) {
+    const args = rawArgs as any
     const script = path.join(import.meta.dir, "tree.sh")
-    const fmt = args.format ?? "json"
+    const fmt = (args.format as string | undefined) ?? "json"
 
     // coerce string (plain or JSON array) to string[]
     const paths: string[] = (() => {
-      const raw = args.paths ?? ""
+      const raw = (args.paths as string | undefined) ?? ""
       if (!raw) return []
       try {
         const parsed = JSON.parse(raw)

@@ -5,24 +5,11 @@ import fs from "fs"
 /**
  * search-memories — search the project memory vault and return full file bodies.
  *
- * Searches the QMD memory vault for files matching the given queries, then
- * fetches each matched file's full content (frontmatter stripped) and assembles
- * all bodies into a single output.
- *
- * Usage:
- *   search-memories({ query: ["planning", "workflow"] })
- *   search-memories({ query: ["billing"], format: "markdown" })
- *   search-memories({ query: ["auth"], max_results: 10 })
- *
- * Always returns JSON by default (markdown via format: "markdown").
- * Delegates to the colocated Python script (search-memories.py).
- *
- * Wiring (same pattern as format-md.ts):
- *   - This file lives at <telamon-root>/src/instructions/tools/search-memories/search-memories.ts
- *   - init.sh creates a flat symlink at <project>/.opencode/tools/search-memories.ts
- *     pointing to this file.
- *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
- *     so Bun's upward module resolution from this file's real path finds it.
+ * Args (passed as raw object — no Zod schema to avoid cross-instance crash, opencode issue #21155):
+ *   query       string  required  Search query or JSON array string e.g. '["planning","workflow"]'
+ *   collection  string  optional  QMD collection name (default: auto-detected)
+ *   max_results number  optional  Max files to return (default: 5)
+ *   format      string  optional  "json" (default) or "markdown"
  */
 
 function resolveProjectCollection(): string {
@@ -39,34 +26,13 @@ function resolveProjectCollection(): string {
 
 export default tool({
   description:
-    "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.",
-  args: {
-    query: tool.schema
-      .string()
-      .describe(
-        "One or more search queries. Pass a JSON array string e.g. '[\"planning\",\"workflow\"]' or a single query string e.g. 'billing'. Each query is searched independently and results are merged.",
-      ),
-    collection: tool.schema
-      .string()
-      .optional()
-      .describe(
-        "Primary QMD collection to search (default: auto-detected from .ai/telamon/telamon.jsonc project_name). The 'global' collection is always included automatically.",
-      ),
-    max_results: tool.schema
-      .number()
-      .optional()
-      .default(5)
-      .describe("Maximum number of matched files to return (default: 5)"),
-    format: tool.schema
-      .enum(["json", "markdown"])
-      .optional()
-      .default("json")
-      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable, file bodies separated by ---)"),
-  },
-  async execute(args) {
+    "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.\n\nParameters:\n- query (string, required): search query or JSON array string e.g. '[\"planning\",\"workflow\"]' or 'billing'\n- collection (string, optional): QMD collection name (default: auto-detected from telamon.jsonc)\n- max_results (number, optional): max files to return (default: 5)\n- format (string, optional): 'json' (default) or 'markdown'",
+  args: {},
+  async execute(rawArgs) {
+    const args = rawArgs as any
     const script = path.join(import.meta.dir, "search-memories.py")
-    const collection = args.collection ?? resolveProjectCollection()
-    const fmt = args.format ?? "json"
+    const collection = (args.collection as string | undefined) ?? resolveProjectCollection()
+    const fmt = (args.format as string | undefined) ?? "json"
 
     const cmd = [
       "python3",
@@ -76,11 +42,11 @@ export default tool({
       "--collection",
       collection,
       "--max-results",
-      String(args.max_results ?? 5),
+      String((args.max_results as number | undefined) ?? 5),
     ]
 
     const queries: string[] = (() => {
-      const raw = args.query ?? ""
+      const raw = (args.query as string | undefined) ?? ""
       if (!raw) return []
       try {
         const parsed = JSON.parse(raw)
