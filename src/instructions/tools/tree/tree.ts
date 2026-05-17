@@ -22,9 +22,14 @@ export default tool({
 
     // coerce string (plain, JSON array, comma-separated, or space-separated) to string[]
     const paths: string[] = (() => {
-      const raw = (args.paths as string | undefined) ?? ""
-      if (!raw) return []
-      // Try JSON array first
+      const rawVal = args.paths
+      if (rawVal === undefined || rawVal === null || rawVal === "") return []
+      // If already a JS array (LLM passed native array), use directly
+      if (Array.isArray(rawVal)) return rawVal.map(String).filter(Boolean)
+      // Coerce to string for all other types
+      const raw = String(rawVal)
+      if (!raw.trim()) return []
+      // Try JSON array string
       try {
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean)
