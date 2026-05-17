@@ -21,7 +21,7 @@ Call the `gather-context-cache` tool:
 
     gather-context-cache({ subcommand: "get", keywords: <keyword-list> })
 
-- If the result is **non-empty**: return it immediately and signal `FINISHED` — do not execute Steps 1–7b.
+- If the result is **non-empty**: the tool returns `Cached at <absolute-path>\n\n<body>`. Extract the absolute path from the first line. Signal `FINISHED` with that path — do not execute Steps 1–7b.
 - If the result is **empty** (cache miss or expired): continue to Step 1.
 
 > **Important**: record the exact keyword list used here. You MUST use the identical list in Step 7b.
@@ -97,13 +97,13 @@ Call the `gather-context-cache` tool with the **same keyword list** used in Step
 
     gather-context-cache({ subcommand: "store", keywords: <same-keyword-list-as-step-0>, content: <compiled-report> })
 
-The tool writes the file and runs `format-md` automatically. Then continue to Step 8.
+The tool returns `Cached at <absolute-path> (expires <iso>)`. Extract the absolute path from that response. Then continue to Step 8.
 
 ### 8. Signal completion
 
 Signal `FINISHED` per `telamon.agent-communication` skill.
 Include in the signal:
-- The **absolute path** of the cached report file (returned by `gather-context-cache` in Step 7b, or the path of the existing cache file on a cache hit).
+- The **absolute path** of the cached report file — extracted directly from the `gather-context-cache` tool return value (both `get` and `store` return `Cached at <absolute-path>…` as their first line).
 - A brief summary (3–5 bullets) of the key findings.
 
 The orchestrator will read the full report from disk and display it to the user.
