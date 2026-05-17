@@ -42,9 +42,9 @@ export default tool({
     "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.",
   args: {
     query: tool.schema
-      .array(tool.schema.string())
+      .union([tool.schema.string(), tool.schema.array(tool.schema.string())])
       .describe(
-        "One or more search queries (words or sentences). Each is searched independently and results are merged. E.g. ['planning workflow'] or ['planning', 'workflow'].",
+        "One or more search queries (words or sentences). Pass a single string or an array of strings. Each is searched independently and results are merged. E.g. 'planning workflow' or ['planning', 'workflow'].",
       ),
     collection: tool.schema
       .string()
