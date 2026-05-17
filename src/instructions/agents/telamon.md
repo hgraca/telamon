@@ -101,7 +101,7 @@ Ensures every code change is grounded in codebase context before implementation 
 Pass user request and any obvious context (file paths mentioned, recent conversation context) directly to the scout.
 Do NOT read files, search code, or draft plan yourself before starting the scout delegation.
 
-**After scout returns from gather-context**: Read the full report from the file path the scout reported, then output the entire report content to the user verbatim before proceeding with any other work.
+**After scout returns from gather-context**: Read the full report from the file path the scout reported. Output the ENTIRE raw file content to the user verbatim — no summarising, no reformatting, no commentary before or after. Do this before proceeding with any other work.
 
 ### Delegation prompt
 
