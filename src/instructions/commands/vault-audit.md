@@ -1,5 +1,6 @@
 ---
 description: Deep structural audit of the memory vault — check folder placement, latent note quality, thinking/ hygiene, and issue folder consistency
+agent: telamon/scout
 ---
 
 Deep structural audit of `.ai/telamon/memory/`. Fix fixable; flag what needs user input. For vault structure, routing, and quality rules, load `telamon.memory_management` skill.
@@ -9,7 +10,10 @@ Deep structural audit of `.ai/telamon/memory/`. Fix fixable; flag what needs use
 ## 1. Check Folder Structure
 
 Verify vault matches expected layout:
-- `latent/` contains exactly: `memories.md`, `PDRs.md`, `ADRs.md`, `patterns.md`, `gotchas.md`
+- `latent/` 
+  - contains folders: `ADRs`, `PDRs`, `project`
+  - contains symlink to folder: `global`
+  - all files under these folders have compliant frontmatter and body
 - `work/active/` contains only active work notes
 - `work/archive/` contains only completed work notes
 - `work/incidents/` contains only incident notes
@@ -25,8 +29,8 @@ For each file in `latent/`:
 - `global/<tech>/` — entries reusable across projects, tech-specific, with context?
 - `PDRs/` — entries have rationale, not just decision?
 - `ADRs/` — entries have rationale, not just decision?
-
 - `project/` — entries project-specific with domain context?
+- Frontmatter compliant? flag entries in all folders without compliant frontmatter.
 
 ## 3. Check Thinking/ Hygiene
 
