@@ -49,7 +49,7 @@ def format_separator_cell(cell: str, width: int) -> str:
     right_colon = cell.endswith(":")
     # Number of dashes needed to fill width
     dash_count = width - (1 if left_colon else 0) - (1 if right_colon else 0)
-    dash_count = max(dash_count, 1)
+    dash_count = max(dash_count, 3)
     return (":" if left_colon else "") + "-" * dash_count + (":" if right_colon else "")
 
 
@@ -74,10 +74,6 @@ def format_table(lines: list[str]) -> list[str]:
             if len(cell) > col_widths[j]:
                 col_widths[j] = len(cell)
 
-    # Ensure separator cells fit too (at least 3 dashes)
-    for j in range(num_cols):
-        if col_widths[j] < 3:
-            col_widths[j] = 3
 
     # Format rows
     result = []

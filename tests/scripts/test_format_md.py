@@ -249,6 +249,19 @@ class TestFormatTable:
             dashes = cell.strip(":")
             assert len(dashes) >= 3
 
+    def test_data_cells_not_inflated_to_separator_minimum(self):
+        # Single-char content columns must not be padded to 3 chars in data rows
+        lines = [
+            "| A | B |",
+            "| --- | --- |",
+            "| x | y |",
+        ]
+        result = format_table(lines)
+        data_cells = parse_cells(result[2])
+        # Content is 1 char; data cells should be padded to 1, not 3
+        assert data_cells[0] == "x"
+        assert data_cells[1] == "y"
+
 
 # ---------------------------------------------------------------------------
 # format_content
