@@ -144,6 +144,19 @@ export default tool({
     const fileContent = `---\nttl_end: ${ttl_end}\n---\n${content}`
     await mkdir(path.dirname(filePath), { recursive: true })
     await writeFile(filePath, fileContent, "utf8")
+
+    // Format markdown tables in the written file (fire-and-forget).
+    // writeFile bypasses opencode's file.edited event, so the format-md plugin
+    // never fires — we call it explicitly here to stay deterministic.
+    try {
+      const script = path.join(import.meta.dir, "../format-md/format-md.py")
+      const proc = Bun.spawn(["python3", script, filePath], {
+        stdio: ["ignore", "ignore", "ignore"],
+        detached: true,
+      })
+      proc.unref()
+    } catch { /* graceful degradation */ }
+
     return `Cached at ${filePath} (expires ${ttl_end})`
   },
 })
