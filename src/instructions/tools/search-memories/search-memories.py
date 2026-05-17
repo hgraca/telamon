@@ -73,7 +73,7 @@ def search_qmd(queries: list[str], collection: str, max_results: int) -> tuple[l
     seen_files: set[str] = set()
 
     for query in queries:
-        cmd = ["search", query, "--json", "--all"]
+        cmd = ["search", query, "--json", "-n", str(max_results)]
         if collection:
             cmd += ["-c", collection]
         # Always also search the shared global knowledge base
