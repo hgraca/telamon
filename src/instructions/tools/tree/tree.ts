@@ -13,21 +13,28 @@ import fs from "fs"
 
 export default tool({
   description:
-    "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.\n\nParameters:\n- paths (string, required): directory path or JSON array string e.g. '[\"src/components\",\"src/utils\"]' or 'src'\n- format (string, optional): 'json' (default) or 'markdown'",
+    "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.\n\nParameters:\n- paths (string, required): directory path or multiple paths. Accepts: single path 'src', JSON array '[\"src\",\"lib\"]', comma-separated 'src,lib', or space-separated 'src lib'\n- format (string, optional): 'json' (default) or 'markdown'",
   args: {},
   async execute(rawArgs) {
     const args = rawArgs as any
     const script = path.join(import.meta.dir, "tree.sh")
     const fmt = (args.format as string | undefined) ?? "json"
 
-    // coerce string (plain or JSON array) to string[]
+    // coerce string (plain, JSON array, comma-separated, or space-separated) to string[]
     const paths: string[] = (() => {
       const raw = (args.paths as string | undefined) ?? ""
       if (!raw) return []
+      // Try JSON array first
       try {
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean)
-      } catch { /* not JSON — treat as plain path */ }
+      } catch { /* not JSON */ }
+      // Try comma-separated
+      if (raw.includes(",")) return raw.split(",").map(s => s.trim()).filter(Boolean)
+      // Try space-separated (multiple tokens that look like paths)
+      const parts = raw.split(/\s+/).filter(Boolean)
+      if (parts.length > 1) return parts
+      // Single plain path
       return [raw]
     })()
     if (paths.length === 0) {
