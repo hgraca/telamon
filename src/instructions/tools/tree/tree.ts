@@ -26,12 +26,9 @@ export default tool({
     "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.",
   args: {
     paths: tool.schema
-      .union([
-        tool.schema.array(tool.schema.string()),
-        tool.schema.string(),
-      ])
+      .array(tool.schema.string())
       .describe(
-        "One or more directory paths to inspect. Pass as an array ['src/components'] or a single string 'src'. Each is resolved relative to the project root if relative, or used as-is if absolute.",
+        "One or more directory paths to inspect. Always pass as an array, e.g. ['src/components'] or ['src', 'lib']. Each is resolved relative to the project root if relative, or used as-is if absolute.",
       ),
     format: tool.schema
       .enum(["json", "markdown"])
@@ -43,20 +40,10 @@ export default tool({
     const script = path.join(import.meta.dir, "tree.sh")
     const fmt = args.format ?? "json"
 
-    // Normalise paths: schema accepts string | string[], normalize to string[]
-    let paths: string[]
-    if (!args.paths) {
+    // paths is always string[] per schema
+    const paths: string[] = args.paths ?? []
+    if (paths.length === 0) {
       return "tree: 'paths' argument is required"
-    } else if (Array.isArray(args.paths)) {
-      paths = args.paths
-    } else {
-      // Single string — try JSON-parse in case it's a JSON-encoded array
-      try {
-        const parsed = JSON.parse(args.paths as string)
-        paths = Array.isArray(parsed) ? parsed : [String(parsed)]
-      } catch {
-        paths = [String(args.paths)]
-      }
     }
 
     const cmd = ["bash", script, "--format", fmt, ...paths]
