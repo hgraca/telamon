@@ -49,6 +49,8 @@ Also check `.ai/telamon/memory/thinking/` for scratch files from this session.
 
 ## 2. Route to latent notes
 
+**MUST — load skill before writing any file**: Invoke `skill("telamon.memory_management")` now. Do not write any latent file until the skill is loaded. The skill contains the canonical frontmatter schema (`date`, `keywords`), per-folder format rules, and the classification table for `global/<tech>/` buckets. Writing from memory produces wrong field names and wrong structure.
+
 Create new files in appropriate latent/ folder per routing table in `telamon.memory_management` skill (section 2):
 
 | Finding                                         | Destination                   | Format                                                                                                                                             |
