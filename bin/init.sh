@@ -109,6 +109,12 @@ export TELAMON_ROOT PREREQUISITES_PATH MODULES_PATH FUNCTIONS_PATH PROJ PROJECT_
 
 header "Telamon init — ${PROJECT_NAME}"
 
+# Detect first-time init before any per-app scripts run (they create the file).
+_FIRST_TIME_INIT="false"
+if [[ ! -f "${PROJ}/.ai/telamon/telamon.jsonc" ]]; then
+  _FIRST_TIME_INIT="true"
+fi
+
 # ── Run per-app init scripts ──────────────────────────────────────────────────
 INIT_APPS=(opencode codebase-index repomix promptfoo memory graphify qmd git-hook-remember-session)
 
@@ -124,6 +130,17 @@ for _app in "${INIT_APPS[@]}"; do
   fi
   (cd "${PROJ}" && timed_run "${_app}" bash "${_script}")
 done
+
+# ── Project config wizard (first-time only) ───────────────────────────────────
+# On the very first 'telamon init' for a project, walk the user through the
+# project-scoped settings so they are set correctly from the start.
+# Re-runs of 'telamon init' skip this (use 'telamon config' to reconfigure).
+if [[ "${_FIRST_TIME_INIT}" == "true" ]] && [[ -t 0 ]]; then
+  header "Project configuration"
+  info "First-time init — let's configure your project settings."
+  echo ""
+  bash "${TELAMON_ROOT}/bin/config.sh" --project="${PROJ}"
+fi
 
 # ── .gitignore telamon section ────────────────────────────────────────────────
 header ".gitignore"
