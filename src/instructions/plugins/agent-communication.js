@@ -217,7 +217,8 @@ export function detectTerminalMarker(msg) {
 // ─── AgentCommunicationPlugin ───────────────────────────────────────────────
 // Plugin factory. Returns { event: async ({ event }) => ... }.
 // PLAN-ARCH-2026-05-06-001.md §2, §6, §8.
-export const AgentCommunicationPlugin = async ({ directory, worktree, client }) => {
+// Default export required by opencode plugin loader (named export alone is not found).
+export default async function AgentCommunicationPlugin({ directory, worktree, client }) {
   return {
     event: async ({ event }) => {
       try {
@@ -338,4 +339,4 @@ export const AgentCommunicationPlugin = async ({ directory, worktree, client }) 
       }
     },
   };
-};
+}
