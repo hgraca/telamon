@@ -238,11 +238,29 @@ NODE_SCRIPT
   fi
 fi
 
-# ── Install codebase-index post-commit hook ──────────────────────────────────
+# ── Install codebase-index git hooks ─────────────────────────────────────────
 HOOK_RUNNER="${SCRIPT_DIR}/codebase-index-hook-runner.sh"
 if [[ -f "${HOOK_RUNNER}" ]] && [[ -n "${PROJ:-}" ]]; then
   PROJ_ABS="$(cd "${PROJ}" && pwd)"
+
+  # post-commit: re-index after every commit.
   PROJ="${PROJ_ABS}" install_telamon_hook "post-commit" \
     "bash \"${HOOK_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown" "CODEBASE-INDEX"
-  log "codebase-index post-commit hook installed"
+
+  # post-merge: re-index after git pull / merge.
+  PROJ="${PROJ_ABS}" install_telamon_hook "post-merge" \
+    "bash \"${HOOK_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown" "CODEBASE-INDEX"
+
+  # post-rewrite: re-index after rebase or amend.
+  PROJ="${PROJ_ABS}" install_telamon_hook "post-rewrite" \
+    "bash \"${HOOK_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown" "CODEBASE-INDEX"
+
+  # post-checkout: re-index on branch switch (3rd arg == 1).
+  PROJ="${PROJ_ABS}" install_telamon_hook "post-checkout" \
+    "# Args: prev-ref new-ref branch-flag
+if [[ \"\${3:-0}\" == \"1\" ]]; then
+  bash \"${HOOK_RUNNER}\" \"${PROJ_ABS}\" >/dev/null 2>&1 & disown
+fi" "CODEBASE-INDEX"
+
+  log "codebase-index git hooks installed (post-commit, post-merge, post-rewrite, post-checkout)"
 fi
