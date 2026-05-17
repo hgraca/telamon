@@ -97,8 +97,17 @@ Call the `gather-context-cache` tool with the **same keyword list** used in Step
 
     gather-context-cache({ subcommand: "store", keywords: <same-keyword-list-as-step-0>, content: <compiled-report> })
 
+The tool returns the absolute path of the written cache file. Then call `format-md` on that path to align any markdown tables:
+
+    format-md({ path: <returned-cache-file-path> })
+
 Then continue to Step 8.
 
 ### 8. Signal completion
 
-Signal `FINISHED` per `telamon.agent-communication` skill. Attach context report path or inline content.
+Signal `FINISHED` per `telamon.agent-communication` skill.
+Include in the signal:
+- The **absolute path** of the cached report file (returned by `gather-context-cache` in Step 7b, or the path of the existing cache file on a cache hit).
+- A brief summary (3–5 bullets) of the key findings.
+
+The orchestrator will read the full report from disk and display it to the user.
