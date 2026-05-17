@@ -73,13 +73,10 @@ New notes must link to at least one existing note via `[[wikilink]]` (see `telam
 
 ## 5. Update watermark
 
-**MUST**: Run `date -u +"%Y-%m-%dT%H:%M:%SZ"` via bash tool to get the real current UTC timestamp. Never fabricate or guess the timestamp.
+**MUST**: Call the `watermark-session` tool with the current worktree path. Never write the watermark file manually — the tool guarantees a correct UTC timestamp from the system clock.
 
-Write/update `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`:
-
-```json
-{
-  "timestamp": "<output of date -u command>",
-  "worktree": "<worktree or directory path>"
-}
 ```
+watermark-session({ worktree: "<absolute path to worktree>" })
+```
+
+The tool writes `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json` and returns the timestamp used.
