@@ -33,7 +33,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
 
-Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywords` only). Body starts after frontmatter — no metadata in body.
+Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywords`, and optionally `see`). Body starts after frontmatter — no metadata in body.
 
 ## 2. Routing Table
 
@@ -110,6 +110,7 @@ If no technology bucket fits, use `project/`.
 ## 4. Writing Constraints
 
 - Every note must link to at least one existing note via `[[wikilink]]` -- orphan note == bug
+- When a PDR has a related ADR (or vice versa), add the related file's path to the `see` frontmatter array in **both** files. Example: a PDR defining a product rule and an ADR specifying how to implement it should each list the other in their `see` arrays.
 - Never write: secrets, API keys, passwords
 - Never write: files in vault root (only subfolders)
 - Never write: agent instructions outside `bootstrap/` expecting auto-load
@@ -137,6 +138,7 @@ Location: `latent/ADRs/` or `latent/PDRs/` inside the project vault.
 ---
 date: YYYY-MM-DD
 keywords: ["keyword1", "keyword2"]
+see: ["PDRs/YYYYMMDDHHMMSS-related-decision.md", "ADRs/YYYYMMDDHHMMSS-related-adr.md"]
 ---
 
 ## <Decision title>
@@ -145,6 +147,7 @@ keywords: ["keyword1", "keyword2"]
 ```
 
 - `keywords`: 1–5 focused terms (tool names, concept names, domain terms). Always include the primary tool/domain as first keyword.
+- `see`: optional array of paths relative to the `latent/` root pointing to related latent memories. Use to cross-link a PDR with the ADR that implements it, or an ADR with the PDR that motivated it. Omit the key when there are no related memories.
 - Body: single `##` heading + one prose paragraph. No sub-sections.
 
 ### global/<tech>/ — `keywords` frontmatter, single `##` body

@@ -1,6 +1,7 @@
 ---
 date: YYYY-MM-DD
 keywords: [keyword1, keyword2]
+see: []
 ---
 
 ## <Decision title>
