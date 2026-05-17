@@ -184,6 +184,31 @@ low. Most plugins want both.
 
 ### Step 2: Write plugin file
 
+**Named exports — MUST export only functions (or `{ server: fn }` objects).** The opencode plugin loader iterates `Object.values(module)` and calls each value as a function. Any non-function named export (string, number, RegExp, plain object without `.server`) throws `TypeError: Plugin export is not a function` and prevents the plugin from loading.
+
+```typescript
+// CORRECT — only function exports
+export const MyPlugin: Plugin = async (ctx) => { ... }
+
+// CORRECT — object with .server function
+export const MyServer = { server: async (ctx) => { ... } }
+
+// WRONG — non-function named exports crash the loader
+export const PLUGIN_NAME = "my-plugin"          // string
+export const VERSION = 1                         // number
+export const PATTERN = /foo/                     // RegExp
+export const CONFIG = { ttl: 60_000 }           // plain object
+```
+
+**Helpers and constants — put in a separate file.** If tests or other modules need constants, helpers, or type definitions from the plugin, extract them to `<plugin-name>-helpers.ts` (or `-helpers.js`). Import from there in both the plugin and the test file. Never export non-function values from the plugin file itself.
+
+```
+src/instructions/plugins/
+  my-plugin.ts           ← exports only Plugin functions
+  my-plugin-helpers.ts   ← exports constants, helpers, types
+  my-plugin.test.ts      ← imports from my-plugin-helpers.ts
+```
+
 Place in `src/instructions/plugins/on_<event>-<tool-name>.<ext>` (Telamon source) or
 `.opencode/plugins/on_<event>-<tool-name>.<ext>` (project-local) or
 `~/.config/opencode/plugins/on_<event>-<tool-name>.<ext>` (global).
@@ -558,6 +583,8 @@ Check every gate before signalling completion:
 | 0   | Underlying tool exists at `src/instructions/tools/<tool-name>/`                      |           |     |
 | 0.1 | Plugin filename follows `on_<event>-<tool-name>.<ext>`                               |           |     |
 | 0.2 | Plugin contains no business logic (wiring/delegation only)                           |           |     |
+| 0.3 | Plugin file exports ONLY functions (or `{ server: fn }` objects) — no string/number/RegExp/plain-object named exports |           |     |
+| 0.4 | Constants and helpers extracted to `<plugin-name>-helpers.ts`; tests import from helpers file, not plugin file |           |     |
 | 1   | One concern per plugin (no kitchen sink)                                             |           |     |
 | 2   | Trust channel hygiene — inject via `input.system`, not stdout                        |           |     |
 | 3   | Untrusted payloads bounded and labelled                                              |           |     |

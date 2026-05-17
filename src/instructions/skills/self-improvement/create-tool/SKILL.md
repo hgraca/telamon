@@ -49,8 +49,11 @@ Clarify before writing:
 - Never embed secrets. Load from `process.env` or secret store.
 - Check name shadows built-in (read, write, bash, glob, grep). If so, rename or disable via permissions.
 
-#### Argument schema
-- Use `tool.schema` (Zod) for all inputs. Every field `.describe()`.
+#### Argument schema — MUST
+
+- **Use `args: {}` (empty object) for all Telamon agentic tools.** Zod schemas (`tool.schema`) crash `toJsonSchema` at load time — opencode binary cannot register the tool. `args: {}` is the only safe schema for tools under `src/instructions/tools/`.
+- For general project tools (`.opencode/tools/`), `tool.schema` (Zod) may work — verify against the installed opencode version before shipping.
+- Every field that IS used: add `.describe()`.
 - Prefer `z.string()`, `z.number()`, `z.enum()` over `z.object()`.
 - Required = required. Optional → `.optional()`.
 
@@ -62,6 +65,53 @@ Clarify before writing:
 ### Step 2: Write tool file
 
 #### Telamon agentic tools — colocated TS + bash pattern
+
+**Return value — MUST return a string.** OpenCode calls `.split('\n')` on every tool return value. Returning an object, array, `undefined`, or `null` crashes with `p.split is not a function`. Always return `string`:
+
+```typescript
+// CORRECT
+return stdout.trim()
+return JSON.stringify({ status: "ok", result })
+return `error: ${message}`
+
+// WRONG — crashes opencode
+return { status: "ok" }          // object
+return undefined                  // undefined
+return JSON.parse(stdout)         // parsed object
+```
+
+**Multi-value args — MUST handle all formats.** When `args: {}` is used, the LLM may pass a multi-value parameter as a native JS array, a JSON array string, a comma-separated string, or a space-separated string. Always normalise before use:
+
+```typescript
+function toArray(val: unknown): string[] {
+  if (Array.isArray(val)) return val.map(String)
+  const s = String(val ?? "").trim()
+  if (!s) return []
+  // Try JSON array
+  if (s.startsWith("[")) {
+    try { return (JSON.parse(s) as unknown[]).map(String) } catch {}
+  }
+  // Comma-separated
+  if (s.includes(",")) return s.split(",").map(v => v.trim()).filter(Boolean)
+  // Space-separated or single value
+  return s.split(/\s+/).filter(Boolean)
+}
+```
+
+**Never `JSON.parse` stdout and return the result directly.** `JSON.parse` returns an object — returning it crashes opencode. Either return `stdout.trim()` (raw string) or `JSON.stringify(JSON.parse(stdout))` (re-serialised string).
+
+```typescript
+// CORRECT — return raw string
+return stdout.trim()
+
+// CORRECT — re-serialise if you need to validate JSON
+try { return JSON.stringify(JSON.parse(stdout.trim())) } catch { return stdout.trim() }
+
+// WRONG — returns object, crashes opencode
+return JSON.parse(stdout.trim())
+```
+
+**Partial failure over total abort.** Multi-path tools (e.g. tree, git-report) MUST skip invalid paths and report them, not abort the whole call. Collect errors, continue processing valid inputs, include error summary in return string.
 
 Tools that live under `src/instructions/tools/<tool-name>/` (Telamon's own agentic tools) follow a stricter pattern documented in `docs/decisions/ADRs/20260517000000-agentic-tool-colocated-ts-bash-pattern.md`. Each tool directory contains exactly two files:
 
@@ -285,7 +335,7 @@ Check every gate before signalling completion:
 | #   | Gate                                                                       | Pass/Fail |
 |-----|----------------------------------------------------------------------------|-----------|
 | 1   | One action, short description                                              |           |
-| 2   | Zod schema validates all input fields                                      |           |
+| 2   | `args: {}` used for Telamon agentic tools; Zod schema only for project tools (verified against opencode version) |           |
 | 3   | No secrets in repo; runtime reads from env/secret store                    |           |
 | 4   | Permission policy set (allow / deny / require-approval)                    |           |
 | 5   | Idempotent or dry-run for destructive actions                              |           |
@@ -299,6 +349,9 @@ Check every gate before signalling completion:
 | 13  | Tool in correct folder (`.opencode/tools/` or `~/.config/opencode/tools/`) |           |
 | 14  | Changelog entry for capability/permission changes                          |           |
 | 15  | Telamon agentic tool: bash entry point `<tool-name>.sh` exists alongside `.ts` (executable, fire-and-forget if background tool) |           |
+| 16  | `execute` returns a `string` in all code paths (never object, array, undefined, or raw `JSON.parse` result) |           |
+| 17  | Multi-value args normalised with `toArray()` pattern (handles native array, JSON string, comma-sep, space-sep) |           |
+| 18  | Multi-path tool: invalid paths skipped and reported, not aborting the whole call |           |
 
 Any gate fails → fix before signalling completion.
 
