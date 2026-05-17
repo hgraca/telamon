@@ -78,7 +78,6 @@ Produce structured Markdown report with sections:
 
 and:
 - use the `caveman` skill on it to reduce the tokes cost
-- use the `format-md` tool to format it
 
 ### 8. Signal completion
 

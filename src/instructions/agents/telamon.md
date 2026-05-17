@@ -166,13 +166,13 @@ Wait for human stakeholder's decision before continuing. Doing subagent's work t
 
 - Delegate backlog creation to @po — PO produces `<issue-folder>/backlog.md` with prioritized tasks and acceptance criteria.
 - Refine backlog through questions to human stakeholder (relay NEEDS_INPUT signals from @po).
-- **Backlog status tracking**: whenever a story changes state, update its `Status` cell in the backlog summary table: `TODO` → `DOING` (when work starts) → `DONE` (when committed and verified). Run `format-md` on `backlog.md` after each update.
+- **Backlog status tracking**: whenever a story changes state, update its `Status` cell in the backlog summary table: `TODO` → `DOING` (when work starts) → `DONE` (when committed and verified).
 - Coordinate with Architect, UI Designer, and/or UX Designer as needed.
 - Invoke @po, @architect, @ui-designer, @ux-designer as subagents, consolidate feedback, drive plan to finality.
 - Approve or reject final plan.
 - Terminate planning loop if progress stalls or goals shift.
-- At end of planning stage, use `telamon.retrospective` skill to evaluate planning process, write report to `<issue-folder>/retrospective/planning.md` and output to human. After writing, run `format-md` on file to align table columns.
-- At end of planning stage, use `telamon.summarize_plan` skill to create summary, write to `<issue-folder>/summary.md` and output to human. After writing, run `format-md` on file to align table columns.
+- At end of planning stage, use `telamon.retrospective` skill to evaluate planning process, write report to `<issue-folder>/retrospective/planning.md` and output to human.
+- At end of planning stage, use `telamon.summarize_plan` skill to create summary, write to `<issue-folder>/summary.md` and output to human.
 - **Critic-finding routing**: when critic returns findings on plan, route as follows:
   - **Re-delegate to architect** when findings include any `BLOCKER`, OR when findings touch ≥2 plan Steps, OR when any finding requires structural change (new Step, removed Step, changed Step layer).
   - **Self-fix allowed** only when ALL findings are `SUGGESTION` severity AND touch single plan Step AND limited to wording, formatting, or table fixes.
@@ -200,7 +200,7 @@ Planning Stage NOT complete — and orchestrator MUST NOT transition to Implemen
 - Review completed features based on Tester and Reviewer feedback.
 - Approve or reject implementations.
 - When approving delivered scope, create or update release note or changelog entry.
-- At end of implementation stage, use `telamon.retrospective` skill to evaluate implementation process, write report to `<issue-folder>/retrospective/implementation.md` and output to human. After writing, run `format-md` on file to align table columns.
+- At end of implementation stage, use `telamon.retrospective` skill to evaluate implementation process, write report to `<issue-folder>/retrospective/implementation.md` and output to human.
 
 ### Transition Criteria
 
@@ -212,7 +212,7 @@ Planning ends and implementation begins when:
 
 ## Approval and Rejection
 
-Record decisions in `<issue-folder>/PO-DECISION-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.:
+Record decisions in `<issue-folder>/PO-DECISION-YYYY-MM-DD-NNN.md`.:
 
 > # Decision
 >
@@ -239,8 +239,8 @@ When temporary file needed, use `telamon.thinking` skill.
 - Track delegation results — if subagent fails, diagnose before re-delegating.
 - Record decisions, lessons, and patterns — captured automatically by remember-session plugin on idle. For stakeholder answers and new rules, record immediately to `latent/PDRs/` or `latent/ADRs/` (too important to defer). After writing to either file, run `format-md` on file to align table columns.
 - Document global product decisions with rationale — follow `telamon.memory_management` skill (section 2) for routing.
-- When human stakeholder answers project question, categorize as product or architecture and record in corresponding file (`latent/PDRs/` or `latent/ADRs/`). After writing, run `format-md` on file to align table columns.
-- When given new rule, categorize as product or architecture and record in corresponding file. After writing, run `format-md` on file to align table columns.
+- When human stakeholder answers project question, categorize as product or architecture and record in corresponding file (`latent/PDRs/` or `latent/ADRs/`).
+- When given new rule, categorize as product or architecture and record in corresponding file.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
 - **Gate: gather context at the start of a session** — At the start of a new session, before any and all non-trivial work about the codebase, delegate context gathering to @scout.

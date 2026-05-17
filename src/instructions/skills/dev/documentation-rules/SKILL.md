@@ -24,4 +24,3 @@ description: "Repository documentation conventions: file organization, README TO
   - Create folder with name of that `.md` file
   - Break up file into several files inside that folder, each new file containing one section of initial file
 - Images used in documentation, should be stored under `docs/imgs/`
-- **After writing or editing any `.md` file**, invoke `format-md` tool with file or directory path to align markdown table columns. Run on every `.md` file touched before committing.

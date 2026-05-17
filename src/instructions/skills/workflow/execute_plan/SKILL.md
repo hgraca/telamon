@@ -28,7 +28,7 @@ If step fails in way suggesting plan is wrong (not coding mistake), do not redes
 
 When all steps implemented and tests pass:
 
-1. Record brief summary in `<issue-folder>/DONE.md`: steps completed, test suite result, open questions or caveats. After writing, run `format-md` on file to align table columns.
+1. Record brief summary in `<issue-folder>/DONE.md`: steps completed, test suite result, open questions or caveats.
 2. This signals Reviewer task ready for review.
 
 ## Handling Review Feedback

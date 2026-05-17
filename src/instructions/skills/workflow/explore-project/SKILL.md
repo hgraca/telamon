@@ -77,7 +77,7 @@ If category has no findings, omit it. Do not pad.
 
 ### Step 4: Write description
 
-Write result to `.ai/telamon/memory/bootstrap/project.md`, overwriting previous content. After writing, run `format-md` on file to align table columns.
+Write result to `.ai/telamon/memory/bootstrap/project.md`, overwriting previous content.
 
 Follow template below. Adjust section titles to fit project, but keep section order: *purpose →
 layout → architecture → lifecycle/workflows → conventions → rough edges → pointers*. This order

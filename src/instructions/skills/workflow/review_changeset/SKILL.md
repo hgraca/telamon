@@ -167,7 +167,7 @@ When log statement added or modified in method called repeatedly (worker loops, 
 
 ## Review Report
 
-Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns.
+Save to `<issue-folder>/REVIEW-YYYY-MM-DD-NNN.md`.
 
 ### Template
 

@@ -180,10 +180,10 @@ After architect pass, orchestrator verifies Review Response covers every new fin
 
 ### Step 7: Closing — Summary and approval
 
-1. Create `<work-folder>/summary.md` per `telamon.summarize_plan` skill. After writing, run `format-md` on file to align table columns.
+1. Create `<work-folder>/summary.md` per `telamon.summarize_plan` skill.
 2. Format all markdown files in work folder: invoke `format-md` tool w/ `path: <work-folder>`.
 3. Output summary to stakeholder, ask final approval.
-4. Write `<work-folder>/planning-complete.md` as final closing-checklist artifact, listing each required artifact w/ **existence-verified AND canonical-path-verified** status. After writing, run `format-md` on file to align table columns. File MUST be orchestrator's last write before reporting completion to stakeholder.
+4. Write `<work-folder>/planning-complete.md` as final closing-checklist artifact, listing each required artifact w/ **existence-verified AND canonical-path-verified** status. File MUST be orchestrator's last write before reporting completion to stakeholder.
 
    Each `[x]` line MUST cite **canonical SKILL-prescribed path** under `<work-folder>` (resolved to absolute path of work folder created Step 0/1) AND **verifying tool call** confirming file at that path. Existence-only check not binding file to canonical path invalid — line MUST remain `[ ]` until file at correct path.
 
@@ -289,7 +289,7 @@ Ordering rules (epic path): respect explicit deps in epic backlog; no deps → p
 All stories implemented:
 
 1. Run full test suite to verify cross-story integration.
-2. Produce post-epic retrospective per `telamon.retrospective` skill. Save to `<work-folder>/retrospective/implementation.md`. After writing, run `format-md` on file to align table columns.
+2. Produce post-epic retrospective per `telamon.retrospective` skill. Save to `<work-folder>/retrospective/implementation.md`.
 3. Address retrospective findings per `telamon.address_retro` skill — pass retro file path.
 4. Notify stakeholder w/ completion report covering all stories + recommended next actions.
 5. Follow `telamon.remember_task` skill to capture lessons learned from epic.

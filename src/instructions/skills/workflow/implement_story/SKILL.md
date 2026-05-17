@@ -64,7 +64,7 @@ For each task in backlog:
 
 4. **Address findings** — When Reviewer finished, delegate to @developer to address issues. Developer MUST commit fixes before signalling FINISHED. After fixes committed, create architecture spec addendum file referring differences from architecture spec plan to actual final implementation. Iterate from step 2.3 until no remaining issues.
 
-5. **Mark done** — Set task title in _strikethrough_ in `backlog.md`. After editing, run `format-md` on file to align table columns.
+5. **Mark done** — Set task title in _strikethrough_ in `backlog.md`.
 
 6. **Progress report** — Output to human stakeholder:
    > **Progress**: \<completed\>/\<total\> tasks done | \<blocked\> blocked | \<remaining\> remaining

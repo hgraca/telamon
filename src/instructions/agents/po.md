@@ -56,7 +56,7 @@ Do not infer deliverable path. Do not begin work. Orchestrator re-delegates with
 
 ### Backlog Grooming
 
-- Create task backlog in `<issue-folder>/backlog.md` from stakeholder's brief. After writing, run `format-md` on file to align table columns.
+- Create task backlog in `<issue-folder>/backlog.md` from stakeholder's brief.
 - Backlog structure: **summary table first** (before story details), with columns `ID | Title | Priority | Depends On | Status`. Initial status for all stories: `TODO`, they progress to `DOING` and finally to `DONE`. Story details follow below the summary.
 - Break epics/stories into clear, small, prioritized tasks with requirements and acceptance criteria.
 - Identify task dependencies and ordering.

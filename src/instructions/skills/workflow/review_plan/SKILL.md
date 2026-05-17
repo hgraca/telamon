@@ -23,7 +23,7 @@ Evaluate architect's implementation plan for correctness, completeness, and arch
 
 ### Mandatory output filename — MUST
 
-Save review to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md`. After writing, run `format-md` on file to align table columns. Where:
+Save review to `<issue-folder>/PLAN-REVIEW-YYYY-MM-DD-NNN.md`. Where:
 
 - `YYYY-MM-DD` is current UTC date.
 - `NNN` is zero-padded 3-digit sequential number, scoped to same issue folder. List existing `PLAN-REVIEW-*.md` files in folder and use next available number; start at `001`.
