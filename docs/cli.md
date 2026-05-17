@@ -9,25 +9,26 @@ nav_section: docs
 
 After installing, the `telamon` command is available system-wide from any directory.
 
-| Command                            | Description                                                |
-|------------------------------------|------------------------------------------------------------|
-| `telamon up`                       | Install host tools + start Docker services                 |
-| `telamon down`                     | Stop Docker services                                       |
-| `telamon restart`                  | Stop then start                                            |
-| `telamon status`                   | Quick installation status                                  |
-| `telamon doctor`                   | Comprehensive health check (connectivity, config, secrets) |
-| `telamon update`                   | Upgrade all Telamon-managed tools                          |
-| `telamon init [path]`              | Initialise a project (default: current directory)          |
-| `telamon reset [path]`             | Remove project wiring, keep storage data                   |
-| `telamon purge [path]`             | Remove project wiring **and** storage data                 |
-| `telamon recover-memories [path]`  | Extract memories from past session transcripts             |
-| `telamon stats [opts]`             | Query tool usage statistics                                |
-| `telamon module add <url-or-path>` | Register a module from a git URL or local path             |
-| `telamon module remove <name>`     | Remove a registered module by name                         |
-| `telamon module list`              | Show all registered modules with clone status              |
-| `telamon module sync`              | Re-wire all modules into all initialized projects          |
-| `telamon uninstall`                | Completely remove Telamon (destructive)                    |
-| `telamon help`                     | Show usage help                                            |
+|  Command                             | Description                                                  |
+| ------------------------------------ | ------------------------------------------------------------ |
+|  `telamon up`                        | Install host tools + start Docker services                   |
+|  `telamon down`                      | Stop Docker services                                         |
+|  `telamon restart`                   | Stop then start                                              |
+|  `telamon status`                    | Quick installation status                                    |
+|  `telamon doctor`                    | Comprehensive health check (connectivity, config, secrets)   |
+|  `telamon update`                    | Upgrade all Telamon-managed tools                            |
+|  `telamon config [opts]`             | Configure Telamon interactively (global and/or project)      |
+|  `telamon init [path]`               | Initialise a project (default: current directory)            |
+|  `telamon reset [path]`              | Remove project wiring, keep storage data                     |
+|  `telamon purge [path]`              | Remove project wiring **and** storage data                   |
+|  `telamon recover-memories [path]`   | Extract memories from past session transcripts               |
+|  `telamon stats [opts]`              | Query tool usage statistics                                  |
+|  `telamon module add <url-or-path>`  | Register a module from a git URL or local path               |
+|  `telamon module remove <name>`      | Remove a registered module by name                           |
+|  `telamon module list`               | Show all registered modules with clone status                |
+|  `telamon module sync`               | Re-wire all modules into all initialized projects            |
+|  `telamon uninstall`                 | Completely remove Telamon (destructive)                      |
+|  `telamon help`                      | Show usage help                                              |
 
 `init`, `reset`, `purge`, and `recover-memories` accept an optional path. If omitted, they use the current directory. Relative paths are resolved correctly:
 
@@ -36,6 +37,20 @@ cd ~/my-project && telamon init          # initialises ~/my-project
 telamon init ~/my-project                # same result, from anywhere
 telamon init ../other-project            # relative path works too
 ```
+
+### config
+
+`telamon config` is an interactive wizard that walks through every configurable value in the global `.telamon.jsonc` and, when run inside an initialised project, the per-project `.ai/telamon/telamon.jsonc`. Existing values are shown in `[brackets]` — pressing Enter keeps them. Unset values show an example hint like `(ie. ...)`.
+
+```bash
+telamon config                    # global + project (if current dir is initialised)
+telamon config --global           # global .telamon.jsonc only
+telamon config --project=<path>   # project telamon.jsonc only
+```
+
+`telamon init` runs the project config wizard automatically on the **first** init of a project. Re-runs of `telamon init` skip it — use `telamon config` to reconfigure at any time.
+
+See [Configuration](configuration.md) for the full list of settings covered by the wizard.
 
 ### init
 
@@ -69,12 +84,12 @@ telamon recover-memories --dry-run       # preview without making changes
 telamon recover-memories --batch-size 10 # larger batches (default: 5)
 ```
 
-| Flag             | Description                                                                                                                            |
-|------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| `--all`          | Discover all initialized projects and process each. Prompts for confirmation.                                                          |
-| `--full`         | Full reset: reset `latent/` files from templates, then reprocess every session. |
-| `--dry-run`      | Show how many sessions would be processed without calling the LLM or writing anything.                                                 |
-| `--batch-size N` | Number of sessions per LLM call (default: 5). Larger batches are more token-efficient but risk truncation on very long sessions.       |
+|  Flag              | Description                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `--all`           | Discover all initialized projects and process each. Prompts for confirmation.                                                            |
+|  `--full`          | Full reset: reset `latent/` files from templates, then reprocess every session.                                                          |
+|  `--dry-run`       | Show how many sessions would be processed without calling the LLM or writing anything.                                                   |
+|  `--batch-size N`  | Number of sessions per LLM call (default: 5). Larger batches are more token-efficient but risk truncation on very long sessions.         |
 
 **Incremental by default.** The command tracks which sessions have been processed in a `.recover-memories-<project>.json` file under `thinking/`. On subsequent runs, only new sessions are processed. Use `--full` to start from scratch.
 
@@ -94,12 +109,12 @@ telamon stats --to 2025-01-31          # to date (inclusive)
 telamon stats --out ./report.csv       # custom output path
 ```
 
-| Flag             | Description                                                                                  |
-|------------------|----------------------------------------------------------------------------------------------|
-| `--project`      | Filter results to a specific project name                                                    |
-| `--from`         | Start date for filtering (ISO format, e.g. `2025-01-01`)                                     |
-| `--to`           | End date for filtering (inclusive, e.g. `2025-01-31`)                                         |
-| `--out`          | Output file path. If omitted, writes to `thinking/<timestamp>-stats.csv`                     |
+|  Flag              | Description                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+|  `--project`       | Filter results to a specific project name                                                      |
+|  `--from`          | Start date for filtering (ISO format, e.g. `2025-01-01`)                                       |
+|  `--to`            | End date for filtering (inclusive, e.g. `2025-01-31`)                                          |
+|  `--out`           | Output file path. If omitted, writes to `thinking/<timestamp>-stats.csv`                       |
 
 **Output columns:** `tool`, `agent`, `skill`, `project`, `timestamp`
 
@@ -132,14 +147,14 @@ telamon module sync                          # re-wire all modules to all projec
 
 #### Options for `module add`
 
-| Flag          | Description                                                            |
-|---------------|------------------------------------------------------------------------|
-| `--name=`     | Module name used for the symlink (default: repo name or path basename) |
-| `--commands=` | Relative path to commands directory within the repo/directory          |
-| `--agents=`   | Relative path to agents directory within the repo/directory            |
-| `--skills=`   | Relative path to skills directory within the repo/directory            |
-| `--plugins=`  | Relative path to plugins directory within the repo/directory           |
-| `--scripts=`  | Relative path to scripts directory within the repo/directory           |
+|  Flag           | Description                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+|  `--name=`      | Module name used for the symlink (default: repo name or path basename)   |
+|  `--commands=`  | Relative path to commands directory within the repo/directory            |
+|  `--agents=`    | Relative path to agents directory within the repo/directory              |
+|  `--skills=`    | Relative path to skills directory within the repo/directory              |
+|  `--plugins=`   | Relative path to plugins directory within the repo/directory             |
+|  `--scripts=`   | Relative path to scripts directory within the repo/directory             |
 
 When path flags are omitted, Telamon auto-detects `./commands`, `./agents`, `./skills`, `./scripts`, and `./plugins` in the cloned repo or local directory and wires any that exist.
 
@@ -194,20 +209,20 @@ Remote modules use a `"url"` field; local modules use a `"local_path"` field. A 
 
 The `telamon` CLI is a thin wrapper around `make` targets. When running from the Telamon directory, you can use `make` directly:
 
-| Target                   | Description                                        |
-|--------------------------|----------------------------------------------------|
-| `make install`           | Full installation (first-time setup or reinstall)  |
-| `make up`                | Boot services (no installation)                    |
-| `make down`              | Stop Docker services                               |
-| `make restart`           | Stop then start                                    |
-| `make status`            | Quick installation status                          |
-| `make doctor`            | Comprehensive health check                         |
-| `make update`            | Upgrade all tools + install any missing            |
-| `make init PROJ=<path>`  | Initialise a project                               |
-| `make reset PROJ=<path>` | Remove project wiring, keep storage                |
-| `make purge PROJ=<path>` | Remove wiring and storage                          |
-| `make uninstall`         | Completely remove Telamon                          |
-| `make test`              | Run the full test suite                            |
+|  Target                    | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+|  `make install`            | Full installation (first-time setup or reinstall)    |
+|  `make up`                 | Boot services (no installation)                      |
+|  `make down`               | Stop Docker services                                 |
+|  `make restart`            | Stop then start                                      |
+|  `make status`             | Quick installation status                            |
+|  `make doctor`             | Comprehensive health check                           |
+|  `make update`             | Upgrade all tools + install any missing              |
+|  `make init PROJ=<path>`   | Initialise a project                                 |
+|  `make reset PROJ=<path>`  | Remove project wiring, keep storage                  |
+|  `make purge PROJ=<path>`  | Remove wiring and storage                            |
+|  `make uninstall`          | Completely remove Telamon                            |
+|  `make test`               | Run the full test suite                              |
 
 > `make init`, `make reset`, and `make purge` require the `PROJ=` argument. Use the `telamon` CLI for the default-to-cwd convenience.
 
