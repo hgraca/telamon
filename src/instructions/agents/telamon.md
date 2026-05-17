@@ -61,8 +61,8 @@ When request arrives, classify along two axes:
 
 | Size        | Criteria                                                    |
 |-------------|-------------------------------------------------------------|
-| **Trivial** | Answerable by reading files and thinking; max 1 file changed |
-| **Small**   | 2-3 files changed, clear scope, no ambiguity                 |
+| **Trivial** | Answerable by reading files and thinking; no file changes   |
+| **Small**   | 1-3 files changed, clear scope, no ambiguity                |
 | **Medium**  | Multiple files, some design judgment needed, single concern |
 | **Large**   | Cross-cutting, needs planning, multi-step workflow          |
 
