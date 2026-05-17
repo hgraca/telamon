@@ -39,11 +39,7 @@ export default tool({
     }
 
     if (fmt === "json") {
-      try {
-        return JSON.parse(stdout.trim())
-      } catch {
-        return stdout.trim()
-      }
+      return stdout.trim()
     }
 
     // Format markdown tables before returning
