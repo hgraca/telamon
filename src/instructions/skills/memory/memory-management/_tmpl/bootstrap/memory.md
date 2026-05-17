@@ -5,12 +5,12 @@ description: Memory skill guide — when to use each skill during a session
 
 ## Session — Memory Skills
 
-### Session start:
-For non-trivial requests about the project, call the `search-memories` tool with keywords from the request — it gathers memory vault notes in one step.
-
-Load `telamon.recall_memories` only when you need a full latent/ notes read without a specific topic (e.g. switching projects, or when search-memories is insufficient).
-
 ### While working:
+
+Use the `telamon.memory-management` when working with memories.
+
+Use `telamon.recall-memories` specifically to recall memories of past experiences/sessions about a subject.
+
 No manual memory triggers needed. The remember-session plugin fires `telamon.remember_session` automatically on idle.
 
 Use `telamon.thinking` for scratch files, drafts, and WIP notes as needed.
@@ -20,9 +20,6 @@ Load the `telamon.remember_checkpoint` skill — saves working state, promotes l
 
 ### Manual wrap-up (optional):
 Say "wrap up" to trigger an immediate capture via `telamon.remember_session` — produces a report of what was saved.
-
-### Switching projects:
-Load the `telamon.recall_memories` skill for the new project.
 
 ## How memory capture works
 
