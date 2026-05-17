@@ -14,6 +14,18 @@ Use at session start to collect targeted context for the orchestrator before wor
 
 ## Procedure
 
+### 0. Check cache (do this first — skip all other steps on hit)
+
+Determine the keywords for this session (same list you will use in Step 1).
+Call the `gather-context-cache` tool:
+
+    gather-context-cache({ subcommand: "get", keywords: <keyword-list> })
+
+- If the result is **non-empty**: return it immediately and signal `FINISHED` — do not execute Steps 1–7b.
+- If the result is **empty** (cache miss or expired): continue to Step 1.
+
+> **Important**: record the exact keyword list used here. You MUST use the identical list in Step 7b.
+
 ### 1. Identify keywords
 
 Extract topic keywords from orchestrator's delegation prompt. If none provided, ask for them.
@@ -78,6 +90,14 @@ Produce structured Markdown report with sections:
 
 and:
 - use the `caveman` skill on it to reduce the tokes cost
+
+### 7b. Store report in cache
+
+Call the `gather-context-cache` tool with the **same keyword list** used in Step 0:
+
+    gather-context-cache({ subcommand: "store", keywords: <same-keyword-list-as-step-0>, content: <compiled-report> })
+
+Then continue to Step 8.
 
 ### 8. Signal completion
 
