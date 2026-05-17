@@ -1,7 +1,7 @@
 ---
 date: 2026-05-17
 keywords: ["telamon", "agentic-tool", "bash", "cli", "output-format"]
-see: []
+see: ["ADRs/20260517000000-agentic-tool-colocated-ts-bash-pattern.md"]
 ---
 
 ## Agentic tools bash scripts entry points and output types
