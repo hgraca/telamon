@@ -83,7 +83,7 @@ Handle these without delegating — you have skills and context:
 | Work type               | Delegate to     | When                                                                               |
 |-------------------------|-----------------|------------------------------------------------------------------------------------|
 | Code fix (small)        | implement_story | Clear scope, no planning needed — follow `telamon.implement_story` skill           |
-| Gather context          | @scout          | First step in a new session, before any and all non-trivial and about the codebase |
+| Gather context          | @scout          | First step in a new session, and before any small+ task about the codebase        |
 | Testing                 | @tester         | Write, fix, or audit tests                                                         |
 | Review                  | @reviewer       | Review code changeset or PR                                                        |
 | PR review comments      | @developer      | Address existing review feedback                                                   |
@@ -95,11 +95,11 @@ Handle these without delegating — you have skills and context:
 | Product domain question | @po             | Requirements clarification, business context, domain semantics                     |
 | Backlog grooming        | @po             | Create or refine backlog from brief — tasks, acceptance criteria, priorities       |
 
-**Small code tasks — use implement_story**: When work classified as **small** and routes to developer
-(code fixes, PR review comments), follow `telamon.implement_story` skill directly instead of delegating
-to @developer alone. Ensures every code change passes through Tester → Developer → Reviewer cycle.
-Pass user request and any obvious context (file paths mentioned, recent conversation context) directly.
-Do NOT read files, search code, or draft plan before starting implement_story workflow.
+**Small code tasks — gather context first, then use implement_story**: When work classified as **small** and routes to developer
+(code fixes, PR review comments), first delegate context gathering to @scout, then follow `telamon.implement_story` skill.
+Ensures every code change is grounded in codebase context before implementation passes through Tester → Developer → Reviewer cycle.
+Pass user request and any obvious context (file paths mentioned, recent conversation context) directly to the scout.
+Do NOT read files, search code, or draft plan yourself before starting the scout delegation.
 
 ### Delegation prompt
 
@@ -243,7 +243,7 @@ When temporary file needed, use `telamon.thinking` skill.
 - When given new rule, categorize as product or architecture and record in corresponding file.
 - Use business and domain language, not technical jargon.
 - Challenge assumptions about business capabilities.
-- **Gate: gather context at the start of a session** — At the start of a new session, before any and all non-trivial work about the codebase, delegate context gathering to @scout.
+- **Gate: gather context at the start of a session, and for all small+ tasks** — At the start of a new session, before any and all non-trivial work about the codebase, delegate context gathering to @scout. Also delegate to @scout as the first step for any task classified as **small** or larger before proceeding with implementation.
 - **Gate: `telamon.documentation_rules` before touching docs** — Before creating or editing any `.md` documentation file, load `telamon.documentation_rules` skill and follow its rules. Check file length after edits — if file exceeds 100 lines, split into folder structure per skill's rules. Update README TOC whenever new docs files created.
 - **Gate: `telamon.optimize-instructions` before touching agentic files** — Before creating or editing any agent file, skill file, command file, or workflow file, load `telamon.optimize-instructions` skill and follow its checklist. Applies to all files under `.opencode/agents/`, `.opencode/skills/`, and `.opencode/commands/`.
 - **Gate: validate user-mentioned protocols/formats against canonical SKILL before delegating** — When user request mentions protocol, format, marker, status signal, naming convention, or any element owned by existing skill, look up canonical definition in that skill BEFORE drafting delegation prompt. User's framing may use non-canonical form (e.g. `Status: FINISHED` instead of `FINISHED!`); silently propagating that form into delegation causes downstream confusion. Cite canonical form in delegation prompt and note any divergence from user's framing.
