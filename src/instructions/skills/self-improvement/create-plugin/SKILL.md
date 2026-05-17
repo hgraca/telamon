@@ -17,6 +17,12 @@ description: >
 Create JS/TS plugins hooking into opencode events. Module exporting async fn
 returning hooks object. Injects into system prompt or intercepts tool calls.
 
+**PDR:** [Opencode plugins](../../../../docs/decisions/PDRs/20260517000001-plugins.md) —
+plugin must be trigger only; tool must exist first; name follows `on_<event>-<tool-name>`.
+
+**ADR:** [Plugin thin-trigger pattern](../../../../docs/decisions/ADRs/20260517000001-plugin-pattern.md) —
+canonical structure and workflow.
+
 ## When to Apply
 
 - User asks create new plugin, write plugin, add plugin
@@ -38,36 +44,66 @@ Clarify before writing:
 
 1. **What plugin do?** — One concern per plugin. Multiple → separate plugins.
 2. **Which hook(s)?** — See hook table in Step 1.
-3. **Local or global?** — `.opencode/plugins/` (project) vs `~/.config/opencode/plugins/` (global).
-4. **Dependencies?** — npm packages needed? Add to `.opencode/package.json`.
-5. **Caching strategy?** — Expensive computation (git log, knowledge graph) needs TTL cache.
-6. **Gating strategy?** — When to skip (clean repo, chit-chat turn, first turn only).
-7. **Secrets?** — Never embed. Load from env vars or secret store.
-8. **Token budget?** — Max bytes injected per turn. Truncate or gate if exceeded.
+3. **Which underlying tool?** — Plugin must delegate to a tool. Name it now.
+4. **Local or global?** — `.opencode/plugins/` (project) vs `~/.config/opencode/plugins/` (global).
+5. **Dependencies?** — npm packages needed? Add to `.opencode/package.json`.
+6. **Caching strategy?** — Expensive computation (git log, knowledge graph) needs TTL cache.
+7. **Gating strategy?** — When to skip (clean repo, chit-chat turn, first turn only).
+8. **Secrets?** — Never embed. Load from env vars or secret store.
+9. **Token budget?** — Max bytes injected per turn. Truncate or gate if exceeded.
+
+### Step 0.5: Verify underlying tool exists — MUST
+
+A plugin must delegate to a pre-existing tool. Before writing any plugin code:
+
+1. Check `src/instructions/tools/<tool-name>/` exists.
+2. **If tool does not exist** — load the `create-tool` skill and create the tool first.
+   Do not proceed to Step 1 until the tool exists and is committed.
+3. **If tool exists** — continue to Step 1.
 
 ### Step 1: Design
+
+#### Naming — MUST
+
+Plugin filename must follow:
+
+```
+on_<event>-<tool-name>.<ext>
+```
+
+- `<event>` — opencode hook name with dots replaced by underscores (e.g. `session.idle` → `session_idle`)
+- `<tool-name>` — kebab-case name of the underlying tool
+
+Examples:
+
+| Plugin filename                         | Hook                  | Delegated tool     |
+|-----------------------------------------|-----------------------|--------------------|
+| `on_session_idle-remember-session.ts`   | `session.idle`        | `remember-session` |
+| `on_file_create-qmd-refresh.ts`         | `file.edited`         | `qmd-refresh`      |
+| `on_tool_execute_before-rtk-rewrite.ts` | `tool.execute.before` | `rtk`              |
 
 #### One plugin, one concern
 
 - One plugin = one thing. "Inject git context + send notifications" → two plugins.
 - Independent gates, caches, on/off switches. Mega-plugin impossible to disable partially.
+- Plugin contains **no business logic** — wiring only. All logic lives in the underlying tool.
 
 #### Choose hook
 
-| Hook                                      | Purpose                                      | When                                             |
-|-------------------------------------------|----------------------------------------------|--------------------------------------------------|
+| Hook                                      | Purpose                                      | When                                                    |
+|-------------------------------------------|----------------------------------------------|---------------------------------------------------------|
 | `chat.params`                             | Inject into system prompt before LLM request | Context injection (git diff, knowledge graph, env info) |
-| `tool.execute.before`                     | Intercept/modify/block tool calls            | Security (env protection), arg transformation    |
-| `tool.execute.after`                      | React to tool results                        | Logging, metrics, notifications                  |
-| `session.idle`                            | Fire when idle                               | Notifications, cache refresh, cleanup            |
-| `session.created`                         | Fire on new session                          | Initialization, setup                            |
-| `session.compacted`                       | Fire after compaction                        | Re-inject state after compaction                 |
-| `experimental.session.compacting`         | Customize compaction prompt                  | Domain-specific context in summaries             |
-| `shell.env`                               | Inject env vars into shell                   | API keys, project config                         |
-| `tool`                                    | Register custom tools                        | Alternative to `.opencode/tools/`                |
-| `command.executed`                        | React to command execution                   | Logging, audit                                   |
-| `file.edited`                             | React to file edits                          | Auto-format, lint on save                        |
-| `permission.asked` / `permission.replied` | React to permission requests                 | Audit logging, auto-approve patterns             |
+| `tool.execute.before`                     | Intercept/modify/block tool calls            | Security (env protection), arg transformation           |
+| `tool.execute.after`                      | React to tool results                        | Logging, metrics, notifications                         |
+| `session.idle`                            | Fire when idle                               | Notifications, cache refresh, cleanup                   |
+| `session.created`                         | Fire on new session                          | Initialization, setup                                   |
+| `session.compacted`                       | Fire after compaction                        | Re-inject state after compaction                        |
+| `experimental.session.compacting`         | Customize compaction prompt                  | Domain-specific context in summaries                    |
+| `shell.env`                               | Inject env vars into shell                   | API keys, project config                                |
+| `tool`                                    | Register custom tools                        | Alternative to `.opencode/tools/`                       |
+| `command.executed`                        | React to command execution                   | Logging, audit                                          |
+| `file.edited`                             | React to file edits                          | Auto-format, lint on save                               |
+| `permission.asked` / `permission.replied` | React to permission requests                 | Audit logging, auto-approve patterns                    |
 
 #### Trust & channel hygiene
 
@@ -148,8 +184,35 @@ low. Most plugins want both.
 
 ### Step 2: Write plugin file
 
-Place in `.opencode/plugins/<plugin-name>.ts` (project) or
-`~/.config/opencode/plugins/<plugin-name>.ts` (global).
+Place in `src/instructions/plugins/on_<event>-<tool-name>.<ext>` (Telamon source) or
+`.opencode/plugins/on_<event>-<tool-name>.<ext>` (project-local) or
+`~/.config/opencode/plugins/on_<event>-<tool-name>.<ext>` (global).
+
+**Plugin is a thin trigger — no logic here.** Delegate immediately to the underlying tool.
+
+#### Thin-trigger template (canonical)
+
+```typescript
+import type { Plugin } from "@opencode-ai/plugin"
+import path from "path"
+
+// on_<event>-<tool-name>.ts
+// Thin trigger — delegates all logic to <tool-name>.sh / <tool-name>.ts.
+// No business logic in this file.
+
+export const On<Event><ToolName>Plugin: Plugin = async ({ project, $ }) => {
+  return {
+    "<hook-name>": async (input, output) => {
+      const script = path.join(import.meta.dir, "../tools/<tool-name>/<tool-name>.sh")
+      try {
+        await $`bash ${script}`.cwd(project.worktree).quiet()
+      } catch {
+        // Graceful degradation — never throw from hook
+      }
+    },
+  }
+}
+```
 
 #### Basic plugin template
 
@@ -492,6 +555,9 @@ Check every gate before signalling completion:
 
 | #   | Gate                                                                                 | Pass/Fail |     |
 |-----|--------------------------------------------------------------------------------------|-----------|-----|
+| 0   | Underlying tool exists at `src/instructions/tools/<tool-name>/`                      |           |     |
+| 0.1 | Plugin filename follows `on_<event>-<tool-name>.<ext>`                               |           |     |
+| 0.2 | Plugin contains no business logic (wiring/delegation only)                           |           |     |
 | 1   | One concern per plugin (no kitchen sink)                                             |           |     |
 | 2   | Trust channel hygiene — inject via `input.system`, not stdout                        |           |     |
 | 3   | Untrusted payloads bounded and labelled                                              |           |     |
@@ -529,19 +595,19 @@ When plugin written, tested, gates pass:
 
 ## Definitions
 
-| Term                              | Meaning                                                                          |                                               |
-|-----------------------------------|----------------------------------------------------------------------------------|-----------------------------------------------|
-| `Plugin`                          | Type from `@opencode-ai/plugin`. Async fn returning hooks object.                |                                               |
-| `chat.params`                     | Hook fires before every LLM request. Append to `input.system` to inject context. |                                               |
-| `input.system`                    | Array of system-prompt strings. Trusted channel — same as bootstrap files.       |                                               |
-| `tool.execute.before`             | Hook fires before tool executes. Can modify args or throw to block.              |                                               |
-| `tool.execute.after`              | Hook fires after tool executes. Can read/modify result.                          |                                               |
-| `session.idle`                    | Event fired when idle. Good for notifications, cache refresh.                    |                                               |
-| `experimental.session.compacting` | Hook to customise compaction prompt.                                             |                                               |
-| `shell.env`                       | Hook to inject env vars into shell.                                              |                                               |
-| `project.worktree`                | Git worktree root path.                                                          |                                               |
-| `Bun.$`                           | Bun shell utility for subprocess. Available in plugin runtime.                   |                                               |
-| `client.app.log()`                | Structured logging API. Use instead of `console.log`.                            |                                               |
-| TTL                               | Time-to-live for cache. Refresh after duration.                                  |                                               |
-| Gate                              | Condition deciding whether to inject this turn.                                  |                                               |
-| Kill switch                       | `enabled: true / false` config flag. Plugin no-ops when false.                   |                                               |
+| Term                              | Meaning                                                                          |     |
+|-----------------------------------|----------------------------------------------------------------------------------|-----|
+| `Plugin`                          | Type from `@opencode-ai/plugin`. Async fn returning hooks object.                |     |
+| `chat.params`                     | Hook fires before every LLM request. Append to `input.system` to inject context. |     |
+| `input.system`                    | Array of system-prompt strings. Trusted channel — same as bootstrap files.       |     |
+| `tool.execute.before`             | Hook fires before tool executes. Can modify args or throw to block.              |     |
+| `tool.execute.after`              | Hook fires after tool executes. Can read/modify result.                          |     |
+| `session.idle`                    | Event fired when idle. Good for notifications, cache refresh.                    |     |
+| `experimental.session.compacting` | Hook to customise compaction prompt.                                             |     |
+| `shell.env`                       | Hook to inject env vars into shell.                                              |     |
+| `project.worktree`                | Git worktree root path.                                                          |     |
+| `Bun.$`                           | Bun shell utility for subprocess. Available in plugin runtime.                   |     |
+| `client.app.log()`                | Structured logging API. Use instead of `console.log`.                            |     |
+| TTL                               | Time-to-live for cache. Refresh after duration.                                  |     |
+| Gate                              | Condition deciding whether to inject this turn.                                  |     |
+| Kill switch                       | `enabled: true / false` config flag. Plugin no-ops when false.                   |     |
