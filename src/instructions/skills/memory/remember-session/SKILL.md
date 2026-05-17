@@ -15,9 +15,10 @@ description: "Unified memory capture — sole storage trigger (besides checkpoin
 
 # MUST
 
+- **Load `telamon.memory_management` once, first**: Before step 0, invoke `skill("telamon.memory_management")` exactly once. Do not invoke it again during steps 0–5. This provides the canonical frontmatter schema and routing rules for the entire execution.
 - **Silent execution**: Emit ZERO narrative text on automatic (post-commit hook) captures. No "Watermark check", "Nothing since watermark", "Captured X", "Update watermark, exit", or any status narration. Tool calls only. Only exception: manual "wrap up" trigger produces report described at end of this skill.
-- **Single-pass per turn**: Run steps 0-5 exactly ONCE per response. Write watermark file at most ONCE per response.
-- **Idempotence guard**: If you have already written watermark file in current response (i.e. already executed step 5), exit immediately. Do not re-execute steps 0-5.
+- **Single-pass per turn**: Run steps 0-5 exactly ONCE per response. `watermark-session` called exactly once — as the final tool call of the response. Never call it twice.
+- **Idempotence guard**: If you have already called `watermark-session` in current response, stop immediately. Do not write more files, do not call watermark again.
 - **No skill-tag echoes**: Do not emit `<skill>telamon.remember_session</skill>` markers as narrative text. Either invoke `skill` tool once (loads skill content) or run steps directly — never both.
 - **No headers, no preambles, no recaps**: Do not write heading like "## Capture" or closing line like "Captured 1 gotcha, watermark advanced". Watermark file write IS audit trail.
 - **End response immediately after watermark write**: After tool result of write step returns, end response with NO additional text. User should see only tool execution outputs, not commentary.
@@ -49,9 +50,7 @@ Also check `.ai/telamon/memory/thinking/` for scratch files from this session.
 
 ## 2. Route to latent notes
 
-**MUST — load skill before writing any file**: Invoke `skill("telamon.memory_management")` now. Do not write any latent file until the skill is loaded. The skill contains the canonical frontmatter schema (`date`, `keywords`), per-folder format rules, and the classification table for `global/<tech>/` buckets. Writing from memory produces wrong field names and wrong structure.
-
-Create new files in appropriate latent/ folder per routing table in `telamon.memory_management` skill (section 2):
+Create new files using the frontmatter schema and routing table from the already-loaded `telamon.memory_management` skill (section 2 and section 6):
 
 | Finding                                         | Destination                   | Format                                                                                                                                             |
 |-------------------------------------------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
