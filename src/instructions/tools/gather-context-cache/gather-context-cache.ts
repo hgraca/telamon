@@ -108,15 +108,20 @@ export default tool({
       .enum(["get", "store"])
       .describe("'get' to retrieve cached report; 'store' to write report to cache"),
     keywords: tool.schema
-      .array(tool.schema.string())
-      .describe("Topic keywords used to key the cache entry (order-independent)"),
+      .union([tool.schema.array(tool.schema.string()), tool.schema.string()])
+      .describe("Topic keywords used to key the cache entry (order-independent). Pass an array or a single string."),
     content: tool.schema
       .string()
       .optional()
       .describe("Report content to store (required for 'store' subcommand; must be non-empty)"),
   },
   async execute(args) {
-    const hash = computeHash(args.keywords)
+    const keywords: string[] = Array.isArray(args.keywords)
+      ? args.keywords
+      : args.keywords
+        ? [args.keywords as string]
+        : []
+    const hash = computeHash(keywords)
     const filePath = cachePath(hash)
 
     if (args.subcommand === "get") {
