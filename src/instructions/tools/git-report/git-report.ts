@@ -4,45 +4,21 @@ import os from "os"
 import fs from "fs"
 
 /**
- * git-report — snapshot current git state: branch, status, staged diff, recent commits,
- * and commits ahead of the default remote branch.
+ * git-report — snapshot current git state.
  *
- * Usage:
- *   git-report()
- *   git-report({ format: "markdown" })
- *   git-report({ log_count: 20 })
- *
- * Delegates to the colocated Python script (git-report.py).
- *
- * Wiring (same pattern as repomix-report.ts):
- *   - This file lives at <telamon-root>/src/instructions/tools/git-report/git-report.ts
- *   - init.sh creates a flat symlink at <project>/.opencode/tools/git-report.ts
- *     pointing to this file.
- *   - `@opencode-ai/plugin` is installed at src/instructions/tools/node_modules/
- *     so Bun's upward module resolution from this file's real path finds it.
- *
- * When format is "markdown", the output is passed through format-md to align
- * any markdown tables before returning.
+ * Args (no Zod schema — args:{} to avoid cross-instance crash, see opencode gotcha):
+ *   log_count  number  optional  Number of recent commits (default: 10)
+ *   format     string  optional  "json" (default) or "markdown"
  */
 
 export default tool({
   description:
-    "Return a git state snapshot: current branch, default remote branch, recent commits, working-tree status, staged diff (summary + full), commits ahead of origin/HEAD, and index integrity check (missing objects from git fsck). Use this to understand what has changed before committing, reviewing, or planning next steps.",
-  args: {
-    log_count: tool.schema
-      .number()
-      .optional()
-      .default(10)
-      .describe("Number of recent commits to show (default: 10)"),
-    format: tool.schema
-      .enum(["json", "markdown"])
-      .optional()
-      .default("json")
-      .describe("Output format: 'json' (default, structured data) or 'markdown' (human-readable report)"),
-  },
-  async execute(args) {
+    "Return a git state snapshot: current branch, default remote branch, recent commits, working-tree status, staged diff (summary + full), commits ahead of origin/HEAD, and index integrity check (missing objects from git fsck). Use this to understand what has changed before committing, reviewing, or planning next steps.\n\nParameters:\n- log_count (number, optional): Number of recent commits to show (default: 10)\n- format (string, optional): 'json' (default) or 'markdown'",
+  args: {},
+  async execute(rawArgs) {
+    const args = rawArgs as any
     const script = path.join(import.meta.dir, "git-report.py")
-    const fmt = args.format ?? "json"
+    const fmt = (args.format as string | undefined) ?? "json"
 
     const cmd = [
       "python3",
@@ -50,7 +26,7 @@ export default tool({
       "--format",
       fmt,
       "--log-count",
-      String(args.log_count ?? 10),
+      String((args.log_count as number | undefined) ?? 10),
     ]
 
     const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
