@@ -15,23 +15,11 @@ description: "Unified memory capture — sole storage trigger (besides checkpoin
 
 # MUST
 
-- **Load `telamon.memory_management` once, first**: Before step 0, invoke `skill("telamon.memory_management")` exactly once. Do not invoke it again during steps 0–5. This provides the canonical frontmatter schema and routing rules for the entire execution.
-- **Silent execution**: Emit ZERO narrative text on automatic (post-commit hook) captures. No "Watermark check", "Nothing since watermark", "Captured X", "Update watermark, exit", or any status narration. Tool calls only. Only exception: manual "wrap up" trigger produces report described at end of this skill.
-- **Single-pass per turn**: Run steps 0-5 exactly ONCE per response. `watermark-session` called exactly once — as the final tool call of the response. Never call it twice.
-- **Idempotence guard**: If you have already called `watermark-session` in current response, stop immediately. Do not write more files, do not call watermark again.
+- **Load `telamon.memory_management` once, first**: Before step 1, invoke `skill("telamon.memory_management")` exactly once. Do not invoke it again during steps 1–4. This provides the canonical frontmatter schema and routing rules for the entire execution.
+- **Silent execution**: Emit ZERO narrative text on automatic (post-commit hook) captures. No "Watermark check", "Nothing since watermark", "Captured X", or any status narration. Tool calls only. Only exception: manual "wrap up" trigger produces report described at end of this skill.
 - **No skill-tag echoes**: Do not emit `<skill>telamon.remember_session</skill>` markers as narrative text. Either invoke `skill` tool once (loads skill content) or run steps directly — never both.
-- **No headers, no preambles, no recaps**: Do not write heading like "## Capture" or closing line like "Captured 1 gotcha, watermark advanced". Watermark file write IS audit trail.
-- **End response immediately after watermark write**: After tool result of write step returns, end response with NO additional text. User should see only tool execution outputs, not commentary.
-
-## 0. Check watermark
-
-Find: `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`
-
-Where `<worktree-dirname>` is lowercase basename of current working directory.
-
-- If exists: only process content produced *after* recorded `timestamp`.
-- If does not exist: first capture for this worktree — process all session content.
-- **If nothing happened since watermark** (no commits, no meaningful conversation): update watermark timestamp and exit. Do not produce empty entries.
+- **No headers, no preambles, no recaps**: Do not write heading like "## Capture" or closing line like "Captured 1 gotcha". End response immediately after the last tool call completes.
+- **Do NOT call `watermark-session`**: The watermark is written by the hook runner script after the LLM call returns. Never call `watermark-session` from inside this skill.
 
 ## 1. Identify what happened
 
@@ -46,7 +34,7 @@ Where `<worktree-dirname>` is lowercase basename of current working directory.
 
 Also check `.ai/telamon/memory/thinking/` for scratch files from this session.
 
-**If nothing worth capturing**: update watermark and exit (step 5). Skip steps 2-4.
+**If nothing worth capturing**: exit immediately. Skip steps 2-4.
 
 ## 2. Route to latent notes
 
@@ -71,13 +59,3 @@ Follow thinking/ lifecycle rules in `telamon.memory_management` skill (section 7
 ## 4. Verify vault links
 
 New notes must link to at least one existing note via `[[wikilink]]` (see `telamon.memory_management` skill, section 4).
-
-## 5. Update watermark
-
-**MUST**: Call the `watermark-session` tool with the current worktree path. Never write the watermark file manually — the tool guarantees a correct UTC timestamp from the system clock.
-
-```
-watermark-session({ worktree: "<absolute path to worktree>" })
-```
-
-The tool writes `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json` and returns the timestamp used.

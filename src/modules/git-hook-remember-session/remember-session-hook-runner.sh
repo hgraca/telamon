@@ -90,7 +90,18 @@ Commit that triggered this capture:
 ${COMMIT_INFO}" \
     >> "${LOG_FILE}" 2>&1
 
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session finished (exit $?)" >> "${LOG_FILE}"
+  OPENCODE_EXIT=$?
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session finished (exit ${OPENCODE_EXIT})" >> "${LOG_FILE}"
+
+  # Write watermark after the LLM call completes — keeps timestamp management
+  # out of the LLM entirely and prevents repeated watermark-session tool calls.
+  SLUG="$(basename "${PROJECT_PATH}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')"
+  WATERMARK_FILE="${PROJECT_PATH}/.ai/telamon/memory/thinking/.last-capture-${SLUG}.json"
+  TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  printf '{\n  "timestamp": "%s",\n  "worktree": "%s"\n}\n' \
+    "${TIMESTAMP}" "${PROJECT_PATH}" \
+    > "${WATERMARK_FILE}" 2>/dev/null || true
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] watermark written (${WATERMARK_FILE})" >> "${LOG_FILE}"
 
   # Only remove PID file if it still contains our PID
   if [[ "$(cat "${PID_FILE}" 2>/dev/null || true)" == "${BASHPID}" ]]; then
