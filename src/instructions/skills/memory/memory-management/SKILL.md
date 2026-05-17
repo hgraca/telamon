@@ -37,21 +37,21 @@ Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywor
 
 ## 2. Routing Table
 
-| Content                                        | Destination                                                      |
-|------------------------------------------------|------------------------------------------------------------------|
-| Agent bootstrap instructions (always-on)       | `bootstrap/`                                                     |
-| Product decision + rationale                   | `latent/PDRs/` (new file per item, see section 5)               |
-| Human stakeholder answer to project question   | `latent/PDRs/` (new file per item)                              |
-| New rule from stakeholder                      | `latent/PDRs/` (new file per item)                              |
-| Architecture or technical decision + rationale | `latent/ADRs/` (new file per item)                              |
-| Lesson reusable across projects (tech-specific)| `latent/global/<technology>/` (new file per item)               |
-| Lesson specific to this project                | `latent/project/` (new file per item)                           |
-| In-progress work note                          | `work/active/`                                                   |
-| Completed work note                            | `work/archive/YYYY/`                                             |
-| Incident doc                                   | `work/incidents/YYYY-MM-DD-<slug>.md`                            |
-| Architecture map or flow doc                   | `reference/`                                                     |
-| Draft or reasoning scratchpad                  | `thinking/` (promote or delete, see section 7)                  |
-| Partial-progress checkpoint                    | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`                |
+| Content                                         | Destination                                       |
+|-------------------------------------------------|---------------------------------------------------|
+| Agent bootstrap instructions (always-on)        | `bootstrap/`                                      |
+| Product decision + rationale                    | `latent/PDRs/` (new file per item, see section 5) |
+| Human stakeholder answer to project question    | `latent/PDRs/` (new file per item)                |
+| New rule from stakeholder                       | `latent/PDRs/` (new file per item)                |
+| Architecture or technical decision + rationale  | `latent/ADRs/` (new file per item)                |
+| Lesson reusable across projects (tech-specific) | `latent/global/<technology>/` (new file per item) |
+| Lesson specific to this project                 | `latent/project/` (new file per item)             |
+| In-progress work note                           | `work/active/`                                    |
+| Completed work note                             | `work/archive/YYYY/`                              |
+| Incident doc                                    | `work/incidents/YYYY-MM-DD-<slug>.md`             |
+| Architecture map or flow doc                    | `reference/`                                      |
+| Draft or reasoning scratchpad                   | `thinking/` (promote or delete, see section 7)    |
+| Partial-progress checkpoint                     | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`  |
 
 **Routing rules:**
 - Create a new file per item — never append to existing files
@@ -66,36 +66,37 @@ Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywor
 - **Specificity rule**: when content fits two buckets, the more specific wins (e.g. `laravel` beats `php`; `argocd` beats `k8s`; `kafka` beats `java`; `bun` beats `javascript`; `signoz` beats `otel`).
 - **Classification signals** — match against filename + title + body (first match wins):
 
-| Bucket       | Match when content mentions…                                                                 |
-|--------------|----------------------------------------------------------------------------------------------|
+| Bucket       | Match when content mentions…                                                                |
+|--------------|---------------------------------------------------------------------------------------------|
 | `qmd`        | qmd, XDG_CACHE_HOME, hybrid search, tobiqmd                                                 |
-| `graphify`   | graphify, knowledge graph, god nodes                                                         |
-| `promptfoo`  | promptfoo, eval assertion, rubric assertion                                                  |
-| `pentagi`    | pentagi                                                                                      |
-| `ogham`      | ogham                                                                                        |
-| `obsidian`   | obsidian                                                                                     |
-| `argocd`     | argocd, argoproj, sync-wave, ServerSideDiff                                                  |
-| `istio`      | istio, VirtualService, istiod, envoy                                                         |
-| `signoz`     | signoz                                                                                       |
-| `otel`       | opentelemetry, otel demo, otel collector, otlp                                               |
-| `kafka`      | kafka, rdkafka, PARTITION_EOF, consumer_group, KafkaQueue                                    |
-| `helm`       | helm chart, helm upgrade, helm install, helm release                                         |
+| `graphify`   | graphify, knowledge graph, god nodes                                                        |
+| `promptfoo`  | promptfoo, eval assertion, rubric assertion                                                 |
+| `pentagi`    | pentagi                                                                                     |
+| `ogham`      | ogham                                                                                       |
+| `obsidian`   | obsidian                                                                                    |
+| `argocd`     | argocd, argoproj, sync-wave, ServerSideDiff                                                 |
+| `istio`      | istio, VirtualService, istiod, envoy                                                        |
+| `signoz`     | signoz                                                                                      |
+| `otel`       | opentelemetry, otel demo, otel collector, otlp                                              |
+| `kafka`      | kafka, rdkafka, PARTITION_EOF, consumer_group, KafkaQueue                                   |
+| `helm`       | helm chart, helm upgrade, helm install, helm release                                        |
 | `k8s`        | kubernetes, k8s, k3d, kubectl, StatefulSet, CronJob, ConfigMap, kustomize, klipper, inotify |
-| `bun`        | bun test, bun esm, mock.module, bun run                                                      |
-| `npm`        | npm install, npm ENOTEMPTY                                                                   |
-| `uv`         | uv tool, uv install, uv upgrade                                                              |
+| `bun`        | bun test, bun esm, mock.module, bun run                                                     |
+| `npm`        | npm install, npm ENOTEMPTY                                                                  |
+| `uv`         | uv tool, uv install, uv upgrade                                                             |
 | `mcp`        | mcp server, mcp tool, mcp client, mcp protocol, json-rpc, stdio transport, mcp-server-git   |
-| `opencode`   | opencode, plugin api, plugin hook, opencode.jsonc, slash command, session.idle               |
-| `telamon`    | telamon, issue folder, planning stage, memory vault, recall_memories, remember_session       |
-| `laravel`    | laravel, artisan, eloquent, workbench                                                        |
-| `phpunit`    | phpunit, mockery, createMock, createStub, AllowMockObjects                                   |
-| `php`        | php, symfony, composer, readonly class, set_error_handler                                    |
+| `opencode`   | opencode, plugin api, plugin hook, opencode.jsonc, slash command, session.idle              |
+| `telamon`    | telamon, issue folder, planning stage, memory vault, recall_memories, remember_session      |
+| `laravel`    | laravel, artisan, eloquent, workbench                                                       |
+| `phpunit`    | phpunit, mockery, createMock, createStub, AllowMockObjects                                  |
+| `php`        | php, symfony, composer, readonly class, set_error_handler                                   |
 | `git`        | git commit, git apply, git stash, git blob, git hook, pre-commit hook, blob corruption      |
-| `docker`     | docker, docker-compose, container, docker bridge                                             |
+| `docker`     | docker, docker-compose, container, docker bridge                                            |
 | `shell`      | bash, shell, makefile, posix, pipefail, set -e, heredoc, symlink                            |
 | `javascript` | javascript, typescript, node.js, esm, commonjs                                              |
+| ...          | any other technology not listed here                                                        |
 
-If no bucket matches, use `project/`.
+If no technology bucket fits, use `project/`.
 
 ## 3. Retrieval Rules
 
@@ -124,40 +125,48 @@ If no bucket matches, use `project/`.
 
 ## 6. Latent Item File Format
 
-Each latent item is a standalone `.md` file:
+All latent items are standalone `.md` files. File naming: `YYYYMMDDHHMMSS-<slug>.md`
+- Timestamp: date of the item (`HHMMSS` = `000000` when only date known)
+- Slug: max 10 words, hyphen-separated, lowercase, no special chars
+
+Two frontmatter formats are used depending on folder:
+
+### ADRs/ and PDRs/ — `keywords` frontmatter, single `##` body
 
 ```markdown
 ---
 date: YYYY-MM-DD
-keywords: ["keyword1", "keyword2"]
+keywords: [keyword1, keyword2]
 ---
 
-## <Title>
+## <Decision title>
 
-<body — plain prose or bullets, no metadata labels>
+<One-paragraph description of the decision, what changed, why, and any constraints or caveats.>
 ```
 
-File naming: `YYYYMMDDHHMMSS-NN-<max-10-word-subject>.md`
-- Timestamp: date of the item (not creation date), `HHMMSS` = `000000` when only date known
-- NN: integer starting at 01, resets per timestamp — orders files created within the same second
-- Subject: max 10 words, hyphen-separated, lowercase, no special chars
+- `keywords`: 1–5 focused terms (tool names, concept names, domain terms). Always include the primary tool/domain as first keyword.
+- Body: single `##` heading + one prose paragraph. No sub-sections.
 
-Keywords: 1–5 focused terms — tool names, concept names, domain terms that help an agent find this entry when working on a related task. Exclude stop words, generic verbs, and filler. Always include the bucket name (e.g. `"qmd"`, `"argocd"`) as the first keyword.
-
-### Entry body
-
-Write the actual problem, solution, or learning as plain prose or bullets. No metadata labels (`Date:`, `Module:`, `Status:`, `Scope:`, `Context:`, `Source:`) in the body — the title and keywords carry that context. Include enough detail that a future agent can act on the entry without reading anything else.
+### project/ — `tags` frontmatter, `#` title, multiple `##` sections
 
 ```markdown
-## <title>
+---
+date: YYYY-MM-DD
+keywords: [keyword1, keyword2]
+---
 
-<What happened or what the trap is. What the fix or pattern is. Why it matters.>
+# <Learning title>
+
+<Body content. Use multiple ## sections as needed. Be specific and actionable.>
 ```
 
-### Entry quality rules
+- `keywords`: 1–5 focused terms (tool names, concept names, domain terms). Always include the primary tool/domain as first keyword.
+- Body: single `##` heading + one prose paragraph. No sub-sections.
+
+### Entry quality rules (both formats)
 - **Specific, not generic** — "Always pass `--no-interaction` to Artisan" not "Be careful with CLI commands"
 - **Self-contained** — future agents need to understand *why* without reading other files
-- **No scaffolding** — no `- **Date**: ...`, `- **Status**: ACTIVE`, `- **Scope**: ...` lines
+- **No scaffolding** — no `- **Date**: ...`, `- **Status**: ACTIVE`, `- **Scope**: ...` lines in body
 
 ### Pruning (when global/<tech>/ or project/ exceeds 100 files)
 - Mark entries as `SUPERSEDED` (note the superseding file name) when newer entry replaces them
@@ -189,7 +198,8 @@ Session capture tracks progress via `.ai/telamon/memory/thinking/.last-capture-<
 
 ## 9. Memory Tiers (reference)
 
-| Tier      | Store                       | Content                                                      | Writer                               |
-|-----------|-----------------------------|--------------------------------------------------------------|--------------------------------------|
-| Working   | AGENTS.md + session context | Active goals, current task state                             | Human + agent at session start       |
-| Long-term | latent/ notes                | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy |
+| Tier             | Store            | Content                                                      | Writer                                        |
+|------------------|------------------|--------------------------------------------------------------|-----------------------------------------------|
+| Long term active | bootstrap/ notes | Active memories, always loaded                               | Human                                         |
+| Long-term latent | latent/ notes    | Architectural decisions, domain knowledge, patterns, gotchas | Agent at wrap-up, human for strategy          |
+| Temporary        | thinking/ notes  | temporary files                                              | Agent when it needs a temporary file location |
