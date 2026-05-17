@@ -151,9 +151,11 @@ If exploration cannot proceed (repo unreadable, no source detected, write target
 > Brief, numbered. Link to canonical doc rather than reproducing.
 >
 > ## Critical conventions
->
+> 
 > Bullet list. Each bullet is one rule contributor must know that is not obvious from code. Examples:
 > dist vs runtime config files, gitignore patterns, symlinked paths, files-not-to-read, naming rules.
+> For Telamon itself: always note that `opencode.dist.jsonc` lives at `src/modules/opencode/opencode.dist.jsonc`
+> (NOT at the project root); the project root only has `opencode.jsonc` (runtime, git-ignored).
 >
 > ## Rough edges
 >

@@ -2,7 +2,7 @@
 description: "Scout — collects context for the orchestrator; does not delegate tasks"
 mode: subagent
 temperature: 0.2
-model: github-copilot/claude-haiku-4.6
+model: github-copilot/claude-haiku-4.5
 permission:
   task: deny
 ---
