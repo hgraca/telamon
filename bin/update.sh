@@ -463,6 +463,66 @@ with open(sys.argv[1], 'w') as f:
   fi
 done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
 
+# ── Custom tool symlink sync ──────────────────────────────────────────────────
+# When new tools are added to src/instructions/tools/ after a project was
+# initialised, the flat .opencode/tools/<name>.ts symlinks are never created
+# because init.sh only runs once. This section ensures every initialised project
+# has up-to-date symlinks for all current tools, and removes broken ones.
+header "Custom tool symlink sync"
+
+_TOOLS_SRC="${TELAMON_ROOT}/src/instructions/tools"
+
+while IFS= read -r _ppath_file; do
+  [[ -f "${_ppath_file}" ]] || continue
+  _project_dir="$(cat "${_ppath_file}")"
+  _project_name="$(basename "$(dirname "${_ppath_file}")")"
+
+  if [[ ! -d "${_project_dir}" ]]; then
+    skip "${_project_name}: project directory not found (${_project_dir})"
+    continue
+  fi
+
+  _tools_dir="${_project_dir}/.opencode/tools"
+  if [[ ! -d "${_tools_dir}" ]]; then
+    skip "${_project_name}: no .opencode/tools directory"
+    continue
+  fi
+
+  _added_tools=()
+  _removed_tools=()
+
+  # Add missing symlinks for each tool in src/instructions/tools/<name>/<name>.ts
+  if [[ -d "${_TOOLS_SRC}" ]]; then
+    for _tool_dir in "${_TOOLS_SRC}"/*/; do
+      [[ -d "${_tool_dir}" ]] || continue
+      _tool_name="$(basename "${_tool_dir}")"
+      _tool_src="${_tool_dir}${_tool_name}.ts"
+      [[ -f "${_tool_src}" ]] || continue
+      _tool_link="${_tools_dir}/${_tool_name}.ts"
+      if [[ ! -L "${_tool_link}" ]]; then
+        ln -s "${_tool_src}" "${_tool_link}"
+        _added_tools+=("${_tool_name}")
+      fi
+    done
+  fi
+
+  # Remove broken symlinks (tools removed from Telamon)
+  for _link in "${_tools_dir}"/*.ts; do
+    [[ -L "${_link}" ]] || continue
+    if [[ ! -e "${_link}" ]]; then
+      rm "${_link}"
+      _removed_tools+=("$(basename "${_link}" .ts)")
+    fi
+  done
+
+  if [[ "${#_added_tools[@]}" -gt 0 || "${#_removed_tools[@]}" -gt 0 ]]; then
+    [[ "${#_added_tools[@]}"   -gt 0 ]] && log "${_project_name}: added tool symlink(s): $(IFS=', '; echo "${_added_tools[*]}")"
+    [[ "${#_removed_tools[@]}" -gt 0 ]] && log "${_project_name}: removed broken tool symlink(s): $(IFS=', '; echo "${_removed_tools[*]}")"
+  else
+    info "${_project_name}: tool symlinks up to date"
+  fi
+done < <(find "${TELAMON_ROOT}/storage/graphify" -name ".project-path" 2>/dev/null || true)
+
 # ── Per-app updates ────────────────────────────────────────────────────────────
 # Each <app>/update.sh exits:
 #   0 — success
