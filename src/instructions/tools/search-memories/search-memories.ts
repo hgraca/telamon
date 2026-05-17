@@ -79,7 +79,11 @@ export default tool({
       String(args.max_results ?? 5),
     ]
 
-    const queries = args.query
+    const queries = Array.isArray(args.query)
+      ? args.query
+      : args.query
+        ? [args.query as string]
+        : []
     for (const q of queries) {
       cmd.push("--query", q)
     }
