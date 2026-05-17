@@ -51,6 +51,10 @@ fi
 
 SESSION_ID="${OPENCODE_SESSION_ID}"
 
+# Collect the commit(s) that triggered this hook.
+# post-commit always has HEAD; post-rewrite passes old/new pairs on stdin.
+COMMIT_INFO="$(git -C "${PROJECT_PATH}" log -1 --oneline HEAD 2>/dev/null || true)"
+
 # Kill any running remember-session process for this project
 if [[ -f "${PID_FILE}" ]]; then
   OLD_PID="$(cat "${PID_FILE}" 2>/dev/null || true)"
@@ -80,7 +84,10 @@ fi
   nohup opencode run \
     --session "${SESSION_ID}" \
     --pure \
-    "A git commit was just made. Run the telamon.remember_session skill to capture any session knowledge worth keeping. Be brief, silent, and only save genuinely new insights. Then continue with any leftover work to do, if any." \
+    "A git commit was just made. Run the telamon.remember_session skill to capture any session knowledge worth keeping. Be brief, silent, and only save genuinely new insights. Then continue with any leftover work to do, if any.
+
+Commit that triggered this capture:
+${COMMIT_INFO}" \
     >> "${LOG_FILE}" 2>&1
 
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] remember-session finished (exit $?)" >> "${LOG_FILE}"

@@ -28,22 +28,22 @@ Find: `.ai/telamon/memory/thinking/.last-capture-<worktree-dirname>.json`
 
 Where `<worktree-dirname>` is lowercase basename of current working directory.
 
-- If exists: only process content produced *after* recorded `timestamp`. Use `git log --oneline --after="<timestamp>" --no-merges` to scope commit history.
+- If exists: only process content produced *after* recorded `timestamp`.
 - If does not exist: first capture for this worktree — process all session content.
 - **If nothing happened since watermark** (no commits, no meaningful conversation): update watermark timestamp and exit. Do not produce empty entries.
 
 ## 1. Identify what happened
 
-Scan session (since watermark) for:
+**When triggered by the git hook**, the triggering commit(s) are listed in the prompt — use them directly. Do NOT run `git log` to rediscover them.
+
+**When triggered manually** ("wrap up"), scan the session since the watermark for:
 - **Decisions made** — architectural choices, product direction, human stakeholder answers
 - **Patterns discovered** — approaches that worked and should be repeated
 - **Gotchas hit** — bugs, traps, constraints, false assumptions
 - **Work completed** — issue folders touched, tasks finished
 - **Rules given** — new rules or constraints from stakeholder
 
-Also check:
-- `git log --oneline --after="<watermark or 4 hours ago>" --no-merges`
-- `.ai/telamon/memory/thinking/` for scratch files from this session
+Also check `.ai/telamon/memory/thinking/` for scratch files from this session.
 
 **If nothing worth capturing**: update watermark and exit (step 5). Skip steps 2-4.
 
