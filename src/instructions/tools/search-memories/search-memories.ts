@@ -42,9 +42,9 @@ export default tool({
     "Search the project memory vault using QMD (semantic + keyword search) and return full file contents as Markdown. Use this to find relevant documentation, memories, patterns, decisions, and work archives in the project's .ai/telamon/memory vault.",
   args: {
     query: tool.schema
-      .union([tool.schema.array(tool.schema.string()), tool.schema.string()])
+      .string()
       .describe(
-        "One or more search queries (words or sentences). Pass an array of strings or a single string. Each is searched independently and results are merged. E.g. ['planning', 'workflow'] or 'billing'.",
+        "One or more search queries. Pass a JSON array string e.g. '[\"planning\",\"workflow\"]' or a single query string e.g. 'billing'. Each query is searched independently and results are merged.",
       ),
     collection: tool.schema
       .string()
@@ -79,11 +79,15 @@ export default tool({
       String(args.max_results ?? 5),
     ]
 
-    const queries = Array.isArray(args.query)
-      ? args.query
-      : args.query
-        ? [args.query as string]
-        : []
+    const queries: string[] = (() => {
+      const raw = args.query ?? ""
+      if (!raw) return []
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean)
+      } catch { /* not JSON — treat as plain string */ }
+      return [raw]
+    })()
     for (const q of queries) {
       cmd.push("--query", q)
     }

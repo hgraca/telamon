@@ -26,9 +26,9 @@ export default tool({
     "Run `tree` on one or more directories and return markdown output showing the full directory tree with all subfolders and files. Use this to explore directory structure.",
   args: {
     paths: tool.schema
-      .union([tool.schema.array(tool.schema.string()), tool.schema.string()])
+      .string()
       .describe(
-        "One or more directory paths to inspect. Pass an array or a single string, e.g. ['src/components'] or 'src'. Each is resolved relative to the project root if relative, or used as-is if absolute.",
+        "One or more directory paths to inspect. Pass a JSON array string e.g. '[\"src/components\",\"src/utils\"]' or a single path string e.g. 'src'. Each is resolved relative to the project root if relative, or used as-is if absolute.",
       ),
     format: tool.schema
       .enum(["json", "markdown"])
@@ -40,12 +40,16 @@ export default tool({
     const script = path.join(import.meta.dir, "tree.sh")
     const fmt = args.format ?? "json"
 
-    // coerce string | string[] to string[]
-    const paths: string[] = Array.isArray(args.paths)
-      ? args.paths
-      : args.paths
-        ? [args.paths as string]
-        : []
+    // coerce string (plain or JSON array) to string[]
+    const paths: string[] = (() => {
+      const raw = args.paths ?? ""
+      if (!raw) return []
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean)
+      } catch { /* not JSON — treat as plain path */ }
+      return [raw]
+    })()
     if (paths.length === 0) {
       return "tree: 'paths' argument is required"
     }
