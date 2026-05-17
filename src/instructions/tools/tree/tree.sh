@@ -47,9 +47,10 @@ if [[ ${#DIRS[@]} -eq 0 ]]; then
   exit 1
 fi
 
-# Resolve directories and collect tree output
+# Resolve directories and collect tree output — skip invalid paths with a warning
 declare -a RESOLVED_DIRS=()
 declare -a TREE_OUTPUTS=()
+declare -a SKIPPED_DIRS=()
 for dir in "${DIRS[@]}"; do
   if [[ "${dir}" = /* ]]; then
     abs_dir="${dir}"
@@ -58,20 +59,29 @@ for dir in "${DIRS[@]}"; do
   fi
 
   if [[ ! -d "${abs_dir}" ]]; then
-    echo "Error: not a directory: ${dir}" >&2
-    exit 1
+    SKIPPED_DIRS+=("${dir}")
+    continue
   fi
 
   RESOLVED_DIRS+=("${abs_dir}")
   TREE_OUTPUTS+=("$(tree -a --dirsfirst --charset=ASCII "${abs_dir}")")
 done
 
+if [[ ${#RESOLVED_DIRS[@]} -eq 0 ]]; then
+  echo "Error: none of the given paths exist: ${DIRS[*]}" >&2
+  exit 1
+fi
+
 if [[ "${FORMAT}" == "json" ]]; then
-  # Build JSON array of {path, tree} objects
-  python3 - "${RESOLVED_DIRS[@]}" <<'PYEOF'
+  # Build JSON array of {path, tree} objects; include skipped paths
+  python3 - "${#SKIPPED_DIRS[@]}" "${SKIPPED_DIRS[@]+"${SKIPPED_DIRS[@]}"}" "${RESOLVED_DIRS[@]}" <<'PYEOF'
 import sys, json, subprocess
 
-dirs = sys.argv[1:]
+args = sys.argv[1:]
+n_skipped = int(args[0])
+skipped = args[1:1+n_skipped]
+dirs = args[1+n_skipped:]
+
 results = []
 for d in dirs:
     try:
@@ -83,10 +93,18 @@ for d in dirs:
         out = e.output or ""
     results.append({"path": d, "tree": out.rstrip()})
 
-print(json.dumps({"status": "ok", "directories": results}, indent=2))
+payload = {"status": "ok", "directories": results}
+if skipped:
+    payload["skipped"] = skipped
+    payload["note"] = "skipped paths do not exist"
+print(json.dumps(payload, indent=2))
 PYEOF
 else
   # Markdown output
+  if [[ ${#SKIPPED_DIRS[@]} -gt 0 ]]; then
+    echo "**Note:** skipped non-existent paths: ${SKIPPED_DIRS[*]}"
+    echo ""
+  fi
   FIRST=true
   for i in "${!RESOLVED_DIRS[@]}"; do
     if [[ "${FIRST}" != "true" ]]; then
