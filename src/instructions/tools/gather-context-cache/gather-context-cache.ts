@@ -101,8 +101,8 @@ function cachePath(hash: string): string {
 export default tool({
   description:
     "Cache and retrieve gather-context reports keyed by a SHA-256 hash of sorted keywords. " +
-    "subcommand 'get': returns cached body (frontmatter stripped) if valid, empty string on miss/expiry. " +
-    "subcommand 'store': writes content to cache with TTL-derived expiry frontmatter. Rejects empty content.\n\n" +
+    "subcommand 'get': returns 'Cached at <absolute-path>\\n\\n<body>' if valid cache hit, empty string on miss/expiry. " +
+    "subcommand 'store': writes content to cache with TTL-derived expiry frontmatter, returns 'Cached at <absolute-path> (expires <iso>)'. Rejects empty content.\n\n" +
     "Parameters:\n" +
     "- subcommand (string, required): 'get' to retrieve cached report; 'store' to write report to cache\n" +
     "- keywords (string, required): topic keywords — JSON array string e.g. '[\"auth\",\"jwt\"]' or single keyword e.g. 'billing'\n" +
@@ -130,7 +130,7 @@ export default tool({
         await unlink(filePath).catch(() => {})
         return ""
       }
-      return body
+      return `Cached at ${filePath}\n\n${body}`
     }
 
     // store
