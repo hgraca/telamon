@@ -61,6 +61,97 @@ Clarify before writing:
 
 ### Step 2: Write tool file
 
+#### Telamon agentic tools — colocated TS + bash pattern
+
+Tools that live under `src/instructions/tools/<tool-name>/` (Telamon's own agentic tools) follow a stricter pattern documented in `docs/decisions/ADRs/20260517000000-agentic-tool-colocated-ts-bash-pattern.md`. Each tool directory contains exactly two files:
+
+- `<tool-name>.ts` — MCP tool wrapper; defaults to **JSON** output; delegates all execution to the bash script.
+- `<tool-name>.sh` — CLI wrapper; defaults to **markdown** output; owns all formatting logic.
+
+Both files accept `--json`, `--markdown`, and `--format <value>` flags. The TS tool passes the resolved format to the bash script via `--format <value>` and never formats output itself.
+
+**TS tool (Telamon agentic tool)**
+
+```typescript
+import { tool } from "@opencode-ai/plugin"
+import path from "path"
+
+export default tool({
+  description: "Short description of what the tool does.",
+  args: {
+    targets: tool.schema
+      .array(tool.schema.string())
+      .describe("One or more targets to operate on."),
+    format: tool.schema
+      .enum(["json", "markdown"])
+      .optional()
+      .default("json")                          // JS tool defaults to JSON
+      .describe("Output format: 'json' (default) or 'markdown'"),
+  },
+  async execute(args) {
+    const script = path.join(import.meta.dir, "<tool-name>.sh")
+    const fmt = args.format ?? "json"
+    const cmd = ["bash", script, "--format", fmt, ...args.targets]
+    const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
+    const stdout = await new Response(proc.stdout).text()
+    const stderr = await new Response(proc.stderr).text()
+    const exitCode = await proc.exited
+    if (exitCode !== 0) {
+      return `<tool-name> failed (exit ${exitCode})\n${stderr.trim() || stdout.trim()}`
+    }
+    if (fmt === "json") {
+      try { return JSON.parse(stdout.trim()) } catch { return stdout.trim() }
+    }
+    return stdout.trim()
+  },
+})
+```
+
+**Bash script (Telamon agentic tool)**
+
+```bash
+#!/usr/bin/env bash
+# src/instructions/tools/<tool-name>/<tool-name>.sh
+# Defaults to markdown; accepts --json / --markdown / --format <value>.
+set -euo pipefail
+
+FORMAT="markdown"   # bash script defaults to markdown
+TARGETS=()
+NEXT_IS_FORMAT=false
+
+for arg in "$@"; do
+  if $NEXT_IS_FORMAT; then
+    FORMAT="${arg}"; NEXT_IS_FORMAT=false
+  elif [[ "${arg}" == "--format" ]]; then NEXT_IS_FORMAT=true
+  elif [[ "${arg}" == "--markdown" ]]; then FORMAT="markdown"
+  elif [[ "${arg}" == "--json" ]];     then FORMAT="json"
+  else TARGETS+=("${arg}")
+  fi
+done
+
+if [[ ${#TARGETS[@]} -eq 0 ]]; then
+  echo "Usage: <tool-name>.sh [--markdown|--json|--format markdown|json] <target> [...]" >&2
+  exit 1
+fi
+
+if [[ "${FORMAT}" == "json" ]]; then
+  python3 - "${TARGETS[@]}" <<'PYEOF'
+import sys, json
+targets = sys.argv[1:]
+print(json.dumps({"status": "ok", "results": targets}, indent=2))
+PYEOF
+else
+  for target in "${TARGETS[@]}"; do
+    echo "## Result: ${target}"
+    echo ""
+  done
+fi
+```
+
+Reference implementation: `src/instructions/tools/tree/` (`tree.ts` + `tree.sh`).
+
+#### General project tool — single TS file
+
 Place in `.opencode/tools/<tool-name>.ts` (project) or `~/.config/opencode/tools/<tool-name>.ts` (global).
 
 #### Single-tool file template
