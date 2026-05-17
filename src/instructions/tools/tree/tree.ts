@@ -40,7 +40,24 @@ export default tool({
     const script = path.join(import.meta.dir, "tree.sh")
     const fmt = args.format ?? "json"
 
-    const cmd = ["bash", script, "--format", fmt, ...args.paths]
+    // Normalise paths: guard against undefined or a JSON-encoded string arriving
+    // instead of a parsed array (opencode schema coercion edge case).
+    let paths: string[]
+    if (!args.paths) {
+      return "tree: 'paths' argument is required"
+    } else if (Array.isArray(args.paths)) {
+      paths = args.paths
+    } else {
+      // Received a raw string — try JSON-parse first, then treat as single path
+      try {
+        const parsed = JSON.parse(args.paths as unknown as string)
+        paths = Array.isArray(parsed) ? parsed : [String(parsed)]
+      } catch {
+        paths = [String(args.paths)]
+      }
+    }
+
+    const cmd = ["bash", script, "--format", fmt, ...paths]
 
     const proc = Bun.spawn(cmd, { stdio: ["ignore", "pipe", "pipe"] })
     const stdout = await new Response(proc.stdout).text()
