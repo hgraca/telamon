@@ -156,21 +156,10 @@
       "enabled": true,
       "oauth": false
     },
-    "grep_app": {
-      "type": "remote",
-      "url": "https://mcp.grep.app",
-      "enabled": true,
-      "oauth": false
-    },
     "playwright": {
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "mcp/playwright"],
       "enabled": true
     },
-    "ast-grep": {
-      "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "-v", "./:/app", "mcp/ast-grep"],
-      "enabled": true
-    }
   }
 }

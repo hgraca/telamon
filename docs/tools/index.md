@@ -46,9 +46,7 @@ Every tool Telamon installs and manages — all local, all automatic.
 |---------------------|-----------------------------------------------|--------------------------------------------------------------------|
 | **Chrome DevTools** | Browser inspection and debugging              | [developer.chrome.com](https://developer.chrome.com/docs/devtools) |
 | **Playwright**      | Browser automation and testing                | [playwright.dev](https://playwright.dev)                           |
-| **ast-grep**        | Structural code search using AST patterns     | [ast-grep.github.io](https://ast-grep.github.io)                   |
 | **Context7**        | Library and framework documentation lookup    | [context7.com](https://context7.com)                               |
-| **grep.app**        | Code search across public GitHub repositories | [grep.app](https://grep.app)                                       |
 | **Exa**             | Web search                                    | [exa.ai](https://exa.ai)                                           |
 | **git**             | Git operations (status, diff, commit, branch) | [git-scm.com](https://git-scm.com)                                 |
 
@@ -90,6 +88,8 @@ Some tools run models locally — no cloud API calls for these operations:
 | [Pre-Commit Test Gate](run-tests)          | Ran `make test` before opencode commits — blocks commit for minutes, corrupts git index on timeout            |
 | [Langfuse](langfuse)                       | LLM observability (token usage, latency, cost) — removed; adds Docker complexity for marginal benefit         |
 | [Graphiti](graphiti)                       | Temporal knowledge graph backed by Neo4j — removed; adds Docker complexity for marginal benefit               |
+| [grep.app](https://grep.app)               | Code search across public GitHub repositories — not used in practice                                          |
+| [ast-grep](https://ast-grep.github.io)     | Structural code search using AST patterns — not used in practice; may be revisited                            |
 
 ## More
 

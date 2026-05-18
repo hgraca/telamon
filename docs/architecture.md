@@ -25,7 +25,6 @@ flowchart TB
             cd_m["chromdev"]
             pw_m["playwright"]
             git_m["git"]
-            ag_m["ast-grep"]
             c7_m["context7"]
             rm_m["repomix"]
         end
@@ -72,7 +71,6 @@ flowchart TB
 | **Understanding code**        | Graphify MCP        | Structural map: layers, god nodes, module relationships        |
 | **Finding code**              | Codebase Index      | Semantic search: *"where is the auth logic?"*                  |
 | **Reading many files**        | Repomix             | Packs directory into compressed context (~70% token reduction) |
-| **Finding code**              | ast-grep            | Structural search: find code by AST pattern                    |
 | **Finding vault notes**       | QMD                 | Semantic search: *"did we ever deal with X?"*                  |
 | **Looking up docs**           | Context7            | Queries library/framework documentation                        |
 | **Browser debugging**         | Chrome DevTools     | Inspects DOM, console, network, performance                    |
