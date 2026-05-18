@@ -193,7 +193,6 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
   assert_dir "${LATENT_DIR}"                     "latent/"
   assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
   assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
-  assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
   assert_dir "${VAULT_ROOT}/reference"           "reference/"
   assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 
@@ -229,7 +228,6 @@ if [[ "${MEMORY_OWNER}" == "project" ]]; then
   assert_dir "${LATENT_DIR}"                     "latent/"
   assert_dir "${VAULT_ROOT}/work/active"         "work/active/"
   assert_dir "${VAULT_ROOT}/work/archive"        "work/archive/"
-  assert_dir "${VAULT_ROOT}/work/incidents"      "work/incidents/"
   assert_dir "${VAULT_ROOT}/reference"           "reference/"
   assert_dir "${VAULT_ROOT}/thinking"            "thinking/"
 

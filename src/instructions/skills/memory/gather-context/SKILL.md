@@ -14,18 +14,6 @@ Use at session start to collect targeted context for the orchestrator before wor
 
 ## Procedure
 
-### 0. Check cache (do this first — skip all other steps on hit)
-
-Determine the keywords for this session (same list you will use in Step 1).
-Call the `gather-context-cache` tool:
-
-    gather-context-cache({ subcommand: "get", keywords: <keyword-list> })
-
-- If the result is **non-empty**: the tool returns `Cached at <absolute-path>\n\n<body>`. Extract the absolute path from the first line. Signal `FINISHED` with that path — do not execute Steps 1–7b.
-- If the result is **empty** (cache miss or expired): continue to Step 1.
-
-> **Important**: record the exact keyword list used here. You MUST use the identical list in Step 7b.
-
 ### 1. Identify keywords
 
 Extract topic keywords from orchestrator's delegation prompt. If none provided, ask for them.
@@ -91,19 +79,25 @@ Produce structured Markdown report with sections:
 and:
 - use the `caveman` skill on it to reduce the tokes cost
 
-### 7b. Store report in cache
+### 8. Store report to file
 
-Call the `gather-context-cache` tool with the **same keyword list** used in Step 0:
+Write the compiled report to a file in `.ai/telamon/memory/thinking/` with the naming convention:
 
-    gather-context-cache({ subcommand: "store", keywords: <same-keyword-list-as-step-0>, content: <compiled-report> })
+```
+YYYYMMDDHHMMSS-<keyword-list>.md
+```
 
-The tool returns `Cached at <absolute-path> (expires <iso>)`. Extract the absolute path from that response. Then continue to Step 8.
+Where:
+- `YYYYMMDDHHMMSS` is the current UTC timestamp
+- `<keyword-list>` is the keyword list joined by hyphens (e.g. `auth-jwt-login`)
 
-### 8. Signal completion
+Example: `20260518143000-auth-jwt-login.md`
+
+### 9. Signal completion
 
 Signal `FINISHED` per `telamon.agent-communication` skill.
 Include in the signal:
-- The **absolute path** of the cached report file — extracted directly from the `gather-context-cache` tool return value (both `get` and `store` return `Cached at <absolute-path>…` as their first line).
+- The **absolute path** of the report file written to `thinking/`.
 - A brief summary (3–5 bullets) of the key findings.
 
 The orchestrator will read the full report from disk and display it to the user.

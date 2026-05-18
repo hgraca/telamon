@@ -28,7 +28,7 @@ Canonical reference for all `.ai/telamon/memory/` vault operations. Other memory
   work/
     active/                  <- in-progress work notes (3 issues max)
     archive/YYYY/MM/DD       <- completed work notes by year/month/day
-    incidents/               <- incident docs
+    
   reference/                 <- architecture maps, flow docs, codebase knowledge
   thinking/                  <- scratchpad for drafts (promote or delete)
 ```
@@ -48,7 +48,6 @@ Each `latent/` file is a standalone `.md` with YAML frontmatter (`date`, `keywor
 | Lesson specific to this project                 | `latent/project/` (new file per item)             |
 | In-progress work note                           | `work/active/`                                    |
 | Completed work note                             | `work/archive/YYYY/`                              |
-| Incident doc                                    | `work/incidents/YYYY-MM-DD-<slug>.md`             |
 | Architecture map or flow doc                    | `reference/`                                      |
 | Draft or reasoning scratchpad                   | `thinking/` (promote or delete, see section 7)    |
 | Partial-progress checkpoint                     | `thinking/YYYY-MM-DD-HH:MM:SS-<task>-partial.md`  |

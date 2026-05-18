@@ -16,7 +16,6 @@ Verify vault matches expected layout:
   - all files under these folders have compliant frontmatter and body
 - `work/active/` contains only active work notes
 - `work/archive/` contains only completed work notes
-- `work/incidents/` contains only incident notes
 - `thinking/` — stale drafts that should be promoted or deleted?
 - `reference/` — reference files current and not duplicated elsewhere?
 - `bootstrap/` — bootstrap files intact (symlinks; verify they resolve)

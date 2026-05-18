@@ -208,59 +208,6 @@ _configure_global() {
     "^1.3.13")"
   _write_cfg "${cfg}" "bun_version" "${new_bun}"
 
-  # ── skill.gather-context.context-cache.ttl ──────────────────────────────────
-  # Stored as a nested object; read/write the whole skill block via Python.
-  local cur_ttl
-  cur_ttl="$(python3 - "${FUNCTIONS_PATH}" "${cfg}" <<'PYEOF'
-import json, sys
-sys.path.insert(0, sys.argv[1])
-from strip_jsonc import load_jsonc
-with open(sys.argv[2]) as f:
-    data = load_jsonc(f.read())
-ttl = data.get("skill", {}).get("gather-context", {}).get("context-cache", {}).get("ttl", "")
-print(ttl)
-PYEOF
-  )"
-
-  echo ""
-  echo -e "  ${TEXT_BOLD}skill.gather-context.context-cache.ttl${TEXT_CLEAR}  ${TEXT_DIM}Cache TTL for gather-context reports (Nd | Nh | Nm)${TEXT_CLEAR}"
-  local hint_ttl=""
-  if [[ -n "${cur_ttl}" ]]; then
-    hint_ttl="${TEXT_DIM}[${cur_ttl}]${TEXT_CLEAR}"
-  else
-    hint_ttl="${TEXT_DIM}(ie. 7d)${TEXT_CLEAR}"
-  fi
-  echo -en "  ${TEXT_YELLOW}?${TEXT_CLEAR}  Value ${hint_ttl}: "
-  local new_ttl
-  read -r new_ttl </dev/tty
-
-  if [[ -z "${new_ttl}" ]]; then
-    new_ttl="${cur_ttl}"
-  fi
-
-  if [[ -n "${new_ttl}" ]]; then
-    python3 - "${FUNCTIONS_PATH}" "${cfg}" "${new_ttl}" <<'PYEOF'
-import json, sys
-sys.path.insert(0, sys.argv[1])
-from strip_jsonc import load_jsonc
-
-path = sys.argv[2]
-ttl  = sys.argv[3]
-
-with open(path) as f:
-    data = load_jsonc(f.read())
-
-skill = data.setdefault("skill", {})
-gc    = skill.setdefault("gather-context", {})
-cc    = gc.setdefault("context-cache", {})
-cc["ttl"] = ttl
-
-with open(path, "w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
-PYEOF
-  fi
-
   echo ""
   log "Global config saved → ${cfg}"
 }

@@ -36,7 +36,6 @@ DIRS=(
   "${VAULT_ROOT}/latent"
   "${VAULT_ROOT}/work/active"
   "${VAULT_ROOT}/work/archive"
-  "${VAULT_ROOT}/work/incidents"
   "${VAULT_ROOT}/reference"
   "${VAULT_ROOT}/thinking"
   "${VAULT_ROOT}/bootstrap"
